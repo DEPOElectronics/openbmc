@@ -9,9 +9,9 @@ DEPENDS = "ncurses glib-2.0 util-linux libssh2"
 RDEPENDS_${PN} = "ncurses-terminfo python3-core perl glibc-localedata-en-us"
 
 SRC_URI = "http://www.midnight-commander.org/downloads/${BPN}-${PV}.tar.bz2"
-SRC_URI[md5sum] = "152927ac29cf0e61d7d019f261bb7d89"
-SRC_URI[sha256sum] = "238c4552545dcf3065359bd50753abbb150c1b22ec5a36eaa02c82808293267d"
+SRC_URI[md5sum] = "2621de1fa9058a9c41a4248becc969f9"
+SRC_URI[sha256sum] = "cfcc4d0546d0c3a88645a8bf71612ed36647ea3264d973b1f28183a0c84bae34"
 
-EXTRA_OECONF = "--with-screen=ncurses --without-gpm-mouse --without-x --enable-vfs-smb --enable-vfs-sftp --with-homedir=/mnt/data/mc"
+EXTRA_OECONF = "PERL='/usr/bin/perl' --with-screen=ncurses --without-gpm-mouse --without-x --enable-vfs-smb --enable-vfs-sftp --with-homedir=/mnt/data/mc"
 
 inherit autotools gettext pkgconfig
