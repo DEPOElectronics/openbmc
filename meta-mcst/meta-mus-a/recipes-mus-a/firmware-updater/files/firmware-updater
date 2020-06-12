@@ -1,0 +1,114 @@
+#!/bin/bash
+
+error()
+{
+    echo $@ >&2
+    exit 1
+}
+
+intro()
+{
+    echo "===== Downloading firmware from $@... ====="
+}
+
+usage()
+{
+    cat << EOF
+    Usage: $1 <URL>
+
+    Here, <URL> should specify location of firmware file to flash into the BMC.
+    Supported protocols: scp, http, https, ftp, file.
+    \`file' protocol is used for files already uploaded to BMC filesystem,
+    other protocols are used to automatically download files from network.
+
+    Examples:
+        $1 http://fileserver.domain/uploads/new_bmc_fimware.bin
+        $1 scp://admin@fileserver.domain:/var/www/uploads/new_bmc_fimware.bin
+        $1 file:///tmp/new_bmc_fimware.bin
+
+    Note: flashing won't clear user data in /mnt/data partition;
+          you better wipe it by yourself if needed.
+
+    Note: you may use WGET_PARAMS environment variable to pass some parameters
+          to wget (http, https, ftp protocols), like --no-check-certificate.
+EOF
+}
+
+DEST="/tmp/firmware"
+PROTO="`echo $1 | cut -d: -f1`"
+case "$PROTO" in
+    "http"|"https"|"ftp")
+        intro $1
+        SRC="$1"
+        echo "    Source URL: $SRC"
+        echo "    Destination file: $DEST"
+        echo "    Protocol: $PROTO"
+        wget $WGET_PARAMS $SRC -O $DEST
+        ;;
+    "scp")
+        echo $1 | grep -qv "^scp://" && error "Malformed scp URL, use scp://[user@]host:/path/to/file."
+        intro $1
+        SRC="`echo $1 | sed 's#^scp://##'`"
+        echo "    Source host and path: $SRC"
+        echo "    Destination file: $DEST"
+        scp $SRC $DEST
+        ;;
+    "file")
+        echo $1 | grep -qv "^file:///" && error "Malformed file URL, use file:///path/to/file."
+        DEST="`echo $1 | sed 's#^file://##'`"
+        ;;
+    "-h"|"--help")
+        usage $0
+        exit 0
+        ;;
+    *)
+        error "Incorrect parameters. Run \`$0 -h' or \`$0 --help' to find out how to use this tool."
+        ;;
+esac
+
+MTDFLASH=/dev/mtdblock4
+FLASHSIZE=29360128 # Flash only first 28 MB; last 4 MB is user data partition.
+BLOCKSIZE=512
+
+[ ! -f $DEST ] && error "Can't find file $DEST, aborting."
+SIZE=`stat -c%s $DEST`
+[ -z "$SIZE" ] && error "Can't stat() file $DEST, aborting."
+[ $SIZE -eq 0 ] && error "File $DEST is empty, aborting."
+[ $SIZE -gt $FLASHSIZE ] && error "File $DEST ($SIZE bytes) is greater than allowed flash size ($FLASHSIZE bytes), aborting."
+
+echo "===== Flashing $DEST into $MTDFLASH... ====="
+
+# Align firmware to block size
+if [ `expr $SIZE % $BLOCKSIZE` -ne 0 ]
+then
+    NEWSIZE=`expr \( \( $SIZE / $BLOCKSIZE \) + 1 \) \* 512`
+    echo "Expanding $DEST to fit block size of $BLOCKSIZE ($SIZE -> $NEWSIZE bytes)..."
+    SIZE=$NEWSIZE
+    truncate -s $SIZE $DEST
+fi
+
+# Flashing!
+BLOCKS=`expr $SIZE / $BLOCKSIZE`
+echo "Programming flash $MTDFLASH:"
+dd if=$DEST bs=$BLOCKSIZE 2>/dev/null | pv -s $SIZE | dd of=$MTDFLASH bs=$BLOCKSIZE 2>/dev/null
+echo "Total $BLOCKS blocks of $BLOCKSIZE bytes written."
+
+# Check results
+echo "Calculating checksum of source file..."
+CSUM_S=`cat $DEST | pv -s $SIZE | md5sum | cut -d" " -f1`
+echo "Calculating checksum of corresponding flash region..."
+CSUM_D=`dd if=$MTDFLASH bs=$BLOCKSIZE count=$BLOCKS 2>/dev/null | pv -s $SIZE | md5sum | cut -d" " -f1`
+echo "File MD5: $CSUM_S, flash MD5: $CSUM_D"
+[ "$CSUM_S" != "$CSUM_D" ] && error "ERROR! Checksums do not match. Possibly you have a broken flash, or maybe you could just try again and hope it will be OK then."
+echo "Checksums match, flashing is considered successful."
+
+# Remove unneeded file (if we did upload it, not user)
+if [ $PROTO != "file" ]
+then
+    echo "Removing $DEST (it's not needed anymore)."
+    rm $DEST
+fi
+
+echo "===== Flashing is successful! ====="
+echo "    Now you may restart BMC using \`reboot' command"
+echo "    to boot into the new firmware."

@@ -1,0 +1,24 @@
+#!/bin/sh
+
+GPIONUM=118
+
+case "$1" in
+    start)
+        [ -d /sys/class/gpio/gpio${GPIONUM} ] || echo ${GPIONUM} > /sys/class/gpio/export
+        echo out > /sys/class/gpio/gpio${GPIONUM}/direction
+        echo 0 > /sys/class/gpio/gpio${GPIONUM}/value
+        echo ${GPIONUM} > /sys/class/gpio/unexport
+        exit 0
+        ;;
+    stop)
+        [ -d /sys/class/gpio/gpio${GPIONUM} ] || echo ${GPIONUM} > /sys/class/gpio/export
+        echo 1 > /sys/class/gpio/gpio${GPIONUM}/value
+        echo in > /sys/class/gpio/gpio${GPIONUM}/direction
+        echo ${GPIONUM} > /sys/class/gpio/unexport
+        exit 0
+        ;;
+    *)
+        echo "Usage: $0 {start|stop}"
+        exit 2
+        ;;
+esac
