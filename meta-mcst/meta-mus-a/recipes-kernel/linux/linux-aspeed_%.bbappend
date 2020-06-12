@@ -1,11 +1,2 @@
-LINUX_VERSION_EXTENSION = "-mus-a"
-
-COMPATIBLE_MACHINE = "mus-a"
-
-FILESEXTRAPATHS_prepend := "${THISDIR}/files:"
-
-SRC_URI += "file://defconfig \
-           "
-
-KERNEL_MODULE_AUTOLOAD += " \
-"
+FILESEXTRAPATHS_prepend := "${THISDIR}/${PN}:"
+SRC_URI += "file://mus-a.cfg"
