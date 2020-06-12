@@ -1,4 +1,13 @@
 #!/bin/sh
+### BEGIN INIT INFO
+# Provides:          overheatd
+# Required-Start:    initsc
+# Required-Stop:
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: starts overheatd
+# Description:       starts overheat control daemon
+### END INIT INFO
 
 rundir="/run"
 pidfile=$rundir/overheatd.pid

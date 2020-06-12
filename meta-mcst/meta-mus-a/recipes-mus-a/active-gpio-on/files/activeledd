@@ -1,4 +1,13 @@
 #!/bin/sh
+### BEGIN INIT INFO
+# Provides:          activeledd
+# Required-Start:    initsc
+# Required-Stop:
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: turns on ACTIVE LED
+# Description:       turns on ACTIVE LED
+### END INIT INFO
 
 GPIONUM=118
 
