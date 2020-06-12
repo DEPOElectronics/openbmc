@@ -181,7 +181,9 @@ do_install_append_class-target() {
     TMP=`dirname ${D}/${TMPDIR}`
     while test ${TMP} != ${D}; do
         if [ -d ${TMP} ]; then
-            rmdir ${TMP}
+            # We might build inside the directory which name matches part
+            # of sysroot dirname, so it's ok if we can't remove this directory
+            rmdir ${TMP} || true
         fi
         TMP=`dirname ${TMP}`;
     done
