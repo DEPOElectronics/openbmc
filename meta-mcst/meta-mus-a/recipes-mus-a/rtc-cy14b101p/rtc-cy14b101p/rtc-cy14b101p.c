@@ -509,7 +509,8 @@ static int cy14b101p_remove(struct spi_device *spi)
 		flush_scheduled_work();
 	}
 
-	rtc_nvmem_unregister(cy14b101p->rtc);
+	/* This function is no more exported and not needed at all */
+	/* rtc_nvmem_unregister(cy14b101p->rtc); */
 	spi_set_drvdata(spi, NULL);
 	kfree(cy14b101p);
 	return 0;
@@ -612,7 +613,8 @@ fail1:
 	if (nvram_res >= 0) {
 		sysfs_remove_bin_file(&dev->kobj, &nvram);
 	}
-	rtc_nvmem_unregister(cy14b101p->rtc);
+	/* This function is no more exported and not needed at all */
+	/* rtc_nvmem_unregister(cy14b101p->rtc); */
 fail0:
 	kfree(cy14b101p);
 	return status;
