@@ -14,5 +14,3 @@ SRC_URI = " \
 S = "${WORKDIR}"
 
 RPROVIDES_${PN} += "kernel-module-tinyspi"
-
-FILES_${PN} = "/lib/modules"

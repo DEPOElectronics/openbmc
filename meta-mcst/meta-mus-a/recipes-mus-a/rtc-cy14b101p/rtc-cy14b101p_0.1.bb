@@ -14,5 +14,3 @@ SRC_URI = " \
 S = "${WORKDIR}"
 
 RPROVIDES_${PN} += "kernel-module-rtc-cy14b101p"
-
-FILES_${PN} = "/lib/modules"
