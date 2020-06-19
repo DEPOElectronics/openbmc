@@ -6,8 +6,8 @@
 #include <dt-bindings/gpio/aspeed-gpio.h>
 
 / {
-	model = "MUS-A";
-	compatible = "mcst,mus-a", "aspeed,ast2400";
+	model = "REIMU-32";
+	compatible = "mcst,reimu-32", "aspeed,ast2400";
 
 	chosen {
 		stdout-path = &uart3;
@@ -78,6 +78,4 @@
 
 &uart3 {
 	status = "okay";
-	pinctrl-names = "default";
-	pinctrl-0 = <&pinctrl_txd2_default &pinctrl_rxd2_default>;
 };

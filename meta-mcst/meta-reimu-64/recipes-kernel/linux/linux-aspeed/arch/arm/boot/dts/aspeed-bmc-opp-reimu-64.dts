@@ -6,8 +6,8 @@
 #include <dt-bindings/gpio/aspeed-gpio.h>
 
 / {
-	model = "MUS-A";
-	compatible = "mcst,mus-a", "aspeed,ast2400";
+	model = "REIMU-64";
+	compatible = "mcst,reimu-64", "aspeed,ast2400";
 
 	chosen {
 		stdout-path = &uart5;

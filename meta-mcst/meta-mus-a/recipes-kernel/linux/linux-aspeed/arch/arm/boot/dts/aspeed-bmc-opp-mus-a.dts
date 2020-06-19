@@ -78,6 +78,4 @@
 
 &uart3 {
 	status = "okay";
-	pinctrl-names = "default";
-	pinctrl-0 = <&pinctrl_txd2_default &pinctrl_rxd2_default>;
 };
