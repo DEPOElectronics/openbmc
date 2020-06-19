@@ -1,0 +1,44 @@
+OBMC_IMAGE_EXTRA_INSTALL_append = " \
+  active-gpio-on \
+  init-ifupdown \
+  flashrom \
+  buttonscripts \
+  glibc-localedata-en-us \
+  glibc-localedata-ru-ru \
+  glibc-binary-localedata-en-us \
+  glibc-binary-localedata-ru-ru \
+  pv \
+  wget \
+  firmware-updater \
+  i2c-tools \
+  rawi2ctool \
+  dscan \
+  netsetup \
+  initsc-lt \
+  overheatd \
+  kernel-module-tinyspi \
+  kernel-module-rtc-cy14b101p \
+  "
+
+IMAGE_FEATURES_remove = " \
+  obmc-bmc-state-mgmt \
+  obmc-chassis-mgmt \
+  obmc-chassis-state-mgmt \
+  obmc-fan-control \
+  obmc-fan-mgmt \
+  obmc-flash-mgmt \
+  obmc-host-ipmi \
+  obmc-inventory \
+  obmc-leds \
+  obmc-logging-mgmt \
+  obmc-remote-logging-mgmt \
+  obmc-net-ipmi \
+  obmc-sensors \
+  obmc-debug-collector \
+  bmcweb \
+  obmc-software \
+  obmc-system-mgmt \
+  obmc-user-mgmt \
+  obmc-network-mgmt \
+  obmc-settings-mgmt \
+  "

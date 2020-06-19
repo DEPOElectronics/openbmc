@@ -1,4 +1,4 @@
-OBMC_IMAGE_EXTRA_INSTALL_32MB = " \
+OBMC_IMAGE_EXTRA_INSTALL_append = " \
   active-gpio-on \
   init-ifupdown \
   flashrom \
@@ -11,17 +11,10 @@ OBMC_IMAGE_EXTRA_INSTALL_32MB = " \
   wget \
   firmware-updater \
   i2c-tools \
-  overheatd \
   rawi2ctool \
   dscan \
   netsetup \
-  kernel-module-tinyspi \
-  kernel-module-rtc-cy14b101p \
   initsc-lt \
-  "
-
-OBMC_IMAGE_EXTRA_INSTALL_64MB = " \
-  ${OBMC_IMAGE_EXTRA_INSTALL_32MB} \
   glibc-utils \
   nginx \
   php-fpm \
@@ -29,4 +22,7 @@ OBMC_IMAGE_EXTRA_INSTALL_64MB = " \
   mc \
   ethtool \
   sqlite3 \
+  overheatd \
+  kernel-module-tinyspi \
+  kernel-module-rtc-cy14b101p \
   "
