@@ -1,0 +1,17 @@
+Port 22
+Port 2022
+Protocol 2
+PermitRootLogin yes
+AuthorizedKeysFile .ssh/authorized_keys
+TrustedUserCAKeys /etc/ssh/trusted_ca
+AuthorizedPrincipalsFile /etc/ssh/auth_principals_%u
+AuthorizedPrincipalsCommandUser root
+AuthorizedPrincipalsCommand /etc/ssh/auth_principals.sh
+UsePrivilegeSeparation sandbox
+Compression no
+VersionAddendum __OPENBMC_VERSION__
+Subsystem sftp /usr/libexec/sftp-server
+AuthenticationMethods publickey password
+
+Match LocalPort 2022
+        ForceCommand microcom -s 115200 /dev/ttyS1
