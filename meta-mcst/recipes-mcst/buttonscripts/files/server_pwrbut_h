@@ -3,9 +3,9 @@
 GPIOBASE=292
 GPIOUSE=109
 
-gpio = `expr $GPIOBASE + $GPIOUSE`
+gpio=`expr $GPIOBASE + $GPIOUSE`
 
-[ -f /sys/class/gpio/gpio$gpio ] || echo $gpio > /sys/class/gpio/export
+[ -d /sys/class/gpio/gpio$gpio ] || echo $gpio > /sys/class/gpio/export
 
 echo out > /sys/class/gpio/gpio$gpio/direction
 
