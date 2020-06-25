@@ -9,7 +9,9 @@
 # Description:       turns on ACTIVE LED
 ### END INIT INFO
 
-GPIONUM=118
+GPIOBASE=292
+GPIOUSE=118
+GPIONUM=`expr $GPIOBASE + $GPIOUSE`
 
 case "$1" in
     start)
