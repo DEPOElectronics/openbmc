@@ -66,8 +66,12 @@ case "$PROTO" in
         ;;
 esac
 
-MTDFLASH=/dev/mtdblock4
-FLASHSIZE=29360128 # Flash only first 28 MB; last 4 MB is user data partition.
+MTDDEV=mtdblock0
+MTDFLASH=/dev/$MTDDEV
+SIZE=`cat /sys/block/$MTDDEV/size`
+[ "$SIZE" = "65536" ] && FLASHSIZE=58720256 # Flash only first 56 MB; last 8 MB is user data partition.
+[ "$SIZE" = "32768" ] && FLASHSIZE=29360128 # Flash only first 28 MB; last 4 MB is user data partition.
+[ -z $FLASHSIZE ] && error "Flash has wrong size $SIZE kB, supported only 32768 and 65536 kB. Aborting."
 BLOCKSIZE=512
 
 [ ! -f $DEST ] && error "Can't find file $DEST, aborting."
@@ -90,12 +94,12 @@ fi
 # Flashing!
 BLOCKS=`expr $SIZE / $BLOCKSIZE`
 echo "Programming flash $MTDFLASH:"
-dd if=$DEST bs=$BLOCKSIZE 2>/dev/null | pv -s $SIZE | dd of=$MTDFLASH bs=$BLOCKSIZE 2>/dev/null
+dd if=$DEST bs=$BLOCKSIZE count=$BLOCKS 2>/dev/null | pv -s $SIZE | dd of=$MTDFLASH bs=$BLOCKSIZE 2>/dev/null
 echo "Total $BLOCKS blocks of $BLOCKSIZE bytes written."
 
 # Check results
 echo "Calculating checksum of source file..."
-CSUM_S=`cat $DEST | pv -s $SIZE | md5sum | cut -d" " -f1`
+CSUM_S=`dd if=$DEST bs=$BLOCKSIZE count=$BLOCKS 2>/dev/null | pv -s $SIZE | md5sum | cut -d" " -f1`
 echo "Calculating checksum of corresponding flash region..."
 CSUM_D=`dd if=$MTDFLASH bs=$BLOCKSIZE count=$BLOCKS 2>/dev/null | pv -s $SIZE | md5sum | cut -d" " -f1`
 echo "File MD5: $CSUM_S, flash MD5: $CSUM_D"
