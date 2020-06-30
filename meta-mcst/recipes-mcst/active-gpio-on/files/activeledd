@@ -9,23 +9,17 @@
 # Description:       turns on ACTIVE LED
 ### END INIT INFO
 
-GPIOBASE=292
-GPIOUSE=118
-GPIONUM=`expr $GPIOBASE + $GPIOUSE`
+. /libexec/gpio-funcs
+
+gpio=`gpio2num $GPIO_ACT_LED`
 
 case "$1" in
     start)
-        [ -d /sys/class/gpio/gpio${GPIONUM} ] || echo ${GPIONUM} > /sys/class/gpio/export
-        echo out > /sys/class/gpio/gpio${GPIONUM}/direction
-        echo 0 > /sys/class/gpio/gpio${GPIONUM}/value
-        echo ${GPIONUM} > /sys/class/gpio/unexport
+        gpiowrite $gpio 0
         exit 0
         ;;
     stop)
-        [ -d /sys/class/gpio/gpio${GPIONUM} ] || echo ${GPIONUM} > /sys/class/gpio/export
-        echo 1 > /sys/class/gpio/gpio${GPIONUM}/value
-        echo in > /sys/class/gpio/gpio${GPIONUM}/direction
-        echo ${GPIONUM} > /sys/class/gpio/unexport
+        gpiorelease $gpio
         exit 0
         ;;
     *)

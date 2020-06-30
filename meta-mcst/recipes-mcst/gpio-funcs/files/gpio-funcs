@@ -1,0 +1,81 @@
+#!/bin/bash
+
+. /etc/gpiotab
+
+gpio2num()
+{
+    BLOCK=`echo $1 | head -c1 | tr 'abcdefghijklmnopqrstuvwxyz' 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'`
+    PIN=`echo -n $1 | tail -c1`
+    case $BLOCK in
+        [A-J]|[a-j])
+            HI=0
+            LO=`echo $BLOCK | tr 'ABCDEFGHIJ' '0123456789'`
+        ;;
+        [K-T]|[k-t])
+            HI=1
+            LO=`echo $BLOCK | tr 'KLMNOPQRST' '0123456789'`
+        ;;
+        [U-Z]|[u-z])
+            HI=2
+            LO=`echo $BLOCK | tr 'UVWXYZ' '012345'`
+        ;;
+        *)
+            return 1
+        ;;
+    esac
+    expr $HI \* 80 + $LO \* 8 + $PIN + $FIRSTGPIO
+}
+
+num2gpio()
+{
+    GPIO=`expr $1 - $FIRSTGPIO`
+    HI=`expr $GPIO / 80`
+    LO=`expr $GPIO / 8 % 10`
+    PIN=`expr $GPIO % 8`
+    case $HI in
+        0)
+            BLOCK=`echo $LO | tr '0123456789' 'ABCDEFGHIJ'`
+        ;;
+        1)
+            BLOCK=`echo $LO | tr '0123456789' 'KLMNOPQRST'`
+        ;;
+        2)
+            BLOCK=`echo $LO | tr '012345' 'UVWXYZ'`
+        ;;
+        *)
+            return 1
+        ;;
+    esac
+    echo ${BLOCK}${PIN}
+}
+
+gpioexport()
+{
+    [ -d /sys/class/gpio/gpio${1} ] || echo ${1} > /sys/class/gpio/export
+}
+
+gpiounexport()
+{
+    [ -d /sys/class/gpio/gpio${1} ] && echo ${1} > /sys/class/gpio/unexport
+}
+
+gpiowrite()
+{
+    gpioexport ${1}
+    echo out > /sys/class/gpio/gpio${1}/direction
+    echo ${2} > /sys/class/gpio/gpio${1}/value
+}
+
+gpioread()
+{
+    gpioexport ${1}
+    echo in > /sys/class/gpio/gpio${1}/direction
+    cat /sys/class/gpio/gpio${1}/value
+}
+
+gpiorelease()
+{
+    gpioexport ${1}
+    echo in > /sys/class/gpio/gpio${1}/direction
+    gpiounexport ${1}
+}

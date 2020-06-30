@@ -1,20 +1,8 @@
 #!/bin/sh
 
-GPIOBASE=292
-GPIOUSE=109
+. /libexec/gpio-funcs
 
-gpio=`expr $GPIOBASE + $GPIOUSE`
-
-[ -d /sys/class/gpio/gpio$gpio ] || echo $gpio > /sys/class/gpio/export
-
-echo out > /sys/class/gpio/gpio$gpio/direction
-
-echo 0 > /sys/class/gpio/gpio$gpio/value
-
+gpio=`gpio2num $GPIO_PWR_BTN`
+gpiowrite $gpio 0
 sleep 1
-
-echo 1 > /sys/class/gpio/gpio$gpio/value
-
-echo in > /sys/class/gpio/gpio$gpio/direction
-
-echo $gpio > /sys/class/gpio/unexport
+gpiorelease $gpio

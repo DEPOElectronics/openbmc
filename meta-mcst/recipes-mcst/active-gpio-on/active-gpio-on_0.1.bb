@@ -21,3 +21,5 @@ do_install() {
 }
 
 FILES_${PN} = "/etc"
+
+RDEPENDS_${PN} += "gpio-funcs"

@@ -24,4 +24,4 @@ FBPACKAGEDIR = "/usr/bin"
 
 FILES_${PN} = "${FBPACKAGEDIR}"
 
-RDEPENDS_${PN} += "bash"
+RDEPENDS_${PN} += "gpio-funcs"
