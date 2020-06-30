@@ -17,15 +17,10 @@ S = "${WORKDIR}"
 pkgdir = "rawi2ctool"
 
 do_install() {
-  dst="${D}/usr/local/fbpackages/${pkgdir}"
-  bin="${D}/usr/local/bin"
-  install -d $dst
+  bin="${D}/usr/bin"
   install -d $bin
-  install -m 755 rawi2ctool ${dst}/rawi2ctool
-  ln -snf ../fbpackages/${pkgdir}/rawi2ctool ${bin}/rawi2ctool
+  install -m 755 rawi2ctool ${bin}/rawi2ctool
 }
 
-FBPACKAGEDIR = "${prefix}/local/fbpackages"
-
-FILES_${PN} = "${FBPACKAGEDIR}/rawi2ctool ${prefix}/local/bin"
+FILES_${PN} = "/usr/bin"
 

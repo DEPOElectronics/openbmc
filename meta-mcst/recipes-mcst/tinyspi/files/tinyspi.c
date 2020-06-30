@@ -11,9 +11,9 @@
 #include <linux/delay.h>
 
 // Default setup as in E8C-SWTX board
-static int gpio_clk  = 104;
-static int gpio_sel  = 106;
-static int gpio_data = 105;
+static int gpio_clk  = 292 + 104;
+static int gpio_sel  = 292 + 106;
+static int gpio_data = 292 + 105;
 
 module_param(gpio_clk,  int, 0660);
 module_param(gpio_sel,  int, 0660);

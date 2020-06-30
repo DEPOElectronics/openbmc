@@ -11,12 +11,12 @@
 
 rundir="/run"
 pidfile=$rundir/overheatd.pid
-rawi2ctool="/usr/local/fbpackages/rawi2ctool/rawi2ctool"
+rawi2ctool="/usr/bin/rawi2ctool"
 
 . /libexec/gpio-funcs
 
 # If no configfile exist, create it there
-configfile="/mnt/data/etc/overheatd.conf"
+configfile="/etc/overheatd.conf"
 if [ ! -f $configfile ]
 then
     echo "OVERHEATD_ENABLED=yes"   >> $configfile
@@ -88,6 +88,13 @@ echo $$ > $pidfile
 led_state=0
 alerts=unknown
 
+get_gpio()
+{
+    gpionum=`gpio2num $1`
+    gpioread $gpionum
+    gpiounexport $gpionum
+}
+
 while true
 do
     # Reload config (done each cycle)
@@ -120,11 +127,11 @@ do
     led_state=0
 
     debug "Re-reading alerts (old alerts = $alerts)"
-    a1=`chkgpio $GPIO_ALERT_CPU`
-    a2=`chkgpio $GPIO_ALERT_MEM`
-    a3=`chkgpio $GPIO_ALERT_SMBUS`
-    a4=`chkgpio $GPIO_TCRIT_SMBUS`
-    a5=`chkgpio $GPIO_POWER_IN`
+    a1=`get_gpio $GPIO_ALERT_CPU`
+    a2=`get_gpio $GPIO_ALERT_MEM`
+    a3=`get_gpio $GPIO_ALERT_SMBUS`
+    a4=`get_gpio $GPIO_TCRIT_SMBUS`
+    a5=`get_gpio $GPIO_POWER_IN`
 
     alerts=0x000${a5}${a4}${a3}${a2}${a1}
     debug "Alerts: $alerts"

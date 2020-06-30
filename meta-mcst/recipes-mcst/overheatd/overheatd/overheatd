@@ -11,10 +11,12 @@
 
 rundir="/run"
 pidfile=$rundir/overheatd.pid
-rawi2ctool="/usr/local/fbpackages/rawi2ctool/rawi2ctool"
+rawi2ctool="/usr/bin/rawi2ctool"
+
+. /libexec/gpio-funcs
 
 # If no configfile exist, create it there
-configfile="/mnt/data/etc/overheatd.conf"
+configfile="/etc/overheatd.conf"
 if [ ! -f $configfile ]
 then
     echo "OVERHEATD_ENABLED=yes"   >> $configfile
@@ -87,14 +89,12 @@ modprobe tinyspi # Just in case module is not loaded
 sysfsdir="/sys/kernel/tinyspi"
 led_state=0
 alerts=unknown
-alert_gpio_num=110
 
-get_tinyspi_alert()
+get_gpio()
 {
-    [ -d /sys/class/gpio/gpio${alert_gpio_num} ] || echo "$alert_gpio_num" > /sys/class/gpio/export
-    echo "in" > /sys/class/gpio/gpio${alert_gpio_num}/direction
-    cat /sys/class/gpio/gpio${alert_gpio_num}/value
-    echo "$alert_gpio_num" > /sys/class/gpio/unexport
+    gpionum=`gpio2num $1`
+    gpioread $gpionum
+    gpiounexport $gpionum
 }
 
 while true
@@ -128,7 +128,7 @@ do
     oldledstate=$led_state
     led_state=0
 
-    tinyspi_alert=`get_tinyspi_alert`
+    tinyspi_alert=`get_gpio $GPIO_TINYSPI_ALERT`
     if [ "$alerts" = "unknown" -o $tinyspi_alert -eq 0 ] # Re-check alerts only if we have TINYSPI_ALERT
     then
         debug "Re-reading alerts (tinyspi_alert = $tinyspi_alert, alerts = $alerts)"
