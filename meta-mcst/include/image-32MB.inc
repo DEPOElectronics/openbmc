@@ -1,6 +1,7 @@
 OBMC_IMAGE_EXTRA_INSTALL_append = " \
   active-gpio-on \
   flashrom \
+  openssh \
   buttonscripts \
   glibc-localedata-en-us \
   glibc-localedata-ru-ru \
@@ -20,6 +21,7 @@ OBMC_IMAGE_EXTRA_INSTALL_append = " \
   "
 
 IMAGE_FEATURES_remove = " \
+  ssh-server-dropbear \
   obmc-bmc-state-mgmt \
   obmc-chassis-mgmt \
   obmc-chassis-state-mgmt \

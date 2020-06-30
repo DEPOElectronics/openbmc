@@ -1,6 +1,7 @@
 OBMC_IMAGE_EXTRA_INSTALL_append = " \
   active-gpio-on \
   flashrom \
+  openssh \
   buttonscripts \
   glibc-localedata-en-us \
   glibc-localedata-ru-ru \
@@ -24,4 +25,8 @@ OBMC_IMAGE_EXTRA_INSTALL_append = " \
   overheatd \
   kernel-module-tinyspi \
   kernel-module-rtc-cy14b101p \
+  "
+
+IMAGE_FEATURES_remove = " \
+  ssh-server-dropbear \
   "
