@@ -17,11 +17,14 @@ OBMC_IMAGE_EXTRA_INSTALL_append = " \
   initsc-lt \
   overheatd \
   kernel-module-tinyspi \
+  tcpdump \
+  mc \
   kernel-module-rtc-cy14b101p \
   "
 
 IMAGE_FEATURES_remove = " \
   ssh-server-dropbear \
+  phosphor-state-manager \
   obmc-bmc-state-mgmt \
   obmc-chassis-mgmt \
   obmc-chassis-state-mgmt \
