@@ -1,6 +1,5 @@
 OBMC_IMAGE_EXTRA_INSTALL_append = " \
   active-gpio-on \
-  init-ifupdown \
   flashrom \
   buttonscripts \
   glibc-localedata-en-us \
@@ -13,7 +12,7 @@ OBMC_IMAGE_EXTRA_INSTALL_append = " \
   i2c-tools \
   rawi2ctool \
   dscan \
-  netsetup \
+  net-initial \
   initsc-lt \
   overheatd \
   kernel-module-tinyspi \
@@ -39,6 +38,5 @@ IMAGE_FEATURES_remove = " \
   obmc-software \
   obmc-system-mgmt \
   obmc-user-mgmt \
-  obmc-network-mgmt \
   obmc-settings-mgmt \
   "

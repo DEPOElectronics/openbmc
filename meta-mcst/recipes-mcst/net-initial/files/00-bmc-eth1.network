@@ -1,0 +1,6 @@
+[Match]
+Name=eth1
+[Link]
+MACAddress=98:a7:b0:00:00:02
+[Network]
+Address=192.168.2.1/24

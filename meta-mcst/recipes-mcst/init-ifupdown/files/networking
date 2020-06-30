@@ -1,8 +1,0 @@
-#!/bin/sh -e
-
-# This file is obsolete.
-# Use /usr/local/fbpackages/netconf/netconf_script.sh instead.
-
-echo $0 | grep -q '[SK][0-9][0-9]networking$' && exit 0 # Silently exit if we are running on boot/shutdown
-
-echo "/etc/init.d/networking: skipping, use /usr/local/fbpackages/netconf/netconf_script.sh instead."
