@@ -15,8 +15,6 @@ OBMC_IMAGE_EXTRA_INSTALL_append = " \
   dscan \
   net-initial \
   initsc-lt \
-  overheatd \
-  kernel-module-tinyspi \
   tcpdump \
   mc \
   kernel-module-rtc-cy14b101p \

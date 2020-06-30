@@ -1,0 +1,184 @@
+#!/bin/sh
+### BEGIN INIT INFO
+# Provides:          overheatd
+# Required-Start:    initsc
+# Required-Stop:
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: starts overheatd
+# Description:       starts overheat control daemon
+### END INIT INFO
+
+rundir="/run"
+pidfile=$rundir/overheatd.pid
+rawi2ctool="/usr/local/fbpackages/rawi2ctool/rawi2ctool"
+
+. /libexec/gpio-funcs
+
+# If no configfile exist, create it there
+configfile="/mnt/data/etc/overheatd.conf"
+if [ ! -f $configfile ]
+then
+    echo "OVERHEATD_ENABLED=yes"   >> $configfile
+    echo "DEBUG=off"               >> $configfile
+    echo "CPU_TEMP_LIMIT=85"       >> $configfile
+    echo "WAIT_USEC=500000"        >> $configfile
+    echo "BLINK_SECONDS=2"         >> $configfile
+    echo "CPU_I2C_NUM=3"           >> $configfile
+fi
+. $configfile
+
+statefile="/var/systemstate.xml"
+
+debug()
+{
+    [ "$DEBUG" = "on" ] && echo "$0 (`date`): $@"
+}
+
+case "$1" in
+    start)
+        [ "$OVERHEATD_ENABLED" = "no" ] && exit 0
+        [ ! -f $pidfile ] && $0 --daemon &
+        exit 0
+        ;;
+    stop)
+        [ -f $pidfile ] && kill `cat $pidfile`
+        exit 0
+        ;;
+    restart)
+        $0 stop
+        sleep 1
+        $0 start
+        exit 0
+        ;;
+    status)
+        if [ -f $pidfile ]
+        then
+            if [ -d /proc/`cat $pidfile` ]
+            then
+                echo `basename $0` is running.
+                exit 0
+            else
+                echo `basename $0` is not running, but pidfile still exists.
+                exit 2
+            fi
+        else
+            echo `basename $0` is not running.
+            exit 1
+        fi
+        ;;
+    --daemon)
+        [ "$OVERHEATD_ENABLED" = "no" ] && exit 0
+        ;;
+    *)
+        echo "Usage: $0 {start|stop|restart|status}"
+        exit 2
+        ;;
+esac
+
+rm_pidfile()
+{
+    [ -f $pidfile ] && rm $pidfile
+    exit 0
+}
+trap rm_pidfile TERM INT EXIT
+mkdir -p $rundir
+echo $$ > $pidfile
+
+led_state=0
+alerts=unknown
+
+while true
+do
+    # Reload config (done each cycle)
+    . $configfile
+    debug "Reloaded config: ($DEBUG;$CPU_TEMP_LIMIT;$WAIT_USEC;$BLINK_SECONDS;$CPU_I2C_NUM) from $configfile"
+    # We won't automatically exit if OVERHEATD_ENABLED is set to "no", so we don't check it here.
+
+    # Recreate statefile
+    echo "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" > $statefile.tmp
+    echo "<state date=\"`date`\">" >> $statefile.tmp
+
+    # Set I2C bus speed correctly
+    i2c_config_dword=0x77744303
+    case $CPU_I2C_NUM in
+        5) # Manager I2C0 (E8C-EATX, E8C-SWTX)
+            i2c_reg_address=0x1e78a184; ;;
+        6) # Manager I2C1
+            i2c_reg_address=0x1e78a1c4; ;;
+        7) # Manager I2C2
+            i2c_reg_address=0x1e78a204; ;;
+        2) # Manager I2C3
+            i2c_reg_address=0x1e78a0c4; ;;
+        3) # Manager I2C4 (E8C-uATX/SE)
+            i2c_reg_address=0x1e78a104; ;;
+    esac
+    devmem $i2c_reg_address w $i2c_config_dword # Default I2C speed is too low for CPU sensor; just in case it is still default
+
+    # default: off
+    oldledstate=$led_state
+    led_state=0
+
+    debug "Re-reading alerts (old alerts = $alerts)"
+    a1=`chkgpio $GPIO_ALERT_CPU`
+    a2=`chkgpio $GPIO_ALERT_MEM`
+    a3=`chkgpio $GPIO_ALERT_SMBUS`
+    a4=`chkgpio $GPIO_TCRIT_SMBUS`
+    a5=`chkgpio $GPIO_POWER_IN`
+
+    alerts=0x000${a5}${a4}${a3}${a2}${a1}
+    debug "Alerts: $alerts"
+    echo "	<gpioalerts>$alerts</gpioalerts>" >> $statefile.tmp
+
+    # Detect available cpus
+    cpus=""
+    for j in `seq 2 5`
+    do
+        debug "exec: rawi2ctool -W $CPU_I2C_NUM 0x${j}0 2> /dev/null && cpus=\"$cpus $j\""
+        $rawi2ctool -W $CPU_I2C_NUM 0x${j}0 2> /dev/null && cpus="$cpus $j"
+    done
+    debug "Bus $CPU_I2C_NUM, CPUs detected: $cpus"
+    echo "	<cpus>$cpus</cpus>" >> $statefile.tmp
+
+    # Check temperature of each cpu core
+    maxtemp=0
+    for cpu in $cpus
+    do
+        for core in `seq 0 7`
+        do
+            temp=$((0x`$rawi2ctool -r -w $CPU_I2C_NUM 0x${cpu}${core} | sed 's/ //'` / 8))
+            debug "Temp ($cpu:$core): $temp"
+            echo "	<temperature cpu=\"$cpu\" core=\"$core\">$temp</temperature>" >> $statefile.tmp
+            [ $temp -gt $maxtemp ] && maxtemp=$temp
+        done
+    done
+    debug "maxtemp: $maxtemp"
+
+    # Any of temperatures is greater than /mnt/data/etc/cpu_temp_limit
+    if [ $maxtemp -gt $CPU_TEMP_LIMIT ]
+    then
+        led_state=`expr 1 - $oldledstate`
+    fi
+
+    # Update led, if needed
+    debug "LED state: $oldledstate -> $led_state"
+    if [ $oldledstate != $led_state ]
+    then
+        gpionum=`gpio2num $GPIO_OVERHEAT_LED`
+        if [ $led_state -eq 1 ]
+        then
+            gpiowrite $gpionum 0
+        else
+            gpiowrite $gpionum 1
+        fi
+        gpiounexport $gpionum
+        debug "Changed LED state through gpio $GPIO_OVERHEAT_LED ($gpionum)"
+    fi
+
+    # Finalize statefile
+    echo "</state>" >> $statefile.tmp
+    mv $statefile.tmp $statefile
+
+    # Sleep till next cycle
+    usleep $WAIT_USEC
+done

@@ -19,8 +19,6 @@ OBMC_IMAGE_EXTRA_INSTALL_append = " \
   mc \
   tcpdump \
   ethtool \
-  overheatd \
-  kernel-module-tinyspi \
   kernel-module-rtc-cy14b101p \
   "
 
