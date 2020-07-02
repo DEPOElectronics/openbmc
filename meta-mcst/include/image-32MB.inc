@@ -16,6 +16,7 @@ OBMC_IMAGE_EXTRA_INSTALL_append = " \
   net-initial \
   initsc-lt \
   tcpdump \
+  ethtool \
   mc mc-fish mc-helpers mc-helpers-perl mc-locale-ru \
   kernel-module-rtc-cy14b101p \
   "
