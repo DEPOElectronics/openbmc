@@ -17,11 +17,11 @@ S = "${WORKDIR}"
 do_install() {
   dst="${D}/usr/bin"
   install -d $dst
-  install -m 755 *.sh ${dst}
+  install -m 755 server_pwrbut_h ${dst}
+  install -m 755 server_pwrbut_s ${dst}
+  install -m 755 server_reset ${dst}
 }
 
-FBPACKAGEDIR = "/usr/bin"
-
-FILES_${PN} = "${FBPACKAGEDIR}"
+FILES_${PN} = "/usr/bin"
 
 RDEPENDS_${PN} += "gpio-funcs"
