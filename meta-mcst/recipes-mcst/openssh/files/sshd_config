@@ -14,4 +14,4 @@ Subsystem sftp /usr/libexec/sftp-server
 AuthenticationMethods publickey password
 
 Match LocalPort 2022
-        ForceCommand microcom -s 115200 /dev/ttyS1
+        ForceCommand tmux attach -t SerialOverLAN

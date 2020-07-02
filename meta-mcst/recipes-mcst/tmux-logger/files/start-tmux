@@ -1,0 +1,3 @@
+#!/bin/bash
+. /etc/sol.conf
+/usr/bin/tmux new-session -d -s SerialOverLAN /usr/bin/minicom -D /dev/ttyS0 -C $SOL_LOGPATH -c on -8 -R utf8
