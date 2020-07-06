@@ -34,7 +34,6 @@
 			reg = <0x5c000000 0x02000000>; /* 32M */
 		};
 	};
-
 };
 
 &gpio {
@@ -63,18 +62,18 @@
 	flash@0 {
 		status = "okay";
 		m25p,fast-read;
-        label = "bmc";
-#include "openbmc-flash-layout.dtsi"
+		label = "bmc";
+		#include "openbmc-flash-layout.dtsi"
 	};
 };
 
 &spi {
 	status = "okay";
 	pinctrl-names = "default";
-	pinctrl-0 = <&pinctrl_spi1debug_default>;
+	pinctrl-0 = <&pinctrl_spi1_default>;
 	flash@0 {
 		status = "okay";
-		label = "pnor";
+		label = "sys";
 		m25p,fast-read;
 	};
 };
