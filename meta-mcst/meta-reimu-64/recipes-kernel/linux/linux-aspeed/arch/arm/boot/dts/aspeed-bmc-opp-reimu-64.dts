@@ -37,6 +37,27 @@
 
 };
 
+&gpio {
+	spiconnect {
+		gpios = <ASPEED_GPIO(O, 0) GPIO_ACTIVE_HIGH>;
+		gpio-hog;
+		output-high;
+		line-name = "SPI_CONNECT";
+	};
+	holdreset {
+		gpios = <ASPEED_GPIO(P, 3) GPIO_ACTIVE_HIGH>;
+		gpio-hog;
+		output-low;
+		line-name = "RST_BTN";
+	};
+	gpioready {
+		gpios = <ASPEED_GPIO(N, 7) GPIO_ACTIVE_HIGH>;
+		gpio-hog;
+		output-high;
+		line-name = "CTRL_RDY";
+	};
+};
+
 &fmc {
 	status = "okay";
 	flash@0 {
