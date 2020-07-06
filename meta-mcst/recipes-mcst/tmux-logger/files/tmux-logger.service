@@ -1,5 +1,5 @@
 [Unit]
-Description=tmux with minicom for serial-over-lan
+Description=Serial over SSH by tmux with minicom
 After=syslog.target
 
 [Service]

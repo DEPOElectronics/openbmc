@@ -5,8 +5,8 @@
 # Required-Stop:
 # Default-Start:     2 3 4 5
 # Default-Stop:      0 1 6
-# Short-Description: turns on ACTIVE LED
-# Description:       turns on ACTIVE LED
+# Short-Description: Turn on ACTIVE LED
+# Description:       Turn on ACTIVE LED
 ### END INIT INFO
 
 . /libexec/gpio-funcs
