@@ -1,0 +1,13 @@
+[Unit]
+Description=Create /dev/mem and do several stuff with it
+After=syslog.target
+
+[Service]
+ExecStart=/libexec/devmem-stuff
+StandardOutput=syslog
+Type=oneshot
+RemainAfterExit=yes
+KillMode=none
+
+[Install]
+WantedBy=network.target

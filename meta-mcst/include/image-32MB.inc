@@ -3,6 +3,7 @@ require include/modules.inc
 OBMC_IMAGE_EXTRA_INSTALL_append = " \
   active-gpio-on \
   allow-host-boot \
+  devmem-stuff \
   flashrom \
   openssh \
   buttonscripts \

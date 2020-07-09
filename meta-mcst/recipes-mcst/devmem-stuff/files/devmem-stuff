@@ -1,0 +1,34 @@
+#!/bin/bash
+
+SCU_ADDR=0x1E6E2000
+
+scu_get() # $1 = register
+{
+    devmem $(($SCU_ADDR + $1)) w
+}
+
+scu_set() # $1 = register, $2 = data
+{
+    devmem $(($SCU_ADDR + $1)) w $2
+}
+
+scu_bit_enable() # $1 = register, $2 = mask (1 to enable)
+{
+    U=`scu_get $1`
+    scu_set $1 $(($U | $2))
+}
+
+scu_bit_disable() # $1 = register, $2 = mask (0 to disable)
+{
+    U=`scu_get $1`
+    scu_set $1 $(($U & $2))
+}
+
+# Create /dev/mem.
+mknod /dev/mem c `sed -n 's/ mem$//p' /proc/devices` 1
+
+# Set TinySPI GPIO to correct mode: zero bits 0,1,2,6 of SCU88.
+scu_bit_disable 0x88 0xFFFFFFB4
+
+# Enable RMII-mode of MAC1 and MAC2: zero bits 6,7 of SCU70.
+scu_bit_disable 0x70 0xFFFFFF3F
