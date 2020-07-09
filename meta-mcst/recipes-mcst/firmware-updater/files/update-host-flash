@@ -1,0 +1,16 @@
+#!/bin/sh
+
+. /libexec/gpio-funcs
+
+spigpio=`gpio2num $GPIO_SPI_CONNECT`
+
+export MTDDEV=mtdblock6
+export FLASHSIZE=8388608
+
+echo "Attaching system SPI..."
+gpiowrite $spigpio 1
+sleep 1
+firware-updater $@
+echo "Detaching system SPI..."
+sleep 1
+gpiowrite $spigpio 0
