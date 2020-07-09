@@ -81,10 +81,12 @@
 &mac0 {
 	status = "okay";
 	no-hw-checksum;
-	pinctrl-names = "default";
-	pinctrl-0 = <&pinctrl_rmii1_default>;
 };
 
+&mac1 {
+	status = "okay";
+	no-hw-checksum;
+};
 
 &uart5 {
 	status = "okay";
