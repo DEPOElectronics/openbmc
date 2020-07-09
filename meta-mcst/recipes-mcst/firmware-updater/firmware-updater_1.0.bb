@@ -22,12 +22,13 @@ PR = "r1"
 LICENSE = "GPLv2"
 LIC_FILES_CHKSUM = "file://LICENSE;md5=b234ee4d69f5fce4486a80fdaf4a4263"
 
-RDEPENDS_${PN} += "bash pv coreutils wget"
+RDEPENDS_${PN} += "bash pv coreutils wget gpio-funcs"
 
 S = "${WORKDIR}"
 
 SRC_URI = "file://LICENSE \
            file://firmware-updater \
+           file://update-host-flash \
           "
 
 do_install() {
