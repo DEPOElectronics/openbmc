@@ -2,7 +2,7 @@
 
 error()
 {
-    echo $@ >&2
+    echo $@ 1>&2
     exit 1
 }
 
@@ -67,49 +67,72 @@ case "$PROTO" in
 esac
 
 # In case you're flashing device other than BMC flash, you should specify two variables:
-#    MTDDEV    - device to flash inside /dev (such as mtdblock6)
-#    FLASHSIZE - size of region which is allowed to flash from chip start
-#                (in bytes, but should be less than flash size, and should divide by $BLOCKSIZE)
+#    MTDDEV    (required) - device to flash inside /dev (such as mtdblock6)
+#    FLASHSIZE (optional) - size of region which is allowed to flash from chip start
+#                           (in bytes, but should be less than flash size, and should divide by $BLOCKSIZE)
 
+# Determine FLASHSIZE: number of bytes to write into chip.
 MTDDEV=${MTDDEV:-mtdblock0}
 MTDFLASH=/dev/$MTDDEV
-SIZE=`cat /sys/block/$MTDDEV/device/size`
+DEVSIZE=`cat /sys/block/$MTDDEV/device/size`
 if [ -z "$FLASHSIZE" ]
 then
-    [ "$SIZE" = "67108864" ] && FLASHSIZE=58720256 # Flash only first 56 MB; last 8 MB is user data partition.
-    [ "$SIZE" = "33554432" ] && FLASHSIZE=29360128 # Flash only first 28 MB; last 4 MB is user data partition.
-    [ -z $FLASHSIZE ] && error "Flash has wrong size $SIZE bytes, supported only 32 and 64 MB. Aborting."
+    [ "$DEVSIZE" = "67108864" ] && FLASHSIZE=58720256 # Flash only first 56 MB; last 8 MB is user data partition.
+    [ "$DEVSIZE" = "33554432" ] && FLASHSIZE=29360128 # Flash only first 28 MB; last 4 MB is user data partition.
+    if [ -z $FLASHSIZE ]
+    then
+        echo "Warning: Flash has wrong size $DEVSIZE bytes, will write the whole chip." 1>&2
+        FLASHSIZE=$DEVSIZE
+    fi
 fi
-BLOCKSIZE=512
 
+# Check if FLASHSIZE is correct.
+BLOCKSIZE=512
+[ `expr $FLASHSIZE % $BLOCKSIZE` -ne 0 ] && error "Desired flash size ($FLASHSIZE) should divide by block size $BLOCKSIZE."
+
+if [ "$MTDDEV" = "mtdblock0" ]
+then
+    systemctl status rescue.target > /dev/null || error "BMC flash should be reprogrammed from single-user mode only. Execute `init 1' or `systemctl isolate rescue.target' to get into it."
+    echo "Note: programming BMC flash chip. It will end up in immediate reboot."
+    cp /usr/bin/md5sum /usr/bin/pv /bin/dd /tmp
+    export PATH=/tmp:$PATH
+    REBOOT=yes
+fi
+
+# Locate file and determine FILESIZE: number of bytes to read from file.
 [ ! -f $DEST ] && error "Can't find file $DEST, aborting."
-SIZE=`stat -c%s $DEST`
-[ -z "$SIZE" ] && error "Can't stat() file $DEST, aborting."
-[ $SIZE -eq 0 ] && error "File $DEST is empty, aborting."
-[ $SIZE -gt $FLASHSIZE ] && error "File $DEST ($SIZE bytes) is greater than allowed flash size ($FLASHSIZE bytes), aborting."
+FILESIZE=`stat -c%s $DEST`
+[ -z "$FILESIZE" ] && error "Can't stat() file $DEST, aborting."
+[ $FILESIZE -eq 0 ] && error "File $DEST is empty, aborting."
+if [ $FILESIZE -gt $FLASHSIZE ]
+then
+    echo "Warning: File $DEST ($FILESIZE bytes) is greater than allowed flash size ($FLASHSIZE bytes), will write the only part that fits." 1>&2
+    # Note: Flashsize is already divides by BLOCKSIZE, so no alignment will be needed.
+    FILESIZE=$FLASHSIZE
+fi
 
 echo "===== Flashing $DEST into $MTDFLASH... ====="
 
-# Align firmware to block size
-if [ `expr $SIZE % $BLOCKSIZE` -ne 0 ]
+# Align firmware to block size, if needed
+if [ `expr $FILESIZE % $BLOCKSIZE` -ne 0 ]
 then
-    NEWSIZE=`expr \( \( $SIZE / $BLOCKSIZE \) + 1 \) \* 512`
-    echo "Expanding $DEST to fit block size of $BLOCKSIZE ($SIZE -> $NEWSIZE bytes)..."
-    SIZE=$NEWSIZE
-    truncate -s $SIZE $DEST
+    NEWSIZE=`expr \( \( $FILESIZE / $BLOCKSIZE \) + 1 \) \* 512`
+    echo "Expanding $DEST to fit block size of $BLOCKSIZE ($FILESIZE -> $NEWSIZE bytes)..."
+    FILESIZE=$NEWSIZE
+    truncate -s $FILESIZE $DEST
 fi
 
-# Flashing!
-BLOCKS=`expr $SIZE / $BLOCKSIZE`
+# Program the flash chip
+BLOCKS=`expr $FILESIZE / $BLOCKSIZE`
 echo "Programming flash $MTDFLASH:"
-dd if=$DEST bs=$BLOCKSIZE count=$BLOCKS 2>/dev/null | pv -s $SIZE | dd of=$MTDFLASH bs=$BLOCKSIZE 2>/dev/null
+dd if=$DEST bs=$BLOCKSIZE count=$BLOCKS 2>/dev/null | pv -s $FILESIZE | dd of=$MTDFLASH bs=$BLOCKSIZE 2>/dev/null
 echo "Total $BLOCKS blocks of $BLOCKSIZE bytes written."
 
 # Check results
 echo "Calculating checksum of source file..."
-CSUM_S=`dd if=$DEST bs=$BLOCKSIZE count=$BLOCKS 2>/dev/null | pv -s $SIZE | md5sum | cut -d" " -f1`
+CSUM_S=`dd if=$DEST bs=$BLOCKSIZE count=$BLOCKS 2>/dev/null | pv -s $FILESIZE | md5sum | cut -d" " -f1`
 echo "Calculating checksum of corresponding flash region..."
-CSUM_D=`dd if=$MTDFLASH bs=$BLOCKSIZE count=$BLOCKS 2>/dev/null | pv -s $SIZE | md5sum | cut -d" " -f1`
+CSUM_D=`dd if=$MTDFLASH bs=$BLOCKSIZE count=$BLOCKS 2>/dev/null | pv -s $FILESIZE | md5sum | cut -d" " -f1`
 echo "File MD5: $CSUM_S, flash MD5: $CSUM_D"
 [ "$CSUM_S" != "$CSUM_D" ] && error "ERROR! Checksums do not match. Possibly you have a broken flash, or maybe you could just try again and hope it will be OK then."
 echo "Checksums match, flashing is considered successful."
@@ -118,9 +141,14 @@ echo "Checksums match, flashing is considered successful."
 if [ $PROTO != "file" ]
 then
     echo "Removing $DEST (it's not needed anymore)."
+    # Note: in this case, we have file on /tmp, so even if we are programming BMC flash
+    # and therefore rootfs is invalid at this moment, we still can remove this file.
     rm $DEST
 fi
 
 echo "===== Flashing is successful! ====="
-echo "    Now you may restart BMC using \`reboot' command"
-echo "    to boot into the new firmware."
+if [ "$REBOOT" ]
+then
+    echo "    Rebooting BMC."
+    reboot -f
+fi
