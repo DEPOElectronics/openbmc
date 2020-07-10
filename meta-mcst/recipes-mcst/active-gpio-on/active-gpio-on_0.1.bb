@@ -5,21 +5,25 @@ PR = "r1"
 LICENSE = "GPLv2"
 LIC_FILES_CHKSUM = "file://LICENSE;md5=b234ee4d69f5fce4486a80fdaf4a4263"
 
-DEPENDS += "update-rc.d-native"
+inherit systemd
+
+REQUIRED_DISTRO_FEATURES = "systemd"
+RDEPENDS_${PN} += "systemd bash gpio-funcs"
+SYSTEMD_SERVICE_${PN} = "active-gpio-on.service"
 
 SRC_URI = " \
             file://LICENSE \
-            file://activeledd \
+            file://active-gpio-on \
+            file://active-gpio-on.service \
           "
 
 S = "${WORKDIR}"
 
 do_install() {
-  install -d ${D}/etc/init.d
-  install -m 755 ${S}/activeledd ${D}/etc/init.d
-  update-rc.d -r ${D} activeledd defaults
+  install -d ${D}/libexec
+  install -d ${D}${systemd_system_unitdir}
+  install -m 755 active-gpio-on ${D}/libexec
+  install -m 644 active-gpio-on.service ${D}${systemd_system_unitdir}
 }
 
-FILES_${PN} = "/etc"
-
-RDEPENDS_${PN} += "gpio-funcs"
+FILES_${PN} = "/libexec ${systemd_system_unitdir}"

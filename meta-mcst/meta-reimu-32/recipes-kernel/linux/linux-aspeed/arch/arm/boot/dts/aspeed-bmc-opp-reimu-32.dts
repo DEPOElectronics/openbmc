@@ -33,21 +33,18 @@
 			reg = <0x5c000000 0x02000000>; /* 32M */
 		};
 	};
+
+	leds {
+		compatible = "gpio-leds";
+		bmc_boot {
+			label = "platform:red:bmc_boot";
+			gpios = <&gpio ASPEED_GPIO(G, 1) GPIO_ACTIVE_HIGH>;
+			linux,default-trigger = "timer";
+		};
+	};
 };
 
 &gpio {
-	spiconnect {
-		gpios = <ASPEED_GPIO(O, 0) GPIO_ACTIVE_HIGH>;
-		gpio-hog;
-		output-high;
-		line-name = "SPI_CONNECT";
-	};
-	holdreset {
-		gpios = <ASPEED_GPIO(P, 3) GPIO_ACTIVE_HIGH>;
-		gpio-hog;
-		output-low;
-		line-name = "RST_BTN";
-	};
 	gpioready {
 		gpios = <ASPEED_GPIO(N, 7) GPIO_ACTIVE_HIGH>;
 		gpio-hog;

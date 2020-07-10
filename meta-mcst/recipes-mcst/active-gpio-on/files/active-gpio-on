@@ -1,13 +1,4 @@
 #!/bin/sh
-### BEGIN INIT INFO
-# Provides:          activeledd
-# Required-Start:    initsc
-# Required-Stop:
-# Default-Start:     2 3 4 5
-# Default-Stop:      0 1 6
-# Short-Description: Turn on ACTIVE LED
-# Description:       Turn on ACTIVE LED
-### END INIT INFO
 
 . /libexec/gpio-funcs
 
@@ -16,6 +7,7 @@ gpio=`gpio2num $GPIO_ACT_LED`
 case "$1" in
     start)
         gpiowrite $gpio 0
+        [ -f "/sys/class/leds/platform:red:bmc_boot/trigger" ] && echo 'default-on' > "/sys/class/leds/platform:red:bmc_boot/trigger"
         exit 0
         ;;
     stop)

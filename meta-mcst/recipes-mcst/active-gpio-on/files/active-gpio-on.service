@@ -1,0 +1,14 @@
+[Unit]
+Description=Turn on ACTIVE# and turn off BMC_BOOT# LEDs
+After=getty.target
+
+[Service]
+ExecStart=/libexec/active-gpio-on start
+ExecStop=/libexec/active-gpio-on stop
+StandardOutput=syslog
+Type=oneshot
+RemainAfterExit=yes
+KillMode=none
+
+[Install]
+WantedBy=multi-user.target
