@@ -92,9 +92,9 @@ BLOCKSIZE=512
 
 if [ "$MTDDEV" = "mtdblock0" ]
 then
-    systemctl status rescue.target > /dev/null || error "BMC flash should be reprogrammed from single-user mode only. Execute `init 1' or `systemctl isolate rescue.target' to get into it."
+    systemctl status rescue.target > /dev/null || error "BMC flash should be reprogrammed from single-user mode only. Execute 'init 1' to get into it."
     echo "Note: programming BMC flash chip. It will end up in immediate reboot."
-    cp /usr/bin/md5sum /usr/bin/pv /bin/dd /tmp
+    cp /usr/bin/md5sum /sbin/reboot /usr/bin/pv /bin/dd /tmp
     export PATH=/tmp:$PATH
     REBOOT=yes
 fi
