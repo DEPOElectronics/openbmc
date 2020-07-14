@@ -5,7 +5,6 @@ OBMC_IMAGE_EXTRA_INSTALL_append = " \
   allow-host-boot \
   devmem-stuff \
   profile-d \
-  flashrom \
   openssh \
   buttonscripts \
   glibc-localedata-en-us \
@@ -17,13 +16,11 @@ OBMC_IMAGE_EXTRA_INSTALL_append = " \
   firmware-updater \
   i2c-tools \
   rawi2ctool \
-  dscan \
   net-initial \
   glibc-utils \
   mc mc-fish mc-helpers mc-helpers-perl mc-locale-ru \
   tcpdump \
   ethtool \
-  kernel-module-rtc-cy14b101p \
   "
 
 IMAGE_FEATURES_remove = " \
