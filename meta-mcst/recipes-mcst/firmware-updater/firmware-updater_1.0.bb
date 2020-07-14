@@ -34,6 +34,7 @@ SRC_URI = "file://LICENSE \
 do_install() {
   install -d ${D}/usr/sbin
   install -m 755 firmware-updater ${D}/usr/sbin/firmware-updater
+  install -m 755 update-host-flash ${D}/usr/sbin/update-host-flash
 }
 
-FILES_${PN} = "/usr/sbin/firmware-updater"
+FILES_${PN} = "/usr/sbin/"
