@@ -14,12 +14,16 @@ intro()
 usage()
 {
     cat << EOF
-    Usage: $1 <URL>
+    Usage: $1 [options] <URL>
 
-    Here, <URL> should specify location of firmware file to flash into the BMC.
+    Here, <URL> should specify location of firmware file to flash MTD device.
     Supported protocols: scp, http, https, ftp, file.
     \`file' protocol is used for files already uploaded to BMC filesystem,
     other protocols are used to automatically download files from network.
+
+    Options:
+        --fullclear: Remove all data from user partition while flashing BMC.
+                     Has no effect when flashing other MTD devices.
 
     Examples:
         $1 http://fileserver.domain/uploads/new_bmc_fimware.bin
@@ -35,6 +39,14 @@ EOF
 }
 
 DEST="/tmp/firmware"
+
+FULLCLEAR="no"
+if [ "$1" == "--fullclear" ]
+then
+    FULLCLEAR="yes"
+    shift
+fi
+
 PROTO="`echo $1 | cut -d: -f1`"
 case "$PROTO" in
     "http"|"https"|"ftp")
@@ -149,6 +161,11 @@ fi
 echo "===== Flashing is successful! ====="
 if [ "$REBOOT" ]
 then
+    if [ "$FULLCLEAR" = "yes" ]
+    then
+        echo "    Clearing RW data partition..."
+        rm -rf /run/initramfs/rw/cow/*
+    fi
     echo "    Rebooting BMC."
     reboot -f
 fi
