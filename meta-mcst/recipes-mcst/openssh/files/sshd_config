@@ -7,9 +7,7 @@ TrustedUserCAKeys /etc/ssh/trusted_ca
 AuthorizedPrincipalsFile /etc/ssh/auth_principals_%u
 AuthorizedPrincipalsCommandUser root
 AuthorizedPrincipalsCommand /etc/ssh/auth_principals.sh
-UsePrivilegeSeparation sandbox
 Compression no
-VersionAddendum __OPENBMC_VERSION__
 Subsystem sftp /usr/libexec/sftp-server
 AuthenticationMethods publickey password
 
