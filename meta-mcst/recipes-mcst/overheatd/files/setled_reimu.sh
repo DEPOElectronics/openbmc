@@ -4,18 +4,34 @@
 
 checkalert()
 {
-    alertgpio="`gpio2num $1`"
+    alertgpio="`gpio2num $3`"
     gpiostate="`gpioread $alertgpio`"
     gpiounexport $alertgpio
-    [ $gpiostate -ne 0 ] && echo "$2 is inactive" || echo -e "$2 is \e[1mACTIVE\e[0m"
+    [ $gpiostate -ne 0 ] && echo -e "$4 $1" || echo -e "$4 $2"
 }
 
 checkalerts()
 {
-    checkalert $GPIO_ALERT_CPU CPU_ALERT
-    checkalert $GPIO_ALERT_MEM MEM_ALERT
-    checkalert $GPIO_ALERT_SMBUS SMBUS_ALERT
-    checkalert $GPIO_TCRIT_SMBUS SMBUS_TCRIT
+    ON="is \e[32;1mON[0m"
+    OFF="is OFF"
+    INACT="is inactive"
+    ACT="is \e[31;1mACTIVE\e[0m"
+    NRST="is online"
+    RST="is \e[33;1munder reset\e[0m"
+    NDET="not detected"
+    DET="\e[31;1mDETECTED\e[0m"
+
+    checkalert "$ON"    "$OFF"  $GPIO_POWER_IN    "System power      "
+    checkalert "$NRST"  "$RST"  $GPIO_RESET_IN    "System            "
+    checkalert "$INACT" "$ACT"  $GPIO_ALERT_CPU   "Alert 1 for CPU   "
+    checkalert "$INACT" "$ACT"  $GPIO_ALERT_CPU2  "Alert 2 for CPU   "
+    checkalert "$INACT" "$ACT"  $GPIO_ALERT_MEM   "Alert for DIMM    "
+    checkalert "$INACT" "$ACT"  $GPIO_ALERT_PCIE  "Alert for PCIe    "
+    checkalert "$INACT" "$ACT"  $GPIO_ALERT_FRU   "Alert for FRU bus "
+    checkalert "$INACT" "$ACT"  $GPIO_ALERT_SMBUS "Alert for SMBus   "
+    checkalert "$INACT" "$ACT"  $GPIO_TCRIT_SMBUS "SMBus overheat    "
+    checkalert "$DET"   "$NDET" $GPIO_INTRUSION   "Chassis intrusion "
+
     exit 0
 }
 

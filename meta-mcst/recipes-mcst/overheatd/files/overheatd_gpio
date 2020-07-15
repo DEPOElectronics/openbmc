@@ -95,6 +95,28 @@ get_gpio()
     gpiounexport $gpionum
 }
 
+bin2hex()
+{
+    case $1 in
+        0000) echo -n '0';;
+        0001) echo -n '1';;
+        0010) echo -n '2';;
+        0011) echo -n '3';;
+        0100) echo -n '4';;
+        0101) echo -n '5';;
+        0110) echo -n '6';;
+        0111) echo -n '7';;
+        1000) echo -n '8';;
+        1001) echo -n '9';;
+        1010) echo -n 'a';;
+        1011) echo -n 'b';;
+        1100) echo -n 'c';;
+        1101) echo -n 'd';;
+        1110) echo -n 'e';;
+        1111) echo -n 'f';;
+    esac
+}
+
 while true
 do
     # Reload config (done each cycle)
@@ -127,13 +149,22 @@ do
     led_state=0
 
     debug "Re-reading alerts (old alerts = $alerts)"
-    a1=`get_gpio $GPIO_ALERT_CPU`
-    a2=`get_gpio $GPIO_ALERT_MEM`
-    a3=`get_gpio $GPIO_ALERT_SMBUS`
-    a4=`get_gpio $GPIO_TCRIT_SMBUS`
-    a5=`get_gpio $GPIO_POWER_IN`
 
-    alerts=0x000${a5}${a4}${a3}${a2}${a1}
+    a1=`get_gpio $GPIO_POWER_IN`
+    a2=`get_gpio $GPIO_RESET_IN`
+    a3=`get_gpio $GPIO_ALERT_CPU`
+    a4=`get_gpio $GPIO_ALERT_CPU2`
+    a5=`get_gpio $GPIO_ALERT_MEM`
+    a6=`get_gpio $GPIO_ALERT_PCIE`
+    a7=`get_gpio $GPIO_ALERT_FRU`
+    a8=`get_gpio $GPIO_ALERT_SMBUS`
+    a9=`get_gpio $GPIO_TCRIT_SMBUS`
+    aa=`get_gpio $GPIO_INTRUSION`
+    h1=`bin2hex ${a4}${a3}${a2}${a1}`
+    h2=`bin2hex ${a8}${a7}${a6}${a5}`
+    h3=`bin2hex 00${aa}${a9}`
+    alerts=0x00000${h3}${h2}${h1}
+
     debug "Alerts: $alerts"
     echo "	<gpioalerts>$alerts</gpioalerts>" >> $statefile.tmp
 
