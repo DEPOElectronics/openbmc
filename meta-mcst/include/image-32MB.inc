@@ -24,24 +24,30 @@ OBMC_IMAGE_EXTRA_INSTALL_append = " \
 
 IMAGE_FEATURES_remove = " \
   ssh-server-dropbear \
-  phosphor-state-manager \
   obmc-bmc-state-mgmt \
   obmc-chassis-mgmt \
   obmc-chassis-state-mgmt \
   obmc-fan-control \
   obmc-fan-mgmt \
   obmc-flash-mgmt \
+  obmc-host-ctl \
+  obmc-host-state-mgmt \
   obmc-host-ipmi \
   obmc-inventory \
   obmc-leds \
   obmc-logging-mgmt \
   obmc-remote-logging-mgmt \
   obmc-net-ipmi \
+  obmc-network-mgmt \
   obmc-sensors \
   obmc-debug-collector \
-  bmcweb \
   obmc-software \
   obmc-system-mgmt \
   obmc-user-mgmt \
   obmc-settings-mgmt \
   "
+
+PACKAGE_EXCLUDE = " \
+  phosphor-state-manager \
+  "
+

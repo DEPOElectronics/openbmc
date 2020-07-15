@@ -1,48 +1,16 @@
 OBMC_IMAGE_EXTRA_INSTALL_append = " \
-  kernel-module-adm1275 \
-  kernel-module-at24 \
-  kernel-module-at25 \
-  kernel-module-crc32c-generic \
-  kernel-module-eeprom-93cx6 \
-  kernel-module-gpio-pca953x \
-  kernel-module-grace \
-  kernel-module-i2c-mux \
-  kernel-module-i2c-mux-pca9541 \
-  kernel-module-i2c-mux-pca954x \
-  kernel-module-ibm-cffps \
   kernel-module-ip6table-filter \
   kernel-module-ip6table-mangle \
   kernel-module-ip6-tables \
   kernel-module-ip6t-ipv6header \
   kernel-module-ip6t-reject \
-  kernel-module-ipip \
   kernel-module-iptable-filter \
   kernel-module-iptable-mangle \
   kernel-module-iptable-nat \
   kernel-module-ip-tables \
   kernel-module-ipt-reject \
-  kernel-module-ir35221 \
-  kernel-module-lm25066 \
-  kernel-module-lm63 \
-  kernel-module-lm75 \
-  kernel-module-lockd \
-  kernel-module-ltc2978 \
-  kernel-module-max31785 \
-  kernel-module-max31790 \
-  kernel-module-max34440 \
-  kernel-module-mii \
-  kernel-module-nls-iso8859-1 \
-  kernel-module-pmbus \
-  kernel-module-pmbus-core \
-  kernel-module-r8152 \
   kernel-module-rng-core \
-  kernel-module-rtl8150 \
-  kernel-module-spidev \
   kernel-module-timeriomem-rng \
-  kernel-module-tmp421 \
-  kernel-module-tun \
-  kernel-module-ucd9000 \
-  kernel-module-ucd9200 \
   kernel-module-x-tables \
   kernel-module-xt-addrtype \
   kernel-module-xt-conntrack \
