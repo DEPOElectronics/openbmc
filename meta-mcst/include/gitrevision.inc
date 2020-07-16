@@ -29,4 +29,3 @@ def get_openbmc_commit(d):
     return version
 
 ISSUE_COMMIT := "${@get_openbmc_commit(d)}"
-ISSUE_VERSION = "built at __ISSUE_DATE__, git @${ISSUE_COMMIT}"

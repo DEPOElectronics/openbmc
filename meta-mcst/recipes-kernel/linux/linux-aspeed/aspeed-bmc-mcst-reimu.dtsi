@@ -1,23 +1,9 @@
 // SPDX-License-Identifier: GPL-2.0+
-// Copyright 2020 MCST
-/dts-v1/;
 
 #include "aspeed-g4.dtsi"
 #include <dt-bindings/gpio/aspeed-gpio.h>
 
 / {
-	model = "REIMU-64";
-	compatible = "mcst,reimu-64", "aspeed,ast2400";
-
-	aliases {
-		serial4 = &uart5; /* AST - Service connector */
-		serial0 = &uart1; /* AST - IOHUB ttyS1 */
-	};
-	chosen {
-		stdout-path = "serial4:115200n8";
-		bootargs = "console=ttyS4,115200 earlyprintk";
-	};
-
 	memory {
 		reg = <0x40000000 0x20000000>;
 	};
@@ -43,6 +29,10 @@
 			linux,default-trigger = "timer";
 		};
 	};
+};
+
+&rtc {
+	status = "okay";
 };
 
 &gpio {
@@ -121,4 +111,100 @@
 	status = "okay";
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_txd4_default &pinctrl_rxd4_default>;
+};
+
+&pwm_tacho {
+	status = "okay";
+	fan@0 {
+		reg = <0x00>;
+		aspeed,fan-tach-ch = /bits/ 8 <0x07>;
+	};
+	fan@1 {
+		reg = <0x01>;
+		aspeed,fan-tach-ch = /bits/ 8 <0x08>;
+	};
+	fan@2 {
+		reg = <0x02>;
+		aspeed,fan-tach-ch = /bits/ 8 <0x09>;
+	};
+	fan@3 {
+		reg = <0x03>;
+		aspeed,fan-tach-ch = /bits/ 8 <0x0a>;
+	};
+	fan@4 {
+		reg = <0x04>;
+		aspeed,fan-tach-ch = /bits/ 8 <0x0c>;
+	};
+	fan@5 {
+		reg = <0x05>;
+		aspeed,fan-tach-ch = /bits/ 8 <0x0d>;
+	};
+	fan@6 {
+		reg = <0x06>;
+		aspeed,fan-tach-ch = /bits/ 8 <0x0e>;
+	};
+	fan@7 {
+		reg = <0x07>;
+		aspeed,fan-tach-ch = /bits/ 8 <0x0f>;
+	};
+};
+
+&adc {
+	status = "okay";
+};
+
+&vhub {
+	status = "okay";
+};
+
+&uhci {
+	status = "okay";
+};
+
+&ehci0 {
+	status = "okay";
+};
+
+&i2c0 {
+	status = "okay";
+};
+
+&i2c1 {
+	status = "okay";
+};
+
+&i2c2 {
+	status = "okay";
+};
+
+&i2c3 {
+	status = "okay";
+};
+
+&i2c4 {
+	status = "okay";
+};
+
+&i2c5 {
+	status = "okay";
+};
+
+&i2c6 {
+	status = "okay";
+};
+
+&i2c7 {
+	status = "okay";
+};
+
+&i2c8 {
+	status = "okay";
+};
+
+&i2c9 {
+	status = "okay";
+};
+
+&i2c13 {
+	status = "okay";
 };

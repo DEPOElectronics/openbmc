@@ -1,5 +1,6 @@
 FILESEXTRAPATHS_prepend := "${THISDIR}/${PN}:"
 
-require include/mcst-linux-files.inc
-
-SRC_URI += " file://reimu-64.cfg "
+SRC_URI += " \
+             file://reimu-ast2400-64.cfg \
+             file://aspeed-bmc-mcst-reimu-64.dts \
+           "
