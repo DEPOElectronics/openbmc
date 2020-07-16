@@ -13,7 +13,7 @@ RDEPENDS_${PN} += "bash rawi2ctool kernel-module-tinyspi gpio-funcs"
 SRC_URI = " \
             file://LICENSE \
             file://overheatd \
-            file://setled_tinyspi.sh \
+            file://setled \
           "
 
 S = "${WORKDIR}"
@@ -22,7 +22,7 @@ do_install() {
   install -d ${D}/etc/init.d
   install -d ${D}/usr/bin
   install -m 755 ${S}/overheatd ${D}/etc/init.d
-  install -m 755 ${S}/setled_tinyspi.sh ${D}/usr/bin/setled
+  install -m 755 ${S}/setled ${D}/usr/bin
   update-rc.d -r ${D} overheatd defaults
 }
 

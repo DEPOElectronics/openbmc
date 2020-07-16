@@ -85,8 +85,14 @@ trap rm_pidfile TERM INT EXIT
 mkdir -p $rundir
 echo $$ > $pidfile
 
-modprobe tinyspi # Just in case module is not loaded
-sysfsdir="/sys/kernel/tinyspi"
+TINYSPI=`detect_tinyspi`
+
+if [ "$TINYSPI" = "yes" ]
+then
+    modprobe tinyspi # Just in case module is not loaded
+    sysfsdir="/sys/kernel/tinyspi"
+fi
+
 led_state=0
 alerts=unknown
 
@@ -95,6 +101,53 @@ get_gpio()
     gpionum=`gpio2num $1`
     gpioread $gpionum
     gpiounexport $gpionum
+}
+
+bin2hex()
+{
+    case $1 in
+        0000) echo -n '0';;
+        0001) echo -n '1';;
+        0010) echo -n '2';;
+        0011) echo -n '3';;
+        0100) echo -n '4';;
+        0101) echo -n '5';;
+        0110) echo -n '6';;
+        0111) echo -n '7';;
+        1000) echo -n '8';;
+        1001) echo -n '9';;
+        1010) echo -n 'a';;
+        1011) echo -n 'b';;
+        1100) echo -n 'c';;
+        1101) echo -n 'd';;
+        1110) echo -n 'e';;
+        1111) echo -n 'f';;
+    esac
+}
+
+overheat_set_led_gpio()
+{
+    gpionum=`gpio2num $GPIO_OVERHEAT_LED`
+    if [ $1 -eq 1 ]
+    then
+        gpiowrite $gpionum 0
+    else
+        gpiowrite $gpionum 1
+    fi
+    gpiounexport $gpionum
+    debug "Changed LED state through gpio $GPIO_OVERHEAT_LED ($gpionum)"
+}
+
+overheat_set_led_tspi()
+{
+    if [ $1 -eq 1 ]
+    then
+        ledfile=command_bits_reset
+    else
+        ledfile=command_bits_set
+    fi
+    echo 0x00000040 > $sysfsdir/$ledfile
+    debug "Changed LED state through $ledfile"
 }
 
 while true
@@ -128,18 +181,52 @@ do
     oldledstate=$led_state
     led_state=0
 
-    tinyspi_alert=`get_gpio $GPIO_TINYSPI_ALERT`
-    if [ "$alerts" = "unknown" -o $tinyspi_alert -eq 0 ] # Re-check alerts only if we have TINYSPI_ALERT
+    if [ "$TINYSPI" = "yes" ]
     then
-        debug "Re-reading alerts (tinyspi_alert = $tinyspi_alert, alerts = $alerts)"
-        echo 0x00000010 > $sysfsdir/command_bits_set
-        echo 0x00000010 > $sysfsdir/command_bits_reset
-        alerts=0x`cat $sysfsdir/state_reg`
+        tinyspi_alert=`get_gpio $GPIO_TINYSPI_ALERT`
+        if [ "$alerts" = "unknown" -o $tinyspi_alert -eq 0 ] # Re-check alerts only if we have TINYSPI_ALERT
+        then
+            debug "Re-reading alerts (tinyspi_alert = $tinyspi_alert, old alerts = $alerts)"
+            echo 0x00000010 > $sysfsdir/command_bits_set
+            echo 0x00000010 > $sysfsdir/command_bits_reset
+            alerts=0x`cat $sysfsdir/state_reg`
+        fi
+    else
+        debug "Re-reading alerts (old alerts = $alerts)"
+        # TinySPI has the following assignment, so we try to adopt it:
+        # INTRUSION  = bit 4  = INTRUSION
+        # I2C0_ALERT = bit 6  = ALERT_MEM
+        # I2C1_ALERT = bit 8  = ALERT_SMBUS
+        # I2C1_TCRIT = bit 9  = TCRIT_SMBUS
+        # I2C1_FAULT = bit 10 = ALERT_FRU
+        # I2C2_ALERT = bit 11 = ALERT_PCIE
+        # I2C3_ALERT = bit 12 = ALERT_CPU2
+        # I2CM_ALERT = bit 14 = ALERT_CPU
+        # PWROK_MAIN = bit 21 = POWER_IN
+        # GPI7_RFU   = bit 31 = RESET_IN
+
+        b21=`get_gpio $GPIO_POWER_IN`
+        b31=`get_gpio $GPIO_RESET_IN`
+        b14=`get_gpio $GPIO_ALERT_CPU`
+        b12=`get_gpio $GPIO_ALERT_CPU2`
+        b06=`get_gpio $GPIO_ALERT_MEM`
+        b11=`get_gpio $GPIO_ALERT_PCIE`
+        b10=`get_gpio $GPIO_ALERT_FRU`
+        b08=`get_gpio $GPIO_ALERT_SMBUS`
+        b09=`get_gpio $GPIO_TCRIT_SMBUS`
+        b04=`get_gpio $GPIO_INTRUSION`
+        h1=`bin2hex 0${b06}0${b04}`
+        h2=`bin2hex ${b11}${b10}${b09}${b08}`
+        h3=`bin2hex 0${b14}0${b12}`
+        h5=`bin2hex 00${b21}0`
+        h7=`bin2hex ${b31}000`
+        alerts=0x${h7}0${h5}0${h3}${h2}${h1}0
     fi
+
     debug "Alerts: $alerts"
+    echo "	<alerts>$alerts</alerts>" >> $statefile.tmp
 
     # THERMAL_SHDN == 0 : on
-    echo "	<alerts>$alerts</alerts>" >> $statefile.tmp
     if [ $(($alerts & 0x00000001)) -eq 0 ]  # Bit 0: THERMAL_SHDN#
     then
         led_state=1
@@ -192,14 +279,7 @@ do
     debug "LED state: $oldledstate -> $led_state"
     if [ $oldledstate != $led_state ]
     then
-        if [ $led_state -eq 1 ]
-        then
-            ledfile=command_bits_reset
-        else
-            ledfile=command_bits_set
-        fi
-        echo 0x00000040 > $sysfsdir/$ledfile
-        debug "Changed LED state through $ledfile"
+        [ "$TINYSPI" = "yes" ] && overheat_set_led_gpio $led_state || overheat_set_led_tspi $led_state
     fi
 
     # Finalize statefile
