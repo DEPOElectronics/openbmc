@@ -82,22 +82,27 @@ gpiorelease()
 
 get_board_id()
 {
-    gpid0=gpio2num $GPIO_MB_ID0
-    gpid1=gpio2num $GPIO_MB_ID1
-    gpid2=gpio2num $GPIO_MB_ID2
-    gpid3=gpio2num $GPIO_MB_ID3
+    if [ ! -f /var/volatile/boardid ]
+    then
+        gpid0=`gpio2num $GPIO_MB_ID0`
+        gpid1=`gpio2num $GPIO_MB_ID1`
+        gpid2=`gpio2num $GPIO_MB_ID2`
+        gpid3=`gpio2num $GPIO_MB_ID3`
 
-    id0=gpioread $gpid0
-    id1=gpioread $gpid1
-    id2=gpioread $gpid2
-    id3=gpioread $gpid3
+        id0=`gpioread $gpid0`
+        id1=`gpioread $gpid1`
+        id2=`gpioread $gpid2`
+        id3=`gpioread $gpid3`
 
-    echo ${id3}${id2}${id1}${id0}
+        echo ${id3}${id2}${id1}${id0} > /var/volatile/boardid
 
-    gpiorelease $id0
-    gpiorelease $id1
-    gpiorelease $id2
-    gpiorelease $id3
+        gpiorelease $gpid0
+        gpiorelease $gpid1
+        gpiorelease $gpid2
+        gpiorelease $gpid3
+    fi
+
+    cat /var/volatile/boardid
 }
 
 detect_tinyspi()
