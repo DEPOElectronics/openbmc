@@ -1,0 +1,14 @@
+// SPDX-License-Identifier: GPL-2.0+
+// Copyright 2020 MCST
+/dts-v1/;
+
+#include "aspeed-bmc-mcst-reimu.dtsi"
+#include "aspeed-bmc-mcst-uart2.dtsi"
+#include "aspeed-bmc-mcst-flash32.dtsi"
+#include "aspeed-bmc-mcst-tinyspi.dtsi"
+
+/ {
+	model = "MUS-A";
+	compatible = "mcst,mus-a", "aspeed,ast2400";
+};
+
