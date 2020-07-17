@@ -44,6 +44,7 @@ OBMC_IMAGE_EXTRA_INSTALL_append = " \
   net-initial \
   glibc-utils \
   tcpdump \
+  triggerhappy \
   ethtool \
   mc mc-fish mc-helpers mc-helpers-perl mc-locale-ru \
   overheatd \

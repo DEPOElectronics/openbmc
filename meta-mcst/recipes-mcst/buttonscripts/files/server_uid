@@ -1,0 +1,95 @@
+#!/bin/sh
+
+. /libexec/gpio-funcs
+
+uid_set_gpio()
+{
+    [ "$1" = "off" ] && trig=none
+    [ "$1" = "on" ]  && trig=default-on
+    echo $trig > "/sys/class/leds/platform:blue:uid/trigger"
+}
+
+uid_get_gpio()
+{
+    test `cat "/sys/class/leds/platform:blue:uid/brightness"` -eq 0
+}
+
+uid_switch_gpio()
+{
+
+}
+
+uid_set_tspi()
+{
+    modprobe tinyspi
+    [ "$1" = "off" ] && bits=00000008
+    [ "$1" = "on" ]  && bits=00000004
+    echo $bits > /sys/kernel/tinyspi/command_bits_set
+    sleep 1
+    echo $bits > /sys/kernel/tinyspi/command_bits_reset
+}
+
+uid_get_tspi()
+{
+    modprobe tinyspi
+    test $((0x`cat /sys/kernel/tinyspi/state_reg` & 0x00000008)) -eq 0
+}
+
+tspi_init()
+{
+    TINYSPI=`detect_tinyspi`
+
+    if [ "$TINYSPI" = "yes" ]
+    then
+        modprobe tinyspi # Just in case module is not loaded
+        sysfsdir="/sys/kernel/tinyspi"
+    fi
+}
+
+usage()
+{
+[ "$@" ] && echo $@
+cat << EOF
+    Unit ID management utility for REIMU, version 0.1.
+    Usage:
+        $0 off    - to set UID state off.
+        $0 on     - to set UID state on.
+        $0 switch - to invert current UID state (only on non-TinySPI boards).
+        $0 query  - to query UID state (return code: 0 = off, 1 = on).
+        $0 show   - to do the same as 'query', but also show UID state in terminal.
+EOF
+exit 0
+}
+
+ledtype="$1"
+case "$ledtype" in
+    "on")
+        tspi_init
+        [ "$TINYSPI" = "yes" ] && uid_set_tspi on || uid_set_gpio on
+        ;;
+    "off")
+        tspi_init
+        [ "$TINYSPI" = "yes" ] && uid_set_tspi off || uid_set_gpio off
+        ;;
+    "query")
+        tspi_init
+        [ "$TINYSPI" = "yes" ] && uid_get_tspi || uid_get_gpio
+        ;;
+    "show")
+        tspi_init
+        [ "$TINYSPI" = "yes" ] && uid_get_tspi || uid_get_gpio
+        RV=$?
+        [ $RV -eq 0 ] && echo "UID is OFF" || echo "UID is ON"
+        exit $RV
+        ;;
+    "switch")
+        tspi_init
+        [ "$TINYSPI" = "yes" ] || uid_switch_gpio
+        ;;
+    ""|"-h"|"--help")
+        usage
+        ;;
+    *)
+        usage "You should specify a correct command."
+        ;;
+esac
