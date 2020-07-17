@@ -1,5 +1,6 @@
 #!/bin/sh
 
+. /etc/reimu.conf
 . /libexec/gpio-funcs
 
 uid_set_gpio()
@@ -16,12 +17,12 @@ uid_get_gpio()
 
 uid_switch_gpio()
 {
-
+    uid_get_gpio && uid_set_gpio on || uid_set_gpio off
 }
 
 uid_set_tspi()
 {
-    modprobe tinyspi
+    modprobe tinyspi # Just in case module is not loaded
     [ "$1" = "off" ] && bits=00000008
     [ "$1" = "on" ]  && bits=00000004
     echo $bits > /sys/kernel/tinyspi/command_bits_set
@@ -31,19 +32,8 @@ uid_set_tspi()
 
 uid_get_tspi()
 {
-    modprobe tinyspi
+    modprobe tinyspi # Just in case module is not loaded
     test $((0x`cat /sys/kernel/tinyspi/state_reg` & 0x00000008)) -eq 0
-}
-
-tspi_init()
-{
-    TINYSPI=`detect_tinyspi`
-
-    if [ "$TINYSPI" = "yes" ]
-    then
-        modprobe tinyspi # Just in case module is not loaded
-        sysfsdir="/sys/kernel/tinyspi"
-    fi
 }
 
 usage()
@@ -64,27 +54,22 @@ exit 0
 ledtype="$1"
 case "$ledtype" in
     "on")
-        tspi_init
         [ "$TINYSPI" = "yes" ] && uid_set_tspi on || uid_set_gpio on
         ;;
     "off")
-        tspi_init
         [ "$TINYSPI" = "yes" ] && uid_set_tspi off || uid_set_gpio off
         ;;
     "query")
-        tspi_init
         [ "$TINYSPI" = "yes" ] && uid_get_tspi || uid_get_gpio
         ;;
     "show")
-        tspi_init
         [ "$TINYSPI" = "yes" ] && uid_get_tspi || uid_get_gpio
         RV=$?
         [ $RV -eq 0 ] && echo "UID is OFF" || echo "UID is ON"
         exit $RV
         ;;
     "switch")
-        tspi_init
-        [ "$TINYSPI" = "yes" ] || uid_switch_gpio
+        [ "$TINYSPI" = "no" ] && uid_switch_gpio
         ;;
     ""|"-h"|"--help")
         usage

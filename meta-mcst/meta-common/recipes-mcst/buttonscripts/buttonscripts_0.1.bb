@@ -26,4 +26,4 @@ do_install() {
 
 FILES_${PN} = "/usr/bin"
 
-RDEPENDS_${PN} += "bash kernel-module-tinyspi gpio-funcs"
+RDEPENDS_${PN} += "bash kernel-module-tinyspi gpio-funcs reimu-conf"

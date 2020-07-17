@@ -85,7 +85,7 @@ trap rm_pidfile TERM INT EXIT
 mkdir -p $rundir
 echo $$ > $pidfile
 
-TINYSPI=`detect_tinyspi`
+. /etc/reimu.conf
 
 if [ "$TINYSPI" = "yes" ]
 then

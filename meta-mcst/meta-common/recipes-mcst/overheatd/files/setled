@@ -1,8 +1,7 @@
 #!/bin/sh
 
+. /etc/reimu.conf
 . /libexec/gpio-funcs
-
-TINYSPI=`detect_tinyspi`
 
 if [ "$TINYSPI" = "yes" ]
 then
