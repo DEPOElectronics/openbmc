@@ -164,16 +164,28 @@ do
     # Set I2C bus speed correctly
     i2c_config_dword=0x77744303
     case $CPU_I2C_NUM in
-        5) # Manager I2C0 (E8C-EATX, E8C-SWTX)
-            i2c_reg_address=0x1e78a184; ;;
-        6) # Manager I2C1
-            i2c_reg_address=0x1e78a1c4; ;;
-        7) # Manager I2C2
-            i2c_reg_address=0x1e78a204; ;;
-        2) # Manager I2C3
+        0) # REIMU I2C1
+            i2c_reg_address=0x1e78a044; ;;
+        1) # REIMU I2C2
+            i2c_reg_address=0x1e78a084; ;;
+        2) # MUS-A I2C3, REIMU I2C3
             i2c_reg_address=0x1e78a0c4; ;;
-        3) # Manager I2C4 (E8C-uATX/SE)
+        3) # MUS-A I2C4 (E8C-uATX/SE), REIMU I2C4
             i2c_reg_address=0x1e78a104; ;;
+        4) # REIMU I2C5
+            i2c_reg_address=0x1e78a144; ;;
+        5) # MUS-A I2C0 (E8C-EATX, E8C-SWTX), REIMU I2C6
+            i2c_reg_address=0x1e78a184; ;;
+        6) # MUS-A I2C1, REIMU I2C7
+            i2c_reg_address=0x1e78a1c4; ;;
+        7) # MUS-A I2C2, REIMU I2C8
+            i2c_reg_address=0x1e78a304; ;;
+        8) # REIMU I2C9
+            i2c_reg_address=0x1e78a344; ;;
+        9) # REIMU I2C10
+            i2c_reg_address=0x1e78a384; ;;
+        13) # REIMU I2C14
+            i2c_reg_address=0x1e78a484; ;;
     esac
     devmem $i2c_reg_address w $i2c_config_dword # Default I2C speed is too low for CPU sensor; just in case it is still default
 
