@@ -88,6 +88,7 @@ OBMC_IMAGE_EXTRA_INSTALL_append = " \
   overheatd \
   kernel-module-tinyspi \
   reimu-conf \
+  autofs \
   "
 
 IMAGE_FEATURES_remove = " \
