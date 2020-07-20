@@ -13,6 +13,31 @@
 			gpios = <&gpio ASPEED_GPIO(N, 4) GPIO_ACTIVE_LOW>;
 			linux,default-trigger = "none";
 		};
+		fanfail {
+			label = "platform:red:fanfail";
+			gpios = <&gpio ASPEED_GPIO(Q, 6) GPIO_ACTIVE_LOW>;
+			linux,default-trigger = "none";
+		};
+		fanfail2 {
+			label = "platform:red:fanfail2";
+			gpios = <&gpio ASPEED_GPIO(A, 2) GPIO_ACTIVE_HIGH>;
+			linux,default-trigger = "none";
+		};
+		pwrfail {
+			label = "platform:red:pwrfail";
+			gpios = <&gpio ASPEED_GPIO(A, 3) GPIO_ACTIVE_LOW>;
+			linux,default-trigger = "none";
+		};
+		sysfail1 {
+			label = "platform:red:sysfail1";
+			gpios = <&gpio ASPEED_GPIO(C, 2) GPIO_ACTIVE_LOW>;
+			linux,default-trigger = "none";
+		};
+		sysfail2 {
+			label = "platform:red:sysfail2";
+			gpios = <&gpio ASPEED_GPIO(C, 7) GPIO_ACTIVE_LOW>;
+			linux,default-trigger = "none";
+		};
 	};
 
 	gpio-keys {

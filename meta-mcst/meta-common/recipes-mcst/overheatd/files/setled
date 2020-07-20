@@ -81,19 +81,19 @@ exit 0
 ledtype="$1"
 case "$ledtype" in
     "fanfail")
-        ledgpio=`gpio2num $GPIO_OVERHEAT_LED`
+        lednames="fanfail fanfail2"
         ledbits=0x00000040
         ;;
     "pwrfail")
-        ledgpio=`gpio2num $GPIO_PWR_FAIL_LED`
+        lednames="pwrfail"
         ledbits=0x00000080
         ;;
     "sysfail1")
-        ledgpio=`gpio2num $GPIO_SYS_FAIL1_LED`
+        lednames="sysfail1"
         ledbits=0x00000100
         ;;
     "sysfail2")
-        ledgpio=`gpio2num $GPIO_SYS_FAIL2_LED`
+        lednames="sysfail2"
         ledbits=0x00000200
         ;;
     "checkalerts")
@@ -117,8 +117,10 @@ case "$ledmode" in
     "on")
         if [ "$TINYSPI" = "no" ]
         then
-            gpiowrite $ledgpio 0
-            gpiounexport $ledgpio
+            for ledname in $lednames
+            do
+                echo "default-on" > "/sys/class/leds/platform:red:$ledname/trigger"
+            done
         else
             echo $ledbits > $sysfsdir/command_bits_reset
         fi
@@ -126,8 +128,10 @@ case "$ledmode" in
     "off")
         if [ "$TINYSPI" = "no" ]
         then
-            gpiowrite $ledgpio 1
-            gpiounexport $ledgpio
+            for ledname in $lednames
+            do
+                echo "none" > "/sys/class/leds/platform:red:$ledname/trigger"
+            done
         else
             echo $ledbits > $sysfsdir/command_bits_set
         fi

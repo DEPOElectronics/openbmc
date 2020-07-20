@@ -93,7 +93,8 @@ then
     sysfsdir="/sys/kernel/tinyspi"
 fi
 
-led_state=0
+led_state=unknown
+led_trigger=unknown
 alerts=unknown
 
 get_gpio()
@@ -127,15 +128,9 @@ bin2hex()
 
 overheat_set_led_gpio()
 {
-    gpionum=`gpio2num $GPIO_OVERHEAT_LED`
-    if [ $1 -eq 1 ]
-    then
-        gpiowrite $gpionum 0
-    else
-        gpiowrite $gpionum 1
-    fi
-    gpiounexport $gpionum
-    debug "Changed LED state through gpio $GPIO_OVERHEAT_LED ($gpionum)"
+    echo $1 > "/sys/class/leds/platform:red:fanfail/trigger"
+    echo $1 > "/sys/class/leds/platform:red:fanfail2/trigger"
+    debug "Changed LED state trigger to $1 through sysfs (/sys/class/leds/platform:red:{fanfail,fanfail2}/trigger)"
 }
 
 overheat_set_led_tspi()
@@ -191,7 +186,9 @@ do
 
     # default: off
     oldledstate=$led_state
+    oldledtrigger=$led_trigger
     led_state=0
+    led_trigger=none
 
     if [ "$TINYSPI" = "yes" ]
     then
@@ -285,20 +282,25 @@ do
         # Any of temperatures is greater than /mnt/data/etc/cpu_temp_limit
         if [ $maxtemp -gt $CPU_TEMP_LIMIT ]
         then
+            led_trigger="timer"
             led_state=`expr 1 - $oldledstate`
+        else
+            led_trigger="none"
         fi
+    else
+        led_trigger="default-on"
     fi
 
     # Update led, if needed
     debug "LED state: $oldledstate -> $led_state"
-    if [ $oldledstate != $led_state ]
+    debug "LED trigger: $oldledtrigger -> $led_trigger"
+    if [ $oldledstate != $led_state -a "$TINYSPI" = "yes" ]
     then
-        if [ "$TINYSPI" = "yes" ]
-        then
-            overheat_set_led_gpio $led_state
-        else
-            overheat_set_led_tspi $led_state
-        fi
+        overheat_set_led_tspi $led_state
+    fi
+    if [ $oldledtrigger != $led_trigger -a "$TINYSPI" = "no" ]
+    then
+        overheat_set_led_gpio $led_trigger
     fi
 
     # Finalize statefile
