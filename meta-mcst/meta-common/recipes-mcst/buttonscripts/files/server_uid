@@ -60,10 +60,20 @@ case "$ledtype" in
         [ "$TINYSPI" = "yes" ] && uid_set_tspi off || uid_set_gpio off
         ;;
     "query")
-        [ "$TINYSPI" = "yes" ] && uid_get_tspi || uid_get_gpio
+        if [ "$TINYSPI" = "yes" ]
+        then
+            uid_get_tspi
+        else
+            uid_get_gpio
+        fi
         ;;
     "show")
-        [ "$TINYSPI" = "yes" ] && uid_get_tspi || uid_get_gpio
+        if [ "$TINYSPI" = "yes" ]
+        then
+            uid_get_tspi
+        else
+            uid_get_gpio
+        fi
         RV=$?
         [ $RV -eq 0 ] && echo "UID is OFF" || echo "UID is ON"
         exit $RV
