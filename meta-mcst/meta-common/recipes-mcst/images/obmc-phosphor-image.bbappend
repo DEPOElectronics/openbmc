@@ -34,7 +34,7 @@ do_alter_dates() {
     sed -i "s/(Phosphor OpenBMC Project Reference Distro)/(MCST ${MACHINE_STRING} built at `date +'%Y-%m-%d %H:%M'`, git @${ISSUE_COMMIT})/g" ${IMAGE_ROOTFS}/usr/lib/os-release ${IMAGE_ROOTFS}/etc/issue ${IMAGE_ROOTFS}/etc/issue.net
 }
 
-addtask do_alter_dates after do_rootfs before do_image
+ROOTFS_POSTPROCESS_COMMAND += "do_alter_dates; "
 
 OBMC_KERNEL_MODULES = " \
   kernel-module-ip6table-filter \
@@ -82,11 +82,9 @@ OBMC_IMAGE_EXTRA_INSTALL_append = " \
   net-initial \
   glibc-utils \
   tcpdump \
-  triggerhappy \
   ethtool \
   mc mc-fish mc-helpers mc-helpers-perl mc-locale-ru \
   overheatd \
-  kernel-module-tinyspi \
   reimu-conf \
   autofs \
   "

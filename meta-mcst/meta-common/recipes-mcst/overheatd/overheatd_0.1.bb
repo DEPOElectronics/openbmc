@@ -8,7 +8,7 @@ LIC_FILES_CHKSUM = "file://LICENSE;md5=b234ee4d69f5fce4486a80fdaf4a4263"
 
 DEPENDS += "update-rc.d-native"
 
-RDEPENDS_${PN} += "bash rawi2ctool kernel-module-tinyspi gpio-funcs reimu-conf"
+RDEPENDS_${PN} += "bash rawi2ctool gpio-funcs reimu-conf"
 
 SRC_URI = " \
             file://LICENSE \
