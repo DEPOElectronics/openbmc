@@ -293,7 +293,12 @@ do
     debug "LED state: $oldledstate -> $led_state"
     if [ $oldledstate != $led_state ]
     then
-        [ "$TINYSPI" = "yes" ] && overheat_set_led_gpio $led_state || overheat_set_led_tspi $led_state
+        if [ "$TINYSPI" = "yes" ]
+        then
+            overheat_set_led_gpio $led_state
+        else
+            overheat_set_led_tspi $led_state
+        fi
     fi
 
     # Finalize statefile
