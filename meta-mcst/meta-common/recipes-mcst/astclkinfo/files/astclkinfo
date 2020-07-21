@@ -1,0 +1,32 @@
+#!/bin/bash
+
+REGCPU=$((`devmem 0x1E6E2070` >> 8 & 3))
+REGAHB=$((`devmem 0x1E6E2070` >> 10 & 3))
+REGPCLK=$((`devmem 0x1E6E2008` >> 23 & 7))
+
+case $REGCPU in
+    0) MHZCPU=384;;
+    1) MHZCPU=360;;
+    2) MHZCPU=336;;
+    3) MHZCPU=408;;
+esac
+
+case $REGAHB in
+    0) DIVAHB=1;;
+    1) DIVAHB=2;;
+    2) DIVAHB=4;;
+    3) DIVAHB=3;;
+esac
+
+case $REGPCLK in
+    0) DIVPCLK=2;;
+    1) DIVPCLK=4;;
+    2) DIVPCLK=6;;
+    3) DIVPCLK=8;;
+    0) DIVPCLK=10;;
+    1) DIVPCLK=12;;
+    2) DIVPCLK=14;;
+    3) DIVPCLK=16;;
+esac
+
+echo "CPU: $MHZCPU MHz, AHB: $(($MHZCPU / $DIVAHB)) MHz, PCLK: $(($MHZCPU / $DIVPCLK)) MHz"

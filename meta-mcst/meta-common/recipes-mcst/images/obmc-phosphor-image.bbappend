@@ -88,6 +88,7 @@ OBMC_IMAGE_EXTRA_INSTALL_append = " \
   reimu-conf \
   autofs \
   htop \
+  astclkinfo \
   "
 
 IMAGE_FEATURES_remove = " \
