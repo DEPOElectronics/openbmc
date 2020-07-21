@@ -106,7 +106,7 @@ if [ "$MTDDEV" = "mtdblock0" ]
 then
     systemctl status rescue.target > /dev/null || error "BMC flash should be reprogrammed from single-user mode only. Execute 'init 1' to get into it."
     echo "Note: programming BMC flash chip. It will end up in immediate reboot."
-    cp /usr/bin/md5sum /sbin/reboot /usr/bin/pv /bin/dd /tmp
+    cp /usr/bin/md5sum /sbin/reboot /usr/bin/pv /bin/dd /bin/sync /tmp
     export PATH=/tmp:$PATH
     REBOOT=yes
 fi
@@ -167,5 +167,6 @@ then
         rm -rf /run/initramfs/rw/cow/*
     fi
     echo "    Rebooting BMC."
+    sync
     reboot -f
 fi
