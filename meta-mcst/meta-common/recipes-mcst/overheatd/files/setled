@@ -17,17 +17,19 @@ checkalert_gpio()
     [ $gpiostate -ne 0 ] && echo -e "$4 $1" || echo -e "$4 $2"
 }
 
+ON="is \e[32;1mON[0m"
+OFF="is OFF"
+ONL="is \e[32;1mONLINE"
+OFFL="is OFFLINE"
+INACT="is inactive"
+ACT="is \e[31;1mACTIVE\e[0m"
+NRST="is online"
+RST="is \e[33;1munder reset\e[0m"
+NDET="not detected"
+DET="\e[31;1mDETECTED\e[0m"
+
 checkalerts_gpio()
 {
-    ON="is \e[32;1mON[0m"
-    OFF="is OFF"
-    INACT="is inactive"
-    ACT="is \e[31;1mACTIVE\e[0m"
-    NRST="is online"
-    RST="is \e[33;1munder reset\e[0m"
-    NDET="not detected"
-    DET="\e[31;1mDETECTED\e[0m"
-
     checkalert_gpio "$ON"    "$OFF"  $GPIO_POWER_IN    "System power      "
     checkalert_gpio "$NRST"  "$RST"  $GPIO_RESET_IN    "System            "
     checkalert_gpio "$INACT" "$ACT"  $GPIO_ALERT_CPU   "Alert 1 for CPU   "
@@ -38,28 +40,29 @@ checkalerts_gpio()
     checkalert_gpio "$INACT" "$ACT"  $GPIO_ALERT_SMBUS "Alert for SMBus   "
     checkalert_gpio "$INACT" "$ACT"  $GPIO_TCRIT_SMBUS "SMBus overheat    "
     checkalert_gpio "$DET"   "$NDET" $GPIO_INTRUSION   "Chassis intrusion "
-
     exit 0
 }
 
 checkalert_tspi()
 {
-    [ $(($1 & $2)) -ne 0 ] && echo "$3 is inactive" || echo -e "$3 is \e[1mACTIVE\e[0m"
+    [ $(($3 & $4)) -ne 0 ] && echo -e "$5 $1" || echo -e "$5 $2"
 }
 
 checkalerts_tspi()
 {
     alerts=0x`cat $sysfsdir/state_reg`
-    checkalert_tspi $alerts 0x00000040 I2C0_ALERT
-    checkalert_tspi $alerts 0x00000080 I2C0_TCRIT
-    checkalert_tspi $alerts 0x00000100 I2C1_ALERT
-    checkalert_tspi $alerts 0x00000200 I2C1_TCRIT
-    checkalert_tspi $alerts 0x00000400 I2C0_FAULT
-    checkalert_tspi $alerts 0x00000800 I2C2_ALERT
-    checkalert_tspi $alerts 0x00001000 I2C3_ALERT
-    checkalert_tspi $alerts 0x00002000 I2C3_TCRIT
-    checkalert_tspi $alerts 0x00004000 CPUS_ALERT
-    checkalert_tspi $alerts 0x00008000 CPUS_TTRIP
+    checkalert_tspi "$ONL"   "$OFFL" $alerts 0x00200000 "System    "
+    checkalert_tspi "$INACT" "$ACT"  $alerts 0x00000040 "I2C0_ALERT"
+    checkalert_tspi "$INACT" "$ACT"  $alerts 0x00000080 "I2C0_TCRIT"
+    checkalert_tspi "$INACT" "$ACT"  $alerts 0x00000100 "I2C1_ALERT"
+    checkalert_tspi "$INACT" "$ACT"  $alerts 0x00000200 "I2C1_TCRIT"
+    checkalert_tspi "$INACT" "$ACT"  $alerts 0x00000400 "I2C0_FAULT"
+    checkalert_tspi "$INACT" "$ACT"  $alerts 0x00000800 "I2C2_ALERT"
+    checkalert_tspi "$INACT" "$ACT"  $alerts 0x00001000 "I2C3_ALERT"
+    checkalert_tspi "$INACT" "$ACT"  $alerts 0x00002000 "I2C3_TCRIT"
+    checkalert_tspi "$INACT" "$ACT"  $alerts 0x00004000 "CPUS_ALERT"
+    checkalert_tspi "$INACT" "$ACT"  $alerts 0x00008000 "CPUS_TTRIP"
+    checkalert_tspi "$DET"   "$NDET" $alerts 0x00000010 "INTRUSION "
     exit 0
 }
 
