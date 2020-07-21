@@ -1,36 +1,17 @@
 #!/bin/sh
-### BEGIN INIT INFO
-# Provides:          allow_host_boot
-# Required-Start:    initsc
-# Required-Stop:
-# Default-Start:     2 3 4 5
-# Default-Stop:
-# Short-Description: Allow Host Boot
-# Description:       Allow host boot by releasing SPI GPIO and pushing power button on
-### END INIT INFO
 
 . /etc/auto_power_on
-
 . /libexec/gpio-funcs
 
 spigpio=`gpio2num $GPIO_SPI_CONNECT`
 pwrgpio=`gpio2num $GPIO_PWR_BTN`
 rstgpio=`gpio2num $GPIO_RST_BTN`
 
-case "$1" in
-    start)
-        gpiowrite $spigpio 0
-        gpiorelease $rstgpio
-        if [ "$AUTO_POWER_ON" = "on" ]
-        then
-            gpiowrite $pwrgpio 0
-            sleep 1
-            gpiorelease $pwrgpio
-        fi
-        exit 0
-        ;;
-    *)
-        echo "Usage: $0 start"
-        exit 2
-        ;;
-esac
+gpiowrite $spigpio 0
+gpiorelease $rstgpio
+if [ "$AUTO_POWER_ON" = "on" ]
+then
+    gpiowrite $pwrgpio 0
+    sleep 1
+    gpiorelease $pwrgpio
+fi

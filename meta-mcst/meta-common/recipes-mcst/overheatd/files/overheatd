@@ -1,13 +1,4 @@
 #!/bin/sh
-### BEGIN INIT INFO
-# Provides:          overheatd
-# Required-Start:    initsc
-# Required-Stop:
-# Default-Start:     2 3 4 5
-# Default-Stop:      0 1 6
-# Short-Description: starts overheatd
-# Description:       starts overheat control daemon
-### END INIT INFO
 
 rundir="/run"
 pidfile=$rundir/overheatd.pid
@@ -27,6 +18,7 @@ then
     echo "CPU_I2C_NUM=3"           >> $configfile
 fi
 . $configfile
+[ "$OVERHEATD_ENABLED" = "no" ] && exit 0
 
 statefile="/var/volatile/systemstate.xml"
 
@@ -34,47 +26,6 @@ debug()
 {
     [ "$DEBUG" = "on" ] && echo "$0 (`date`): $@"
 }
-
-case "$1" in
-    start)
-        [ "$OVERHEATD_ENABLED" = "no" ] && exit 0
-        [ ! -f $pidfile ] && $0 --daemon &
-        exit 0
-        ;;
-    stop)
-        [ -f $pidfile ] && kill `cat $pidfile`
-        exit 0
-        ;;
-    restart)
-        $0 stop
-        sleep 1
-        $0 start
-        exit 0
-        ;;
-    status)
-        if [ -f $pidfile ]
-        then
-            if [ -d /proc/`cat $pidfile` ]
-            then
-                echo `basename $0` is running.
-                exit 0
-            else
-                echo `basename $0` is not running, but pidfile still exists.
-                exit 2
-            fi
-        else
-            echo `basename $0` is not running.
-            exit 1
-        fi
-        ;;
-    --daemon)
-        [ "$OVERHEATD_ENABLED" = "no" ] && exit 0
-        ;;
-    *)
-        echo "Usage: $0 {start|stop|restart|status}"
-        exit 2
-        ;;
-esac
 
 rm_pidfile()
 {

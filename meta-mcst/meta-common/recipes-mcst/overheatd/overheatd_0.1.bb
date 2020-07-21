@@ -3,27 +3,30 @@ DESCRIPTION = "Overheat check daemon"
 SECTION = "base"
 PR = "r1"
 LICENSE = "GPLv2"
-FILESEXTRAPATHS_prepend := "${THISDIR}/files:"
 LIC_FILES_CHKSUM = "file://LICENSE;md5=b234ee4d69f5fce4486a80fdaf4a4263"
 
-DEPENDS += "update-rc.d-native"
+inherit systemd
 
-RDEPENDS_${PN} += "bash rawi2ctool gpio-funcs reimu-conf"
+REQUIRED_DISTRO_FEATURES = "systemd"
+RDEPENDS_${PN} += "systemd bash rawi2ctool gpio-funcs reimu-conf"
+SYSTEMD_SERVICE_${PN} = "overheatd.service"
 
 SRC_URI = " \
             file://LICENSE \
-            file://overheatd \
             file://setled \
+            file://overheatd \
+            file://overheatd.service \
           "
 
 S = "${WORKDIR}"
 
 do_install() {
-  install -d ${D}/etc/init.d
   install -d ${D}/usr/bin
-  install -m 755 ${S}/overheatd ${D}/etc/init.d
-  install -m 755 ${S}/setled ${D}/usr/bin
-  update-rc.d -r ${D} overheatd defaults
+  install -d ${D}/usr/sbin
+  install -d ${D}${systemd_system_unitdir}
+  install -m 755 setled ${D}/usr/bin
+  install -m 755 overheatd ${D}/usr/sbin
+  install -m 644 overheatd.service ${D}${systemd_system_unitdir}
 }
 
-FILES_${PN} = "/etc /usr/bin"
+FILES_${PN} = "/usr/bin /usr/sbin ${systemd_system_unitdir}"
