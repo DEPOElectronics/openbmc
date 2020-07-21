@@ -79,9 +79,10 @@ bin2hex()
 
 overheat_set_led_gpio()
 {
-    echo $1 > "/sys/class/leds/platform:red:fanfail/trigger"
-    echo $1 > "/sys/class/leds/platform:red:fanfail2/trigger"
-    debug "Changed LED state trigger to $1 through sysfs (/sys/class/leds/platform:red:{fanfail,fanfail2}/trigger)"
+    echo $1 > "/sys/class/leds/platform:red:overheat/trigger"
+    echo $1 > "/sys/class/leds/platform:red:ohfanfail/trigger"
+    echo $1 > "/sys/class/leds/platform:red:ohfanfail2/trigger"
+    debug "Changed LED state trigger to $1 through sysfs (/sys/class/leds/platform:red:{overheat,ohfanfail,ohfanfail2}/trigger)"
 }
 
 overheat_set_led_tspi()

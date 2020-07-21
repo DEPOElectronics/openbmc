@@ -72,16 +72,28 @@ cat << EOF
         $0 checkalerts       - to list all ALERT, TCRIT, and FAULT conditions.
         $0 <ledname> <mode>  - to turn specific LED on or off.
 
-    <ledname> can be fanfail, pwrfail, sysfail1, or sysfail2.
+    <ledname> can be overheat, fanfail, pwrfail, ohfanfail,
+                     sysfail1, sysfail2, or alarm.
     <mode> can be on or off.
 EOF
 exit 0
 }
 
-ledtype="$1"
-case "$ledtype" in
+case "$1" in
+    "overheat")
+        lednames="overheat"
+        ledbits=0x00000040 # Equals to ohfanfail on TinySPI boards
+        ;;
     "fanfail")
-        lednames="fanfail fanfail2"
+        lednames="fanfail"
+        ledbits=0x00000040 # Equals to ohfanfail on TinySPI boards
+        ;;
+    "alarm")
+        lednames="alarm"
+        ledbits=0x00000100 # Equals to sysfail1 on TinySPI boards
+        ;;
+    "ohfanfail")
+        lednames="ohfanfail ohfanfail2"
         ledbits=0x00000040
         ;;
     "pwrfail")
@@ -112,31 +124,26 @@ case "$ledtype" in
         ;;
 esac
 
-ledmode="$2"
-case "$ledmode" in
+case "$2" in
     "on")
-        if [ "$TINYSPI" = "no" ]
-        then
-            for ledname in $lednames
-            do
-                echo "default-on" > "/sys/class/leds/platform:red:$ledname/trigger"
-            done
-        else
-            echo $ledbits > $sysfsdir/command_bits_reset
-        fi
+        trigger="default-on"
+        tspireg=command_bits_reset
         ;;
     "off")
-        if [ "$TINYSPI" = "no" ]
-        then
-            for ledname in $lednames
-            do
-                echo "none" > "/sys/class/leds/platform:red:$ledname/trigger"
-            done
-        else
-            echo $ledbits > $sysfsdir/command_bits_set
-        fi
+        trigger="none"
+        tspireg=command_bits_set
         ;;
     *)
         usage "LED mode should be 'on' or 'off'."
         ;;
 esac
+
+if [ "$TINYSPI" = "no" ]
+then
+    for ledname in $lednames
+    do
+        echo $trigger > "/sys/class/leds/platform:red:$ledname/trigger"
+    done
+else
+    echo $ledbits > $sysfsdir/$tspireg
+fi

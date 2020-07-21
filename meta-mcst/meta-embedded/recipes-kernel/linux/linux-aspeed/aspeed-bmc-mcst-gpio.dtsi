@@ -13,13 +13,13 @@
 			gpios = <&gpio ASPEED_GPIO(N, 4) GPIO_ACTIVE_LOW>;
 			linux,default-trigger = "none";
 		};
-		fanfail {
-			label = "platform:red:fanfail";
+		ohfanfail {
+			label = "platform:red:ohfanfail";
 			gpios = <&gpio ASPEED_GPIO(Q, 6) GPIO_ACTIVE_LOW>;
 			linux,default-trigger = "none";
 		};
-		fanfail2 {
-			label = "platform:red:fanfail2";
+		ohfanfail2 {
+			label = "platform:red:ohfanfail2";
 			gpios = <&gpio ASPEED_GPIO(A, 2) GPIO_ACTIVE_HIGH>;
 			linux,default-trigger = "none";
 		};
@@ -36,6 +36,21 @@
 		sysfail2 {
 			label = "platform:red:sysfail2";
 			gpios = <&gpio ASPEED_GPIO(C, 7) GPIO_ACTIVE_LOW>;
+			linux,default-trigger = "none";
+		};
+		fanfail {
+			label = "platform:red:fanfail";
+			gpios = <&gpio ASPEED_GPIO(C, 6) GPIO_ACTIVE_LOW>;
+			linux,default-trigger = "none";
+		};
+		overheat {
+			label = "platform:red:overheat";
+			gpios = <&gpio ASPEED_GPIO(C, 3) GPIO_ACTIVE_LOW>;
+			linux,default-trigger = "none";
+		};
+		alarm {
+			label = "platform:red:alarm";
+			gpios = <&gpio ASPEED_GPIO(G, 0) GPIO_ACTIVE_LOW>;
 			linux,default-trigger = "none";
 		};
 	};
