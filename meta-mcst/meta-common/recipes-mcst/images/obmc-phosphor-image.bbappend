@@ -87,6 +87,7 @@ OBMC_IMAGE_EXTRA_INSTALL_append = " \
   overheatd \
   reimu-conf \
   autofs \
+  htop \
   "
 
 IMAGE_FEATURES_remove = " \
