@@ -47,6 +47,7 @@ fi
 led_state=unknown
 led_trigger=unknown
 alerts=unknown
+overheat_cond=0
 
 get_gpio()
 {
@@ -193,17 +194,31 @@ do
     if [ $(($alerts & 0x00000001)) -eq 0 ]  # Bit 0: THERMAL_SHDN#
     then
         led_state=1
+        overheat_cond=1
     fi
 
     # I2CM_TTRIP == 0 & PWROK_MAIN == 1 : on
+    if [ ! $(($alerts & 0x00200000)) -eq 1 ]  # Bit 21: PWROK_MAIN
+    then
+        if [ $(($alerts & 0x00008000)) -eq 0 ] # Bit 15: I2CM_TTRIP
+        then
+            led_state=1
+            overheat_cond=1
+        else
+            overheat_cond=0
+        fi
+    fi
+    debug "led_state after checking TTRIP: $led_state, overheat_cond: $overheat_cond"
+
+    # I2CM_TTRIP == 0 & PWROK_MAIN == 0, but overheat condition is reached : on
     if [ $(($alerts & 0x00008000)) -eq 0 ] # Bit 15: I2CM_TTRIP
     then
         if [ ! $(($alerts & 0x00200000)) -eq 0 ]  # Bit 21: PWROK_MAIN
         then
-            led_state=1
+            [ $overheat_cond -eq 1 ] && led_state=1
         fi
     fi
-    debug "led_state after checking TTRIP: $led_state"
+    debug "led_state after checking overheat_cond: $led_state"
 
     if [ $led_state -eq 0 ] # We are not in critical overheat, so check I2C
     then
