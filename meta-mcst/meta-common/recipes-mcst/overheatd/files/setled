@@ -17,13 +17,13 @@ checkalert_gpio()
     [ $gpiostate -ne 0 ] && echo -e "$4 $1" || echo -e "$4 $2"
 }
 
-ON="is \e[32;1mON[0m"
-OFF="is OFF"
-ONL="is \e[32;1mONLINE"
-OFFL="is OFFLINE"
+ON="is \e[32;1mON\e[0m"
+OFF="is \e[33;1OFF\e[0m"
+ONL="is \e[32;1mONLINE\e[0m"
+OFFL="is \e[33;1OFFLINE\e[0m"
 INACT="is inactive"
 ACT="is \e[31;1mACTIVE\e[0m"
-NRST="is online"
+NRST="is \e[32;1mONLINE\e[0m"
 RST="is \e[33;1munder reset\e[0m"
 NDET="not detected"
 DET="\e[31;1mDETECTED\e[0m"
