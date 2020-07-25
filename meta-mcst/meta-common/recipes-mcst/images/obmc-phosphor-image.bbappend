@@ -89,6 +89,8 @@ OBMC_IMAGE_EXTRA_INSTALL_append = " \
   autofs \
   htop \
   astclkinfo \
+  nfs-utils-client \
+  nss-pam-ldapd \
   "
 
 IMAGE_FEATURES_remove = " \

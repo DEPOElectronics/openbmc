@@ -1,6 +1,7 @@
 Port 22
 Port 2022
 Protocol 2
+UsePAM yes
 PermitRootLogin yes
 AuthorizedKeysFile .ssh/authorized_keys
 TrustedUserCAKeys /etc/ssh/trusted_ca
