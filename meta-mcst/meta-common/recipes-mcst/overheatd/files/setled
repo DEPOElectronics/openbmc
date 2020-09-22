@@ -18,15 +18,15 @@ checkalert_gpio()
 }
 
 ON="is \e[32;1mON\e[0m"
-OFF="is \e[33;1OFF\e[0m"
+OFF="is \e[33;1mOFF\e[0m"
 ONL="is \e[32;1mONLINE\e[0m"
-OFFL="is \e[33;1OFFLINE\e[0m"
-INACT="is inactive"
+OFFL="is \e[33;1mOFFLINE\e[0m"
+INACT="is \e[0minactive\e[0m"
 ACT="is \e[31;1mACTIVE\e[0m"
 NRST="is \e[32;1mONLINE\e[0m"
 RST="is \e[33;1munder reset\e[0m"
-NDET="not detected"
-DET="\e[31;1mDETECTED\e[0m"
+NDET="is \e[0mnot detected\e[0m"
+DET="is \e[31;1mDETECTED\e[0m"
 
 checkalerts_gpio()
 {
