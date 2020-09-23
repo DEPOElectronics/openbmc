@@ -91,6 +91,7 @@ OBMC_IMAGE_EXTRA_INSTALL_append = " \
   astclkinfo \
   nfs-utils-client \
   nss-pam-ldapd \
+  sysstat \
   "
 
 IMAGE_FEATURES_remove = " \
