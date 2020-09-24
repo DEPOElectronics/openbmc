@@ -108,6 +108,7 @@ then
     echo "Note: programming BMC flash chip. It will end up in immediate reboot."
     cp /usr/bin/md5sum /sbin/reboot /usr/bin/pv /bin/dd /bin/sync /tmp
     export PATH=/tmp:$PATH
+    mount / -o remount,ro
     REBOOT=yes
 fi
 
