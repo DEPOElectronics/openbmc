@@ -55,7 +55,7 @@ case "$PROTO" in
         echo "    Source URL: $SRC"
         echo "    Destination file: $DEST"
         echo "    Protocol: $PROTO"
-        wget $WGET_PARAMS $SRC -O $DEST
+        wget $WGET_PARAMS $SRC -O $DEST || error "Calling wget failed, aborting."
         ;;
     "scp")
         echo $1 | grep -qv "^scp://" && error "Malformed scp URL, use scp://[user@]host:/path/to/file."
@@ -63,7 +63,7 @@ case "$PROTO" in
         SRC="`echo $1 | sed 's#^scp://##'`"
         echo "    Source host and path: $SRC"
         echo "    Destination file: $DEST"
-        scp $SRC $DEST
+        scp $SRC $DEST || error "Calling scp failed, aborting."
         ;;
     "file")
         echo $1 | grep -qv "^file:///" && error "Malformed file URL, use file:///path/to/file."
