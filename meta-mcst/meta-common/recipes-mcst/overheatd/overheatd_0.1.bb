@@ -14,6 +14,7 @@ SYSTEMD_SERVICE_${PN} = "overheatd.service"
 SRC_URI = " \
             file://LICENSE \
             file://setled \
+            file://checkalerts \
             file://overheatd \
             file://overheatd.service \
           "
@@ -25,6 +26,7 @@ do_install() {
   install -d ${D}/usr/sbin
   install -d ${D}${systemd_system_unitdir}
   install -m 755 setled ${D}/usr/bin
+  install -m 755 checkalerts ${D}/usr/bin
   install -m 755 overheatd ${D}/usr/sbin
   install -m 644 overheatd.service ${D}${systemd_system_unitdir}
 }
