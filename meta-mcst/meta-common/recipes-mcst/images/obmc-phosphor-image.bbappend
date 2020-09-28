@@ -34,7 +34,7 @@ do_alter_dates() {
     sed -i "s/(Phosphor OpenBMC Project Reference Distro)/(MCST ${MACHINE_STRING} built at `date +'%Y-%m-%d %H:%M %Z'`, git @${ISSUE_COMMIT})/g" ${IMAGE_ROOTFS}/usr/lib/os-release ${IMAGE_ROOTFS}/etc/issue ${IMAGE_ROOTFS}/etc/issue.net
 }
 
-do_rootfs[vardepsexclude] += "VERSION VERSION_ID"
+do_rootfs[vardepsexclude] += "ISSUE_COMMIT VERSION VERSION_ID"
 
 ROOTFS_POSTPROCESS_COMMAND += "do_alter_dates; "
 
