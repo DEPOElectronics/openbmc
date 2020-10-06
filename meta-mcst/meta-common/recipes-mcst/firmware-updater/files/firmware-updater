@@ -89,7 +89,7 @@ MTDFLASH=/dev/$MTDDEV
 DEVSIZE=`cat /sys/block/$MTDDEV/device/size`
 if [ -z "$FLASHSIZE" ]
 then
-    [ "$DEVSIZE" = "67108864" ] && FLASHSIZE=58720256 # Flash only first 56 MB; last 8 MB is user data partition.
+    [ "$DEVSIZE" = "67108864" ] && FLASHSIZE=50331648 # Flash only first 48 MB; last 16 MB is user data partition.
     [ "$DEVSIZE" = "33554432" ] && FLASHSIZE=29360128 # Flash only first 28 MB; last 4 MB is user data partition.
     if [ -z $FLASHSIZE ]
     then
