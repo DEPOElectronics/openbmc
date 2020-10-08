@@ -106,7 +106,7 @@ if [ "$MTDDEV" = "mtdblock0" ]
 then
     systemctl status rescue.target > /dev/null || error "BMC flash should be reprogrammed from single-user mode only. Execute 'init 1' to get into it."
     echo "Note: programming BMC flash chip. It will end up in immediate reboot."
-    cp /usr/bin/md5sum /sbin/reboot /usr/bin/pv /bin/dd /bin/sync /usr/bin/cut /bin/rm /tmp
+    cp /usr/bin/md5sum /usr/bin/pv /bin/dd /bin/sync /usr/bin/cut /bin/rm /tmp
     export PATH=/tmp:$PATH
     mount / -o remount,ro
     REBOOT=yes
@@ -169,5 +169,5 @@ then
     fi
     echo "    Rebooting BMC."
     sync
-    reboot -f
+    echo b > /proc/sysrq-trigger
 fi
