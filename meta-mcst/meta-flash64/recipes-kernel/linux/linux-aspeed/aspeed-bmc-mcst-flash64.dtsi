@@ -1,5 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0+
 
+#include "aspeed-bmc-mcst-video.dtsi"
+
 &fmc {
 	status = "okay";
 	flash@0 {

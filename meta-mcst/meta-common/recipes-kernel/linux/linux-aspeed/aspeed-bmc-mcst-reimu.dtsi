@@ -9,6 +9,8 @@
 	};
 
 	reserved-memory {
+		#address-cells = <1>;
+		#size-cells = <1>;
 		ranges;
 
 		vga_memory: framebuffer@5f000000 {
