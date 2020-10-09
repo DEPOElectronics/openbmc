@@ -26,14 +26,13 @@ S = "${WORKDIR}"
 
 do_install() {
   install -d ${D}/etc
-  install -d ${D}/etc/minicom
   install -d ${D}/etc/logrotate.d
   install -d ${D}/libexec
   install -d ${D}/usr/log
   install -d ${D}${systemd_system_unitdir}
   install -d ${D}${systemd_unitdir}/journald.conf.d/
   install -m 644 sol.conf ${D}/etc
-  install -m 644 minirc.dfl ${D}/etc/minicom
+  install -m 644 minirc.dfl ${D}/etc
   install -m 644 solrotate.conf ${D}/etc/logrotate.d
   install -m 755 start-tmux ${D}/libexec
   install -m 644 tmux-logger.service ${D}${systemd_system_unitdir}
