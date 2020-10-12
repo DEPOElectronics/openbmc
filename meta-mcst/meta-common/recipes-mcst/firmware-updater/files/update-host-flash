@@ -5,7 +5,6 @@
 spigpio=`gpio2num $GPIO_SPI_CONNECT`
 
 export MTDDEV=mtdblock6
-export FLASHSIZE=8388608
 export WGET_PARAMS
 
 echo "Attaching system SPI..."

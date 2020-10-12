@@ -89,13 +89,13 @@ MTDFLASH=/dev/$MTDDEV
 DEVSIZE=`cat /sys/block/$MTDDEV/device/size`
 if [ -z "$FLASHSIZE" ]
 then
-    [ "$DEVSIZE" = "67108864" ] && FLASHSIZE=50331648 # Flash only first 48 MB; last 16 MB is user data partition.
-    [ "$DEVSIZE" = "33554432" ] && FLASHSIZE=29360128 # Flash only first 28 MB; last 4 MB is user data partition.
-    if [ -z $FLASHSIZE ]
+    if [ "$MTDDEV" = "mtdblock0" ]
     then
-        echo "Warning: Flash has wrong size $DEVSIZE bytes, will write the whole chip." 1>&2
-        FLASHSIZE=$DEVSIZE
+        [ "$DEVSIZE" = "67108864" ] && FLASHSIZE=50331648 # Flash only first 48 MB; last 16 MB is user data partition.
+        [ "$DEVSIZE" = "33554432" ] && FLASHSIZE=29360128 # Flash only first 28 MB; last 4 MB is user data partition.
+        [ -z $FLASHSIZE ] && echo "Warning: Flash has wrong size $DEVSIZE bytes, will write the whole chip." 1>&2
     fi
+    [ -z $FLASHSIZE ] && FLASHSIZE=$DEVSIZE
 fi
 
 # Check if FLASHSIZE is correct.
