@@ -25,6 +25,7 @@ checkalert_gpio()
     alertgpio="`gpio2num $3`"
     gpiostate="`gpioread $alertgpio`"
     gpiounexport $alertgpio
+    if [ $gpiostate -gt 1 ]; then echo "(failed to query)"; return; fi
     [ $gpiostate -ne 0 ] && echo -e "$4 $1" || echo -e "$4 $2"
 }
 

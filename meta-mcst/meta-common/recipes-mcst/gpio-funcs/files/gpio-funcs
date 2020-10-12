@@ -59,24 +59,42 @@ gpiounexport()
     [ -d /sys/class/gpio/gpio${1} ] && echo ${1} > /sys/class/gpio/unexport
 }
 
+gpioavailable()
+{
+    [ -f /sys/class/gpio/gpio${1}/direction ] && [ -f /sys/class/gpio/gpio${1}/value ] && return
+    echo -n " ( warning: gpio $1 is not available! ) " 1>&2
+    false
+}
+
 gpiowrite()
 {
     gpioexport ${1}
-    echo out > /sys/class/gpio/gpio${1}/direction
-    echo ${2} > /sys/class/gpio/gpio${1}/value
+    if gpioavailable ${1}
+    then
+        echo out > /sys/class/gpio/gpio${1}/direction
+        echo ${2} > /sys/class/gpio/gpio${1}/value
+    fi
 }
 
 gpioread()
 {
     gpioexport ${1}
-    echo in > /sys/class/gpio/gpio${1}/direction
-    cat /sys/class/gpio/gpio${1}/value
+    if gpioavailable ${1}
+    then
+        echo in > /sys/class/gpio/gpio${1}/direction
+        cat /sys/class/gpio/gpio${1}/value
+    else
+        echo 255
+    fi
 }
 
 gpiorelease()
 {
     gpioexport ${1}
-    echo in > /sys/class/gpio/gpio${1}/direction
+    if gpioavailable ${1}
+    then
+        echo in > /sys/class/gpio/gpio${1}/direction
+    fi
     gpiounexport ${1}
 }
 
@@ -94,7 +112,14 @@ get_board_id()
         id2=`gpioread $gpid2`
         id3=`gpioread $gpid3`
 
-        echo ${id3}${id2}${id1}${id0} > /var/volatile/boardid
+        if [ `expr $id0 + $id1 + $id2 + $id3 ` -le 4 ]
+        then
+            echo "${id3}${id2}${id1}${id0}" > /var/volatile/boardid
+        else
+            echo "ERROR: can't determine board ID, temporarily using 0000" 1>&2
+            echo "0000"
+            return
+        fi
 
         gpiorelease $gpid0
         gpiorelease $gpid1
