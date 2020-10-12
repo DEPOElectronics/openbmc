@@ -41,11 +41,11 @@
 	status = "okay";
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_spi1_default>;
-	spi-max-frequency = <12500000>;
 	flash@0 {
 		status = "okay";
 		label = "sys";
 		m25p,fast-read;
+		spi-max-frequency = <50000000>;
 	};
 };
 
