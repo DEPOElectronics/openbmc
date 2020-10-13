@@ -20,6 +20,11 @@ uid_switch_gpio()
     uid_get_gpio && uid_set_gpio on || uid_set_gpio off
 }
 
+uid_switch_tspi()
+{
+    uid_get_tspi && uid_set_tspi on || uid_set_tspi off
+}
+
 uid_set_tspi()
 {
     modprobe tinyspi # Just in case module is not loaded
@@ -44,7 +49,7 @@ cat << EOF
     Usage:
         $0 off    - to set UID state off.
         $0 on     - to set UID state on.
-        $0 switch - to invert current UID state (only on non-TinySPI boards).
+        $0 switch - to invert current UID state.
         $0 query  - to query UID state (return code: 0 = off, 1 = on).
         $0 show   - to do the same as 'query', but also show UID state in terminal.
 EOF
@@ -79,7 +84,7 @@ case "$ledtype" in
         exit $RV
         ;;
     "switch")
-        [ "$TINYSPI" = "no" ] && uid_switch_gpio
+        [ "$TINYSPI" = "yes" ] && uid_switch_tspi || uid_switch_gpio
         ;;
     ""|"-h"|"--help")
         usage
