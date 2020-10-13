@@ -142,6 +142,7 @@ do
     oldledtrigger=$led_trigger
     led_state=0
     led_trigger=none
+    powered_on=`get_gpio $GPIO_POWER_IN`
 
     if [ "$TINYSPI" = "yes" ]
     then
@@ -164,13 +165,13 @@ do
         # I2C2_ALERT#   = bit 11 = ALERT_PCIE#
         # I2C3_ALERT#   = bit 12 = ALERT_CPU2#
         # I2CM_ALERT#   = bit 14 = ALERT_CPU#
-        # PWROK_MAIN    = bit 21 = PWROK_ATX
-        # APMDZ_LED#    = bit 21 = APMDZ_LED#
-        # GPI[7] (RFU)  = bit 31 = PLT_RST#
+        # PWROK_MAIN    = bit 21 = PLT_RST#
+        # APMDZ_LED#    = bit 23 = APMDZ_LED#
+        # GPI[7] (RFU)  = bit 31 = PWROK_ATX
 
-        b21=`get_gpio $GPIO_APMDZ_LED`
-        b21=`get_gpio $GPIO_POWER_IN`
-        b31=`get_gpio $GPIO_RESET_IN`
+        b31=`get_gpio $GPIO_POWER_IN`
+        b23=`get_gpio $GPIO_APMDZ_LED`
+        b21=`get_gpio $GPIO_RESET_IN`
         b14=`get_gpio $GPIO_ALERT_CPU`
         b12=`get_gpio $GPIO_ALERT_CPU2`
         b06=`get_gpio $GPIO_ALERT_MEM`
@@ -198,7 +199,7 @@ do
     fi
 
     # I2CM_TTRIP == 0 & PWROK_MAIN == 1 : on
-    if [ ! $(($alerts & 0x00200000)) -eq 1 ]  # Bit 21: PWROK_MAIN
+    if [ $(($alerts & 0x00200000)) -eq 1 ]  # Bit 21: PWROK_MAIN
     then
         if [ $(($alerts & 0x00008000)) -eq 0 ] # Bit 15: I2CM_TTRIP
         then
@@ -213,14 +214,14 @@ do
     # I2CM_TTRIP == 0 & PWROK_MAIN == 0, but overheat condition is reached : on
     if [ $(($alerts & 0x00008000)) -eq 0 ] # Bit 15: I2CM_TTRIP
     then
-        if [ ! $(($alerts & 0x00200000)) -eq 0 ]  # Bit 21: PWROK_MAIN
+        if [ $(($alerts & 0x00200000)) -eq 0 ]  # Bit 21: PWROK_MAIN
         then
             [ $overheat_cond -eq 1 ] && led_state=1
         fi
     fi
     debug "led_state after checking overheat_cond: $led_state"
 
-    if [ $led_state -eq 0 ] # We are not in critical overheat, so check I2C
+    if [ $led_state -eq 0 -a $powered_on -eq 1 ] # We are not in critical overheat, and powered on, so check I2C
     then
         # Detect available cpus
         cpus=""

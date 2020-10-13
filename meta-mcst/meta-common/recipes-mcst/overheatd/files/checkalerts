@@ -52,6 +52,7 @@ checkalert_tspi()
 checkalerts_tspi()
 {
     alerts=0x`cat $sysfsdir/state_reg`
+    checkalert_gpio "$ON"    "$OFF"  $GPIO_POWER_IN     "Power     "
     checkalert_tspi "$ONL"   "$OFFL" $alerts 0x00200000 "System    "
     checkalert_tspi "$INACT" "$ACT"  $alerts 0x00000040 "I2C0_ALERT"
     checkalert_tspi "$INACT" "$ACT"  $alerts 0x00000080 "I2C0_TCRIT"
