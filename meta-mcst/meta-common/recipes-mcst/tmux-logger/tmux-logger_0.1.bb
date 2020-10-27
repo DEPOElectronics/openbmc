@@ -18,7 +18,7 @@ SRC_URI = "file://sol.conf \
            file://tmux-logger.service \
            file://logrotate-sol.service \
            file://logrotate-sol.timer \
-           file://00-limit-journal-size.conf \
+           file://01-limit-journal-size.conf \
            file://LICENSE \
           "
 
@@ -38,7 +38,7 @@ do_install() {
   install -m 644 tmux-logger.service ${D}${systemd_system_unitdir}
   install -m 644 logrotate-sol.service ${D}${systemd_system_unitdir}
   install -m 644 logrotate-sol.timer ${D}${systemd_system_unitdir}
-  install -m 644 00-limit-journal-size.conf ${D}${systemd_unitdir}/journald.conf.d
+  install -m 644 01-limit-journal-size.conf ${D}${systemd_unitdir}/journald.conf.d
   ln -s /var/log/sol.log ${D}/usr/log/current
 }
 
