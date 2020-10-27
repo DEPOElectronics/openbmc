@@ -13,13 +13,9 @@
         };
     };
 
-    video: video@1e700000 {
-        status = "okay";
-        compatible = "aspeed,ast2400-video-engine";
-        reg = <0x1e700000 0x1000>;
-        clocks = <&syscon ASPEED_CLK_GATE_VCLK>, <&syscon ASPEED_CLK_GATE_ECLK>;
-        clock-names = "vclk", "eclk";
-        interrupts = <7>;
-        memory-region = <&video_engine_memory>;
-    };
+};
+
+&video {
+    status = "okay";
+    memory-region = <&video_engine_memory>;
 };

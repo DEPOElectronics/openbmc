@@ -1,8 +1,9 @@
 FILESEXTRAPATHS_prepend := "${THISDIR}/${PN}:"
 
 SRC_URI += " \
-             file://reimu-ast2400.cfg \
-             file://aspeed-bmc-mcst-reimu.dtsi \
+             file://reimu.cfg \
+             file://aspeed-bmc-mcst-ast2400.dtsi \
+             file://aspeed-bmc-mcst-ast2500.dtsi \
              file://0001-squashfs-generate-uuid-for-superblock.patch \
            "
 
