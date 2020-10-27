@@ -1,3 +1,5 @@
+inherit reimu-version
+
 def getstatusoutput(cmd):
     import subprocess
     p = subprocess.Popen(cmd, stdout=subprocess.PIPE)
@@ -31,7 +33,7 @@ def get_openbmc_commit(d):
 ISSUE_COMMIT := "${@get_openbmc_commit(d)}"
 
 do_alter_dates() {
-    sed -i "s/(Phosphor OpenBMC Project Reference Distro)/(MCST ${MACHINE_STRING} built at `date +'%Y-%m-%d %H:%M %Z'`, git @${ISSUE_COMMIT})/g" ${IMAGE_ROOTFS}/usr/lib/os-release ${IMAGE_ROOTFS}/etc/issue ${IMAGE_ROOTFS}/etc/issue.net
+    sed -i "s/(Phosphor OpenBMC Project Reference Distro)/(MCST ${MACHINE_STRING} ${REIMU_VERSION} built at `date +'%Y-%m-%d %H:%M %Z'`, git @${ISSUE_COMMIT})/g" ${IMAGE_ROOTFS}/usr/lib/os-release ${IMAGE_ROOTFS}/etc/issue ${IMAGE_ROOTFS}/etc/issue.net
 }
 
 do_rootfs[vardepsexclude] += "ISSUE_COMMIT"

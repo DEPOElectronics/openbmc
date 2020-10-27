@@ -1,0 +1,1 @@
+REIMU_VERSION = "0.2"
