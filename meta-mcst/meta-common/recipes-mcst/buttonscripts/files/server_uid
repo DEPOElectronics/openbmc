@@ -3,6 +3,27 @@
 . /etc/reimu.conf
 . /libexec/gpio-funcs
 
+# Note: on 64 MB flash, we have phosphor-ledmanager, so we should control UID through DBus.
+# Otherwise, we should directly drive the corresponding GPIO line.
+# TinySPI boards should NEVER have it, because UID is controlled through CPLD,
+# so we can't use phosphor-ledmanager to control UID.
+
+LEDMAN=`pidof phosphor-ledmanager > /dev/null && echo "yes" || echo "no"`
+
+uid_set_dbus()
+{
+    [ "$1" = "off" ] && state=false
+    [ "$1" = "on" ]  && state=true
+    busctl call xyz.openbmc_project.LED.GroupManager /xyz/openbmc_project/led/groups/enclosure_identify org.freedesktop.DBus.Properties Set ssv xyz.openbmc_project.Led.Group Asserted b $state
+    exit $?
+}
+
+uid_get_dbus()
+{
+    state=`busctl call xyz.openbmc_project.LED.GroupManager /xyz/openbmc_project/led/groups/enclosure_identify org.freedesktop.DBus.Properties Get ss xyz.openbmc_project.Led.Group Asserted | cut -d" " -f3`
+    test "$state" != "true"
+}
+
 uid_set_gpio()
 {
     [ "$1" = "off" ] && trig=none
@@ -25,6 +46,11 @@ uid_switch_tspi()
     uid_get_tspi && uid_set_tspi on || uid_set_tspi off
 }
 
+uid_switch_dbus()
+{
+    uid_get_dbus && uid_set_dbus on || uid_set_dbus off
+}
+
 uid_set_tspi()
 {
     modprobe tinyspi # Just in case module is not loaded
@@ -39,6 +65,21 @@ uid_get_tspi()
 {
     modprobe tinyspi # Just in case module is not loaded
     test $((0x`cat /sys/kernel/tinyspi/state_reg` & 0x00000008)) -eq 0
+}
+
+query_uid()
+{
+    if [ "$LEDMAN"  = "yes" ]
+    then
+        uid_get_dbus
+    else
+        if [ "$TINYSPI" = "yes" ]
+        then
+            uid_get_tspi
+        else
+            uid_get_gpio
+        fi
+    fi
 }
 
 usage()
@@ -59,31 +100,24 @@ exit 0
 ledtype="$1"
 case "$ledtype" in
     "on")
+        [ "$LEDMAN"  = "yes" ] && uid_set_dbus on
         [ "$TINYSPI" = "yes" ] && uid_set_tspi on || uid_set_gpio on
         ;;
     "off")
+        [ "$LEDMAN"  = "yes" ] && uid_set_dbus off
         [ "$TINYSPI" = "yes" ] && uid_set_tspi off || uid_set_gpio off
         ;;
     "query")
-        if [ "$TINYSPI" = "yes" ]
-        then
-            uid_get_tspi
-        else
-            uid_get_gpio
-        fi
+        query_uid
         ;;
     "show")
-        if [ "$TINYSPI" = "yes" ]
-        then
-            uid_get_tspi
-        else
-            uid_get_gpio
-        fi
+        query_uid
         RV=$?
         [ $RV -eq 0 ] && echo "UID is OFF" || echo "UID is ON"
         exit $RV
         ;;
     "switch")
+        [ "$LEDMAN"  = "yes" ] && uid_switch_dbus
         [ "$TINYSPI" = "yes" ] && uid_switch_tspi || uid_switch_gpio
         ;;
     ""|"-h"|"--help")
