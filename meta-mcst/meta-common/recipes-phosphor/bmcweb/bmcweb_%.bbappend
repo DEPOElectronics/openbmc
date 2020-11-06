@@ -1,5 +1,2 @@
-do_install_append() {
-    install -d ${D}/var/volatile/log/redfish
-}
-
-FILES_${PN} += " /var/volatile/log/redfish "
+FILESEXTRAPATHS_prepend := "${THISDIR}:"
+SRC_URI += " file://0001-create-logging-directory.patch "
