@@ -1,4 +1,10 @@
-FIRSTGPIO=292
+if [ ! -d /sys/class/gpio/gpiochip* ]
+then
+    echo "GPIO subsystem not initialized: no /sys/class/gpio/gpiochip* entry" 1>&2
+    exit 240
+fi
+
+FIRSTGPIO=`ls -d /sys/class/gpio/gpiochip* | head -n1 | sed 's/.*gpiochip//'`
 
 # Note: this is GPIO set for REIMU, MUS-A has some GPIOs absent,
 # and corresponding LEDs and buttons are served through TinySPI.
