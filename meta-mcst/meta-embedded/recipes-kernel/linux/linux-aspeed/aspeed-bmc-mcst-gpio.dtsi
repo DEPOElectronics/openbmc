@@ -5,7 +5,7 @@
 		compatible = "gpio-leds";
 		bmc_boot {
 			label = "platform:red:bmc_boot";
-			gpios = <&gpio ASPEED_GPIO(G, 1) GPIO_ACTIVE_LOW>;
+			gpios = <&gpio ASPEED_GPIO(G, 1) GPIO_ACTIVE_HIGH>;
 			linux,default-trigger = "timer";
 		};
 		uid {
