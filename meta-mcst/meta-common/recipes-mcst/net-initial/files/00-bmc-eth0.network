@@ -1,7 +1,5 @@
 [Match]
 Name=eth0
-[Link]
-MACAddress=98:a7:b0:00:00:01
 [Network]
 Address=192.168.1.1/24
 Gateway=192.168.1.100

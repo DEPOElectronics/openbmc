@@ -1,0 +1,13 @@
+[Unit]
+Description=Set MAC address according to FRU ID data
+After=syslog.target
+
+[Service]
+ExecStart=/libexec/set_mac
+StandardOutput=syslog
+Type=oneshot
+RemainAfterExit=yes
+KillMode=none
+
+[Install]
+WantedBy=network.target
