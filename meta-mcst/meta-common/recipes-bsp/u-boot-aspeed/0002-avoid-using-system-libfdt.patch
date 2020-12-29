@@ -1,0 +1,49 @@
+diff --git a/tools/Makefile b/tools/Makefile
+index f72294a98a..97eefbee9b 100644
+--- a/tools/Makefile
++++ b/tools/Makefile
+@@ -221,7 +221,7 @@ LICENSE-$(CONFIG_CMD_LICENSE) += $(LICENSE_H)
+ # Define __KERNEL_STRICT_NAMES to prevent typedef overlaps
+ # Define _GNU_SOURCE to obtain the getline prototype from stdio.h
+ #
+-HOST_EXTRACFLAGS += -include $(srctree)/include/libfdt_env.h \
++HOST_EXTRACFLAGS += -include $(srctree)/include/libfdt_env.h -DLIBFDT_ENV_H -DLIBFDT_H \
+ 		$(patsubst -I%,-idirafter%, $(filter -I%, $(UBOOTINCLUDE))) \
+ 		-I$(srctree)/lib/libfdt \
+ 		-I$(srctree)/tools \
+diff --git a/lib/libfdt/fdt_empty_tree.c b/lib/libfdt/fdt_empty_tree.c
+index 6fde1eb9ed..6dbc9491c0 100644
+--- a/lib/libfdt/fdt_empty_tree.c
++++ b/lib/libfdt/fdt_empty_tree.c
+@@ -4,8 +4,13 @@
+  * SPDX-License-Identifier:	GPL-2.0+ BSD-2-Clause
+  */
+ #include <libfdt_env.h>
++
++#ifndef USE_HOSTCC
+ #include <fdt.h>
+ #include <libfdt.h>
++#else
++#include "fdt_host.h"
++#endif
+ 
+ #include "libfdt_internal.h"
+ 
+diff --git a/lib/libfdt/fdt_sw.c b/lib/libfdt/fdt_sw.c
+index 70fd026550..b2891a309a 100644
+--- a/lib/libfdt/fdt_sw.c
++++ b/lib/libfdt/fdt_sw.c
+@@ -4,8 +4,13 @@
+  * SPDX-License-Identifier:	GPL-2.0+ BSD-2-Clause
+  */
+ #include <libfdt_env.h>
++
++#ifndef USE_HOSTCC
+ #include <fdt.h>
+ #include <libfdt.h>
++#else
++#include "fdt_host.h"
++#endif
+ 
+ #include "libfdt_internal.h"
+ 
