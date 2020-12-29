@@ -51,12 +51,10 @@
 
 &mac0 {
 	status = "okay";
-	no-hw-checksum;
 };
 
 &mac1 {
 	status = "okay";
-	no-hw-checksum;
 };
 
 &uart5 {
