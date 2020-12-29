@@ -163,6 +163,12 @@
 
 &i2c3 {
 	status = "okay";
+
+	eeprom@57 {
+		compatible = "atmel,24c128";
+		reg = <0x57>;
+		pagesize = <16>;
+	};
 };
 
 &i2c4 {
