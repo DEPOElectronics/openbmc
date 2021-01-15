@@ -1,0 +1,12 @@
+[Unit]
+Description=Unconditionally Stop Host
+Conflicts=obmc-chassis-poweron@0.target
+
+[Service]
+RemainAfterExit=yes
+Type=oneshot
+ExecStart=/usr/bin/env server_pwrbut_h
+SyslogIdentifier=buttonscripts
+
+[Install]
+WantedBy=obmc-chassis-hard-poweroff@0.target

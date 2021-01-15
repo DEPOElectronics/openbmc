@@ -1,0 +1,12 @@
+[Unit]
+Description=Reset Host
+Conflicts=obmc-chassis-poweroff@0.target
+
+[Service]
+RemainAfterExit=yes
+Type=oneshot
+ExecStart=/usr/bin/env server_reset
+SyslogIdentifier=buttonscripts
+
+[Install]
+WantedBy=obmc-host-reset@0.target

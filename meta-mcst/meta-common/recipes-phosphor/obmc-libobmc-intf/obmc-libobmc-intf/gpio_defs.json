@@ -1,0 +1,36 @@
+{
+    "gpio_configs": {
+        "power_config": {
+            "power_good_in": "ATX_PWROK",
+            "power_up_outs": [
+                "CTRL_RDY"
+            ],
+            "reset_outs": [
+                "RESET_BUTTON"
+            ],
+        }
+    },
+
+    "gpio_definitions": [
+        {
+            "name": "RESET_BUTTON",
+            "pin": "P3",
+            "direction": "out"
+        },
+        {
+            "name": "POWER_BUTTON",
+            "pin": "N5",
+            "direction": "out"
+        },
+        {
+            "name": "POWER_BUTTON",
+            "pin": "N5",
+            "direction": "out"
+        },
+        {
+            "name": "CTRL_RDY",
+            "pin": "N7",
+            "direction": "out"
+        }
+    ]
+}

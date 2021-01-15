@@ -96,6 +96,7 @@ OBMC_IMAGE_EXTRA_INSTALL_append = " \
   nfs-utils-client \
   nss-pam-ldapd \
   sysstat \
+  obmc-libobmc-intf \
   "
 
 IMAGE_FEATURES_remove = " \
