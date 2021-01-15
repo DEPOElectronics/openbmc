@@ -221,37 +221,42 @@ do
     fi
     debug "led_state after checking overheat_cond: $led_state"
 
-    if [ $led_state -eq 0 -a $powered_on -eq 1 ] # We are not in critical overheat, and powered on, so check I2C
+    if [ $led_state -eq 0 ]
     then
-        # Detect available cpus
-        cpus=""
-        for j in `seq 2 5`
-        do
-            debug "exec: rawi2ctool -W $CPU_I2C_NUM 0x${j}0 2> /dev/null && cpus=\"$cpus $j\""
-            $rawi2ctool -W $CPU_I2C_NUM 0x${j}0 2> /dev/null && cpus="$cpus $j"
-        done
-        debug "Bus $CPU_I2C_NUM, CPUs detected: $cpus"
-        echo "	<cpus>$cpus</cpus>" >> $statefile.tmp
-
-        # Check temperature of each cpu core
-        maxtemp=0
-        for cpu in $cpus
-        do
-            for core in `seq 0 7`
-            do
-                temp=$((0x`$rawi2ctool -r -w $CPU_I2C_NUM 0x${cpu}${core} | sed 's/ //'` / 8))
-                debug "Temp ($cpu:$core): $temp"
-                echo "	<temperature cpu=\"$cpu\" core=\"$core\">$temp</temperature>" >> $statefile.tmp
-                [ $temp -gt $maxtemp ] && maxtemp=$temp
-            done
-        done
-        debug "maxtemp: $maxtemp"
-
-        # Any of temperatures is greater than /mnt/data/etc/cpu_temp_limit
-        if [ $maxtemp -gt $CPU_TEMP_LIMIT ]
+        if [ $powered_on -eq 1 ] # We are not in critical overheat, and powered on, so check I2C
         then
-            led_trigger="timer"
-            led_state=`expr 1 - $oldledstate`
+            # Detect available cpus
+            cpus=""
+            for j in `seq 2 5`
+            do
+                debug "exec: rawi2ctool -W $CPU_I2C_NUM 0x${j}0 2> /dev/null && cpus=\"$cpus $j\""
+                $rawi2ctool -W $CPU_I2C_NUM 0x${j}0 2> /dev/null && cpus="$cpus $j"
+            done
+            debug "Bus $CPU_I2C_NUM, CPUs detected: $cpus"
+            echo "	<cpus>$cpus</cpus>" >> $statefile.tmp
+
+            # Check temperature of each cpu core
+            maxtemp=0
+            for cpu in $cpus
+            do
+                for core in `seq 0 7`
+                do
+                    temp=$((0x`$rawi2ctool -r -w $CPU_I2C_NUM 0x${cpu}${core} | sed 's/ //'` / 8))
+                    debug "Temp ($cpu:$core): $temp"
+                    echo "	<temperature cpu=\"$cpu\" core=\"$core\">$temp</temperature>" >> $statefile.tmp
+                    [ $temp -gt $maxtemp ] && maxtemp=$temp
+                done
+            done
+            debug "maxtemp: $maxtemp"
+
+            # Any of temperatures is greater than /mnt/data/etc/cpu_temp_limit
+            if [ $maxtemp -gt $CPU_TEMP_LIMIT ]
+            then
+                led_trigger="timer"
+                led_state=`expr 1 - $oldledstate`
+            else
+                led_trigger="none"
+            fi
         else
             led_trigger="none"
         fi
