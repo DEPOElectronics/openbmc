@@ -10,7 +10,9 @@ GCCPIE ?= "--enable-default-pie"
 
 # _FORTIFY_SOURCE requires -O1 or higher, so disable in debug builds as they use
 # -O0 which then results in a compiler warning.
-lcl_maybe_fortify ?= "${@oe.utils.conditional('DEBUG_BUILD','1','','-D_FORTIFY_SOURCE=2',d)}"
+OPTLEVEL = "${@bb.utils.filter('SELECTED_OPTIMIZATION', '-O0 -O1 -O2 -O3 -Ofast -Og -Os -Oz -O', d)}"
+
+lcl_maybe_fortify ?= "${@oe.utils.conditional('OPTLEVEL','-O0','','${OPTLEVEL} -D_FORTIFY_SOURCE=2',d)}"
 
 # Error on use of format strings that represent possible security problems
 SECURITY_STRINGFORMAT ?= "-Wformat -Wformat-security -Werror=format-security"
@@ -40,10 +42,6 @@ SECURITY_CFLAGS_pn-glibc-testsuite = ""
 SECURITY_CFLAGS_pn-gcc-runtime = ""
 SECURITY_CFLAGS_pn-grub = ""
 SECURITY_CFLAGS_pn-grub-efi = ""
-SECURITY_CFLAGS_pn-grub-efi-native = ""
-SECURITY_CFLAGS_pn-grub-efi-x86-native = ""
-SECURITY_CFLAGS_pn-grub-efi-i586-native = ""
-SECURITY_CFLAGS_pn-grub-efi-x86-64-native = ""
 SECURITY_CFLAGS_pn-mkelfimage_x86 = ""
 
 SECURITY_CFLAGS_pn-valgrind = "${SECURITY_NOPIE_CFLAGS}"

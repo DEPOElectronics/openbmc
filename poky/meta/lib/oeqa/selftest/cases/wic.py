@@ -235,6 +235,17 @@ class Wic(WicTestCase):
         runCmd(cmd)
         self.assertEqual(1, len(glob(self.resultdir + "systemd-bootdisk-*direct")))
 
+    def test_efi_bootpart(self):
+        """Test creation of efi-bootpart image"""
+        cmd = "wic create mkefidisk -e core-image-minimal -o %s" % self.resultdir
+        kimgtype = get_bb_var('KERNEL_IMAGETYPE', 'core-image-minimal')
+        self.append_config('IMAGE_EFI_BOOT_FILES = "%s;kernel"\n' % kimgtype)
+        runCmd(cmd)
+        sysroot = get_bb_var('RECIPE_SYSROOT_NATIVE', 'wic-tools')
+        images = glob(self.resultdir + "mkefidisk-*.direct")
+        result = runCmd("wic ls %s:1/ -n %s" % (images[0], sysroot))       
+        self.assertIn("kernel",result.output)
+
     def test_sdimage_bootpart(self):
         """Test creation of sdimage-bootpart image"""
         cmd = "wic create sdimage-bootpart -e core-image-minimal -o %s" % self.resultdir
@@ -307,6 +318,7 @@ class Wic(WicTestCase):
                                    "--image-name=core-image-minimal "
                                    "-D -o %s" % self.resultdir)
         self.assertEqual(1, len(glob(self.resultdir + "wictestdisk-*.direct")))
+        self.assertEqual(1, len(glob(self.resultdir + "tmp.wic*")))
 
     def test_debug_long(self):
         """Test --debug option"""
@@ -314,6 +326,7 @@ class Wic(WicTestCase):
                                    "--image-name=core-image-minimal "
                                    "--debug -o %s" % self.resultdir)
         self.assertEqual(1, len(glob(self.resultdir + "wictestdisk-*.direct")))
+        self.assertEqual(1, len(glob(self.resultdir + "tmp.wic*")))
 
     def test_skip_build_check_short(self):
         """Test -s option"""
@@ -577,6 +590,9 @@ part / --source rootfs  --fstype=ext4 --include-path %s --include-path core-imag
     def test_permissions(self):
         """Test permissions are respected"""
 
+        # prepare wicenv and rootfs
+        bitbake('core-image-minimal core-image-minimal-mtdutils -c do_rootfs_wicenv')
+
         oldpath = os.environ['PATH']
         os.environ['PATH'] = get_bb_var("PATH", "wic-tools")
 
@@ -610,6 +626,19 @@ part /etc --source rootfs --fstype=ext4 --change-directory=etc
                     res = runCmd("debugfs -R 'ls -p' %s 2>/dev/null" % (part))
                     self.assertEqual(True, files_own_by_root(res.output))
 
+                config = 'IMAGE_FSTYPES += "wic"\nWKS_FILE = "%s"\n' % wks_file
+                self.append_config(config)
+                bitbake('core-image-minimal')
+                tmpdir = os.path.join(get_bb_var('WORKDIR', 'core-image-minimal'),'build-wic')
+
+                # check each partition for permission
+                for part in glob(os.path.join(tmpdir, 'temp-*.direct.p*')):
+                    res = runCmd("debugfs -R 'ls -p' %s 2>/dev/null" % (part))
+                    self.assertTrue(files_own_by_root(res.output)
+                        ,msg='Files permission incorrect using wks set "%s"' % test)
+
+                # clean config and result directory for next cases
+                self.remove_config(config)
                 rmtree(self.resultdir, ignore_errors=True)
 
         finally:
@@ -689,7 +718,7 @@ class Wic2(WicTestCase):
         wicvars = wicvars.difference(('DEPLOY_DIR_IMAGE', 'IMAGE_BOOT_FILES',
                                       'INITRD', 'INITRD_LIVE', 'ISODIR','INITRAMFS_IMAGE',
                                       'INITRAMFS_IMAGE_BUNDLE', 'INITRAMFS_LINK_NAME',
-                                      'APPEND'))
+                                      'APPEND', 'IMAGE_EFI_BOOT_FILES'))
         with open(path) as envfile:
             content = dict(line.split("=", 1) for line in envfile)
             # test if variables used by wic present in the .env file
@@ -890,6 +919,30 @@ class Wic2(WicTestCase):
                 ])
 
         with NamedTemporaryFile("w", suffix=".wks") as tempf:
+            # Test that partitions can be placed on a 512 byte sector boundary
+            tempf.write("bootloader --ptable gpt\n" \
+                        "part /    --source rootfs --ondisk hda --offset 65s --fixed-size 99M --fstype=ext4\n" \
+                        "part /bar                 --ondisk hda --offset 102432 --fixed-size 100M --fstype=ext4\n")
+            tempf.flush()
+
+            _, partlns = self._get_wic_partitions(tempf.name, native_sysroot)
+            self.assertEqual(partlns, [
+                "1:32.5kiB:101408kiB:101376kiB:ext4:primary:;",
+                "2:102432kiB:204832kiB:102400kiB:ext4:primary:;",
+                ])
+
+        with NamedTemporaryFile("w", suffix=".wks") as tempf:
+            # Test that a partition can be placed immediately after a MSDOS partition table
+            tempf.write("bootloader --ptable msdos\n" \
+                        "part /    --source rootfs --ondisk hda --offset 1s --fixed-size 100M --fstype=ext4\n")
+            tempf.flush()
+
+            _, partlns = self._get_wic_partitions(tempf.name, native_sysroot)
+            self.assertEqual(partlns, [
+                "1:0.50kiB:102400kiB:102400kiB:ext4::;",
+                ])
+
+        with NamedTemporaryFile("w", suffix=".wks") as tempf:
             # Test that image creation fails if the partitions would overlap
             tempf.write("bootloader --ptable gpt\n" \
                         "part /    --source rootfs --ondisk hda --offset 32     --fixed-size 100M --fstype=ext4\n" \
@@ -907,6 +960,21 @@ class Wic2(WicTestCase):
 
             p, _ = self._get_wic_partitions(tempf.name, ignore_status=True)
             self.assertNotEqual(p.status, 0, "wic exited successfully when an error was expected:\n%s" % p.output)
+
+    def test_extra_space(self):
+        native_sysroot = get_bb_var("RECIPE_SYSROOT_NATIVE", "wic-tools")
+
+        with NamedTemporaryFile("w", suffix=".wks") as tempf:
+            tempf.write("bootloader --ptable gpt\n" \
+                        "part /     --source rootfs --ondisk hda --extra-space 200M --fstype=ext4\n")
+            tempf.flush()
+
+            _, partlns = self._get_wic_partitions(tempf.name, native_sysroot)
+            self.assertEqual(len(partlns), 1)
+            size = partlns[0].split(':')[3]
+            self.assertRegex(size, r'^[0-9]+kiB$')
+            size = int(size[:-3])
+            self.assertGreaterEqual(size, 204800)
 
     @only_for_arch(['i586', 'i686', 'x86_64'])
     def test_rawcopy_plugin_qemu(self):
@@ -939,6 +1007,26 @@ class Wic2(WicTestCase):
             wksname = os.path.splitext(os.path.basename(wks.name))[0]
             out = glob(self.resultdir + "%s-*direct" % wksname)
             self.assertEqual(1, len(out))
+
+    def test_empty_plugin(self):
+        """Test empty plugin"""
+        config = 'IMAGE_FSTYPES = "wic"\nWKS_FILE = "test_empty_plugin.wks"\n'
+        self.append_config(config)
+        self.assertEqual(0, bitbake('core-image-minimal').status)
+        self.remove_config(config)
+
+        bb_vars = get_bb_vars(['DEPLOY_DIR_IMAGE', 'MACHINE'])
+        deploy_dir = bb_vars['DEPLOY_DIR_IMAGE']
+        machine = bb_vars['MACHINE']
+        image_path = os.path.join(deploy_dir, 'core-image-minimal-%s.wic' % machine)
+        self.assertEqual(True, os.path.exists(image_path))
+
+        sysroot = get_bb_var('RECIPE_SYSROOT_NATIVE', 'wic-tools')
+
+        # Fstype column from 'wic ls' should be empty for the second partition
+        # as listed in test_empty_plugin.wks
+        result = runCmd("wic ls %s -n %s | awk -F ' ' '{print $1 \" \" $5}' | grep '^2' | wc -w" % (image_path, sysroot))
+        self.assertEqual('1', result.output)
 
     @only_for_arch(['i586', 'i686', 'x86_64'])
     def test_biosplusefi_plugin_qemu(self):

@@ -17,6 +17,7 @@ DEPENDS += "sdbusplus"
 DEPENDS += "systemd"
 DEPENDS += "ipmi-blob-tool"
 DEPENDS += "pciutils"
+DEPENDS += "function2"
 
 PACKAGECONFIG ?= "cleanup-delete"
 PACKAGECONFIG[cleanup-delete] = "--enable-cleanup-delete, --disable-cleanup-delete"
@@ -45,7 +46,7 @@ EXTRA_OECONF_append = " MAPPED_ADDRESS=${IPMI_FLASH_BMC_ADDRESS}"
 
 S = "${WORKDIR}/git"
 SRC_URI = "git://github.com/openbmc/phosphor-ipmi-flash"
-SRCREV = "92f261502d559b864293d90f6901d350694ca4d3"
+SRCREV = "7d39eb04acdc6e654019adabda589bcbe0d91971"
 
 SYSTEMD_PACKAGES = "${PN}"
 SYSTEMD_SERVICE_${PN} += "phosphor-ipmi-flash-bmc-prepare.target \
@@ -62,8 +63,10 @@ SYSTEMD_SERVICE_${PN} += "${@bb.utils.contains('PACKAGECONFIG', 'host-bios', '${
 FILES_${PN}_append = " ${libdir}/ipmid-providers/lib*${SOLIBS}"
 FILES_${PN}_append = " ${libdir}/blob-ipmid/lib*${SOLIBS}"
 FILES_${PN}-dev_append = " ${libdir}/ipmid-providers/lib*${SOLIBSDEV} ${libdir}/ipmid-providers/*.la"
+FILES_${PN}_append = " ${libdir}/tmpfiles.d"
 
 BLOBIPMI_PROVIDER_LIBRARY += "libfirmwareblob.so"
+BLOBIPMI_PROVIDER_LIBRARY += "libversionblob.so"
 BLOBIPMI_PROVIDER_LIBRARY += "${@bb.utils.contains('PACKAGECONFIG', 'cleanup-delete', 'libfirmwarecleanupblob.so', '', d)}"
 
 do_configure[depends] += "virtual/kernel:do_shared_workdir"

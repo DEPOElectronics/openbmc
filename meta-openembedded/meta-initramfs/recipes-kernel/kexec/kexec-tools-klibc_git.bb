@@ -32,7 +32,9 @@ KLIBC_PATCHES += " \
             file://0013-sha256.h-avoid-inclusion-of-sys-types.h.patch \
             file://0014-add-if_nameindex-from-musl.patch \
             file://0015-vmcore-dmesg-fix-warning.patch \
-            file://klibc-reboot.patch"
+            file://klibc-reboot.patch \
+            file://include_next.patch \
+            "
 
 WARNING_FIXES = ""
 FROM_OE_CORE = "file://arm_crashdump-fix-buffer-align.patch \
@@ -68,7 +70,7 @@ COMMON_CFLAGS += "-O2 -I${STAGING_DIR_HOST}${libdir}/klibc/include -I${S}/purgat
 CFLAGS_x86_append = " ${COMMON_CFLAGS} -I${STAGING_DIR_HOST}${libdir}/klibc/include/bits32"
 CFLAGS_x86-64_append = " ${COMMON_CFLAGS} -I${STAGING_DIR_HOST}${libdir}/klibc/include/bits64"
 CFLAGS_arm_append = " ${COMMON_CFLAGS} -I${STAGING_DIR_HOST}${libdir}/klibc/include/bits32"
-CFLAGS_aarch64_append = "${COMMON_CFLAGS} -I${STAGING_DIR_HOST}${libdir}/klibc/include/bits64"
+CFLAGS_aarch64_append = " ${COMMON_CFLAGS} -I${STAGING_DIR_HOST}${libdir}/klibc/include/bits64"
 CFLAGS_mips_append = " ${COMMON_CFLAGS} -I${STAGING_DIR_HOST}${libdir}/klibc/include/bits32"
 CFLAGS_mipsel_append = " ${COMMON_CFLAGS} -I${STAGING_DIR_HOST}${libdir}/klibc/include/bits32"
 CFLAGS_mips64_append = " ${COMMON_CFLAGS} -I${STAGING_DIR_HOST}${libdir}/klibc/include/bits64"

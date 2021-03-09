@@ -10,14 +10,14 @@ inherit autotools pkgconfig update-alternatives
 DEPENDS = "zlib e2fsprogs util-linux"
 RDEPENDS_mtd-utils-tests += "bash"
 
-PV = "2.1.1"
+PV = "2.1.2"
 
-SRCREV = "4443221ce9b88440cd9f5bb78e6fe95621d36c8a"
+SRCREV = "7b986779342021bda87c04da3bf729718736d8ab"
 SRC_URI = "git://git.infradead.org/mtd-utils.git \
            file://add-exclusion-to-mkfs-jffs2-git-2.patch \
-"
+           "
 
-S = "${WORKDIR}/git/"
+S = "${WORKDIR}/git"
 
 EXTRA_OECONF += "--enable-install-tests"
 
@@ -42,10 +42,8 @@ ALTERNATIVE_PRIORITY = "100"
 ALTERNATIVE_${PN} = "flashcp flash_eraseall flash_lock flash_unlock nanddump nandwrite"
 ALTERNATIVE_${PN}-ubifs = "ubiattach ubidetach ubimkvol ubirename ubirmvol ubirsvol ubiupdatevol"
 
-ALTERNATIVE_LINK_NAME[flash_eraseall] = "${sbindir}/flash_eraseall"
 ALTERNATIVE_LINK_NAME[nandwrite] = "${sbindir}/nandwrite"
 ALTERNATIVE_LINK_NAME[nanddump] = "${sbindir}/nanddump"
-ALTERNATIVE_LINK_NAME[ubiattach] = "${sbindir}/ubiattach"
 ALTERNATIVE_LINK_NAME[ubiattach] = "${sbindir}/ubiattach"
 ALTERNATIVE_LINK_NAME[ubidetach] = "${sbindir}/ubidetach"
 ALTERNATIVE_LINK_NAME[ubimkvol] = "${sbindir}/ubimkvol"

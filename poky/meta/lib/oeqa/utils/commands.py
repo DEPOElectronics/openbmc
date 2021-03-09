@@ -95,7 +95,9 @@ class Command(object):
         # reason, the main process will still exit, which will then
         # kill the write thread.
         if self.data:
-            threading.Thread(target=writeThread, daemon=True).start()
+            thread = threading.Thread(target=writeThread, daemon=True)
+            thread.start()
+            self.threads.append(thread)
         if self.process.stderr:
             thread = threading.Thread(target=readStderrThread)
             thread.start()
@@ -123,11 +125,11 @@ class Command(object):
 
     def stop(self):
         for thread in self.threads:
-            if thread.isAlive():
+            if thread.is_alive():
                 self.process.terminate()
             # let's give it more time to terminate gracefully before killing it
             thread.join(5)
-            if thread.isAlive():
+            if thread.is_alive():
                 self.process.kill()
                 thread.join()
 
@@ -165,7 +167,7 @@ class Result(object):
     pass
 
 
-def runCmd(command, ignore_status=False, timeout=None, assert_error=True,
+def runCmd(command, ignore_status=False, timeout=None, assert_error=True, sync=True,
           native_sysroot=None, limit_exc_output=0, output_log=None, **options):
     result = Result()
 
@@ -181,6 +183,15 @@ def runCmd(command, ignore_status=False, timeout=None, assert_error=True,
 
     cmd = Command(command, timeout=timeout, output_log=output_log, **options)
     cmd.run()
+
+    # tests can be heavy on IO and if bitbake can't write out its caches, we see timeouts.
+    # call sync around the tests to ensure the IO queue doesn't get too large, taking any IO
+    # hit here rather than in bitbake shutdown.
+    if sync:
+        p = os.environ['PATH']
+        os.environ['PATH'] = "/usr/bin:/bin:/usr/sbin:/sbin:" + p
+        os.system("sync")
+        os.environ['PATH'] = p
 
     result.command = command
     result.status = cmd.status

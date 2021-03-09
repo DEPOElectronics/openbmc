@@ -193,7 +193,7 @@ def parallel_make(d, makeinst=False):
 
         return int(v)
 
-    return None
+    return ''
 
 def parallel_make_argument(d, fmt, limit=None, makeinst=False):
     """
@@ -249,8 +249,7 @@ def trim_version(version, num_parts=2):
     return trimmed
 
 def cpu_count(at_least=1):
-    import multiprocessing
-    cpus = multiprocessing.cpu_count()
+    cpus = len(os.sched_getaffinity(0))
     return max(cpus, at_least)
 
 def execute_pre_post_process(d, cmds):

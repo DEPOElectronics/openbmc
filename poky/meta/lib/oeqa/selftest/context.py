@@ -22,14 +22,50 @@ from oeqa.core.exception import OEQAPreRun, OEQATestNotFound
 
 from oeqa.utils.commands import runCmd, get_bb_vars, get_test_layer
 
+class NonConcurrentTestSuite(unittest.TestSuite):
+    def __init__(self, suite, processes, setupfunc, removefunc):
+        super().__init__([suite])
+        self.processes = processes
+        self.suite = suite
+        self.setupfunc = setupfunc
+        self.removefunc = removefunc
+
+    def run(self, result):
+        (builddir, newbuilddir) = self.setupfunc("-st", None, self.suite)
+        ret = super().run(result)
+        os.chdir(builddir)
+        if newbuilddir and ret.wasSuccessful() and self.removefunc:
+            self.removefunc(newbuilddir)
+
+def removebuilddir(d):
+    delay = 5
+    while delay and os.path.exists(d + "/bitbake.lock"):
+        time.sleep(1)
+        delay = delay - 1
+    # Deleting these directories takes a lot of time, use autobuilder
+    # clobberdir if its available
+    clobberdir = os.path.expanduser("~/yocto-autobuilder-helper/janitor/clobberdir")
+    if os.path.exists(clobberdir):
+        try:
+            subprocess.check_call([clobberdir, d])
+            return
+        except subprocess.CalledProcessError:
+            pass
+    bb.utils.prunedir(d, ionice=True)
+
 class OESelftestTestContext(OETestContext):
-    def __init__(self, td=None, logger=None, machines=None, config_paths=None, newbuilddir=None):
+    def __init__(self, td=None, logger=None, machines=None, config_paths=None, newbuilddir=None, keep_builddir=None):
         super(OESelftestTestContext, self).__init__(td, logger)
 
         self.machines = machines
         self.custommachine = None
         self.config_paths = config_paths
         self.newbuilddir = newbuilddir
+
+        if keep_builddir:
+            self.removebuilddir = None
+        else:
+            self.removebuilddir = removebuilddir
 
     def setup_builddir(self, suffix, selftestdir, suite):
         builddir = os.environ['BUILDDIR']
@@ -51,7 +87,9 @@ class OESelftestTestContext(OETestContext):
         oe.path.copytree(selftestdir, newselftestdir)
 
         for e in os.environ:
-            if builddir + "/" in os.environ[e] or os.environ[e].endswith(builddir):
+            if builddir + "/" in os.environ[e]:
+                os.environ[e] = os.environ[e].replace(builddir + "/", newbuilddir + "/")
+            if os.environ[e].endswith(builddir):
                 os.environ[e] = os.environ[e].replace(builddir, newbuilddir)
 
         subprocess.check_output("git init; git add *; git commit -a -m 'initial'", cwd=newselftestdir, shell=True)
@@ -86,10 +124,9 @@ class OESelftestTestContext(OETestContext):
         if processes:
             from oeqa.core.utils.concurrencytest import ConcurrentTestSuite
 
-            return ConcurrentTestSuite(suites, processes, self.setup_builddir)
+            return ConcurrentTestSuite(suites, processes, self.setup_builddir, self.removebuilddir)
         else:
-            self.setup_builddir("-st", None, suites)
-            return suites
+            return NonConcurrentTestSuite(suites, processes, self.setup_builddir, self.removebuilddir)
 
     def runTests(self, processes=None, machine=None, skips=[]):
         if machine:
@@ -146,6 +183,9 @@ class OESelftestTestContextExecutor(OETestContextExecutor):
         parser.add_argument('-T', '--exclude-tag', dest="exclude_tags",
                 action='append', default=None,
                 help='Exclude all (unhidden) tests that match any of the specified tag(s). (exclude applies before select)')
+
+        parser.add_argument('-K', '--keep-builddir', action='store_true',
+                help='Keep the test build directory even if all tests pass')
 
         parser.add_argument('-B', '--newbuilddir', help='New build directory to use for tests.')
         parser.add_argument('-v', '--verbose', action='store_true')
@@ -204,6 +244,7 @@ class OESelftestTestContextExecutor(OETestContextExecutor):
         self.tc_kwargs['init']['config_paths']['localconf'] = os.path.join(builddir, "conf/local.conf")
         self.tc_kwargs['init']['config_paths']['bblayers'] = os.path.join(builddir, "conf/bblayers.conf")
         self.tc_kwargs['init']['newbuilddir'] = args.newbuilddir
+        self.tc_kwargs['init']['keep_builddir'] = args.keep_builddir
 
         def tag_filter(tags):
             if args.exclude_tags:

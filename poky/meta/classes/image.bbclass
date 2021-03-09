@@ -33,7 +33,7 @@ INHIBIT_DEFAULT_DEPS = "1"
 # IMAGE_FEATURES may contain any available package group
 IMAGE_FEATURES ?= ""
 IMAGE_FEATURES[type] = "list"
-IMAGE_FEATURES[validitems] += "debug-tweaks read-only-rootfs stateless-rootfs empty-root-password allow-empty-password allow-root-login post-install-logging"
+IMAGE_FEATURES[validitems] += "debug-tweaks read-only-rootfs read-only-rootfs-delayed-postinsts stateless-rootfs empty-root-password allow-empty-password allow-root-login post-install-logging"
 
 # Generate companion debugfs?
 IMAGE_GEN_DEBUGFS ?= "0"
@@ -121,7 +121,7 @@ python () {
 def rootfs_variables(d):
     from oe.rootfs import variable_depends
     variables = ['IMAGE_DEVICE_TABLE','IMAGE_DEVICE_TABLES','BUILD_IMAGES_FROM_FEEDS','IMAGE_TYPES_MASKED','IMAGE_ROOTFS_ALIGNMENT','IMAGE_OVERHEAD_FACTOR','IMAGE_ROOTFS_SIZE','IMAGE_ROOTFS_EXTRA_SPACE',
-                 'IMAGE_ROOTFS_MAXSIZE','IMAGE_NAME','IMAGE_LINK_NAME','IMAGE_MANIFEST','DEPLOY_DIR_IMAGE','IMAGE_FSTYPES','IMAGE_INSTALL_COMPLEMENTARY','IMAGE_LINGUAS', 'IMAGE_LINGUAS_COMPLEMENTARY',
+                 'IMAGE_ROOTFS_MAXSIZE','IMAGE_NAME','IMAGE_LINK_NAME','IMAGE_MANIFEST','DEPLOY_DIR_IMAGE','IMAGE_FSTYPES','IMAGE_INSTALL_COMPLEMENTARY','IMAGE_LINGUAS', 'IMAGE_LINGUAS_COMPLEMENTARY', 'IMAGE_LOCALES_ARCHIVE',
                  'MULTILIBRE_ALLOW_REP','MULTILIB_TEMP_ROOTFS','MULTILIB_VARIANTS','MULTILIBS','ALL_MULTILIB_PACKAGE_ARCHS','MULTILIB_GLOBAL_VARIANTS','BAD_RECOMMENDATIONS','NO_RECOMMENDATIONS',
                  'PACKAGE_ARCHS','PACKAGE_CLASSES','TARGET_VENDOR','TARGET_ARCH','TARGET_OS','OVERRIDES','BBEXTENDVARIANT','FEED_DEPLOYDIR_BASE_URI','INTERCEPT_DIR','USE_DEVFS',
                  'CONVERSIONTYPES', 'IMAGE_GEN_DEBUGFS', 'ROOTFS_RO_UNNEEDED', 'IMGDEPLOYDIR', 'PACKAGE_EXCLUDE_COMPLEMENTARY', 'REPRODUCIBLE_TIMESTAMP_ROOTFS', 'IMAGE_INSTALL_DEBUGFS']
@@ -172,6 +172,9 @@ IMAGE_POSTPROCESS_COMMAND ?= ""
 IMAGE_LINGUAS ?= "de-de fr-fr en-gb"
 
 LINGUAS_INSTALL ?= "${@" ".join(map(lambda s: "locale-base-%s" % s, d.getVar('IMAGE_LINGUAS').split()))}"
+
+# per default create a locale archive
+IMAGE_LOCALES_ARCHIVE ?= '1'
 
 # Prefer image, but use the fallback files for lookups if the image ones
 # aren't yet available.
@@ -245,7 +248,6 @@ fakeroot python do_rootfs () {
 }
 do_rootfs[dirs] = "${TOPDIR}"
 do_rootfs[cleandirs] += "${S} ${IMGDEPLOYDIR}"
-do_rootfs[umask] = "022"
 do_rootfs[file-checksums] += "${POSTINST_INTERCEPT_CHECKSUMS}"
 addtask rootfs after do_prepare_recipe_sysroot
 
@@ -258,7 +260,6 @@ fakeroot python do_image () {
     execute_pre_post_process(d, pre_process_cmds)
 }
 do_image[dirs] = "${TOPDIR}"
-do_image[umask] = "022"
 addtask do_image after do_rootfs
 
 fakeroot python do_image_complete () {
@@ -269,7 +270,6 @@ fakeroot python do_image_complete () {
     execute_pre_post_process(d, post_process_cmds)
 }
 do_image_complete[dirs] = "${TOPDIR}"
-do_image_complete[umask] = "022"
 SSTATETASKS += "do_image_complete"
 SSTATE_SKIP_CREATION_task-image-complete = '1'
 do_image_complete[sstate-inputdirs] = "${IMGDEPLOYDIR}"
@@ -548,14 +548,14 @@ def get_rootfs_size(d):
     if rootfs_maxsize:
         rootfs_maxsize_int = int(rootfs_maxsize)
         if base_size > rootfs_maxsize_int:
-            bb.fatal("The rootfs size %d(K) overrides IMAGE_ROOTFS_MAXSIZE: %d(K)" % \
+            bb.fatal("The rootfs size %d(K) exceeds IMAGE_ROOTFS_MAXSIZE: %d(K)" % \
                 (base_size, rootfs_maxsize_int))
 
     # Check the initramfs size against INITRAMFS_MAXSIZE (if set)
     if image_fstypes == initramfs_fstypes != ''  and initramfs_maxsize:
         initramfs_maxsize_int = int(initramfs_maxsize)
         if base_size > initramfs_maxsize_int:
-            bb.error("The initramfs size %d(K) overrides INITRAMFS_MAXSIZE: %d(K)" % \
+            bb.error("The initramfs size %d(K) exceeds INITRAMFS_MAXSIZE: %d(K)" % \
                 (base_size, initramfs_maxsize_int))
             bb.error("You can set INITRAMFS_MAXSIZE a larger value. Usually, it should")
             bb.fatal("be less than 1/2 of ram size, or you may fail to boot it.\n")
@@ -651,7 +651,7 @@ reproducible_final_image_task () {
     if [ "${BUILD_REPRODUCIBLE_BINARIES}" = "1" ]; then
         if [ "$REPRODUCIBLE_TIMESTAMP_ROOTFS" = "" ]; then
             REPRODUCIBLE_TIMESTAMP_ROOTFS=`git -C "${COREBASE}" log -1 --pretty=%ct 2>/dev/null` || true
-            if [ "${REPRODUCIBLE_TIMESTAMP_ROOTFS}" = "" ]; then
+            if [ "$REPRODUCIBLE_TIMESTAMP_ROOTFS" = "" ]; then
                 REPRODUCIBLE_TIMESTAMP_ROOTFS=`stat -c%Y ${@bb.utils.which(d.getVar("BBPATH"), "conf/bitbake.conf")}`
             fi
         fi

@@ -1,4 +1,4 @@
-inherit meta image-postinst-intercepts
+inherit meta image-postinst-intercepts image-artifact-names
 
 # Wildcards specifying complementary packages to install for every package that has been explicitly
 # installed into the rootfs
@@ -178,6 +178,8 @@ do_populate_sdk[sstate-inputdirs] = "${SDKDEPLOYDIR}"
 do_populate_sdk[sstate-outputdirs] = "${SDK_DEPLOY}"
 do_populate_sdk[stamp-extra-info] = "${MACHINE_ARCH}${SDKMACHINE}"
 
+PSEUDO_IGNORE_PATHS .= ",${SDKDEPLOYDIR}"
+
 fakeroot create_sdk_files() {
 	cp ${COREBASE}/scripts/relocate_sdk.py ${SDK_OUTPUT}/${SDKPATH}/
 
@@ -261,7 +263,7 @@ fakeroot create_shar() {
 
 	rm -f ${T}/pre_install_command ${T}/post_install_command
 
-	if [ ${SDK_RELOCATE_AFTER_INSTALL} -eq 1 ] ; then
+	if [ "${SDK_RELOCATE_AFTER_INSTALL}" = "1" ] ; then
 		cp ${TOOLCHAIN_SHAR_REL_TMPL} ${T}/post_install_command
 	fi
 	cat << "EOF" >> ${T}/pre_install_command

@@ -189,7 +189,7 @@ class IncludeHistory(object):
         if self.current.parent:
             self.current = self.current.parent
         else:
-            bb.warn("Include log: Tried to finish '%s' at top level." % filename)
+            bb.warn("Include log: Tried to finish '%s' at top level." % self.filename)
         return False
 
     def emit(self, o, level = 0):
@@ -1005,7 +1005,7 @@ class DataSmart(MutableMapping):
             else:
                 data.update({key:value})
 
-            varflags = d.getVarFlags(key, internalflags = True)
+            varflags = d.getVarFlags(key, internalflags = True, expand=["vardepvalue"])
             if not varflags:
                 continue
             for f in varflags:

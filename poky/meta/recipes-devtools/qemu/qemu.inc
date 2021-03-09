@@ -6,7 +6,7 @@ a variety of guest operating systems"
 HOMEPAGE = "http://qemu.org"
 LICENSE = "GPLv2 & LGPLv2.1"
 
-RDEPENDS_${PN}-ptest = "bash make"
+RDEPENDS_${PN}-ptest = "bash"
 
 require qemu-targets.inc
 inherit pkgconfig ptest
@@ -18,54 +18,45 @@ SRC_URI = "https://download.qemu.org/${BPN}-${PV}.tar.xz \
            file://powerpc_rom.bin \
            file://run-ptest \
            file://0001-qemu-Add-missing-wacom-HID-descriptor.patch \
-           file://0002-Add-subpackage-ptest-which-runs-all-unit-test-cases-.patch \
            file://0003-qemu-Add-addition-environment-space-to-boot-loader-q.patch \
            file://0004-qemu-disable-Valgrind.patch \
-           file://0005-qemu-native-set-ld.bfd-fix-cflags-and-set-some-envir.patch \
            file://0006-chardev-connect-socket-to-a-spawned-command.patch \
            file://0007-apic-fixup-fallthrough-to-PIC.patch \
-           file://0008-linux-user-Fix-webkitgtk-hangs-on-32-bit-x86-target.patch \
-           file://0009-Fix-webkitgtk-builds.patch \
            file://0010-configure-Add-pkg-config-handling-for-libgcrypt.patch \
-           file://0011-hw-i386-pc-fix-regression-in-parsing-vga-cmdline-par.patch \
-           file://CVE-2019-15890.patch \
-           file://CVE-2020-1711.patch \
-           file://CVE-2020-7039-1.patch \
-           file://CVE-2020-7039-2.patch \
-           file://CVE-2020-7039-3.patch \
            file://0001-Add-enable-disable-udev.patch \
-	   file://CVE-2020-7211.patch \
-	   file://0001-qemu-Do-not-include-file-if-not-exists.patch \
-           file://CVE-2020-11102.patch \
-	   file://CVE-2020-11869.patch \
-	   "
+           file://0001-qemu-Do-not-include-file-if-not-exists.patch \
+           file://mingwfix.patch \
+           file://mmap.patch \
+           file://mmap2.patch \
+           file://0001-tests-meson.build-use-relative-path-to-refer-to-file.patch \
+           "
 UPSTREAM_CHECK_REGEX = "qemu-(?P<pver>\d+(\.\d+)+)\.tar"
 
-SRC_URI[md5sum] = "278eeb294e4b497e79af7a57e660cb9a"
-SRC_URI[sha256sum] = "d3481d4108ce211a053ef15be69af1bdd9dde1510fda80d92be0f6c3e98768f0"
+SRC_URI[sha256sum] = "cb18d889b628fbe637672b0326789d9b0e3b8027e0445b936537c78549df17bc"
+
+SRC_URI_append_class-target = " file://cross.patch"
+SRC_URI_append_class-nativesdk = " file://cross.patch"
 
 COMPATIBLE_HOST_mipsarchn32 = "null"
 COMPATIBLE_HOST_mipsarchn64 = "null"
+
+# Per https://lists.nongnu.org/archive/html/qemu-devel/2020-09/msg03873.html
+# upstream states qemu doesn't work without optimization
+DEBUG_BUILD = "0"
 
 do_install_append() {
     # Prevent QA warnings about installed ${localstatedir}/run
     if [ -d ${D}${localstatedir}/run ]; then rmdir ${D}${localstatedir}/run; fi
 }
 
-do_compile_ptest() {
-	make buildtest-TESTS
-}
-
 do_install_ptest() {
 	cp -rL ${B}/tests ${D}${PTEST_PATH}
-	find ${D}${PTEST_PATH}/tests -type f -name "*.[Sshcod]" | xargs -i rm -rf {}
+	find ${D}${PTEST_PATH}/tests -type f -name "*.[Sshcodp]" | xargs -i rm -rf {}
 
-	cp ${S}/tests/Makefile.include ${D}${PTEST_PATH}/tests
 	# Don't check the file genreated by configure
-	sed -i -e '/wildcard config-host.mak/d' \
-	       -e '$ {/endif/d}' ${D}${PTEST_PATH}/tests/Makefile.include
         sed -i -e 's,${HOSTTOOLS_DIR}/python3,${bindir}/python3,' \
             ${D}/${PTEST_PATH}/tests/qemu-iotests/common.env 
+	sed -i -e "1s,#!/usr/bin/bash,#!${base_bindir}/bash," ${D}${PTEST_PATH}/tests/data/acpi/disassemle-aml.sh
 }
 
 # QEMU_TARGETS is overridable variable
@@ -82,12 +73,14 @@ EXTRA_OECONF = " \
     --sysconfdir=${sysconfdir} \
     --libexecdir=${libexecdir} \
     --localstatedir=${localstatedir} \
-    --with-confsuffix=/${BPN} \
+    --with-suffix=${BPN} \
     --disable-strip \
     --disable-werror \
     --extra-cflags='${CFLAGS}' \
+    --extra-ldflags='${LDFLAGS}' \
     --with-git=/bin/false \
     --disable-git-update \
+    --meson=meson \
     ${PACKAGECONFIG_CONFARGS} \
     "
 
@@ -95,7 +88,7 @@ export LIBTOOL="${HOST_SYS}-libtool"
 
 B = "${WORKDIR}/build"
 
-EXTRA_OECONF_append = " --python=${HOSTTOOLS_DIR}/python3"
+#EXTRA_OECONF_append = " --python=${HOSTTOOLS_DIR}/python3"
 
 do_configure_prepend_class-native() {
 	# Append build host pkg-config paths for native target since the host may provide sdl
@@ -145,7 +138,7 @@ PACKAGECONFIG_remove_darwin = "kvm virglrenderer glx gtk+"
 PACKAGECONFIG_remove_mingw32 = "kvm virglrenderer glx gtk+"
 
 PACKAGECONFIG[sdl] = "--enable-sdl,--disable-sdl,libsdl2"
-PACKAGECONFIG[virtfs] = "--enable-virtfs --enable-attr,--disable-virtfs,libcap attr,"
+PACKAGECONFIG[virtfs] = "--enable-virtfs --enable-attr --enable-cap-ng,--disable-virtfs,libcap-ng attr,"
 PACKAGECONFIG[aio] = "--enable-linux-aio,--disable-linux-aio,libaio,"
 PACKAGECONFIG[xfs] = "--enable-xfsctl,--disable-xfsctl,xfsprogs,"
 PACKAGECONFIG[xen] = "--enable-xen,--disable-xen,xen-tools,xen-tools-libxenstore xen-tools-libxenctrl xen-tools-libxenguest"
@@ -164,12 +157,11 @@ PACKAGECONFIG[nettle] = "--enable-nettle,--disable-nettle,nettle"
 PACKAGECONFIG[libusb] = "--enable-libusb,--disable-libusb,libusb1"
 PACKAGECONFIG[fdt] = "--enable-fdt,--disable-fdt,dtc"
 PACKAGECONFIG[alsa] = "--audio-drv-list='oss alsa',,alsa-lib"
-PACKAGECONFIG[glx] = "--enable-opengl,--disable-opengl,mesa"
+PACKAGECONFIG[glx] = "--enable-opengl,--disable-opengl,virtual/libgl"
 PACKAGECONFIG[lzo] = "--enable-lzo,--disable-lzo,lzo"
 PACKAGECONFIG[numa] = "--enable-numa,--disable-numa,numactl"
 PACKAGECONFIG[gnutls] = "--enable-gnutls,--disable-gnutls,gnutls"
 PACKAGECONFIG[bzip2] = "--enable-bzip2,--disable-bzip2,bzip2"
-PACKAGECONFIG[bluez] = "--enable-bluez,--disable-bluez,bluez5"
 PACKAGECONFIG[libiscsi] = "--enable-libiscsi,--disable-libiscsi"
 PACKAGECONFIG[kvm] = "--enable-kvm,--disable-kvm"
 PACKAGECONFIG[virglrenderer] = "--enable-virglrenderer,--disable-virglrenderer,virglrenderer"
@@ -178,10 +170,16 @@ PACKAGECONFIG[spice] = "--enable-spice,--disable-spice,spice"
 # usbredir will be in meta-networking layer
 PACKAGECONFIG[usb-redir] = "--enable-usb-redir,--disable-usb-redir,usbredir"
 PACKAGECONFIG[snappy] = "--enable-snappy,--disable-snappy,snappy"
-PACKAGECONFIG[glusterfs] = "--enable-glusterfs,--disable-glusterfs"
+PACKAGECONFIG[glusterfs] = "--enable-glusterfs,--disable-glusterfs,glusterfs"
 PACKAGECONFIG[xkbcommon] = "--enable-xkbcommon,--disable-xkbcommon,libxkbcommon"
 PACKAGECONFIG[libudev] = "--enable-libudev,--disable-libudev,eudev"
 PACKAGECONFIG[libxml2] = "--enable-libxml2,--disable-libxml2,libxml2"
+PACKAGECONFIG[attr] = "--enable-attr,--disable-attr,attr,"
+PACKAGECONFIG[rbd] = "--enable-rbd,--disable-rbd,ceph,ceph"
+PACKAGECONFIG[vhost] = "--enable-vhost-net,--disable-vhost-net,,"
+PACKAGECONFIG[ust] = "--enable-trace-backend=ust,--enable-trace-backend=nop,lttng-ust,"
+PACKAGECONFIG[pie] = "--enable-pie,--disable-pie,,"
+PACKAGECONFIG[seccomp] = "--enable-seccomp,--disable-seccomp,libseccomp"
 
 INSANE_SKIP_${PN} = "arch"
 

@@ -5,7 +5,7 @@ LICENSE = "Apache-2.0"
 LIC_FILES_CHKSUM = "file://LICENSE;md5=9e69ba356fa59848ffd865152a3ccc13"
 
 SRC_URI = "git://github.com/openbmc/fb-ipmi-oem"
-SRCREV = "d1194024b4d39b111960d72fb59fe429bf51c19c"
+SRCREV = "5f8e343516c0db488e977084ca7810a6c9fafae8"
 
 S = "${WORKDIR}/git"
 PV = "0.1+git${SRCPV}"
@@ -15,6 +15,7 @@ DEPENDS = "boost phosphor-ipmi-host phosphor-logging systemd "
 inherit cmake obmc-phosphor-ipmiprovider-symlink
 
 EXTRA_OECMAKE="-DENABLE_TEST=0 -DYOCTO=1"
+EXTRA_OECMAKE_append_yosemitev2 = " -DBIC=1"
 
 LIBRARY_NAMES = "libzfboemcmds.so"
 

@@ -28,6 +28,7 @@ SRC_URI = "http://kernel.org/pub/software/network/tftp/tftp-hpa/tftp-hpa-${PV}.t
            file://tftp-hpa-bug-fix-on-separated-CR-and-LF.patch \
            file://fix-writing-emtpy-file.patch \
            file://0001-__progname-is-provided-by-libc.patch \
+           file://0001-tftp-Mark-toplevel-definition-as-external.patch \
            file://tftpd-hpa.socket \
            file://tftpd-hpa.service \
 "
@@ -88,7 +89,7 @@ ALTERNATIVE_LINK_NAME[tftp.1] = "${mandir}/man1/tftp.1"
 
 ALTERNATIVE_${PN} = "tftp"
 ALTERNATIVE_TARGET[tftp] = "${bindir}/tftp-hpa"
-ALTERNATIVE_PRIORITY = "60"
+ALTERNATIVE_PRIORITY = "100"
 
 
 SYSTEMD_PACKAGES = "tftp-hpa-server"

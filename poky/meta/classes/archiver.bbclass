@@ -53,7 +53,7 @@ ARCHIVER_MODE[recipe] ?= "0"
 ARCHIVER_MODE[mirror] ?= "split"
 
 DEPLOY_DIR_SRC ?= "${DEPLOY_DIR}/sources"
-ARCHIVER_TOPDIR ?= "${WORKDIR}/deploy-sources"
+ARCHIVER_TOPDIR ?= "${WORKDIR}/archiver-sources"
 ARCHIVER_OUTDIR = "${ARCHIVER_TOPDIR}/${TARGET_SYS}/${PF}/"
 ARCHIVER_RPMTOPDIR ?= "${WORKDIR}/deploy-sources-rpm"
 ARCHIVER_RPMOUTDIR = "${ARCHIVER_RPMTOPDIR}/${TARGET_SYS}/${PF}/"
@@ -345,13 +345,12 @@ python do_ar_mirror() {
 
     fetcher = bb.fetch2.Fetch(src_uri, d)
 
-    for url in fetcher.urls:
-        if is_excluded(url):
-            bb.note('Skipping excluded url: %s' % (url))
+    for ud in fetcher.expanded_urldata():
+        if is_excluded(ud.url):
+            bb.note('Skipping excluded url: %s' % (ud.url))
             continue
 
-        bb.note('Archiving url: %s' % (url))
-        ud = fetcher.ud[url]
+        bb.note('Archiving url: %s' % (ud.url))
         ud.setup_localpath(d)
         localpath = None
 
@@ -367,7 +366,7 @@ python do_ar_mirror() {
         if len(ud.mirrortarballs) and not localpath:
             bb.warn('Mirror tarballs are listed for a source but none are present. ' \
                     'Falling back to original download.\n' \
-                    'SRC_URI = %s' % (url))
+                    'SRC_URI = %s' % (ud.url))
 
         # Check original download
         if not localpath:
@@ -376,7 +375,7 @@ python do_ar_mirror() {
 
         if not localpath or not os.path.exists(localpath):
             bb.fatal('Original download is missing for a source.\n' \
-                        'SRC_URI = %s' % (url))
+                        'SRC_URI = %s' % (ud.url))
 
         # We now have an appropriate localpath
         bb.note('Copying source mirror')
@@ -583,7 +582,7 @@ do_deploy_archives[sstate-outputdirs] = "${DEPLOY_DIR_SRC}"
 addtask do_deploy_archives_setscene
 
 addtask do_ar_original after do_unpack
-addtask do_unpack_and_patch after do_patch
+addtask do_unpack_and_patch after do_patch do_preconfigure
 addtask do_ar_patched after do_unpack_and_patch
 addtask do_ar_configured after do_unpack_and_patch
 addtask do_ar_mirror after do_fetch
@@ -591,6 +590,7 @@ addtask do_dumpdata
 addtask do_ar_recipe
 addtask do_deploy_archives
 do_build[recrdeptask] += "do_deploy_archives"
+do_rootfs[recrdeptask] += "do_deploy_archives"
 do_populate_sdk[recrdeptask] += "do_deploy_archives"
 
 python () {

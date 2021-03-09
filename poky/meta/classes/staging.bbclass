@@ -5,6 +5,7 @@ SYSROOT_DIRS = " \
     ${base_libdir} \
     ${nonarch_base_libdir} \
     ${datadir} \
+    /sysroot-only \
 "
 
 # These directories are also staged in the sysroot when they contain files that
@@ -27,11 +28,15 @@ SYSROOT_DIRS_BLACKLIST = " \
     ${mandir} \
     ${docdir} \
     ${infodir} \
+    ${datadir}/X11/locale \
     ${datadir}/applications \
+    ${datadir}/bash-completion \
     ${datadir}/fonts \
     ${datadir}/gtk-doc/html \
+    ${datadir}/installed-tests \
     ${datadir}/locale \
     ${datadir}/pixmaps \
+    ${datadir}/terminfo \
     ${libdir}/${BPN}/ptest \
 "
 
@@ -85,7 +90,6 @@ python sysroot_strip () {
 }
 
 do_populate_sysroot[dirs] = "${SYSROOT_DESTDIR}"
-do_populate_sysroot[umask] = "022"
 
 addtask populate_sysroot after do_install
 
@@ -614,7 +618,7 @@ python staging_taskhandler() {
     bbtasks = e.tasklist
     for task in bbtasks:
         deps = d.getVarFlag(task, "depends")
-        if deps and "populate_sysroot" in deps:
+        if task == "do_configure" or (deps and "populate_sysroot" in deps):
             d.appendVarFlag(task, "prefuncs", " extend_recipe_sysroot")
 }
 staging_taskhandler[eventmask] = "bb.event.RecipeTaskPreProcess"

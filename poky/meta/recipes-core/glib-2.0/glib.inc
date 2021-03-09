@@ -28,15 +28,11 @@ PACKAGES += "${PN}-codegen ${PN}-utils"
 
 LEAD_SONAME = "libglib-2.0.*"
 
-inherit meson gettext gtk-doc pkgconfig ptest-gnome upstream-version-is-even bash-completion gio-module-cache manpages features_check
+inherit meson gettext gtk-doc pkgconfig ptest-gnome upstream-version-is-even bash-completion gio-module-cache manpages
 
 DEPENDS_append_class-target = "${@' gtk-doc' if d.getVar('GTKDOC_ENABLED') == 'True' else ''}"
 
 GTKDOC_MESON_OPTION = "gtk_doc"
-
-# This avoids the need to depend on target python3, which in case of mingw is not even possible.
-# meson's python configuration pokes into python3 configuration, so this provides the native config to it.
-unset _PYTHON_SYSCONFIGDATA_NAME
 
 S = "${WORKDIR}/glib-${PV}"
 
@@ -170,7 +166,7 @@ RDEPENDS_${PN}-ptest += "\
             ${PN}-locale-th \
             python3-core \
             python3-modules \
-            python3-dbusmock \
+            ${@bb.utils.contains('GI_DATA_ENABLED', 'True', 'python3-dbusmock', '', d)} \
             ${PN}-codegen \
            "
 

@@ -12,6 +12,7 @@ SRC_URI = "git://github.com/vim/vim.git \
            file://vim-add-knob-whether-elf.h-are-checked.patch \
            file://0001-src-Makefile-improve-reproducibility.patch \
            file://no-path-adjust.patch \
+           file://racefix.patch \
 "
 SRCREV = "98056533b96b6b5d8849641de93185dd7bcadc44"
 
@@ -68,8 +69,10 @@ EXTRA_OECONF = " \
     --disable-gtktest \
     --disable-xim \
     --disable-netbeans \
+    --disable-desktop-database-update \
     --with-tlib=ncurses \
     ac_cv_small_wchar_t=no \
+    ac_cv_path_GLIB_COMPILE_RESOURCES=no \
     vim_cv_getcwd_broken=no \
     vim_cv_memmove_handles_overlap=yes \
     vim_cv_stat_ignores_slash=no \
@@ -83,6 +86,12 @@ EXTRA_OECONF = " \
 do_install() {
     autotools_do_install
 
+    # Work around file-rdeps picking up csh, awk, perl or python as a dep
+    chmod -x ${D}${datadir}/${BPN}/${VIMDIR}/tools/vim132
+    chmod -x ${D}${datadir}/${BPN}/${VIMDIR}/tools/mve.awk
+    chmod -x ${D}${datadir}/${BPN}/${VIMDIR}/tools/*.pl
+    chmod -x ${D}${datadir}/${BPN}/${VIMDIR}/tools/*.py
+    
     # Install example vimrc from runtime files
     install -m 0644 runtime/vimrc_example.vim ${D}/${datadir}/${BPN}/vimrc
 

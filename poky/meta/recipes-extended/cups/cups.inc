@@ -20,6 +20,13 @@ SRC_URI = "https://github.com/apple/cups/releases/download/v${PV}/${BP}-source.t
 UPSTREAM_CHECK_URI = "https://github.com/apple/cups/releases"
 UPSTREAM_CHECK_REGEX = "cups-(?P<pver>\d+\.\d+(\.\d+)?)-source.tar"
 
+# Issue only applies to MacOS
+CVE_CHECK_WHITELIST += "CVE-2008-1033"
+# Issue affects pdfdistiller plugin used with but not part of cups
+CVE_CHECK_WHITELIST += "CVE-2009-0032"
+# This is an Ubuntu only issue.
+CVE_CHECK_WHITELIST += "CVE-2018-6553"
+
 LEAD_SONAME = "libcupsdriver.so"
 
 CLEANBROKEN = "1"
@@ -29,7 +36,7 @@ inherit autotools-brokensep binconfig useradd systemd pkgconfig multilib_script
 USERADD_PACKAGES = "${PN}"
 GROUPADD_PARAM_${PN} = "--system lpadmin"
 
-SYSTEMD_SERVICE_${PN} = "org.cups.cupsd.socket org.cups.cupsd.path org.cups.cupsd.service org.cups.cups-lpd.socket org.cups.cups-lpd@.service"
+SYSTEMD_SERVICE_${PN} = "org.cups.cupsd.socket org.cups.cupsd.path org.cups.cupsd.service org.cups.cups-lpd.socket"
 
 PACKAGECONFIG ??= "${@bb.utils.contains('DISTRO_FEATURES', 'zeroconf', 'avahi', '', d)} \
                    ${@bb.utils.filter('DISTRO_FEATURES', 'pam systemd', d)}"
@@ -47,6 +54,7 @@ EXTRA_OECONF = " \
                --enable-debug \
                --disable-relro \
                --enable-libusb \
+               --with-domainsocket=/run/cups/cups.sock \
                DSOFLAGS='${LDFLAGS}' \
                "
 

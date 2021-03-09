@@ -10,7 +10,9 @@ DEPENDS = "libusb udev"
 
 inherit autotools pkgconfig
 
-SRC_URI = "git://github.com/libusb/hidapi.git;protocol=https"
-PV = "0.9.0"
-SRCREV = "7da5cc91fc0d2dbe4df4f08cd31f6ca1a262418f"
+SRC_URI = "git://github.com/libusb/hidapi.git;protocol=https \
+           file://0001-configure.ac-remove-duplicate-AC_CONFIG_MACRO_DIR-22.patch \
+"
+PV = "0.10.1"
+SRCREV = "f6d0073fcddbdda24549199445e844971d3c9cef"
 S = "${WORKDIR}/git"

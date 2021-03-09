@@ -8,13 +8,7 @@ POKY_DEFAULT_EXTRA_RRECOMMENDS = "kernel-module-af-packet"
 DISTRO_EXTRA_RDEPENDS += " ${POKY_DEFAULT_EXTRA_RDEPENDS}"
 DISTRO_EXTRA_RRECOMMENDS += " ${POKY_DEFAULT_EXTRA_RRECOMMENDS}"
 
-POKYQEMUDEPS = "${@bb.utils.contains("INCOMPATIBLE_LICENSE", "GPL-3.0", "", "packagegroup-core-device-devel",d)}"
-DISTRO_EXTRA_RDEPENDS_append_qemuarm = " ${POKYQEMUDEPS}"
-DISTRO_EXTRA_RDEPENDS_append_qemuarm64 = " ${POKYQEMUDEPS}"
-DISTRO_EXTRA_RDEPENDS_append_qemumips = " ${POKYQEMUDEPS}"
-DISTRO_EXTRA_RDEPENDS_append_qemuppc = " ${POKYQEMUDEPS}"
-DISTRO_EXTRA_RDEPENDS_append_qemux86 = " ${POKYQEMUDEPS}"
-DISTRO_EXTRA_RDEPENDS_append_qemux86-64 = " ${POKYQEMUDEPS}"
+DISTROOVERRIDES .= ":openbmc-phosphor"
 
 TCLIBCAPPEND = ""
 
@@ -93,7 +87,6 @@ DISTRO_FEATURES_BACKFILL_CONSIDERED = " \
         "
 
 DISTRO_FEATURES_OBMC = " \
-        ipmi-fru \
         obmc-host-ctl \
         obmc-host-ipmi \
         obmc-phosphor-chassis-mgmt \
@@ -106,8 +99,6 @@ DISTRO_FEATURES_DEFAULT = " \
         avahi \
         ipv4 \
         ipv6 \
-        ldap \
-        libc-inet-anl \
         pam \
         slp \
         systemd \
@@ -124,13 +115,7 @@ MACHINE_FEATURES += " \
 
 DISTRO_EXTRA_RDEPENDS_remove_qemuarm = "packagegroup-core-device-devel"
 
-# TODO: openbmc/openbmc#12345 - Upgrade to pygobject-3.
-PREFERRED_VERSION_python-pygobject = "2.%"
-
 include conf/distro/include/openbmc-phosphor/${MACHINE}.inc
-
-KERNEL_FEATURES_append = " phosphor-gpio-keys"
-KERNEL_FEATURES_remove_qemuall = " phosphor-gpio-keys"
 
 IMAGE_CLASSES_append = " image_types_phosphor phosphor-rootfs-postcommands"
 IMAGE_CLASSES_append_npcm7xx = " image_types_phosphor_nuvoton"
@@ -146,3 +131,9 @@ BAD_RECOMMENDATIONS += "shared-mime-info"
 LAYER_CONF_VERSION ?= "8"
 
 KERNEL_CLASSES_append = " obmc-phosphor-kernel-version"
+
+# Some packages have directory trees of YAML files arranged based on
+# canonical organization names.  'xyz/openbmc_project' should be used
+# everywhere in phosphor, but some layers may append this with their
+# own organization(s).
+OBMC_ORG_YAML_SUBDIRS += " xyz/openbmc_project"

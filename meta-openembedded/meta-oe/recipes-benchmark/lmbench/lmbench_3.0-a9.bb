@@ -5,7 +5,7 @@ LICENSE = "GPLv2 & GPL-2.0-with-lmbench-restriction"
 LIC_FILES_CHKSUM = "file://COPYING;md5=8ca43cbc842c2336e835926c2166c28b \
                     file://COPYING-2;md5=8e9aee2ccc75d61d107e43794a25cdf9"
 
-inherit autotools-brokensep
+inherit autotools-brokensep update-alternatives
 
 DEPENDS += "libtirpc"
 CFLAGS += "-I${STAGING_INCDIR}/tirpc"
@@ -26,6 +26,9 @@ SRC_URI = "${SOURCEFORGE_MIRROR}/lmbench/lmbench-${PV}.tgz \
            file://0001-Check-for-musl-define-guard-before-redefining-sockle.patch \
            file://0002-build-Adjust-CFLAGS-LDFLAGS-to-append-values-passed-.patch \
            file://0001-src-Makefile-use-libdir-instead-of-hardcoded-lib.patch \
+           file://0001-lmbench-Point-webpage-lm-to-target-directory.patch \
+           file://0001-doc-Fix-typos-in-manual-pages.patch \
+           file://0001-lat_fifo-Fix-cleanup-sequence.patch \
            "
 SRC_URI[md5sum] = "b3351a3294db66a72e2864a199d37cbf"
 SRC_URI[sha256sum] = "cbd5777d15f44eab7666dcac418054c3c09df99826961a397d9acf43d8a2a551"
@@ -75,6 +78,7 @@ do_install () {
            ${D}${bindir}/lmbench-run
     install -m 0755 ${S}/scripts/lmbench ${D}${bindir}
     install -m 0755 ${S}/scripts/* ${D}${datadir}/lmbench/scripts
+    install -m 0644 ${S}/src/webpage-lm.tar ${D}${datadir}/lmbench
 }
 
 pkg_postinst_${PN} () {
@@ -89,3 +93,7 @@ pkg_postinst_${PN} () {
 
 RDEPENDS_${PN} = "perl"
 FILES_${PN} += "${datadir}/lmbench"
+
+ALTERNATIVE_${PN} = "stream"
+ALTERNATIVE_LINK_NAME[stream] = "${bindir}/stream"
+
