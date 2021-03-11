@@ -8,6 +8,8 @@ LIC_FILES_CHKSUM = "file://LICENSE;md5=b234ee4d69f5fce4486a80fdaf4a4263"
 RDEPENDS_${PN} += "bash systemd mcst-fruid xmlstarlet"
 
 inherit systemd
+inherit features_check
+
 REQUIRED_DISTRO_FEATURES = "systemd"
 SYSTEMD_SERVICE_${PN} = "set_mac.service"
 
