@@ -27,14 +27,16 @@ RDEPENDS_${PN} += "bash pv coreutils wget gpio-funcs"
 S = "${WORKDIR}"
 
 SRC_URI = "file://LICENSE \
+           file://libfirmware-updater \
            file://firmware-updater \
            file://update-host-flash \
           "
 
 do_install() {
   install -d ${D}/usr/sbin
+  install -m 755 libfirmware-updater ${D}/libexec/libfirmware-updater
   install -m 755 firmware-updater ${D}/usr/sbin/firmware-updater
   install -m 755 update-host-flash ${D}/usr/sbin/update-host-flash
 }
 
-FILES_${PN} = "/usr/sbin/"
+FILES_${PN} = "/usr/sbin/ /libexec"

@@ -4,13 +4,23 @@
 
 spigpio=`gpio2num $GPIO_SPI_CONNECT`
 
-export MTDDEV=mtdblock6
+if [ ! -h /dev/mtd/sys ]
+    echo "Can't find system flash (/dev/mtd/sys). Probably board is broken?" 1>&2
+    exit 1
+fi
+
+export MTDDEV=`readlink /dev/mtd/sys | sed 's#mtd#mtdblock#;s#../##'`
 export WGET_PARAMS
+
+if [ ! -b /dev/$MTDDEV ]
+    echo "System flash (/dev/$MTDDEV) is missing or of wrong type." 1>&2
+    exit 2
+fi
 
 echo "Attaching system SPI..."
 gpiowrite $spigpio 1
 sleep 1
-firmware-updater $@
+/libexec/libfirmware-updater $@
 echo "Detaching system SPI..."
 sleep 1
 gpiowrite $spigpio 0
