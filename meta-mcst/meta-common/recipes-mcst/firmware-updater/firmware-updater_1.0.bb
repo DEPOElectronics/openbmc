@@ -33,6 +33,7 @@ SRC_URI = "file://LICENSE \
           "
 
 do_install() {
+  install -d ${D}/libexec
   install -d ${D}/usr/sbin
   install -m 755 libfirmware-updater ${D}/libexec/libfirmware-updater
   install -m 755 firmware-updater ${D}/usr/sbin/firmware-updater
