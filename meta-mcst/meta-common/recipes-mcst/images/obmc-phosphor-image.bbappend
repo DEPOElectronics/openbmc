@@ -70,7 +70,6 @@ OBMC_IMAGE_EXTRA_INSTALL_append = " \
   ${OBMC_KERNEL_MODULES} \
   active-gpio-on \
   allow-host-boot \
-  devmem-stuff \
   profile-d \
   openssh \
   buttonscripts \
