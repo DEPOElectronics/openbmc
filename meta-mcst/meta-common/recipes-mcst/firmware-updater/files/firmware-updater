@@ -1,5 +1,11 @@
 #!/bin/bash
 
+error()
+{
+    echo $@ 1>&2
+    exit 1
+}
+
 if [ "$1" != "-h" -a "$1" != "--help" ]
 then
     systemctl status rescue.target > /dev/null || error "BMC flash should be reprogrammed from single-user mode only. Execute 'init 1' to get into it."
@@ -8,6 +14,7 @@ then
     mount / -o remount,ro
 
     if [ ! -h /dev/mtd/bmc ]
+    then
         echo "Can't find system flash (/dev/mtd/sys). Probably board is broken?" 1>&2
         exit 1
     fi
@@ -18,6 +25,7 @@ then
     export WGET_PARAMS
 
     if [ ! -b /dev/$MTDDEV ]
+    then
         echo "System flash (/dev/$MTDDEV) is missing or of wrong type." 1>&2
         exit 2
     fi

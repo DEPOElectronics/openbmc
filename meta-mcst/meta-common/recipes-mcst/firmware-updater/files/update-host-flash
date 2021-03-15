@@ -5,6 +5,7 @@
 spigpio=`gpio2num $GPIO_SPI_CONNECT`
 
 if [ ! -h /dev/mtd/sys ]
+then
     echo "Can't find system flash (/dev/mtd/sys). Probably board is broken?" 1>&2
     exit 1
 fi
@@ -13,6 +14,7 @@ export MTDDEV=`readlink /dev/mtd/sys | sed 's#mtd#mtdblock#;s#../##'`
 export WGET_PARAMS
 
 if [ ! -b /dev/$MTDDEV ]
+then
     echo "System flash (/dev/$MTDDEV) is missing or of wrong type." 1>&2
     exit 2
 fi
