@@ -8,11 +8,6 @@
 			gpios = <&gpio ASPEED_GPIO(G, 1) GPIO_ACTIVE_HIGH>;
 			linux,default-trigger = "timer";
 		};
-		uid {
-			label = "platform:blue:uid";
-			gpios = <&gpio ASPEED_GPIO(N, 4) GPIO_ACTIVE_LOW>;
-			linux,default-trigger = "none";
-		};
 		ohfanfail {
 			label = "platform:red:ohfanfail";
 			gpios = <&gpio ASPEED_GPIO(Q, 6) GPIO_ACTIVE_LOW>;
