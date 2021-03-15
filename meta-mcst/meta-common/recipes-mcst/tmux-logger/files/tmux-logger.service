@@ -5,10 +5,8 @@ After=syslog.target
 [Service]
 ExecStart=/libexec/start-tmux
 ExecStop=/usr/bin/tmux kill-server
-StandardOutput=syslog
 Type=oneshot
 RemainAfterExit=yes
-KillMode=none
 
 [Install]
 WantedBy=multi-user.target

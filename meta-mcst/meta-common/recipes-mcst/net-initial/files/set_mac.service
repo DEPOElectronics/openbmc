@@ -4,10 +4,8 @@ After=syslog.target
 
 [Service]
 ExecStart=/libexec/set_mac
-StandardOutput=syslog
 Type=oneshot
 RemainAfterExit=yes
-KillMode=none
 
 [Install]
 WantedBy=network.target

@@ -4,10 +4,8 @@ After=sysinit.target
 
 [Service]
 ExecStart=/libexec/allow_host_boot
-StandardOutput=syslog
 Type=oneshot
 RemainAfterExit=yes
-KillMode=none
 
 [Install]
 WantedBy=basic.target
