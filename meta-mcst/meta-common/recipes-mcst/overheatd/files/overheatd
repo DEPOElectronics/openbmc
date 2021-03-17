@@ -40,7 +40,6 @@ echo $$ > $pidfile
 
 if [ "$TINYSPI" = "yes" ]
 then
-    modprobe tinyspi # Just in case module is not loaded
     sysfsdir="/sys/kernel/tinyspi"
 fi
 

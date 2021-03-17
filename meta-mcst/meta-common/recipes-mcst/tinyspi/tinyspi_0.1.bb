@@ -8,9 +8,15 @@ inherit module
 SRC_URI = " \
             file://Makefile  \
             file://tinyspi.c \
+            file://tinyspi.conf \
             file://LICENSE \
           "
 
 S = "${WORKDIR}"
+
+do_install_append() {
+  install -d ${D}/etc/modules-load.d
+  install -m 644 tinyspi.conf ${D}/etc/modules-load.d
+}
 
 RPROVIDES_${PN} += "kernel-module-tinyspi"
