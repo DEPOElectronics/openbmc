@@ -1,8 +1,0 @@
-#!/bin/sh
-
-. /libexec/gpio-funcs
-
-gpio=`gpio2num $GPIO_RST_BTN`
-gpiowrite $gpio 0
-sleep 1
-gpiorelease $gpio

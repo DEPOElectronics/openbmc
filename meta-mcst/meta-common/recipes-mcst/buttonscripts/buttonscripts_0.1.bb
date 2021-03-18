@@ -8,16 +8,15 @@ LIC_FILES_CHKSUM = "file://LICENSE;md5=b234ee4d69f5fce4486a80fdaf4a4263"
 inherit systemd
 inherit features_check
 
+DEPENDS = "libgpiod dbus"
+
 REQUIRED_DISTRO_FEATURES = "systemd"
 SYSTEMD_SERVICE_${PN} = "host-poweroff-hard.service host-poweroff.service host-poweron.service host-reset.service"
 
 SRC_URI = " \
             file://LICENSE \
-            file://server_pwrbut_h \
-            file://server_pwrbut_s \
-            file://server_reset \
-            file://server_uid \
-            file://server_watchdog_reset \
+            file://Makefile \
+            file://server_ctl.c \
             file://host-poweroff-hard.service \
             file://host-poweroff.service \
             file://host-poweron.service \
@@ -27,20 +26,18 @@ SRC_URI = " \
 S = "${WORKDIR}"
 
 do_install() {
-  dst="${D}/usr/bin"
-  install -d $dst
-  install -d ${D}${systemd_system_unitdir}
-  install -m 755 server_pwrbut_h ${dst}
-  install -m 755 server_pwrbut_s ${dst}
-  install -m 755 server_reset ${dst}
-  install -m 755 server_uid ${dst}
-  install -m 755 server_watchdog_reset ${dst}
-  install -m 644 ${S}/host-poweroff-hard.service ${D}${systemd_system_unitdir}
-  install -m 644 ${S}/host-poweroff.service ${D}${systemd_system_unitdir}
-  install -m 644 ${S}/host-poweron.service ${D}${systemd_system_unitdir}
-  install -m 644 ${S}/host-reset.service ${D}${systemd_system_unitdir}
+  install -d ${D}/usr/bin ${D}/libexec ${D}${systemd_system_unitdir}
+  for symlink in pwrbut_s pwrbut_h reset uid pwr_on pwr_off pwr_off_hard watchdog_reset
+  do
+    ln -s /libexec/server_ctl ${D}/usr/bin/server_${symlink}
+  done
+  install -m 755 ${S}/server_ctl ${D}/libexec
+  for service in poweron poweroff poweroff-hard reset
+  do
+    install -m 644 ${S}/host-${service}.service ${D}${systemd_system_unitdir}
+  done
 }
 
-FILES_${PN} = "/usr/bin ${systemd_system_unitdir}"
+FILES_${PN} = "/usr/bin /libexec ${systemd_system_unitdir}"
 
 RDEPENDS_${PN} += "bash gpio-funcs reimu-conf systemd"
