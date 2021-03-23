@@ -8,21 +8,23 @@ LIC_FILES_CHKSUM = "file://LICENSE;md5=b234ee4d69f5fce4486a80fdaf4a4263"
 inherit systemd
 inherit features_check
 
+DEPENDS = "libgpiod i2c-tools"
 REQUIRED_DISTRO_FEATURES = "systemd"
-RDEPENDS_${PN} += "systemd bash rawi2ctool gpio-funcs reimu-conf"
+RDEPENDS_${PN} += "systemd bash gpio-funcs reimu-conf"
 SYSTEMD_SERVICE_${PN} = "overheatd.service"
 
 SRC_URI = " \
             file://LICENSE \
             file://setled \
             file://checkalerts \
-            file://overheatd \
+            file://Makefile \
+            file://overheatd.c \
             file://overheatd.service \
           "
 
 S = "${WORKDIR}"
 
-do_install() {
+do_install_append() {
   install -d ${D}/usr/bin
   install -d ${D}/usr/sbin
   install -d ${D}${systemd_system_unitdir}
