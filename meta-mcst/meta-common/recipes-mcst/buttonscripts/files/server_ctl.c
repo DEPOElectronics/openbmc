@@ -403,6 +403,7 @@ char *s_led_state = NULL;
 static void led_state_fini(void)
 {
     if (s_led_state != NULL) free(s_led_state);
+    s_led_state = NULL;
 }
 
 static int uid_set_gpio(int state)
