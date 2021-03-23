@@ -5,7 +5,7 @@ Conflicts=obmc-chassis-poweron@0.target
 [Service]
 RemainAfterExit=yes
 Type=oneshot
-ExecStart=/usr/bin/env server_pwrbut_s
+ExecStart=/usr/bin/env server_pwr_off
 SyslogIdentifier=buttonscripts
 
 [Install]

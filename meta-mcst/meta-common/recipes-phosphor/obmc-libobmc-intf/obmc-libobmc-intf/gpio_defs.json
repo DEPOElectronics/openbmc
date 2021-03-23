@@ -3,11 +3,11 @@
         "power_config": {
             "power_good_in": "ATX_PWROK",
             "power_up_outs": [
-                {"name": "CTRL_RDY", "polarity": true}
+                {"name": "POWER_BUTTON", "polarity": false}
             ],
             "reset_outs": [
                 {"name": "RESET_BUTTON", "polarity": false}
-            ],
+            ]
         }
     },
 
@@ -15,7 +15,7 @@
         {
             "name": "RESET_BUTTON",
             "pin": "P3",
-            "direction": "out"
+            "direction": "both"
         },
         {
             "name": "ATX_PWROK",
@@ -25,12 +25,7 @@
         {
             "name": "POWER_BUTTON",
             "pin": "N5",
-            "direction": "out"
-        },
-        {
-            "name": "CTRL_RDY",
-            "pin": "N7",
-            "direction": "out"
+            "direction": "both"
         }
     ]
 }
