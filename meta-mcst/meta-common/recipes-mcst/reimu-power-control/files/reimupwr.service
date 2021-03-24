@@ -1,0 +1,10 @@
+[Unit]
+Description=Power control for REIMU
+After=network.target network-online.target remote-fs.target
+
+[Service]
+Type=simple
+ExecStart=/usr/sbin/reimupwr
+
+[Install]
+WantedBy=multi-user.target
