@@ -1,0 +1,31 @@
+diff -ru a/host_state_manager.cpp b/host_state_manager.cpp
+--- a/host_state_manager.cpp	2021-03-11 20:50:17.413140151 +0300
++++ b/host_state_manager.cpp	2021-03-24 22:27:49.845608926 +0300
+@@ -46,6 +46,7 @@
+ // host-shutdown notifies host of shutdown and that leads to host-stop being
+ // called so initiate a host shutdown with the -shutdown target and consider the
+ // host shut down when the -stop target is complete
++constexpr auto HOST_STATE_HARD_POWEROFF_TGT = "obmc-host-buttonoff@0.target";
+ constexpr auto HOST_STATE_SOFT_POWEROFF_TGT = "obmc-host-shutdown@0.target";
+ constexpr auto HOST_STATE_POWEROFF_TGT = "obmc-host-stop@0.target";
+ constexpr auto HOST_STATE_POWERON_TGT = "obmc-host-start@0.target";
+@@ -64,6 +65,7 @@
+ 
+ /* Map a transition to it's systemd target */
+ const std::map<server::Host::Transition, std::string> SYSTEMD_TARGET_TABLE = {
++    {server::Host::Transition::HardOff, HOST_STATE_HARD_POWEROFF_TGT},
+     {server::Host::Transition::Off, HOST_STATE_SOFT_POWEROFF_TGT},
+     {server::Host::Transition::On, HOST_STATE_POWERON_TGT},
+     {server::Host::Transition::Reboot, HOST_STATE_REBOOT_TGT},
+diff -ru a/README.md b/README.md
+--- a/README.md	2021-03-11 20:50:17.413140151 +0300
++++ b/README.md	2021-03-24 22:25:42.989613405 +0300
+@@ -54,7 +54,7 @@
+   `Running`, `Quiesced`(error condition), or in `DiagnosticMode`(collecting
+   diagnostic data for a failure)
+   - CurrentHostState: Off, Running, Quiesced, DiagnosticMode
+-  - RequestedHostTransition: Off, On, Reboot, GracefulWarmReboot,
++  - RequestedHostTransition: HardOff, Off, On, Reboot, GracefulWarmReboot,
+     ForceWarmReboot
+ 
+ As noted above, phosphor-state-manager provides a command line tool,

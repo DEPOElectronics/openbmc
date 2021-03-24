@@ -1,6 +1,6 @@
 [Unit]
 Description=Unconditionally Stop Host
-Conflicts=obmc-chassis-poweron@0.target
+Conflicts=host-poweroff.service host-poweron.service host-reset.service
 
 [Service]
 RemainAfterExit=yes
@@ -9,4 +9,4 @@ ExecStart=/usr/bin/env server_pwr_off_hard
 SyslogIdentifier=buttonscripts
 
 [Install]
-WantedBy=obmc-chassis-hard-poweroff@0.target
+WantedBy=obmc-host-buttonoff@0.target
