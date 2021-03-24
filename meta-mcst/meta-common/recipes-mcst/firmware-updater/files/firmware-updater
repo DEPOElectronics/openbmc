@@ -97,6 +97,7 @@ then
     echo "    Still you can monitor the progress through serial port, if you have access to it."
     sync
     reboot
+    sleep 30
     error "Reboot failed; please reboot system by yourself"
 fi
 
