@@ -76,7 +76,7 @@ volatile int s_exit_sig;
 
 static void msleep(long value)
 {
-    struct timespec rem, req = { value / 1000L, (value % 1000L) * 10000000L };
+    struct timespec rem, req = { value / 1000L, (value % 1000L) * 1000000L };
     while(nanosleep(&req, &rem))
     {
         if(s_exit_req)
