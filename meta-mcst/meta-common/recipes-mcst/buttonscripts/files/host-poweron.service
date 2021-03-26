@@ -3,11 +3,7 @@ Description=Start Host
 Conflicts=host-poweroff-hard.service host-poweroff.service host-reset.service
 
 [Service]
-RemainAfterExit=yes
 Type=oneshot
 ExecStart=/usr/bin/env server_pwr_on
 ExecStart=/usr/bin/env server_watchdog_reset
 SyslogIdentifier=buttonscripts
-
-[Install]
-WantedBy=obmc-host-start@0.target
