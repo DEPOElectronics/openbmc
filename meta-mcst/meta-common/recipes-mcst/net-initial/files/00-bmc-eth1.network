@@ -1,4 +1,4 @@
 [Match]
 Name=eth1
-[Network]
+[Address]
 Address=192.168.2.1/24
