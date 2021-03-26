@@ -61,7 +61,7 @@ diff -ru a/ethernet_interface.cpp b/ethernet_interface.cpp
          stream << "DNS=" << dns << "\n";
      }
  
-+    // Add the DNS entry
++    // Add the Domain entry
 +    for (const auto& domain : EthernetInterfaceIntf::lookupDomains())
 +    {
 +        stream << "Domains=" << domain << "\n";
