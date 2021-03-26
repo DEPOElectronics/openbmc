@@ -147,23 +147,19 @@ diff -ru a/app/common/services/dataService.js b/app/common/services/dataService.
        };
 diff -ru a/app/configuration/controllers/network-controller.html b/app/configuration/controllers/network-controller.html
 --- a/app/configuration/controllers/network-controller.html	2021-03-11 20:50:35.781139502 +0300
-+++ b/app/configuration/controllers/network-controller.html	2021-03-26 19:42:28.589686131 +0300
-@@ -87,7 +87,11 @@
++++ b/app/configuration/controllers/network-controller.html	2021-03-26 21:18:04.161483607 +0300
+@@ -87,7 +87,7 @@
        <legend class="column small-12 page-header h2">
          DNS settings
        </legend>
 -      <div class="net-config__fieldset-content">
-+      <div class="row column">
-+        <label for="net-config__domains">Lookup domains</label>
-+        <input id="net-config__domains" type="text" ng-model="lookupDomains" />
-+      </div>
 +      <div class="net-config__fieldset-content small-12">
          <!-- Call Nameservers "DNS Servers" on the GUI -->
          <div class="net-config__static-ip-wrap" ng-repeat="dns in interface.Nameservers track by $index">
            <div class="column small-12">
 diff -ru a/app/configuration/controllers/network-controller.js b/app/configuration/controllers/network-controller.js
 --- a/app/configuration/controllers/network-controller.js	2021-03-11 20:50:35.781139502 +0300
-+++ b/app/configuration/controllers/network-controller.js	2021-03-26 19:45:38.805679415 +0300
++++ b/app/configuration/controllers/network-controller.js	2021-03-26 21:15:17.333489498 +0300
 @@ -22,6 +22,7 @@
        $scope.networkDevice = false;
        $scope.hostname = '';
@@ -182,34 +178,26 @@ diff -ru a/app/configuration/controllers/network-controller.js b/app/configurati
          if ($scope.hostname != dataService.hostname) {
            promises.push(setHostname());
          }
-@@ -188,6 +192,16 @@
-                 });
-       }
- 
-+      function setLookupDomains() {
-+        return APIUtils.setLookupDomains($scope.lookupDomains)
-+            .then(
-+                function(data) {},
-+                function(error) {
+@@ -183,6 +187,16 @@
+             .then(
+                 function(data) {},
+                 function(error) {
 +                  console.log(JSON.stringify(error));
 +                  return $q.reject();
 +                });
 +      }
 +
-       function setHostname() {
-         return APIUtils.setHostname($scope.hostname)
-             .then(
-@@ -287,6 +301,7 @@
-           $scope.network = data.formatted_data;
-           $scope.hostname = data.hostname;
-           $scope.defaultGateway = data.defaultgateway;
-+          $scope.lookupDomains = data.lookupdomains;
-           if ($scope.network.interface_ids.length) {
-             // Use the first network interface if the user hasn't chosen one
-             if (!$scope.selectedInterface ||
++      function setLookupDomains() {
++        return APIUtils.setLookupDomains($scope.lookupDomains)
++            .then(
++                function(data) {},
++                function(error) {
+                   console.log(JSON.stringify(error));
+                   return $q.reject();
+                 });
 diff -ru a/app/overview/controllers/system-overview-controller.html b/app/overview/controllers/system-overview-controller.html
 --- a/app/overview/controllers/system-overview-controller.html	2021-03-11 20:50:35.781139502 +0300
-+++ b/app/overview/controllers/system-overview-controller.html	2021-03-26 20:02:22.793643964 +0300
++++ b/app/overview/controllers/system-overview-controller.html	2021-03-26 21:51:01.441413789 +0300
 @@ -71,25 +71,6 @@
          </div>
        </section>
@@ -236,6 +224,17 @@ diff -ru a/app/overview/controllers/system-overview-controller.html b/app/overvi
      </div>
      <div class="small-12 large-4">
        <div class="quick-links">
+@@ -124,10 +105,6 @@
+             </span>
+           </div>
+         </div>
+-        <a href="#/server-control/remote-console" class="quick-links__item">
+-          <span class="inline quick-links__label">Serial over LAN console</span>
+-          <icon aria-hidden="true" file="icon-chevron-right.svg"></icon>
+-        </a>
+         <a href="#/configuration/network" class="quick-links__item">
+           <span class="inline quick-links__label">Edit network settings</span>
+           <icon aria-hidden="true" file="icon-chevron-right.svg"></icon>
 diff -ru a/app/server-control/controllers/power-operations-controller.html b/app/server-control/controllers/power-operations-controller.html
 --- a/app/server-control/controllers/power-operations-controller.html	2021-03-11 20:50:35.785139502 +0300
 +++ b/app/server-control/controllers/power-operations-controller.html	2021-03-26 19:43:06.477684794 +0300
@@ -342,7 +341,7 @@ diff -ru a/app/server-control/controllers/power-operations-controller.html b/app
                    Reboot
 diff -ru a/app/server-control/controllers/power-operations-controller.js b/app/server-control/controllers/power-operations-controller.js
 --- a/app/server-control/controllers/power-operations-controller.js	2021-03-11 20:50:35.785139502 +0300
-+++ b/app/server-control/controllers/power-operations-controller.js	2021-03-24 21:58:18.597671469 +0300
++++ b/app/server-control/controllers/power-operations-controller.js	2021-03-26 20:45:25.817552757 +0300
 @@ -21,7 +21,6 @@
        $scope.bootOverrideError = false;
        $scope.bootSources = [];
@@ -449,6 +448,16 @@ diff -ru a/app/server-control/controllers/power-operations-controller.js b/app/s
          powerOperationModal();
        };
  
+@@ -407,9 +353,6 @@
+             .finally(function() {
+               $scope.loading = false;
+             });
+-
+-        loadBootSettings();
+-        loadTPMStatus();
+       });
+     }
+   ]);
 diff -ru a/app/server-control/controllers/power-operations-modal.html b/app/server-control/controllers/power-operations-modal.html
 --- a/app/server-control/controllers/power-operations-modal.html	2021-03-11 20:50:35.785139502 +0300
 +++ b/app/server-control/controllers/power-operations-modal.html	2021-03-24 21:58:37.141670814 +0300
