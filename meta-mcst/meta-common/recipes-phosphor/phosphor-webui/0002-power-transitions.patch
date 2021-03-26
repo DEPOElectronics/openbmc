@@ -1,7 +1,7 @@
 diff -ru a/app/common/services/api-utils.js b/app/common/services/api-utils.js
 --- a/app/common/services/api-utils.js	2021-03-11 20:50:35.777139502 +0300
 +++ b/app/common/services/api-utils.js	2021-03-26 20:31:53.313581446 +0300
-@@ -662,10 +682,32 @@
+@@ -662,10 +662,32 @@
            $http({
              method: 'PUT',
              url: DataService.getHost() +
