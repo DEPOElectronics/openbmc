@@ -1,0 +1,120 @@
+diff -ru a/app/common/services/api-utils.js b/app/common/services/api-utils.js
+--- a/app/common/services/api-utils.js	2021-03-11 20:50:35.777139502 +0300
++++ b/app/common/services/api-utils.js	2021-03-26 20:31:53.313581446 +0300
+@@ -278,6 +278,7 @@
+                     var content = JSON.parse(json);
+                     var hostname = '';
+                     var defaultgateway = '';
++                    var lookupdomains = '';
+                     var macAddress = '';
+ 
+                     function parseNetworkData(content) {
+@@ -347,6 +348,12 @@
+                             content.data['/xyz/openbmc_project/network/config']
+                                 .DefaultGateway;
+                       }
++                      if (content.data['/xyz/openbmc_project/network/config']
++                              .hasOwnProperty('DomainName')) {
++                        lookupdomains =
++                            content.data['/xyz/openbmc_project/network/config']
++                                .DomainName;
++                      }
+                     }
+ 
+                     if (content.data.hasOwnProperty(
+@@ -362,6 +369,7 @@
+                       data: content.data,
+                       hostname: hostname,
+                       defaultgateway: defaultgateway,
++                      lookupdomains: lookupdomains,
+                       mac_address: macAddress,
+                       formatted_data: parseNetworkData(content)
+                     });
+@@ -397,6 +405,18 @@
+                 return response.data;
+               });
+         },
++        setLookupDomains: function(lookupDomains) {
++          return $http({
++                   method: 'PUT',
++                   url: DataService.getHost() +
++                       '/xyz/openbmc_project/network/config/attr/DomainName',
++                   withCredentials: true,
++                   data: JSON.stringify({'data': lookupDomains})
++                 })
++              .then(function(response) {
++                return response.data;
++              });
++        },
+         setDHCPEnabled: function(interfaceName, dhcpEnabled) {
+           return $http({
+                    method: 'PUT',
+diff -ru a/app/common/services/dataService.js b/app/common/services/dataService.js
+--- a/app/common/services/dataService.js	2021-03-11 20:50:35.777139502 +0300
++++ b/app/common/services/dataService.js	2021-03-26 19:50:16.189669620 +0300
+@@ -27,6 +27,7 @@
+       this.hostname = '';
+       this.mac_address = '';
+       this.defaultgateway = '';
++      this.lookupdomains = '';
+ 
+       this.ignoreHttpError = false;
+       this.systemName = '';
+@@ -74,6 +75,7 @@
+         var formatted = data.formatted_data || {};
+         this.hostname = data.hostname;
+         this.defaultgateway = data.defaultgateway;
++        this.lookupdomains = data.lookupdomains;
+         this.mac_address = data.mac_address;
+         this.network_interfaces = formatted.interfaces || [];
+       };
+diff -ru a/app/configuration/controllers/network-controller.html b/app/configuration/controllers/network-controller.html
+--- a/app/configuration/controllers/network-controller.html	2021-03-11 20:50:35.781139502 +0300
++++ b/app/configuration/controllers/network-controller.html	2021-03-26 21:18:04.161483607 +0300
+@@ -87,7 +87,7 @@
+       <legend class="column small-12 page-header h2">
+         DNS settings
+       </legend>
+-      <div class="net-config__fieldset-content">
++      <div class="net-config__fieldset-content small-12">
+         <!-- Call Nameservers "DNS Servers" on the GUI -->
+         <div class="net-config__static-ip-wrap" ng-repeat="dns in interface.Nameservers track by $index">
+           <div class="column small-12">
+diff -ru a/app/configuration/controllers/network-controller.js b/app/configuration/controllers/network-controller.js
+--- a/app/configuration/controllers/network-controller.js	2021-03-11 20:50:35.781139502 +0300
++++ b/app/configuration/controllers/network-controller.js	2021-03-26 21:15:17.333489498 +0300
+@@ -22,6 +22,7 @@
+       $scope.networkDevice = false;
+       $scope.hostname = '';
+       $scope.defaultGateway = '';
++      $scope.lookupDomains = '';
+       $scope.selectedInterface = '';
+       $scope.confirmSettings = false;
+       $scope.loading = false;
+@@ -73,6 +74,9 @@
+         if ($scope.defaultGateway != dataService.defaultgateway) {
+           promises.push(setDefaultGateway());
+         }
++        if ($scope.lookupDomains != dataService.lookupdomains) {
++          promises.push(setLookupDomains());
++        }
+         if ($scope.hostname != dataService.hostname) {
+           promises.push(setHostname());
+         }
+@@ -183,6 +187,16 @@
+             .then(
+                 function(data) {},
+                 function(error) {
++                  console.log(JSON.stringify(error));
++                  return $q.reject();
++                });
++      }
++
++      function setLookupDomains() {
++        return APIUtils.setLookupDomains($scope.lookupDomains)
++            .then(
++                function(data) {},
++                function(error) {
+                   console.log(JSON.stringify(error));
+                   return $q.reject();
+                 });
