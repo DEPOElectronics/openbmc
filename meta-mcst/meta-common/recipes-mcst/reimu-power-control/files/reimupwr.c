@@ -214,57 +214,7 @@ static int dbus_set_property_str(const char *service, const char *object, const 
     return 0;
 }
 
-/*static int dbus_set_property_bool(const char *service, const char *object, const char *interface, const char *property, int value)
-{
-    DBusError dbus_error;
-
-    dbus_error_init(&dbus_error);
-    if ((s_dbus_conn = dbus_bus_get(DBUS_BUS_SYSTEM, &dbus_error)) == NULL) return 22;
-    atexit(dbus_fini);
-
-    dbus_msg_fini();
-    if((s_dbus_msg = dbus_message_new_method_call(service, object, "org.freedesktop.DBus.Properties", "Set")) == NULL) return 20;
-    atexit(dbus_msg_fini);
-
-    if(!dbus_message_append_args(s_dbus_msg, DBUS_TYPE_STRING, &interface,  DBUS_TYPE_STRING, &property, DBUS_TYPE_INVALID)) return 21;
-
-    DBusMessageIter dbus_iter, dbus_subiter;
-    dbus_message_iter_init_append (s_dbus_msg, &dbus_iter);
-    if (!dbus_message_iter_open_container (&dbus_iter, DBUS_TYPE_VARIANT, "b", &dbus_subiter)) return 23;
-    if (!dbus_message_iter_append_basic(&dbus_subiter, DBUS_TYPE_BOOLEAN, &value)) { dbus_message_iter_abandon_container(&dbus_iter, &dbus_subiter); return 24; }
-    if (!dbus_message_iter_close_container(&dbus_iter, &dbus_subiter)) return 25;
-
-    if(!dbus_connection_send(s_dbus_conn, s_dbus_msg, NULL)) return 26;
-
-    dbus_msg_fini();
-    return 0;
-}*/
-
-/*static int dbus_get_property(const char *service, const char *object, const char *interface, const char *property)
-{
-    DBusError dbus_error;
-
-    dbus_error_init(&dbus_error);
-    if ((s_dbus_conn = dbus_bus_get(DBUS_BUS_SYSTEM, &dbus_error)) == NULL) return 27;
-    atexit(dbus_fini);
-
-    if((s_dbus_msg = dbus_message_new_method_call(service, object, "org.freedesktop.DBus.Properties", "Get")) == NULL) return 28;
-    atexit(dbus_msg_fini);
-
-    if(!dbus_message_append_args(s_dbus_msg, DBUS_TYPE_STRING, &interface,  DBUS_TYPE_STRING, &property, DBUS_TYPE_INVALID)) return 29;
-
-    if((s_dbus_reply = dbus_connection_send_with_reply_and_block(s_dbus_conn, s_dbus_msg, 1000, &dbus_error)) == NULL) return 30;
-    atexit(dbus_reply_fini);
-
-    DBusBasicValue value;
-    DBusMessageIter dbus_iter, dbus_subiter;
-    if (!dbus_message_iter_init(s_dbus_reply, &dbus_iter)) return 31;
-    if (dbus_message_iter_get_arg_type (&dbus_iter) != DBUS_TYPE_VARIANT) return 32;
-    dbus_message_iter_recurse (&dbus_iter, &dbus_subiter);
-    if (dbus_message_iter_get_arg_type (&dbus_subiter) != DBUS_TYPE_BOOLEAN) return 33;
-    dbus_message_iter_get_basic(&dbus_subiter, &value);
-    return (value.bool_val) ? 1: 0;
-}*/
+int success = 0;
 
 static void dbus_set_power_state(int pgood)
 {
@@ -272,7 +222,12 @@ static void dbus_set_power_state(int pgood)
     int rv;
     if ((rv = dbus_set_property_str("xyz.openbmc_project.State.Host", "/xyz/openbmc_project/state/host0", "xyz.openbmc_project.State.Host", "CurrentHostState", state)) != 0)
     {
-        message(L_WARN, "Can't set host state to %s (error %d)\n", state, rv);
+        message(L_WARN, "Can't set host state to %s (error %d), deferring...\n", state, rv);
+        success = 0;
+    }
+    else
+    {
+        success = 1;
     }
 }
 
@@ -300,7 +255,7 @@ int main(void)
     for(;;)
     {
         int pgood = poll_pgood();
-        if (pgood != old_pgood)
+        if ((pgood != old_pgood) || !success)
         {
             message(L_INFO, "Power good state changed from %d to %d, changing power state", old_pgood, pgood);
             dbus_set_power_state(pgood);
