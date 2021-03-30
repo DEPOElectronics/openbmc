@@ -1,0 +1,34 @@
+diff -ru a/app/common/services/api-utils.js b/app/common/services/api-utils.js
+--- a/app/common/services/api-utils.js	2021-03-29 19:26:36.964728694 +0300
++++ b/app/common/services/api-utils.js	2021-03-30 18:30:01.601297275 +0300
+@@ -312,7 +312,7 @@
+                             data.interfaces[interfaceId].LookupDomains =
+                                 content.data[key].LookupDomains;
+                             data.interfaces[interfaceId].DHCPEnabled =
+-                                (content.data[key].DHCPEnabled != "xyz.openbmc_project.Network.EthernetInterface.DHCPConf.none");
++                                (content.data[key].DHCPEnabled != "xyz.openbmc_project.Network.EthernetInterface.DHCPConf.none") ? 1 : 0;
+                           }
+                         } else if (
+                             key.match(
+diff -ru a/app/configuration/controllers/network-controller.js b/app/configuration/controllers/network-controller.js
+--- a/app/configuration/controllers/network-controller.js	2021-03-26 23:44:03.181174324 +0300
++++ b/app/configuration/controllers/network-controller.js	2021-03-30 18:33:10.085290620 +0300
+@@ -84,7 +84,9 @@
+         if ($scope.hostname != dataService.hostname) {
+           promises.push(setHostname());
+         }
+-        if ($scope.interface.DHCPEnabled != $scope.oldInterface.DHCPEnabled) {
++        // We should set DHCP on before deleting IP addresses,
++        // but set it off after adding these addresses.
++        if ($scope.interface.DHCPEnabled) {
+           promises.push(setDHCPEnabled());
+         }
+ 
+@@ -154,6 +156,7 @@
+               }
+             }
+           }
++          promises.push(setDHCPEnabled());
+         }
+ 
+         if (promises.length) {
