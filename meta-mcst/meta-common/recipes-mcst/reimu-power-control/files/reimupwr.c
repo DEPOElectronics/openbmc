@@ -19,17 +19,6 @@ static char* gettime(void)
     return s_timestr;
 }
 
-/*static __attribute__((format(printf, 2, 3))) int error(int code, const char *format, ...)
-{
-    char str[1024];
-    va_list args;
-    va_start (args, format);
-    vsnprintf (str, 1023, format, args);
-    va_end (args);
-    fprintf(stderr, "reimupwr (%s): ERROR: %s", gettime(), str);
-    exit(code);
-}*/
-
 enum msgtype {L_INFO, L_WARN};
 
 static __attribute__((format(printf, 2, 3))) int message(enum msgtype type, const char *format, ...)
@@ -41,7 +30,9 @@ static __attribute__((format(printf, 2, 3))) int message(enum msgtype type, cons
     va_end (args);
 
     FILE *stream = ((type == L_WARN) ? stderr : stdout);
-    return fprintf(stream, "reimupwr (%s): %s", gettime(), str);
+    fprintf(stream, "reimupwr (%s): %s", gettime(), str);
+    fflush(stream);
+    return 0;
 }
 
 static void msleep(long value)
@@ -257,7 +248,7 @@ int main(void)
         int pgood = poll_pgood();
         if ((pgood != old_pgood) || !success)
         {
-            message(L_INFO, "Power good state changed from %d to %d, changing power state", old_pgood, pgood);
+            message(L_INFO, "Power good state changed from %d to %d, changing power state\n", old_pgood, pgood);
             dbus_set_power_state(pgood);
             old_pgood = pgood;
         }
