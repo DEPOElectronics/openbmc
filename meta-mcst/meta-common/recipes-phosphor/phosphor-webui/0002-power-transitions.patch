@@ -160,7 +160,7 @@ diff -ru a/app/server-control/controllers/power-operations-controller.js b/app/s
  
        /**
         * Checks the host status provided by the dataService using an
-@@ -66,59 +65,13 @@
+@@ -66,53 +65,12 @@
            };
  
        /**
@@ -200,7 +200,7 @@ diff -ru a/app/server-control/controllers/power-operations-controller.js b/app/s
 -      const coldReboot = () => {
 +      const Reboot = () => {
          $scope.operationPending = true;
-         dataService.setUnreachableState();
+-        dataService.setUnreachableState();
 -        APIUtils.chassisPowerOff()
 -            .then(() => {
 -              // Check for off state
@@ -212,16 +212,10 @@ diff -ru a/app/server-control/controllers/power-operations-controller.js b/app/s
 -            .then(() => {
 -              return APIUtils.hostPowerOn();
 -            })
--            .then(() => {
--              // Check for on state
--              return checkHostStatus(
--                  Constants.HOST_STATE_TEXT.on, Constants.TIMEOUT.HOST_ON,
--                  Constants.MESSAGES.POLL.HOST_ON_TIMEOUT);
--            })
 +        APIUtils.chassisReset()
-             .catch(error => {
-               console.log(error);
-               toastService.error(
+             .then(() => {
+               // Check for on state
+               return checkHostStatus(
 @@ -208,11 +161,8 @@
         */
        const initPowerOperation = function(powerOperation) {
