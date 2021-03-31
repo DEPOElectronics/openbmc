@@ -18,7 +18,7 @@ BBLAYERS ?= " \
   ##OEROOT##/meta-mcst/meta-flash32 \
   ##OEROOT##/meta-mcst/meta-tinyspi \
   ##OEROOT##/meta-mcst/meta-uart2 \
-  ##OEROOT##/meta-mcst/meta-device-reimu-4232M \
+  ##OEROOT##/meta-mcst/meta-device-reimu-4232m \
   "
 BBLAYERS_NON_REMOVABLE ?= " \
   ##OEROOT##/meta \
@@ -33,5 +33,5 @@ BBLAYERS_NON_REMOVABLE ?= " \
   ##OEROOT##/meta-mcst/meta-flash32 \
   ##OEROOT##/meta-mcst/meta-tinyspi \
   ##OEROOT##/meta-mcst/meta-uart2 \
-  ##OEROOT##/meta-mcst/meta-device-reimu-4232M \
+  ##OEROOT##/meta-mcst/meta-device-reimu-4232m \
   "

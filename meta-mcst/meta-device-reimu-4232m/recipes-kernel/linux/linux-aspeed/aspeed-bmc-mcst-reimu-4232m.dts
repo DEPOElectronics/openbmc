@@ -9,5 +9,5 @@
 
 / {
 	model = "REIMU-4232M";
-	compatible = "mcst,reimu-4232M", "aspeed,ast2400";
+	compatible = "mcst,reimu-4232m", "aspeed,ast2400";
 };
