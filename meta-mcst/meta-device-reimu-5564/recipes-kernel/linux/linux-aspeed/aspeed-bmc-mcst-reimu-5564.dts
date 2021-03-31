@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: GPL-2.0+
-// Copyright 2020 MCST
+// Copyright 2021 MCST
 /dts-v1/;
 
 #include "aspeed-bmc-mcst-ast2500.dtsi"

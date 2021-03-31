@@ -15,12 +15,11 @@ BBLAYERS ?= " \
   ##OEROOT##/meta-phosphor \
   ##OEROOT##/meta-aspeed \
   ##OEROOT##/meta-mcst/meta-common \
-  ##OEROOT##/meta-mcst/meta-flash64 \
+  ##OEROOT##/meta-mcst/meta-flash32 \
   ##OEROOT##/meta-mcst/meta-embedded \
-  ##OEROOT##/meta-mcst/meta-embedded-2500 \
-  ##OEROOT##/meta-mcst/meta-uart5 \
-  ##OEROOT##/meta-mcst/meta-reliable-upgrade \
-  ##OEROOT##/meta-mcst/meta-device-reimu-5564 \
+  ##OEROOT##/meta-mcst/meta-embedded-2400 \
+  ##OEROOT##/meta-mcst/meta-uart2 \
+  ##OEROOT##/meta-mcst/meta-device-reimu-4232 \
   "
 BBLAYERS_NON_REMOVABLE ?= " \
   ##OEROOT##/meta \
@@ -32,10 +31,9 @@ BBLAYERS_NON_REMOVABLE ?= " \
   ##OEROOT##/meta-phosphor \
   ##OEROOT##/meta-aspeed \
   ##OEROOT##/meta-mcst/meta-common \
-  ##OEROOT##/meta-mcst/meta-flash64 \
+  ##OEROOT##/meta-mcst/meta-flash32 \
   ##OEROOT##/meta-mcst/meta-embedded \
-  ##OEROOT##/meta-mcst/meta-embedded-2500 \
-  ##OEROOT##/meta-mcst/meta-uart5 \
-  ##OEROOT##/meta-mcst/meta-reliable-upgrade \
-  ##OEROOT##/meta-mcst/meta-device-reimu-5564 \
+  ##OEROOT##/meta-mcst/meta-embedded-2400 \
+  ##OEROOT##/meta-mcst/meta-uart2 \
+  ##OEROOT##/meta-mcst/meta-device-reimu-4232 \
   "
