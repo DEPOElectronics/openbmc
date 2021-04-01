@@ -84,7 +84,6 @@ OBMC_IMAGE_EXTRA_INSTALL_append = " \
   rawi2ctool \
   net-initial \
   glibc-utils \
-  ethtool \
   mc mc-fish mc-helpers mc-helpers-perl mc-locale-ru \
   overheatd \
   reimu-conf \
@@ -95,10 +94,7 @@ OBMC_IMAGE_EXTRA_INSTALL_append = " \
   nfs-utils-client \
   nss-pam-ldapd \
   sysstat \
-  sudo \
   "
 
-IMAGE_FEATURES_remove = " \
-  ssh-server-dropbear \
-  phosphor-state-manager-chassis \
-  "
+IMAGE_FEATURES_remove = "ssh-server-dropbear"
+IMAGE_FEATURES_remove = "phosphor-state-manager-chassis"
