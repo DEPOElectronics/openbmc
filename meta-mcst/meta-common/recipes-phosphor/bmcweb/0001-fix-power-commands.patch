@@ -6,8 +6,9 @@ diff -ru a/redfish-core/lib/systems.hpp b/redfish-core/lib/systems.hpp
          else if (resetType == "ForceOff")
          {
 -            command = "xyz.openbmc_project.State.Chassis.Transition.Off";
-+            command = "xyz.openbmc_project.State.Chassis.Transition.HardOff";
-             hostCommand = false;
++            command = "xyz.openbmc_project.State.Host.Transition.HardOff";
+-            hostCommand = false;
++            hostCommand = true;
          }
          else if (resetType == "ForceRestart")
          {
