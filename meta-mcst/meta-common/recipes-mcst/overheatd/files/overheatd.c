@@ -466,18 +466,13 @@ static int statefile_commit(const char *filename)
 static int __attribute__((format(printf, 1, 2))) statefile_append(const char *format, ...)
 {
     char str[1024];
-    if(debug)
-    {
-        va_list args;
-        va_start (args, format);
-        vsnprintf (str, 1023, format, args);
-        va_end (args);
-    }
-
+    va_list args;
+    va_start (args, format);
+    vsnprintf (str, 1023, format, args);
+    va_end (args);
     if ((s_statefile = realloc(s_statefile, strlen(s_statefile) + strlen(str) + 1)) == NULL) error(93, "Out of memory\n");
     strcat(s_statefile, str);
 }
-
 
 static uint32_t get_alerts_tinyspi(void)
 {
