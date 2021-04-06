@@ -516,9 +516,9 @@ static uint32_t get_alerts_gpio(void)
 
     uint32_t b[32];
     memset(b, 0, sizeof(b));
-    b[31] = get_gpio_by_name("GPIO_POWER_IN");
+    b[31] = get_gpio_by_name("GPIO_RESET_IN");
     b[23] = get_gpio_by_name("GPIO_APMDZ_LED");
-    b[21] = get_gpio_by_name("GPIO_RESET_IN");
+    b[21] = get_gpio_by_name("GPIO_POWER_IN");
     b[14] = get_gpio_by_name("GPIO_ALERT_CPU");
     b[12] = get_gpio_by_name("GPIO_ALERT_CPU2");
     b[6]  = get_gpio_by_name("GPIO_ALERT_MEM");
