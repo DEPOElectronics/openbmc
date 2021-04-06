@@ -716,7 +716,7 @@ int main(int argc, char *argv[])
                     {
                         if (cpus[cpu])
                         {
-                            for (int sensor = 0; sensor < 7; ++sensor)
+                            for (int sensor = 0; sensor <= 7; ++sensor)
                             {
                                 int temp;
                                 double tempdbl;
@@ -725,7 +725,7 @@ int main(int argc, char *argv[])
                                     wprintf("Failure reading I2C device (bus = %ld, cpu = %d, sensor = %d)", cpu_i2c_num, cpu, sensor);
                                 }
                                 dbg_printf("Temp (%d:%d): %d (%f)\n", cpu, sensor, temp, tempdbl);
-                                statefile_append("\t<temperature cpu=\"%d\" sensor=\"%d\">%f</temperature>\n", cpu + 2, sensor, tempdbl);
+                                statefile_append("\t<temperature cpu=\"%d\" sensor=\"%d\">%f</temperature>\n", cpu, sensor, tempdbl);
                                 if (temp > maxtemp) maxtemp = temp;
                             }
                         }
