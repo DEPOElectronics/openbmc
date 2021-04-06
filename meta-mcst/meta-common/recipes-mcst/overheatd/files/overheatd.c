@@ -655,7 +655,7 @@ int main(int argc, char *argv[])
             dbg_printf("Alerts: 0x%08x\n", alerts);
             statefile_append("\t<alerts>0x%08x</alerts>\n", alerts);
 
-            if (s_dbg_state == 2) { alerts |= 0x00008000; dbg_printf("DEBUG MODE: alerts altered to 0x%08x\n", alerts); }
+            if (s_dbg_state == 2) { alerts &= 0xffff7fff; dbg_printf("DEBUG MODE: alerts altered to 0x%08x\n", alerts); }
 
             /* THERMAL_SHDN# (bit 0) == 0 : overheat on */
             if ((alerts & 0x00000001) == 0)
