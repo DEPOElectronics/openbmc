@@ -35,9 +35,10 @@ SRC_URI = "file://LICENSE \
 do_install() {
   install -d ${D}/libexec
   install -d ${D}/usr/sbin
-  install -m 755 libfirmware-updater ${D}/libexec/libfirmware-updater
-  install -m 755 firmware-updater ${D}/usr/sbin/firmware-updater
-  install -m 755 update-host-flash ${D}/usr/sbin/update-host-flash
+  install -m 755 libfirmware-updater ${D}/libexec/
+  install -m 755 firmware-updater.plain ${D}/libexec/
+  install -m 755 firmware-updater ${D}/usr/sbin/
+  install -m 755 update-host-flash ${D}/usr/sbin/
 }
 
 FILES_${PN} = "/usr/sbin/ /libexec"
