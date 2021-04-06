@@ -293,7 +293,7 @@ static int gpio_to_num(const char *needle)
 
 static int get_gpio_by_name(const char *name)
 {
-    int rv = gpio_to_num("GPIO_POWER_IN");
+    int rv = gpio_to_num(name);
     return (rv >= 0) ? get_gpio(rv) : rv;
 }
 
