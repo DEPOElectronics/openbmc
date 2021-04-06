@@ -1,4 +1,4 @@
-#include <linux/kernel.h> 
+#include <linux/kernel.h>
 #include <linux/printk.h>
 #include <linux/kobject.h>
 #include <linux/init.h>
@@ -11,9 +11,9 @@
 #include <linux/delay.h>
 
 // Default setup as in E8C-SWTX board
-static int gpio_clk  = 292 + 104;
-static int gpio_sel  = 292 + 106;
-static int gpio_data = 292 + 105;
+static int gpio_clk = 0;
+static int gpio_sel = 0;
+static int gpio_data = 0;
 
 module_param(gpio_clk,  int, 0660);
 module_param(gpio_sel,  int, 0660);
@@ -231,6 +231,28 @@ static void tinyspi_cleanup(void)
 static int __init tinyspi_init (void)
 {
     int error = 0;
+
+    if (!gpio_clk && !gpio_sel && !gpio_data)
+    {
+        printk(KERN_INFO "tinyspi: trying to autodetect TinySPI GPIO.\n");
+
+        int offset;
+        for (offset = 1; offset < 4096; ++offset)
+        {
+            if (!gpio_request(offset, "test"))
+            {
+                gpio_free(offset);
+                break;
+            }
+        }
+        if (offset == 4096) { printk(KERN_ERR "tinyspi: failed to autodetect GPIO offset\n"); return -ENOENT; }
+
+        printk(KERN_INFO "tinyspi: first GPIO detected at %d.\n", offset);
+        gpio_clk  = offset + 104;
+        gpio_sel  = offset + 106;
+        gpio_data = offset + 105;
+    }
+
     printk(KERN_INFO "tinyspi: startup (CLK=GPIO%d, DATA=GPIO%d, SEL=GPIO%d).\n", gpio_clk, gpio_data, gpio_sel);
     tinyspi_kobject = kobject_create_and_add("tinyspi", kernel_kobj);
     if(!tinyspi_kobject) return -ENOMEM;
