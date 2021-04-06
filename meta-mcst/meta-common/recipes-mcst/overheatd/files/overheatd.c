@@ -509,9 +509,9 @@ static uint32_t get_alerts_gpio(void)
      * I2C2_ALERT#   = bit 11 = ALERT_PCIE#
      * I2C3_ALERT#   = bit 12 = ALERT_CPU2#
      * I2CM_ALERT#   = bit 14 = ALERT_CPU#
-     * PWROK_MAIN    = bit 21 = PLT_RST#
+     * PWROK_MAIN    = bit 21 = PWROK_ATX
      * APMDZ_LED#    = bit 23 = APMDZ_LED#
-     * GPI[7] (RFU)  = bit 31 = PWROK_ATX
+     * GPI[7] (RFU)  = bit 31 = PLT_RST#
      */
 
     uint32_t b[32];
