@@ -665,7 +665,7 @@ int main(int argc, char *argv[])
             }
 
             /* I2CM_TTRIP# (bit 15) == 0 & PWROK_MAIN (bit 21) == 1 : overheat on */
-            if ((alerts & 0x00200000) == 1)
+            if ((alerts & 0x00200000) != 0)
             {
                 if ((alerts & 0x00008000) == 0)
                 {
