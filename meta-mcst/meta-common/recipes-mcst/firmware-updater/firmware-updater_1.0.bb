@@ -28,6 +28,7 @@ S = "${WORKDIR}"
 
 SRC_URI = "file://LICENSE \
            file://libfirmware-updater \
+           file://firmware-updater.plain \
            file://firmware-updater \
            file://update-host-flash \
           "
