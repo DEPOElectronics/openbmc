@@ -1,6 +1,6 @@
 diff -ru a/common/directives/app-navigation.html b/common/directives/app-navigation.html
---- a/common/directives/app-navigation.html	2021-03-31 19:02:04.527305568 +0300
-+++ b/common/directives/app-navigation.html	2021-04-06 23:18:55.322305396 +0300
+--- a/app/common/directives/app-navigation.html	2021-03-31 19:02:04.527305568 +0300
++++ b/app/common/directives/app-navigation.html	2021-04-06 23:18:55.322305396 +0300
 @@ -50,11 +50,6 @@
              <span>Reboot BMC</span>
            </a>
