@@ -1,5 +1,15 @@
---- a/include/configs/ast-common.h
-+++ b/include/configs/ast-common.h
+diff -ru a/include/configs/ast-common.h b/include/configs/ast-common.h
+--- a/include/configs/ast-common.h	2021-04-22 19:30:48.785267495 +0300
++++ b/include/configs/ast-common.h	2021-04-22 21:38:49.553449750 +0300
+@@ -52,7 +52,7 @@
+ #define CONFIG_SYS_NS16550_SERIAL
+ #define CONFIG_SYS_NS16550_REG_SIZE		(-4)
+ #define CONFIG_SYS_NS16550_CLK			24000000
+-#define CONFIG_SYS_NS16550_COM1			AST_UART0_BASE
++#define CONFIG_SYS_NS16550_COM1			AST_UART2_BASE
+ #define CONFIG_SYS_LOADS_BAUD_CHANGE
+ #define CONFIG_SERIAL1				1
+ #define CONFIG_CONS_INDEX			1
 @@ -96,7 +96,7 @@
  #define CONFIG_CMD_MTDPARTS
  #endif
