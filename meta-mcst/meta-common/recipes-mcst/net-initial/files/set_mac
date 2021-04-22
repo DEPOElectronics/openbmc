@@ -23,7 +23,7 @@ else
     fru_ethaddr_base=""
 fi
 
-if `echo $fru_ethaddr_base` | grep -q '^98A7B0'
+if echo $fru_ethaddr_base | grep -q '^98A7B0'
 then
     set_eth0addr=`printf %X $((0x$fru_ethaddr_base + $bmc_addr_base))`
     set_eth1addr=`printf %X $((0x$fru_ethaddr_base + $bmc_addr_base + 1))`
