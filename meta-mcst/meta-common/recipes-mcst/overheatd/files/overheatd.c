@@ -596,6 +596,7 @@ int main(int argc, char *argv[])
     uint32_t alerts = 0;
     int tinyspi_alert = 2; /* Unconditionally acquire TinySPI data */
     int overheat_cond = 0;
+    int last_dbg_state = 0;
 
     signal(SIGTERM, exit_handler);
     signal(SIGHUP, exit_handler);
@@ -616,6 +617,12 @@ int main(int argc, char *argv[])
         if(overheatd_enabled)
         {
             statefile_append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<state date=\"%s\">\n", gettime());
+
+            if (last_dbg_state != s_dbg_state)
+            {
+                tinyspi_alert = 2;
+                last_dbg_state = s_dbg_state;
+            }
 
             int powered_on;
             const char *oldledtrigger = led_trigger;
