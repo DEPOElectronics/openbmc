@@ -15,4 +15,4 @@ do_add_mcst_files () {
           ${WD}/*.dtsi \
           ${STAGING_KERNEL_DIR}/arch/arm/boot/dts
 }
-addtask do_add_mcst_files after do_kernel_checkout before do_patch
+addtask do_add_mcst_files after do_patch before do_kernel_configme
