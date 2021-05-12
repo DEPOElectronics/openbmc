@@ -66,6 +66,19 @@ static int readfile(const char *name, char **p_buf, long *p_size)
     return 0;
 }
 
+static int writefile(const char *name, const void *buf, long size)
+{
+    if(buf == NULL) return 8;
+
+    FILE *f = fopen(name, "w");
+    if (f == NULL) return 2;
+
+    if(fwrite(buf, size, 1, f) != 1) { fclose(f); return 6; }
+    if(fclose(f)) return 7;
+
+    return 0;
+}
+
 struct gpiod_chip *s_gpiochip = NULL;
 
 static void gpiochip_fini(void)
@@ -205,6 +218,35 @@ static int dbus_set_property_str(const char *service, const char *object, const 
     return 0;
 }
 
+int s_update_delay = 10;
+
+static int s_update_delay_init(void)
+{
+    char *apo_cfg;
+    int apo_cfg_len;
+    int rv = readfile("/etc/auto_power_on", &apo_cfg, &apo_cfg_len);
+    if (!rv)
+    {
+        char *psd_time = strstr(apo_cfg, "PS_DISCHARGE_TIME=");
+        if(psd_time != NULL)
+        {
+            psd_time += strlen("PS_DISCHARGE_TIME=");
+            char *endptr;
+            long update_delay = strtol(psd_time, &endptr, 0);
+            if (endptr != psd_time)
+            {
+                s_update_delay = update_delay;
+                message(L_INFO, "Power supply discharge delay: %d seconds\n", s_update_delay);
+            }
+            else message(L_WARN, "Wrong data in auto_power_on config, defaulting power supply discharge delay to %d seconds\n", s_update_delay);
+        }
+        else message(L_INFO, "No power supply discharge delay specified in config, defaulting to %d seconds\n", s_update_delay);
+        free(apo_cfg);
+    }
+    else message(L_WARN, "Can't read auto_power_on config, defaulting power supply discharge delay to %d seconds\n", s_update_delay);
+    return s_update_delay;
+}
+
 int success = 0;
 
 static void dbus_set_power_state(int pgood)
@@ -242,7 +284,10 @@ int poll_pgood()
 int main(void)
 {
     int old_pgood = -1;
+    int update_delay = -1;
+
     message(L_INFO, "REIMU power control started\n");
+    message(L_INFO, "Power supply discharge time is %d seconds\n", s_update_delay_init());
     for(;;)
     {
         int pgood = poll_pgood();
@@ -250,8 +295,21 @@ int main(void)
         {
             message(L_INFO, "Power good state changed from %d to %d, changing power state\n", old_pgood, pgood);
             dbus_set_power_state(pgood);
+            message(L_INFO, "Deferring power state being saved for %d seconds\n", s_update_delay);
+            update_delay = s_update_delay;
             old_pgood = pgood;
         }
+        if (update_delay == 0)
+        {
+            message(L_INFO, "Power good state %d is saved as last power state\n", pgood);
+            char powerstate[32];
+            snprintf(powerstate, 31, "%d\n", pgood);
+            if (writefile("/var/lib/reimu/last_power_state", powerstate, strlen(powerstate)) != 0)
+            {
+                message(L_WARN, "Warning: can't save current power state (check if /var/lib/reimu/ exist and writable)\n");
+            }
+        }
+        if (update_delay >= 0) --update_delay;
         msleep(1000);
     }
 }

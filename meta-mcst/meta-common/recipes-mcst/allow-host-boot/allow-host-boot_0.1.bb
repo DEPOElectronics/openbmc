@@ -9,7 +9,7 @@ inherit systemd
 inherit features_check
 
 REQUIRED_DISTRO_FEATURES = "systemd"
-RDEPENDS_${PN} += "systemd bash gpio-funcs"
+RDEPENDS_${PN} += "systemd bash gpio-funcs buttonscripts"
 SYSTEMD_SERVICE_${PN} = "allow_host_boot.service"
 
 SRC_URI = " \
