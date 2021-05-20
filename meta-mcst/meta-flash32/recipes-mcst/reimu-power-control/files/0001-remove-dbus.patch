@@ -6,6 +6,7 @@ diff -ru a/reimupwr.c b/reimupwr.c
          {
              message(L_INFO, "Power good state changed from %d to %d, changing power state\n", old_pgood, pgood);
 -            dbus_set_power_state(pgood);
++            success = 1;
              message(L_INFO, "Deferring power state being saved for %d seconds\n", s_update_delay);
              update_delay = s_update_delay;
              old_pgood = pgood;

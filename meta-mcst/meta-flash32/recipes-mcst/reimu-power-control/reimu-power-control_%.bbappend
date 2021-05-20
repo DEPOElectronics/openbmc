@@ -1,1 +1,2 @@
-SRC_URI += " 0001-remove-dbus.patch "
+FILESEXTRAPATHS_prepend := "${THISDIR}/files:"
+SRC_URI += " file://0001-remove-dbus.patch "
