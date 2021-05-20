@@ -1,7 +1,7 @@
 diff -ru a/reimupwr.c b/reimupwr.c
 --- a/reimupwr.c	2021-05-12 20:18:07.504714075 +0300
 +++ b/reimupwr.c	2021-05-20 20:06:51.914920390 +0300
-@@ -294,7 +294,6 @@
+@@ -294,7 +294,7 @@
          if ((pgood != old_pgood) || !success)
          {
              message(L_INFO, "Power good state changed from %d to %d, changing power state\n", old_pgood, pgood);
