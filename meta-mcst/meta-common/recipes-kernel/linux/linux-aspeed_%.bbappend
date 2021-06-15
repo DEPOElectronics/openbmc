@@ -5,6 +5,7 @@ SRC_URI += " \
              file://aspeed-bmc-mcst-ast2400.dtsi \
              file://aspeed-bmc-mcst-ast2500.dtsi \
              file://0001-squashfs-generate-uuid-for-superblock.patch \
+             file://0002-jffs2-hook-up-splice_write-callback.patch \
            "
 
 # Merge source tree by original project with our layer of additional files
