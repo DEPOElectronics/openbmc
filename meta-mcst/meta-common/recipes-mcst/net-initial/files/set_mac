@@ -54,4 +54,5 @@ fw_setenv ethaddr $set_eth0addr
 fw_setenv eth1addr $set_eth1addr
 fw_setenv eth1addr $set_eth1addr
 
-echo "Note: MAC addresses are changed, please reboot." 1>&2
+echo -e "\e[1;33m *** Note: MAC addresses are changed, rebooting. *** \e[0m" 1>&2
+reboot

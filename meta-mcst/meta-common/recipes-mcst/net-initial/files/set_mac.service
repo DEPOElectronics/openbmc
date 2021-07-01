@@ -6,6 +6,7 @@ After=syslog.target
 ExecStart=/libexec/set_mac
 Type=oneshot
 RemainAfterExit=yes
+StandardError=journal+console
 
 [Install]
 WantedBy=network.target
