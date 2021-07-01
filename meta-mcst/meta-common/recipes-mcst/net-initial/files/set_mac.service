@@ -1,6 +1,6 @@
 [Unit]
 Description=Set MAC address according to FRU ID data
-After=syslog.target
+After=mcst-fruid.service
 
 [Service]
 ExecStart=/libexec/set_mac

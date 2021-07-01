@@ -1,6 +1,6 @@
 [Unit]
 Description=Allow Host Boot
-After=sysinit.target
+After=mcst-fruid.service
 
 [Service]
 ExecStart=/libexec/allow_host_boot

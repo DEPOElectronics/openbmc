@@ -5,16 +5,6 @@ default_eth1addr=98:A7:B0:00:00:02
 
 bmc_addr_base=0x3E
 
-fruid_binary=/libexec/mcst-fruid
-
-if [ -e $fruid_binary ]
-then
-    $fruid_binary
-else
-    echo "Warning: no $fruid_binary binary found, using default MAC address. " 1>&2
-    rm -f /var/volatile/motherboard_info.xml
-fi
-
 if [ -f /var/volatile/motherboard_info.xml ]
 then
     fru_ethaddr_base=`xml sel -t -v '/fruinfo/internal_use_area/mac_addr' /var/volatile/motherboard_info.xml 2>/dev/null | sed 's/ //g;s/,//g;s/0x//g'`
