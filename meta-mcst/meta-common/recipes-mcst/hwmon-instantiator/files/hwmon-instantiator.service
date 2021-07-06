@@ -4,7 +4,7 @@ After=systemd-udevd.service
 After=mcst-fruid.service
 
 [Service]
-ExecStartPre=/bin/mkdir -p /var/volatile/hwmon/devices/platform/ahb/ahb--apb/ahb--apb--bus@1e78a000/1e78a0c0.i2c-bus
+ExecStartPre=/bin/mkdir -p /var/volatile/hwmon
 ExecStartPre=/bin/ln -sf /var/volatile/hwmon /etc/default/obmc/hwmon
 ExecStart=/usr/sbin/hwmon-instantiator
 Type=oneshot

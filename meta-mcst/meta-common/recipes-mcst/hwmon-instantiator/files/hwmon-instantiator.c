@@ -5,7 +5,6 @@
 #include <errno.h>
 #include <sys/stat.h>
 
-/* Note: this dir must exist on startup */
 const char *config_dir = "/etc/default/obmc/hwmon/devices/platform/ahb/ahb--apb/ahb--apb--bus";
 
 const char *devtree_path = "/var/volatile/motherboard_devtree.dtb";
@@ -185,6 +184,25 @@ static void detect_addresses(int i2c, int *apb, int *bus)
     free(real_path);
 }
 
+static int recurse_mkdir(char *path)
+{
+    if (!chkdir(path)) return 0;
+    for (char *sym = path + 1; *sym; ++sym)
+    {
+        if (*sym == '/')
+        {
+            *sym = '\0';
+            if (chkdir(path))
+            {
+                if(mkdir(path, 0777)) return -1;
+            }
+            *sym = '/';
+        }
+    }
+    if(mkdir(path, 0777)) return -1;
+    return 0;
+}
+
 static void create_config_file(int bus, int dev)
 {
     if (f_config) cancel(30, "Error while creating config file for device %d-%04x: Handle already locked\n", bus, dev);
@@ -194,10 +212,7 @@ static void create_config_file(int bus, int dev)
 
     char config_path[1024];
     snprintf(config_path, 1023, "%s@%08x/%08x.i2c-bus/i2c-%d", config_dir, apb_addr, bus_addr, bus);
-    if (chkdir(config_path))
-    {
-        if(mkdir(config_path, 0755)) cancel(31, "Error while creating directory for config file for device %d-%04x: %s\n", bus, dev, strerror(errno));
-    }
+    if(recurse_mkdir(config_path)) cancel(31, "Error while creating directory for config file for device %d-%04x (%s): %s\n", bus, dev, config_path, strerror(errno));
 
     snprintf(config_path, 1023, "%s/i2c-%d/%d-%04x.conf", config_dir, bus, bus, dev);
     f_config = fopen(config_path, "w");
