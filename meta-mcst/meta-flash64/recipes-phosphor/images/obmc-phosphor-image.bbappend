@@ -10,4 +10,5 @@ OBMC_IMAGE_EXTRA_INSTALL_append += " \
   reimu-power-control \
   vncpasswd \
   sudo \
+  hwmon-instantiator \
   "
