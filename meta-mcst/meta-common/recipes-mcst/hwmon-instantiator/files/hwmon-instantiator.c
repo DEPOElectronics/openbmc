@@ -45,11 +45,6 @@ static int readfile(const char *name, char **p_buf, long *p_size)
     return 0;
 }
 
-static const char *check_args(int argc, char *argv[], const char *def)
-{
-    return (argc > 1) ? argv[1] : def;
-}
-
 static int is_supported(const char *name)
 {
     for (int i = 0; supported_devices[i] != NULL; ++i)
@@ -106,6 +101,28 @@ static int instantiate(const char *compatible, int bus, int reg)
     }
 
     printf(" - instantiated device %s at %d-%04x\n", compatible, bus, reg);
+    return 0;
+}
+
+static int deinstantiate(const char *compatible, int bus, int reg)
+{
+    if (!is_supported(compatible))
+    {
+        printf(" - device is unsupported, skipping\n");
+        return 1;
+    }
+
+    char sysfspath[512];
+    char sysfsdata[256];
+    snprintf(sysfspath, 511, "/sys/class/i2c-adapter/i2c-%d/delete_device", bus);
+    snprintf(sysfsdata, 255, "0x%02x\n", reg);
+    if(writefile(sysfspath, sysfsdata, strlen(sysfsdata)))
+    {
+        printf("- deinstantiating failed (%s), skipping\n", strerror(errno));
+        return 2;
+    }
+
+    printf(" - deinstantiated device %s at %d-%04x\n", compatible, bus, reg);
     return 0;
 }
 
@@ -214,19 +231,19 @@ static void create_config_file(int bus, int dev)
     snprintf(config_path, 1023, "%s@%08x/%08x.i2c-bus/i2c-%d", config_dir, apb_addr, bus_addr, bus);
     if(recurse_mkdir(config_path)) cancel(31, "Error while creating directory for config file for device %d-%04x (%s): %s\n", bus, dev, config_path, strerror(errno));
 
-    snprintf(config_path, 1023, "%s/i2c-%d/%d-%04x.conf", config_dir, bus, bus, dev);
+    snprintf(config_path, 1023, "%s@%08x/%08x.i2c-bus/i2c-%d/%d-%04x.conf", config_dir, apb_addr, bus_addr, bus, bus, dev);
     f_config = fopen(config_path, "w");
-    if (f_config == NULL) cancel(32, "Error while creating config file for device %d-%04x: %s\n", bus, dev, strerror(errno));
+    if (f_config == NULL) cancel(32, "Error while creating config file for device %d-%04x (%s): %s\n", bus, dev, config_path, strerror(errno));
 }
 
 static void write_config_file(const char *fmt, ...)
 {
-    if (!f_config) cancel(40, "Error while writing config file: File isn't opened\n");
+    if (!f_config) cancel(50, "Error while writing config file: File isn't opened\n");
     va_list ap;
     va_start(ap, fmt);
     int rv = vfprintf(f_config, fmt, ap);
     va_end(ap);
-    if (rv < 0) cancel(41, "Error while writing config file: vfprintf() returned %d\n", rv);
+    if (rv < 0) cancel(51, "Error while writing config file: vfprintf() returned %d\n", rv);
 }
 
 static void create_config(int parent, int bus, int dev, const char *devlabel)
@@ -259,7 +276,14 @@ static void create_config(int parent, int bus, int dev, const char *devlabel)
             {
                 char sensor_label[1024];
                 snprintf(sensor_label, 1023, "%s %s", devlabel, label);
-                for (char *p = sensor_label; *p; ++p) if (*p == ' ') *p = '_';
+
+                for (char *p = sensor_label; *p; ++p)
+                {
+                    if (*p == ' ') *p = '_';
+                    if (*p == '.') *p = '_';
+                    if (*p == '(') *p = '_';
+                    if (*p == ')') *p = '_';
+                }
                 printf(" - adding sensor %s as %s%d (%s)\n", nodename, type, reg, sensor_label);
                 write_config_file("LABEL_%s%d=%s\n", type, reg, sensor_label);
 
@@ -298,7 +322,9 @@ static void create_config(int parent, int bus, int dev, const char *devlabel)
     close_config_file();
 }
 
-static void i2c_traverse(int bus, int offset)
+enum serv_op { SERVICE_START, SERVICE_STOP, SERVICE_OP_UNKNOWN };
+
+static void i2c_traverse(int bus, int offset, enum serv_op op)
 {
     int node;
     fdt_for_each_subnode(node, dtb, offset)
@@ -310,8 +336,18 @@ static void i2c_traverse(int bus, int offset)
         const char *label = getprop(node, "label", 0, 13, "Error reading label value from node 0x%08x:", node);
 
         printf("Node (0x%08x): compatible=\"%s\", bus=%d, slave=0x%02x, label=\"%s\" found\n", node, pcompatible, bus, reg, label);
-        create_config(node, bus, reg, label);
-        instantiate(pcompatible, bus, reg);
+
+        switch(op)
+        {
+            case SERVICE_START:
+                create_config(node, bus, reg, label);
+                instantiate(pcompatible, bus, reg);
+                break;
+
+            case SERVICE_STOP:
+                deinstantiate(pcompatible, bus, reg);
+                break;
+        }
     }
 
     if ((node < 0) && (node != -FDT_ERR_NOTFOUND))
@@ -322,11 +358,18 @@ static void i2c_traverse(int bus, int offset)
 
 int main(int argc, char *argv[])
 {
+    enum serv_op op = SERVICE_OP_UNKNOWN;
+    if (argc > 1)
+    {
+        if (!strcmp(argv[1], "start")) op = SERVICE_START;
+        if (!strcmp(argv[1], "stop")) op = SERVICE_STOP;
+    }
+    if (op == SERVICE_OP_UNKNOWN) cancel(3, "Incorrect parameters, use {start|stop}\n");
+
     atexit(close_config_file);
 
-    const char *fname = check_args(argc, argv, devtree_path);
     long dtb_size;
-    if (readfile(fname, &dtb, &dtb_size)) cancel(1, "Can't read DTB file %s\n", fname);
+    if (readfile(devtree_path, &dtb, &dtb_size)) cancel(1, "Can't read DTB file %s\n", devtree_path);
     atexit(free_dtb);
 
     int bmc_offset = fdt_path_offset(dtb, "/bmc");
@@ -337,7 +380,7 @@ int main(int argc, char *argv[])
     {
         char i2cbus[10];
         memset(i2cbus, 0, sizeof(i2cbus));
-        snprintf(i2cbus, 9, "i2c%d", i2c);
+        snprintf(i2cbus, 9, "i2c%d", i2c + 1);
 
         const char *path = getprop(bmc_offset, i2cbus, 0, 3, "Error enumerating i2c buses in /bmc block:");
         if (path == empty)
@@ -350,7 +393,7 @@ int main(int argc, char *argv[])
             int i2c_offset = fdt_path_offset(dtb, path);
             if (i2c_offset < 0) cancel(4, "Can't find %s path in DTB: %s\n", path, fdt_strerror(bmc_offset));
             printf("%s (%s) node found at offset 0x%08x\n", i2cbus, path, i2c_offset);
-            i2c_traverse(i2c, i2c_offset);
+            i2c_traverse(i2c, i2c_offset, op);
         }
     }
 

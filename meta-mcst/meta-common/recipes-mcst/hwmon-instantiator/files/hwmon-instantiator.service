@@ -6,7 +6,8 @@ After=mcst-fruid.service
 [Service]
 ExecStartPre=/bin/mkdir -p /var/volatile/hwmon
 ExecStartPre=/bin/ln -sf /var/volatile/hwmon /etc/default/obmc/hwmon
-ExecStart=/usr/sbin/hwmon-instantiator
+ExecStart=/sbin/hwmon-instantiator start
+ExecStop=/sbin/hwmon-instantiator stop
 Type=oneshot
 RemainAfterExit=yes
 
