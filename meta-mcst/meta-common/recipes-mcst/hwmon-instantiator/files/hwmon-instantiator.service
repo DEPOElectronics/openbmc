@@ -10,6 +10,3 @@ ExecStart=/sbin/hwmon-instantiator start
 ExecStop=/sbin/hwmon-instantiator stop
 Type=oneshot
 RemainAfterExit=yes
-
-[Install]
-WantedBy=basic.target

@@ -23,11 +23,11 @@ SRC_URI = " \
 S = "${WORKDIR}"
 
 do_install_append() {
-  install -d ${D}/usr/sbin
+  install -d ${D}/sbin
   install -d ${D}/var/lib/reimu
   install -d ${D}${systemd_system_unitdir}
-  install -m 755 reimupwr ${D}/usr/sbin
+  install -m 755 reimupwr ${D}/sbin
   install -m 644 reimupwr.service ${D}${systemd_system_unitdir}
 }
 
-FILES_${PN} = "/usr/sbin /var/lib/reimu ${systemd_system_unitdir}"
+FILES_${PN} = "/sbin /var/lib/reimu ${systemd_system_unitdir}"

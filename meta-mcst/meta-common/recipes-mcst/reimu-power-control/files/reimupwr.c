@@ -172,7 +172,6 @@ static int get_gpio_by_name(const char *name)
 
 DBusConnection *s_dbus_conn = NULL;
 DBusMessage *s_dbus_msg = NULL;
-DBusMessage *s_dbus_reply = NULL;
 
 static void dbus_fini(void)
 {
@@ -186,19 +185,31 @@ static void dbus_msg_fini(void)
     s_dbus_msg = NULL;
 }
 
-static void dbus_reply_fini(void)
+static void dbus_manage_service(const char *service, const char *command)
 {
-    if (s_dbus_reply) dbus_message_unref(s_dbus_reply);
-    s_dbus_reply = NULL;
+    DBusError dbus_error;
+
+    dbus_fini();
+    dbus_error_init(&dbus_error);
+    if ((s_dbus_conn = dbus_bus_get(DBUS_BUS_SYSTEM, &dbus_error)) == NULL) return;
+
+    dbus_msg_fini();
+    if((s_dbus_msg = dbus_message_new_method_call("org.freedesktop.systemd1", service, "org.freedesktop.systemd1.Unit", command)) == NULL) return;
+    const char *job_type = "replace";
+    if(!dbus_message_append_args(s_dbus_msg, DBUS_TYPE_STRING, &job_type, DBUS_TYPE_INVALID)) return;
+    if(!dbus_connection_send(s_dbus_conn, s_dbus_msg, NULL)) return;
+
+    dbus_msg_fini();
+    dbus_fini();
 }
 
 static int dbus_set_property_str(const char *service, const char *object, const char *interface, const char *property, const char *value)
 {
     DBusError dbus_error;
 
+    dbus_fini();
     dbus_error_init(&dbus_error);
     if ((s_dbus_conn = dbus_bus_get(DBUS_BUS_SYSTEM, &dbus_error)) == NULL) return 22;
-    atexit(dbus_fini);
 
     dbus_msg_fini();
     if((s_dbus_msg = dbus_message_new_method_call(service, object, "org.freedesktop.DBus.Properties", "Set")) == NULL) return 20;
@@ -215,6 +226,7 @@ static int dbus_set_property_str(const char *service, const char *object, const 
     if(!dbus_connection_send(s_dbus_conn, s_dbus_msg, NULL)) return 26;
 
     dbus_msg_fini();
+    dbus_fini();
     return 0;
 }
 
@@ -252,6 +264,9 @@ int success = 0;
 static void dbus_set_power_state(int pgood)
 {
     const char *state = pgood ? "xyz.openbmc_project.State.Host.HostState.Running" : "xyz.openbmc_project.State.Host.HostState.Off";
+
+    dbus_manage_service("/org/freedesktop/systemd1/unit/hwmon_2dinstantiator_2eservice", pgood ? "Start" : "Stop");
+
     int rv;
     if ((rv = dbus_set_property_str("xyz.openbmc_project.State.Host", "/xyz/openbmc_project/state/host0", "xyz.openbmc_project.State.Host", "CurrentHostState", state)) != 0)
     {
@@ -285,6 +300,9 @@ int main(void)
 {
     int old_pgood = -1;
     int update_delay = -1;
+
+    atexit(dbus_fini);
+    atexit(dbus_msg_fini);
 
     message(L_INFO, "REIMU power control started\n");
     message(L_INFO, "Power supply discharge time is %d seconds\n", s_update_delay_init());
