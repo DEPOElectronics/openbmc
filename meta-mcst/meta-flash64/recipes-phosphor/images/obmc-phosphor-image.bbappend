@@ -11,4 +11,5 @@ OBMC_IMAGE_EXTRA_INSTALL_append += " \
   vncpasswd \
   sudo \
   hwmon-instantiator \
+  phosphor-sel-logger \
   "
