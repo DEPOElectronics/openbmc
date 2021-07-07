@@ -279,10 +279,11 @@ static void create_config(int parent, int bus, int dev, const char *devlabel)
 
                 for (char *p = sensor_label; *p; ++p)
                 {
-                    if (*p == ' ') *p = '_';
-                    if (*p == '.') *p = '_';
-                    if (*p == '(') *p = '_';
-                    if (*p == ')') *p = '_';
+                    /* The label shall comply with "Valid Object Paths" of D-Bus Spec, that shall only contain the ASCII characters "[A-Z][a-z][0-9]_". */
+                    if ((*p >= 'A') && (*p <= 'A')) continue;
+                    if ((*p >= 'a') && (*p <= 'z')) continue;
+                    if ((*p >= '0') && (*p <= '9')) continue;
+                    *p = '_';
                 }
                 printf(" - adding sensor %s as %s%d (%s)\n", nodename, type, reg, sensor_label);
                 write_config_file("LABEL_%s%d=%s\n", type, reg, sensor_label);
