@@ -280,7 +280,7 @@ static void create_config(int parent, int bus, int dev, const char *devlabel)
                 for (char *p = sensor_label; *p; ++p)
                 {
                     /* The label shall comply with "Valid Object Paths" of D-Bus Spec, that shall only contain the ASCII characters "[A-Z][a-z][0-9]_". */
-                    if ((*p >= 'A') && (*p <= 'A')) continue;
+                    if ((*p >= 'A') && (*p <= 'Z')) continue;
                     if ((*p >= 'a') && (*p <= 'z')) continue;
                     if ((*p >= '0') && (*p <= '9')) continue;
                     *p = '_';
@@ -295,13 +295,15 @@ static void create_config(int parent, int bus, int dev, const char *devlabel)
 
                 printf(" - %s: warn %s..%s", nodename, warnlo, warnhi);
                 write_config_file("WARNLO_%s%d=%s\nWARNHI_%s%d=%s\n", type, reg, warnlo, type, reg, warnhi);
+                char *event = "WARNHI,WARNLO";
                 if ((crithi != empty) || (critlo != empty))
                 {
                     printf(", crit %s..%s", critlo, crithi);
                     write_config_file("CRITLO_%s%d=%s\nCRITHI_%s%d=%s\n", type, reg, critlo, type, reg, crithi);
+                    event = "WARNHI,WARNLO,CRITHI,CRITLO";
                 }
                 printf("\n");
-                write_config_file("\n");
+                write_config_file("EVENT_%s%d=\"%s\"\n\n", type, reg, event);
             }
             else
             {
