@@ -303,7 +303,7 @@ static void create_config(int parent, int bus, int dev, const char *devlabel)
                     event = "WARNHI,WARNLO,CRITHI,CRITLO";
                 }
                 printf("\n");
-                write_config_file("EVENT_%s%d=\"%s\"\n\n", type, reg, event);
+                write_config_file("EVENT_%s%d=\"%s\"\nASYNC_READ_TIMEOUT_%s%d=\"1000\"\n\n", type, reg, event, type, reg);
             }
             else
             {
