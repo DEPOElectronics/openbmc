@@ -562,6 +562,9 @@ def verify_checksum(ud, d, precomputed={}):
 
         checksum_expected = getattr(ud, "%s_expected" % checksum_id)
 
+        if checksum_expected == '':
+            checksum_expected = None
+
         return {
             "id": checksum_id,
             "name": checksum_name,
@@ -612,7 +615,7 @@ def verify_checksum(ud, d, precomputed={}):
 
     for ci in checksum_infos:
         if ci["expected"] and ci["expected"] != ci["data"]:
-            messages.append("File: '%s' has %s checksum %s when %s was " \
+            messages.append("File: '%s' has %s checksum '%s' when '%s' was " \
                             "expected" % (ud.localpath, ci["id"], ci["data"], ci["expected"]))
             bad_checksum = ci["data"]
 
@@ -831,7 +834,10 @@ def runfetchcmd(cmd, d, quiet=False, cleanup=None, log=None, workdir=None):
                   'SSH_AUTH_SOCK', 'SSH_AGENT_PID',
                   'SOCKS5_USER', 'SOCKS5_PASSWD',
                   'DBUS_SESSION_BUS_ADDRESS',
-                  'P4CONFIG']
+                  'P4CONFIG',
+                  'AWS_ACCESS_KEY_ID',
+                  'AWS_SECRET_ACCESS_KEY',
+                  'AWS_DEFAULT_REGION']
 
     if not cleanup:
         cleanup = []
@@ -1140,11 +1146,11 @@ def srcrev_internal_helper(ud, d, name):
     pn = d.getVar("PN")
     attempts = []
     if name != '' and pn:
-        attempts.append("SRCREV_%s_pn-%s" % (name, pn))
+        attempts.append("SRCREV_%s:pn-%s" % (name, pn))
     if name != '':
         attempts.append("SRCREV_%s" % name)
     if pn:
-        attempts.append("SRCREV_pn-%s" % pn)
+        attempts.append("SRCREV:pn-%s" % pn)
     attempts.append("SRCREV")
 
     for a in attempts:
@@ -1243,7 +1249,7 @@ class FetchData(object):
 
             if checksum_name in self.parm:
                 checksum_expected = self.parm[checksum_name]
-            elif self.type not in ["http", "https", "ftp", "ftps", "sftp", "s3"]:
+            elif self.type not in ["http", "https", "ftp", "ftps", "sftp", "s3", "az"]:
                 checksum_expected = None
             else:
                 checksum_expected = d.getVarFlag("SRC_URI", checksum_name)
@@ -1908,6 +1914,7 @@ from . import repo
 from . import clearcase
 from . import npm
 from . import npmsw
+from . import az
 
 methods.append(local.Local())
 methods.append(wget.Wget())
@@ -1927,3 +1934,4 @@ methods.append(repo.Repo())
 methods.append(clearcase.ClearCase())
 methods.append(npm.Npm())
 methods.append(npmsw.NpmShrinkWrap())
+methods.append(az.Az())

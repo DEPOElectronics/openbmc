@@ -854,6 +854,23 @@ def make_stamp(task, d, file_name = None):
         file_name = d.getVar('BB_FILENAME')
         bb.parse.siggen.dump_sigtask(file_name, task, stampbase, True)
 
+def find_stale_stamps(task, d, file_name=None):
+    current = stamp_internal(task, d, file_name)
+    current2 = stamp_internal(task + "_setscene", d, file_name)
+    cleanmask = stamp_cleanmask_internal(task, d, file_name)
+    found = []
+    for mask in cleanmask:
+        for name in glob.glob(mask):
+            if "sigdata" in name or "sigbasedata" in name:
+                continue
+            if name.endswith('.taint'):
+                continue
+            if name == current or name == current2:
+                continue
+            logger.debug2("Stampfile %s does not match %s or %s" % (name, current, current2))
+            found.append(name)
+    return found
+
 def del_stamp(task, d, file_name = None):
     """
     Removes a stamp for a given task
@@ -910,6 +927,11 @@ def add_tasks(tasklist, d):
                 task_deps[name] = {}
             if name in flags:
                 deptask = d.expand(flags[name])
+                if name in ['noexec', 'fakeroot', 'nostamp']:
+                    if deptask != '1':
+                        bb.warn("In a future version of BitBake, setting the '{}' flag to something other than '1' "
+                                "will result in the flag not being set. See YP bug #13808.".format(name))
+
                 task_deps[name][task] = deptask
         getTask('mcdepends')
         getTask('depends')

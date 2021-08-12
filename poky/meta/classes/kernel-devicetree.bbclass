@@ -1,10 +1,13 @@
 # Support for device tree generation
-PACKAGES_append = " \
-    ${KERNEL_PACKAGE_NAME}-devicetree \
-    ${@[d.getVar('KERNEL_PACKAGE_NAME') + '-image-zimage-bundle', ''][d.getVar('KERNEL_DEVICETREE_BUNDLE') != '1']} \
-"
-FILES_${KERNEL_PACKAGE_NAME}-devicetree = "/${KERNEL_IMAGEDEST}/*.dtb /${KERNEL_IMAGEDEST}/*.dtbo"
-FILES_${KERNEL_PACKAGE_NAME}-image-zimage-bundle = "/${KERNEL_IMAGEDEST}/zImage-*.dtb.bin"
+python () {
+    if not bb.data.inherits_class('nopackages', d):
+        d.appendVar("PACKAGES", " ${KERNEL_PACKAGE_NAME}-devicetree")
+        if d.getVar('KERNEL_DEVICETREE_BUNDLE') == '1':
+            d.appendVar("PACKAGES", " ${KERNEL_PACKAGE_NAME}-image-zimage-bundle")
+}
+
+FILES:${KERNEL_PACKAGE_NAME}-devicetree = "/${KERNEL_IMAGEDEST}/*.dtb /${KERNEL_IMAGEDEST}/*.dtbo"
+FILES:${KERNEL_PACKAGE_NAME}-image-zimage-bundle = "/${KERNEL_IMAGEDEST}/zImage-*.dtb.bin"
 
 # Generate kernel+devicetree bundle
 KERNEL_DEVICETREE_BUNDLE ?= "0"
@@ -30,7 +33,7 @@ get_real_dtb_path_in_kernel () {
 	echo "$dtb_path"
 }
 
-do_configure_append() {
+do_configure:append() {
 	if [ "${KERNEL_DEVICETREE_BUNDLE}" = "1" ]; then
 		if echo ${KERNEL_IMAGETYPE_FOR_MAKE} | grep -q 'zImage'; then
 			case "${ARCH}" in
@@ -52,7 +55,7 @@ do_configure_append() {
 	fi
 }
 
-do_compile_append() {
+do_compile:append() {
 	if [ -n "${KERNEL_DTC_FLAGS}" ]; then
 		export DTC_FLAGS="${KERNEL_DTC_FLAGS}"
 	fi
@@ -63,7 +66,7 @@ do_compile_append() {
 	done
 }
 
-do_install_append() {
+do_install:append() {
 	for dtbf in ${KERNEL_DEVICETREE}; do
 		dtb=`normalize_dtb "$dtbf"`
 		dtb_ext=${dtb##*.}
@@ -73,7 +76,7 @@ do_install_append() {
 	done
 }
 
-do_deploy_append() {
+do_deploy:append() {
 	for dtbf in ${KERNEL_DEVICETREE}; do
 		dtb=`normalize_dtb "$dtbf"`
 		dtb_ext=${dtb##*.}

@@ -13,7 +13,7 @@
 # called "myrecipe" you would do:
 #
 # INHERIT += "externalsrc"
-# EXTERNALSRC_pn-myrecipe = "/path/to/my/source/tree"
+# EXTERNALSRC:pn-myrecipe = "/path/to/my/source/tree"
 #
 # In order to make this class work for both target and native versions (or with
 # multilibs/cross or other BBCLASSEXTEND variants), B is set to point to a separate
@@ -21,7 +21,7 @@
 # the default, but the build directory can be set to the source directory if
 # circumstances dictate by setting EXTERNALSRC_BUILD to the same value, e.g.:
 #
-# EXTERNALSRC_BUILD_pn-myrecipe = "/path/to/my/source/tree"
+# EXTERNALSRC_BUILD:pn-myrecipe = "/path/to/my/source/tree"
 #
 
 SRCTREECOVEREDTASKS ?= "do_patch do_unpack do_fetch"
@@ -45,11 +45,11 @@ python () {
     if bpn == d.getVar('PN') or not classextend:
         if (externalsrc or
                 ('native' in classextend and
-                 d.getVar('EXTERNALSRC_pn-%s-native' % bpn)) or
+                 d.getVar('EXTERNALSRC:pn-%s-native' % bpn)) or
                 ('nativesdk' in classextend and
-                 d.getVar('EXTERNALSRC_pn-nativesdk-%s' % bpn)) or
+                 d.getVar('EXTERNALSRC:pn-nativesdk-%s' % bpn)) or
                 ('cross' in classextend and
-                 d.getVar('EXTERNALSRC_pn-%s-cross' % bpn))):
+                 d.getVar('EXTERNALSRC:pn-%s-cross' % bpn))):
             d.setVar('BB_DONT_CACHE', '1')
 
     if externalsrc:
@@ -68,6 +68,7 @@ python () {
             url_data = fetch.ud[url]
             parm = url_data.parm
             if (url_data.type == 'file' or
+                    url_data.type == 'npmsw' or
                     'type' in parm and parm['type'] == 'kmeta'):
                 local_srcuri.append(url)
 
@@ -219,11 +220,12 @@ def srctree_hash_files(d, srcdir=None):
             submodule_helper = subprocess.check_output(['git', 'submodule--helper', 'list'], cwd=s_dir, env=env).decode("utf-8")
             for line in submodule_helper.splitlines():
                 module_dir = os.path.join(s_dir, line.rsplit(maxsplit=1)[1])
-                proc = subprocess.Popen(['git', 'add', '-A', '.'], cwd=module_dir, env=env, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-                proc.communicate()
-                proc = subprocess.Popen(['git', 'write-tree'], cwd=module_dir, env=env, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
-                stdout, _ = proc.communicate()
-                git_sha1 += stdout.decode("utf-8")
+                if os.path.isdir(module_dir):
+                    proc = subprocess.Popen(['git', 'add', '-A', '.'], cwd=module_dir, env=env, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+                    proc.communicate()
+                    proc = subprocess.Popen(['git', 'write-tree'], cwd=module_dir, env=env, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
+                    stdout, _ = proc.communicate()
+                    git_sha1 += stdout.decode("utf-8")
             sha1 = hashlib.sha1(git_sha1.encode("utf-8")).hexdigest()
         with open(oe_hash_file, 'w') as fobj:
             fobj.write(sha1)

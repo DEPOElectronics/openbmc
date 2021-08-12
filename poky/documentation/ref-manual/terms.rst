@@ -26,9 +26,8 @@ universal, the list includes them just in case:
 
       When you name an append file, you can use the "``%``" wildcard character
       to allow for matching recipe names. For example, suppose you have an
-      append file named as follows:
-      ::
-      
+      append file named as follows::
+
          busybox_1.21.%.bbappend
 
       That append file
@@ -76,7 +75,7 @@ universal, the list includes them just in case:
 
             .. code-block:: shell
 
-               $ cd $HOME/poky
+               $ cd poky
                $ source oe-init-build-env
 
          -  Create the Build Directory inside your home directory and
@@ -84,28 +83,25 @@ universal, the list includes them just in case:
 
             .. code-block:: shell
 
-               $ cd $HOME
                $ source poky/oe-init-build-env test-builds
 
          -  Provide a directory path and specifically name the Build
             Directory. Any intermediate folders in the pathname must exist.
             This next example creates a Build Directory named
-            ``YP-&POKYVERSION;`` in your home directory within the existing
-            directory ``mybuilds``:
+            ``YP-&POKYVERSION;`` within the existing directory ``mybuilds``:
 
             .. code-block:: shell
 
-               $ cd $HOME
-               $ source $HOME/poky/oe-init-build-env $HOME/mybuilds/YP-&POKYVERSION;
+               $ source poky/oe-init-build-env mybuilds/YP-&POKYVERSION;
 
       .. note::
 
          By default, the Build Directory contains :term:`TMPDIR`, which is a
-         temporary directory the build system uses for its work. ``TMPDIR`` cannot
+         temporary directory the build system uses for its work. :term:`TMPDIR` cannot
          be under NFS. Thus, by default, the Build Directory cannot be under
          NFS. However, if you need the Build Directory to be under NFS, you can
-         set this up by setting ``TMPDIR`` in your ``local.conf`` file to use a local
-         drive. Doing so effectively separates ``TMPDIR`` from :term:`TOPDIR`, which is the
+         set this up by setting :term:`TMPDIR` in your ``local.conf`` file to use a local
+         drive. Doing so effectively separates :term:`TMPDIR` from :term:`TOPDIR`, which is the
          Build Directory.
 
    :term:`Build Host`

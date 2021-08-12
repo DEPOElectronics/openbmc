@@ -7,11 +7,15 @@ INHIBIT_DEFAULT_DEPS = "1"
 inherit deploy nopackages
 
 CMDLINE_DWC_OTG ?= "dwc_otg.lpm_enable=0"
-CMDLINE_ROOTFS ?= "root=/dev/mmcblk0p2 rootfstype=ext4 rootwait"
+
+CMDLINE_ROOT_FSTYPE ?= "rootfstype=ext4"
+CMDLINE_ROOTFS ?= "root=/dev/mmcblk0p2 ${CMDLINE_ROOT_FSTYPE} rootwait"
 
 CMDLINE_SERIAL ?= "${@oe.utils.conditional("ENABLE_UART", "1", "console=serial0,115200", "", d)}"
 
 CMDLINE_CMA ?= "${@oe.utils.conditional("RASPBERRYPI_CAMERA_V2", "1", "cma=64M", "", d)}"
+
+CMDLINE_CMA ?= "${@oe.utils.conditional("RASPBERRYPI_HD_CAMERA", "1", "cma=64M", "", d)}"
 
 CMDLINE_PITFT ?= "${@bb.utils.contains("MACHINE_FEATURES", "pitft", "fbcon=map:10 fbcon=font:VGA8x8", "", d)}"
 
@@ -47,3 +51,5 @@ do_deploy() {
 
 addtask deploy before do_build after do_install
 do_deploy[dirs] += "${DEPLOYDIR}/${BOOTFILES_DIR_NAME}"
+
+PACKAGE_ARCH = "${MACHINE_ARCH}"

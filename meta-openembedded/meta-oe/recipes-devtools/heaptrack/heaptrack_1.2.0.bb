@@ -14,6 +14,7 @@ SRC_URI = "git://github.com/KDE/heaptrack.git;protocol=https \
            file://0002-heaptrack_inject-Include-dlfcn.h-for-dlopen-dlclose.patch \
            file://0003-heaptrack_preload-Make-noexcept-attribute-conditiona.patch \
            file://0004-backtrace-Always-include-stdint.h.patch \
+           file://0001-track-Check-for-unw_set_caching_policy-before-using.patch \
            "
 
 SRCREV = "bc9e3744bcc47de978673d1e382f4125a1ab5fa8"
@@ -25,7 +26,7 @@ inherit cmake
 EXTRA_OECMAKE += "-DHEAPTRACK_BUILD_GUI=OFF"
 
 # libunwind is not yet ported to RISCV
-COMPATIBLE_HOST_riscv32 = "null"
-COMPATIBLE_HOST_riscv64 = "null"
+COMPATIBLE_HOST:riscv32 = "null"
+COMPATIBLE_HOST:riscv64 = "null"
 
 BBCLASSEXTEND = "native nativesdk"

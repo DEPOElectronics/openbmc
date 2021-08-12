@@ -11,10 +11,11 @@ inherit phosphor-settings-manager
 
 require phosphor-settings-manager.inc
 
-DBUS_SERVICE_${PN} = "xyz.openbmc_project.Settings.service"
+DBUS_SERVICE:${PN} = "xyz.openbmc_project.Settings.service"
 
 DEPENDS += "${PYTHON_PN}-pyyaml-native"
 DEPENDS += "${PYTHON_PN}-mako-native"
+DEPENDS += "${PYTHON_PN}-sdbus++-native"
 DEPENDS += "autoconf-archive-native"
 DEPENDS += "virtual/phosphor-settings-defaults"
 DEPENDS += "${@bb.utils.contains('DISTRO_FEATURES', 'obmc-mrw', 'phosphor-settings-read-settings-mrw-native', '', d)}"
@@ -25,6 +26,11 @@ DEPENDS += "libcereal"
 
 S = "${WORKDIR}/git"
 SRC_URI += "file://merge_settings.py"
+
+# 'boot_type' configuration parameter is used to add support for
+# the Legacy/EFI boot override selector for systems with x86 host
+PACKAGECONFIG[boot_type] = ""
+SRC_URI += "${@bb.utils.contains('PACKAGECONFIG', 'boot_type', 'file://boot_type.override.yml', '', d)}"
 
 EXTRA_OECONF = " \
              SETTINGS_YAML=${STAGING_DIR_NATIVE}${settings_datadir}/defaults.yaml \

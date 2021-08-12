@@ -7,43 +7,46 @@ inherit systemd
 
 S = "${WORKDIR}"
 
-SRC_URI_append = " \
+SRC_URI:append = " \
   file://firmware-updates.target \
   file://firmware-updates-pre.target \
+  file://40-gbmc-forward.conf \
   "
 
-FILES_${PN}_append = " \
+FILES:${PN}:append = " \
   ${systemd_unitdir}/coredump.conf.d/40-gbmc-coredump.conf \
   ${systemd_unitdir}/resolved.conf.d/40-gbmc-nomdns.conf \
+  ${libdir}/sysctl.d/40-gbmc-forward.conf \
   "
 
-FILES_${PN}_append_dev = " \
+FILES:${PN}:append:dev = " \
   ${libdir}/sysctl.d/40-gbmc-debug.conf \
   "
 
-SYSTEMD_SERVICE_${PN}_append = " \
+SYSTEMD_SERVICE:${PN}:append = " \
   firmware-updates.target \
   firmware-updates-pre.target \
   "
 
 # Put coredumps in the journal to ensure they stay in ram
 do_install() {
-    install -d -m 0755 ${D}${systemd_unitdir}/coredump.conf.d
-    printf "[Coredump]\nStorage=journal\n" \
-        >${D}${systemd_unitdir}/coredump.conf.d/40-gbmc-coredump.conf
+  install -d -m 0755 ${D}${systemd_unitdir}/coredump.conf.d
+  printf "[Coredump]\nStorage=journal\n" \
+    >${D}${systemd_unitdir}/coredump.conf.d/40-gbmc-coredump.conf
 
-    install -d -m 0755 ${D}${systemd_unitdir}/resolved.conf.d
-    printf "[Resolve]\nLLMNR=no\nMulticastDNS=resolve\n" \
-        >${D}${systemd_unitdir}/resolved.conf.d/40-gbmc-nomdns.conf
+  install -d -m 0755 ${D}${systemd_unitdir}/resolved.conf.d
+  printf "[Resolve]\nLLMNR=no\nMulticastDNS=resolve\n" \
+    >${D}${systemd_unitdir}/resolved.conf.d/40-gbmc-nomdns.conf
 
-    install -d -m 0755 ${D}${systemd_system_unitdir}
-    install -m 0644 ${WORKDIR}/firmware-updates.target ${D}${systemd_system_unitdir}/
-    install -m 0644 ${WORKDIR}/firmware-updates-pre.target ${D}${systemd_system_unitdir}/
+  install -d -m 0755 ${D}${systemd_system_unitdir}
+  install -m 0644 ${WORKDIR}/firmware-updates.target ${D}${systemd_system_unitdir}/
+  install -m 0644 ${WORKDIR}/firmware-updates-pre.target ${D}${systemd_system_unitdir}/
+
+  install -d -m0755 ${D}${libdir}/sysctl.d
+  install -m 0644 ${WORKDIR}/40-gbmc-forward.conf ${D}${libdir}/sysctl.d/
 }
 
-do_install_append_dev() {
-    install -d -m 0755 ${D}${libdir}/sysctl.d
-    printf "kernel.sysrq = 1\n" \
-        >${D}${libdir}/sysctl.d/40-gbmc-debug.conf
-
+do_install:append:dev() {
+  printf "kernel.sysrq = 1\n" \
+      >${D}${libdir}/sysctl.d/40-gbmc-debug.conf
 }

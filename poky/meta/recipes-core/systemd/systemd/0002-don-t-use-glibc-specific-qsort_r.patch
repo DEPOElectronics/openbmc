@@ -1,7 +1,7 @@
-From 66ece0b870b3a34fdabc48b88437e6cc354e9fce Mon Sep 17 00:00:00 2001
+From 159c53612444ec1df492bae528a5a88a275b93bf Mon Sep 17 00:00:00 2001
 From: Chen Qi <Qi.Chen@windriver.com>
 Date: Mon, 25 Feb 2019 13:41:41 +0800
-Subject: [PATCH 02/26] don't use glibc-specific qsort_r
+Subject: [PATCH] don't use glibc-specific qsort_r
 
 Upstream-Status: Inappropriate [musl specific]
 
@@ -12,21 +12,19 @@ Signed-off-by: Chen Qi <Qi.Chen@windriver.com>
 Signed-off-by: Andrej Valek <andrej.valek@siemens.com>
 [Rebased for v247]
 Signed-off-by: Luca Boccassi <luca.boccassi@microsoft.com>
+
 ---
  src/basic/sort-util.h              | 14 ------------
  src/libsystemd/sd-hwdb/hwdb-util.c | 19 +++++++++++-----
  src/shared/format-table.c          | 36 ++++++++++++++++++++----------
  3 files changed, 38 insertions(+), 31 deletions(-)
 
-diff --git a/src/basic/sort-util.h b/src/basic/sort-util.h
-index 1d194a1f04..3394c9eb72 100644
 --- a/src/basic/sort-util.h
 +++ b/src/basic/sort-util.h
-@@ -54,17 +54,3 @@ static inline void _qsort_safe(void *base, size_t nmemb, size_t size, __compar_f
-                 int (*_func_)(const typeof(p[0])*, const typeof(p[0])*) = func; \
+@@ -56,18 +56,4 @@ static inline void _qsort_safe(void *bas
                  _qsort_safe((p), (n), sizeof((p)[0]), (__compar_fn_t) _func_); \
          })
--
+ 
 -static inline void qsort_r_safe(void *base, size_t nmemb, size_t size, __compar_d_fn_t compar, void *userdata) {
 -        if (nmemb <= 1)
 -                return;
@@ -40,11 +38,11 @@ index 1d194a1f04..3394c9eb72 100644
 -                int (*_func_)(const typeof(p[0])*, const typeof(p[0])*, typeof(userdata)) = func; \
 -                qsort_r_safe((p), (n), sizeof((p)[0]), (__compar_d_fn_t) _func_, userdata); \
 -        })
-diff --git a/src/libsystemd/sd-hwdb/hwdb-util.c b/src/libsystemd/sd-hwdb/hwdb-util.c
-index 4c94ba9c88..95495dba6d 100644
---- a/src/libsystemd/sd-hwdb/hwdb-util.c
-+++ b/src/libsystemd/sd-hwdb/hwdb-util.c
-@@ -126,9 +126,13 @@ static void trie_free(struct trie *trie) {
+-
+ int cmp_int(const int *a, const int *b);
+--- a/src/shared/hwdb-util.c
++++ b/src/shared/hwdb-util.c
+@@ -127,9 +127,13 @@ static struct trie* trie_free(struct tri
  
  DEFINE_TRIVIAL_CLEANUP_FUNC(struct trie*, trie_free);
  
@@ -61,7 +59,7 @@ index 4c94ba9c88..95495dba6d 100644
  }
  
  static int trie_node_add_value(struct trie *trie, struct trie_node *node,
-@@ -156,7 +160,10 @@ static int trie_node_add_value(struct trie *trie, struct trie_node *node,
+@@ -157,7 +161,10 @@ static int trie_node_add_value(struct tr
                          .value_off = v,
                  };
  
@@ -73,7 +71,7 @@ index 4c94ba9c88..95495dba6d 100644
                  if (val) {
                          /* At this point we have 2 identical properties on the same match-string.
                           * Since we process files in order, we just replace the previous value. */
-@@ -182,7 +189,9 @@ static int trie_node_add_value(struct trie *trie, struct trie_node *node,
+@@ -183,7 +190,9 @@ static int trie_node_add_value(struct tr
                  .line_number = line_number,
          };
          node->values_count++;
@@ -84,11 +82,9 @@ index 4c94ba9c88..95495dba6d 100644
          return 0;
  }
  
-diff --git a/src/shared/format-table.c b/src/shared/format-table.c
-index a13a198b7a..bce10bc607 100644
 --- a/src/shared/format-table.c
 +++ b/src/shared/format-table.c
-@@ -1243,30 +1243,32 @@ static int cell_data_compare(TableData *a, size_t index_a, TableData *b, size_t
+@@ -1282,30 +1282,32 @@ static int cell_data_compare(TableData *
          return CMP(index_a, index_b);
  }
  
@@ -131,7 +127,7 @@ index a13a198b7a..bce10bc607 100644
          }
  
          /* Order identical lines by the order there were originally added in */
-@@ -1844,7 +1846,12 @@ int table_print(Table *t, FILE *f) {
+@@ -1944,7 +1946,12 @@ int table_print(Table *t, FILE *f) {
                  for (size_t i = 0; i < n_rows; i++)
                          sorted[i] = i * t->n_columns;
  
@@ -145,7 +141,7 @@ index a13a198b7a..bce10bc607 100644
          }
  
          if (t->display_map)
-@@ -2440,7 +2447,12 @@ int table_to_json(Table *t, JsonVariant **ret) {
+@@ -2572,7 +2579,12 @@ int table_to_json(Table *t, JsonVariant
                  for (size_t i = 0; i < n_rows; i++)
                          sorted[i] = i * t->n_columns;
  
@@ -159,6 +155,3 @@ index a13a198b7a..bce10bc607 100644
          }
  
          if (t->display_map)
--- 
-2.27.0
-

@@ -782,7 +782,7 @@ def movefile(src, dest, newmtime = None, sstat = None):
 
     if sstat[stat.ST_DEV] == dstat[stat.ST_DEV]:
         try:
-            os.rename(src, destpath)
+            bb.utils.rename(src, destpath)
             renamefailed = 0
         except Exception as e:
             if e.errno != errno.EXDEV:
@@ -796,7 +796,7 @@ def movefile(src, dest, newmtime = None, sstat = None):
         if stat.S_ISREG(sstat[stat.ST_MODE]):
             try: # For safety copy then move it over.
                 shutil.copyfile(src, destpath + "#new")
-                os.rename(destpath + "#new", destpath)
+                bb.utils.rename(destpath + "#new", destpath)
                 didcopy = 1
             except Exception as e:
                 print('movefile: copy', src, '->', dest, 'failed.', e)
@@ -874,7 +874,7 @@ def copyfile(src, dest, newmtime = None, sstat = None):
 
             # For safety copy then move it over.
             shutil.copyfile(src, dest + "#new")
-            os.rename(dest + "#new", dest)
+            bb.utils.rename(dest + "#new", dest)
         except Exception as e:
             logger.warning("copyfile: copy %s to %s failed (%s)" % (src, dest, e))
             return False
@@ -1178,7 +1178,7 @@ def edit_metadata(meta_lines, variables, varfunc, match_overrides=False):
         variables: a list of variable names to look for. Functions
             may also be specified, but must be specified with '()' at
             the end of the name. Note that the function doesn't have
-            any intrinsic understanding of _append, _prepend, _remove,
+            any intrinsic understanding of :append, :prepend, :remove,
             or overrides, so these are considered as part of the name.
             These values go into a regular expression, so regular
             expression syntax is allowed.
@@ -1669,3 +1669,15 @@ def is_semver(version):
         return False
 
     return True
+
+# Wrapper around os.rename which can handle cross device problems
+# e.g. from container filesystems
+def rename(src, dst):
+    try:
+        os.rename(src, dst)
+    except OSError as err:
+        if err.errno == 18:
+            # Invalid cross-device link error
+            shutil.move(src, dst)
+        else:
+            raise err

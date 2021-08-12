@@ -3,7 +3,7 @@ DESCRIPTION = "Entity Manager provides d-bus configuration data \
 and configures system sensors"
 
 SRC_URI = "git://github.com/openbmc/entity-manager.git file://blocklist.json"
-SRCREV = "296667f0076888f3cdf898a3f2cdf66da260853e"
+SRCREV = "ee70147add704c40e1999900ec8e67d1213729cc"
 PV = "0.1+git${SRCPV}"
 
 LICENSE = "Apache-2.0"
@@ -29,16 +29,16 @@ EXTRA_ENTITY_MANAGER_PACKAGES = " \
 
 PACKAGE_BEFORE_PN = "${EXTRA_ENTITY_MANAGER_PACKAGES}"
 
-do_install_append() {
+do_install:append() {
     install -D ${WORKDIR}/blocklist.json ${D}${datadir}/${BPN}/blacklist.json
 }
 
-FILES_${PN} += " \
+FILES:${PN} += " \
     ${datadir}/dbus-1/system-services/xyz.openbmc_project.EntityManager.service \
     "
-FILES_fru-device = "${bindir}/fru-device ${datadir}/${BPN}/blacklist.json"
+FILES:fru-device = "${bindir}/fru-device ${datadir}/${BPN}/blacklist.json"
 
 SYSTEMD_PACKAGES = "${PN} ${EXTRA_ENTITY_MANAGER_PACKAGES}"
-SYSTEMD_SERVICE_${PN} = "xyz.openbmc_project.EntityManager.service"
-SYSTEMD_SERVICE_fru-device = "xyz.openbmc_project.FruDevice.service"
-SYSTEMD_AUTO_ENABLE_fru-device_ibm-power-cpu = "disable"
+SYSTEMD_SERVICE:${PN} = "xyz.openbmc_project.EntityManager.service"
+SYSTEMD_SERVICE:fru-device = "xyz.openbmc_project.FruDevice.service"
+SYSTEMD_AUTO_ENABLE:fru-device_ibm-power-cpu = "disable"

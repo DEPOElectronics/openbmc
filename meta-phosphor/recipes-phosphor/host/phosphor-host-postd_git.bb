@@ -20,14 +20,14 @@ DEPENDS += "systemd"
 
 S = "${WORKDIR}/git"
 SRC_URI = "git://github.com/openbmc/phosphor-host-postd"
-SRCREV = "9b556add1bf58d00703049a9d10372b40ec73456"
+SRCREV = "2a744b2d70ce9de8519a7c716da5009cb049db17"
 
 SNOOP_DEVICE ?= "aspeed-lpc-snoop0"
 POST_CODE_BYTES ?= "1"
 
 SERVICE_FILE = "lpcsnoop.service"
 SYSTEMD_PACKAGES = "${PN}"
-SYSTEMD_SERVICE_${PN} += "${SERVICE_FILE}"
+SYSTEMD_SERVICE:${PN} += "${SERVICE_FILE}"
 
 EXTRA_OEMESON += "-Dsnoop-device=${SNOOP_DEVICE}"
 EXTRA_OEMESON += "-Dpost-code-bytes=${POST_CODE_BYTES}"
@@ -38,4 +38,4 @@ SERVICE_FILE_7SEG = " \
   postcode-7seg@.service \
   postcode-7seg@${POSTCODE_SEVENSEG_DEVICE}.service \
 "
-SYSTEMD_SERVICE_${PN} += "${@bb.utils.contains('PACKAGECONFIG', '7seg', '${SERVICE_FILE_7SEG}', '', d)}"
+SYSTEMD_SERVICE:${PN} += "${@bb.utils.contains('PACKAGECONFIG', '7seg', '${SERVICE_FILE_7SEG}', '', d)}"

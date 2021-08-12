@@ -4,18 +4,24 @@ inherit useradd
 USERADD_PACKAGES = "${PN}"
 
 # add a user called httpd for the server to assume
-USERADD_PARAM_${PN} = "-r -s /usr/sbin/nologin bmcweb"
-GROUPADD_PARAM_${PN} = "web; redfish"
+USERADD_PARAM:${PN} = "-r -s /usr/sbin/nologin bmcweb"
+GROUPADD_PARAM:${PN} = "web; redfish"
 
 LICENSE = "Apache-2.0"
-LIC_FILES_CHKSUM = "file://LICENCE;md5=a6a4edad4aed50f39a66d098d74b265b"
+LIC_FILES_CHKSUM = "file://LICENSE;md5=175792518e4ac015ab6696d16c4f607e"
 
 SRC_URI = "git://github.com/openbmc/bmcweb.git"
 
 PV = "1.0+git${SRCPV}"
-SRCREV = "88ad7f03b3ea7133cb253d528d03923f084f62bd"
+SRCREV = "885bbf1c82ea9f9cbfbe0065ee46adc8e398c868"
 
 S = "${WORKDIR}/git"
+
+inherit meson ptest
+
+SRC_URI += " \
+    file://run-ptest \
+"
 
 DEPENDS = " \
     openssl \
@@ -27,19 +33,29 @@ DEPENDS = " \
     gtest \
     nlohmann-json \
     libtinyxml2 \
+    ${@bb.utils.contains('PTEST_ENABLED', '1', 'gtest', '', d)} \
+    ${@bb.utils.contains('PTEST_ENABLED', '1', 'gmock', '', d)} \
 "
 
-RDEPENDS_${PN} += " \
+RDEPENDS:${PN} += " \
     jsnbd \
     phosphor-mapper \
 "
 
-FILES_${PN} += "${datadir}/** "
+do_install_ptest() {
+        install -d ${D}${PTEST_PATH}/test
+        cp -rf ${B}/*_test ${D}${PTEST_PATH}/test/
+}
 
-inherit meson
+FILES:${PN} += "${datadir}/** "
 
-EXTRA_OEMESON = "--buildtype=minsize -Dtests=disabled -Dyocto-deps=enabled"
 
-SYSTEMD_SERVICE_${PN} += "bmcweb.service bmcweb.socket"
+EXTRA_OEMESON = " \
+    --buildtype=minsize \
+    -Dtests=${@bb.utils.contains('PTEST_ENABLED', '1', 'enabled', 'disabled', d)} \
+    -Dyocto-deps=enabled \
+"
+
+SYSTEMD_SERVICE:${PN} += "bmcweb.service bmcweb.socket"
 
 FULL_OPTIMIZATION = "-Os "

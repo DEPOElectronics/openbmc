@@ -65,15 +65,15 @@ BASICTESTSUITE = "\
 DEFAULT_TEST_SUITES = "${BASICTESTSUITE}"
 
 # aarch64 has no graphics
-DEFAULT_TEST_SUITES_remove_aarch64 = "xorg"
+DEFAULT_TEST_SUITES:remove:aarch64 = "xorg"
 # musl doesn't support systemtap
-DEFAULT_TEST_SUITES_remove_libc-musl = "stap"
+DEFAULT_TEST_SUITES:remove:libc-musl = "stap"
 
 # qemumips is quite slow and has reached the timeout limit several times on the YP build cluster,
 # mitigate this by removing build tests for qemumips machines.
 MIPSREMOVE ??= "buildcpio buildlzip buildgalculator"
-DEFAULT_TEST_SUITES_remove_qemumips = "${MIPSREMOVE}"
-DEFAULT_TEST_SUITES_remove_qemumips64 = "${MIPSREMOVE}"
+DEFAULT_TEST_SUITES:remove:qemumips = "${MIPSREMOVE}"
+DEFAULT_TEST_SUITES:remove:qemumips64 = "${MIPSREMOVE}"
 
 TEST_SUITES ?= "${DEFAULT_TEST_SUITES}"
 
@@ -86,7 +86,7 @@ TEST_RUNQEMUPARAMS ?= ""
 TESTIMAGE_BOOT_PATTERNS ?= ""
 
 TESTIMAGEDEPENDS = ""
-TESTIMAGEDEPENDS_append_qemuall = " qemu-native:do_populate_sysroot qemu-helper-native:do_populate_sysroot qemu-helper-native:do_addto_recipe_sysroot"
+TESTIMAGEDEPENDS:append:qemuall = " qemu-native:do_populate_sysroot qemu-helper-native:do_populate_sysroot qemu-helper-native:do_addto_recipe_sysroot"
 TESTIMAGEDEPENDS += "${@bb.utils.contains('IMAGE_PKGTYPE', 'rpm', 'cpio-native:do_populate_sysroot', '', d)}"
 TESTIMAGEDEPENDS += "${@bb.utils.contains('IMAGE_PKGTYPE', 'rpm', 'dnf-native:do_populate_sysroot', '', d)}"
 TESTIMAGEDEPENDS += "${@bb.utils.contains('IMAGE_PKGTYPE', 'rpm', 'createrepo-c-native:do_populate_sysroot', '', d)}"
@@ -94,7 +94,7 @@ TESTIMAGEDEPENDS += "${@bb.utils.contains('IMAGE_PKGTYPE', 'ipk', 'opkg-utils-na
 TESTIMAGEDEPENDS += "${@bb.utils.contains('IMAGE_PKGTYPE', 'deb', 'apt-native:do_populate_sysroot  package-index:do_package_index', '', d)}"
 
 TESTIMAGELOCK = "${TMPDIR}/testimage.lock"
-TESTIMAGELOCK_qemuall = ""
+TESTIMAGELOCK:qemuall = ""
 
 TESTIMAGE_DUMP_DIR ?= "${LOG_DIR}/runtime-hostdump/"
 
@@ -125,6 +125,12 @@ testimage_dump_host () {
     dmesg
     ip -s link
     netstat -an
+}
+
+testimage_dump_monitor () {
+    query-status
+    query-block
+    dump-guest-memory {"paging":false,"protocol":"file:%s.img"}
 }
 
 python do_testimage() {
@@ -305,6 +311,7 @@ def testimage_main(d):
                       'dump_dir'    : d.getVar("TESTIMAGE_DUMP_DIR"),
                       'serial_ports': len(d.getVar("SERIAL_CONSOLES").split()),
                       'ovmf'        : ovmf,
+                      'tmpfsdir'    : d.getVar("RUNQEMU_TMPFS_DIR"),
                     }
 
     if d.getVar("TESTIMAGE_BOOT_PATTERNS"):
@@ -319,6 +326,7 @@ def testimage_main(d):
     target_kwargs['powercontrol_extra_args'] = d.getVar("TEST_POWERCONTROL_EXTRA_ARGS") or ""
     target_kwargs['serialcontrol_cmd'] = d.getVar("TEST_SERIALCONTROL_CMD") or None
     target_kwargs['serialcontrol_extra_args'] = d.getVar("TEST_SERIALCONTROL_EXTRA_ARGS") or ""
+    target_kwargs['testimage_dump_monitor'] = d.getVar("testimage_dump_monitor") or ""
     target_kwargs['testimage_dump_target'] = d.getVar("testimage_dump_target") or ""
 
     def export_ssh_agent(d):

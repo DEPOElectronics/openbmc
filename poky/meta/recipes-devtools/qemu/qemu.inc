@@ -6,7 +6,7 @@ a variety of guest operating systems"
 HOMEPAGE = "http://qemu.org"
 LICENSE = "GPLv2 & LGPLv2.1"
 
-RDEPENDS_${PN}-ptest = "bash"
+RDEPENDS:${PN}-ptest = "bash"
 
 require qemu-targets.inc
 inherit pkgconfig ptest
@@ -25,26 +25,47 @@ SRC_URI = "https://download.qemu.org/${BPN}-${PV}.tar.xz \
            file://0010-configure-Add-pkg-config-handling-for-libgcrypt.patch \
            file://0001-Add-enable-disable-udev.patch \
            file://0001-qemu-Do-not-include-file-if-not-exists.patch \
-           file://mingwfix.patch \
-           file://mmap.patch \
            file://mmap2.patch \
+           file://determinism.patch \
            file://0001-tests-meson.build-use-relative-path-to-refer-to-file.patch \
+           file://0001-configure-fix-detection-of-gdbus-codegen.patch \
+           file://0001-vhost-user-gpu-fix-memory-disclosure-in-virgl_cmd_ge.patch \
+           file://0002-vhost-user-gpu-fix-resource-leak-in-vg_resource_crea.patch \
+           file://0003-vhost-user-gpu-fix-memory-leak-in-vg_resource_attach.patch \
+           file://0004-vhost-user-gpu-fix-memory-leak-while-calling-vg_reso.patch \
+           file://0005-vhost-user-gpu-fix-memory-leak-in-virgl_cmd_resource.patch \
+           file://0006-vhost-user-gpu-fix-memory-leak-in-virgl_resource_att.patch \
+           file://0007-vhost-user-gpu-fix-OOB-write-in-virgl_cmd_get_capset.patch \
+           file://0001-linux-user-Tag-vsx-with-ieee128-fpbits.patch \
+           file://CVE-2021-3527-1.patch \
+           file://CVE-2021-3527-2.patch \
            "
 UPSTREAM_CHECK_REGEX = "qemu-(?P<pver>\d+(\.\d+)+)\.tar"
 
-SRC_URI[sha256sum] = "cb18d889b628fbe637672b0326789d9b0e3b8027e0445b936537c78549df17bc"
+SRC_URI[sha256sum] = "87bc1a471ca24b97e7005711066007d443423d19aacda3d442558ae032fa30b9"
 
-SRC_URI_append_class-target = " file://cross.patch"
-SRC_URI_append_class-nativesdk = " file://cross.patch"
+SRC_URI:append:class-target = " file://cross.patch"
+SRC_URI:append:class-nativesdk = " file://cross.patch"
 
-COMPATIBLE_HOST_mipsarchn32 = "null"
-COMPATIBLE_HOST_mipsarchn64 = "null"
+# Applies against virglrender < 0.6.0 and not qemu itself
+CVE_CHECK_WHITELIST += "CVE-2017-5957"
+
+# The VNC server can expose host files uder some circumstances. We don't
+# enable it by default.
+CVE_CHECK_WHITELIST += "CVE-2007-0998"
+
+# 'The issues identified by this CVE were determined to not constitute a vulnerability.'
+# https://bugzilla.redhat.com/show_bug.cgi?id=1609015#c11
+CVE_CHECK_WHITELIST += "CVE-2018-18438"
+
+COMPATIBLE_HOST:mipsarchn32 = "null"
+COMPATIBLE_HOST:mipsarchn64 = "null"
 
 # Per https://lists.nongnu.org/archive/html/qemu-devel/2020-09/msg03873.html
 # upstream states qemu doesn't work without optimization
 DEBUG_BUILD = "0"
 
-do_install_append() {
+do_install:append() {
     # Prevent QA warnings about installed ${localstatedir}/run
     if [ -d ${D}${localstatedir}/run ]; then rmdir ${D}${localstatedir}/run; fi
 }
@@ -54,9 +75,10 @@ do_install_ptest() {
 	find ${D}${PTEST_PATH}/tests -type f -name "*.[Sshcodp]" | xargs -i rm -rf {}
 
 	# Don't check the file genreated by configure
-        sed -i -e 's,${HOSTTOOLS_DIR}/python3,${bindir}/python3,' \
-            ${D}/${PTEST_PATH}/tests/qemu-iotests/common.env 
 	sed -i -e "1s,#!/usr/bin/bash,#!${base_bindir}/bash," ${D}${PTEST_PATH}/tests/data/acpi/disassemle-aml.sh
+
+	# Strip the paths from the QEMU variable, we can use PATH
+	sed -i -e "s#^QEMU=.*/qemu-#QEMU=qemu-#g" ${D}${PTEST_PATH}/tests/tcg/*.mak
 }
 
 # QEMU_TARGETS is overridable variable
@@ -79,7 +101,7 @@ EXTRA_OECONF = " \
     --extra-cflags='${CFLAGS}' \
     --extra-ldflags='${LDFLAGS}' \
     --with-git=/bin/false \
-    --disable-git-update \
+    --with-git-submodules=ignore \
     --meson=meson \
     ${PACKAGECONFIG_CONFARGS} \
     "
@@ -90,7 +112,7 @@ B = "${WORKDIR}/build"
 
 #EXTRA_OECONF_append = " --python=${HOSTTOOLS_DIR}/python3"
 
-do_configure_prepend_class-native() {
+do_configure:prepend:class-native() {
 	# Append build host pkg-config paths for native target since the host may provide sdl
 	BHOST_PKGCONFIG_PATH=$(PATH=/usr/bin:/bin pkg-config --variable pc_path pkg-config || echo "")
 	if [ ! -z "$BHOST_PKGCONFIG_PATH" ]; then
@@ -114,7 +136,7 @@ do_install () {
 # This will trigger a MMU access fault in the virtual CPU. With this change,
 # the qemu-mips works fine.
 # IMPORTANT: This piece needs to be removed once the root cause is fixed!
-do_install_append() {
+do_install:append() {
 	if [ -e "${D}/${bindir}/qemu-mips" ]; then
 		create_wrapper ${D}/${bindir}/qemu-mips \
 			QEMU_RESERVED_VA=0x0
@@ -134,8 +156,8 @@ make_qemu_wrapper() {
 }
 
 # Disable kvm/virgl/mesa on targets that do not support it
-PACKAGECONFIG_remove_darwin = "kvm virglrenderer glx gtk+"
-PACKAGECONFIG_remove_mingw32 = "kvm virglrenderer glx gtk+"
+PACKAGECONFIG:remove:darwin = "kvm virglrenderer glx gtk+"
+PACKAGECONFIG:remove:mingw32 = "kvm virglrenderer glx gtk+"
 
 PACKAGECONFIG[sdl] = "--enable-sdl,--disable-sdl,libsdl2"
 PACKAGECONFIG[virtfs] = "--enable-virtfs --enable-attr --enable-cap-ng,--disable-virtfs,libcap-ng attr,"
@@ -181,6 +203,6 @@ PACKAGECONFIG[ust] = "--enable-trace-backend=ust,--enable-trace-backend=nop,lttn
 PACKAGECONFIG[pie] = "--enable-pie,--disable-pie,,"
 PACKAGECONFIG[seccomp] = "--enable-seccomp,--disable-seccomp,libseccomp"
 
-INSANE_SKIP_${PN} = "arch"
+INSANE_SKIP:${PN} = "arch"
 
-FILES_${PN} += "${datadir}/icons"
+FILES:${PN} += "${datadir}/icons"

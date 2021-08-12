@@ -9,8 +9,8 @@ PACKAGES = ' \
 
 # Note that python3-cvxopt requires Fortran support. To enable this,
 # add the following to your local.conf:
-# FORTRAN_forcevariable = ",fortran"
-RDEPENDS_packagegroup-meta-python3 = "\
+# FORTRAN:forcevariable = ",fortran"
+RDEPENDS:packagegroup-meta-python3 = "\
     ${@bb.utils.contains("DISTRO_FEATURES", "systemd", "python3-systemd", "", d)} \
     ${@bb.utils.contains("DISTRO_FEATURES", "x11", "python3-blivetgui", "", d)} \
     gyp \
@@ -21,6 +21,7 @@ RDEPENDS_packagegroup-meta-python3 = "\
     python3-aiofiles \
     python3-aiohttp \
     python3-aiohttp-jinja2 \
+    python3-aiohue \
     python3-alembic \
     python3-ansi2html \
     python3-ansicolors \
@@ -33,10 +34,12 @@ RDEPENDS_packagegroup-meta-python3 = "\
     python3-arpeggio \
     python3-asciitree \
     python3-asn1crypto \
+    python3-aspectlib \
     python3-astor \
     python3-astroid \
     python3-asttokens \
     python3-async-timeout \
+    python3-asyncio-glib \
     python3-attr \
     python3-autobahn \
     python3-automat \
@@ -103,6 +106,7 @@ RDEPENDS_packagegroup-meta-python3 = "\
     python3-djangorestframework \
     python3-dnspython \
     python3-docopt \
+    python3-docutils \
     python3-dominate \
     python3-dt-schema \
     python3-dynamic-dispatch \
@@ -111,10 +115,13 @@ RDEPENDS_packagegroup-meta-python3 = "\
     python3-engineio \
     python3-et-xmlfile \
     python3-evdev \
+    python3-execnet \
     python3-fann2 \
     python3-fasteners \
+    python3-fastjsonschema \
     python3-fastnumbers \
     python3-feedformatter \
+    python3-fields \
     python3-flask \
     python3-flask-babel \
     python3-flask-bootstrap \
@@ -138,11 +145,13 @@ RDEPENDS_packagegroup-meta-python3 = "\
     python3-future \
     python3-gast \
     python3-geojson \
+    python3-geomet \
     python3-gevent \
     python3-gmpy2 \
     python3-gmqtt \
     python3-gnupg \
     python3-google-api-python-client \
+    python3-gpsd-py3 \
     python3-graphviz \
     python3-greenlet \
     python3-greenstalk \
@@ -150,6 +159,7 @@ RDEPENDS_packagegroup-meta-python3 = "\
     python3-grpcio-tools \
     python3-gsocketpool \
     python3-gunicorn \
+    python3-h11 \
     python3-h2 \
     python3-h5py \
     python3-haversine \
@@ -167,9 +177,11 @@ RDEPENDS_packagegroup-meta-python3 = "\
     python3-idna \
     python3-idna \
     python3-idna-ssl \
+    python3-ifaddr \
     python3-imageio \
     python3-incremental \
     python3-inflection \
+    python3-intelhex \
     python3-intervals \
     python3-ipaddress \
     python3-ipy \
@@ -184,6 +196,8 @@ RDEPENDS_packagegroup-meta-python3 = "\
     python3-jdatetime \
     python3-jdcal \
     python3-jedi \
+    python3-jmespath \
+    python3-joblib \
     python3-jsmin \
     python3-jsonpatch \
     python3-jsonpath-rw \
@@ -208,7 +222,6 @@ RDEPENDS_packagegroup-meta-python3 = "\
     python3-lxml \
     python3-lz4 \
     python3-m2crypto \
-    python3-markdown \
     python3-markupsafe \
     python3-matplotlib \
     python3-mccabe \
@@ -247,6 +260,7 @@ RDEPENDS_packagegroup-meta-python3 = "\
     python3-parse-type \
     python3-parso \
     python3-passlib \
+    python3-pastedeploy \
     python3-pathtools3 \
     python3-pep8 \
     python3-periphery \
@@ -266,12 +280,14 @@ RDEPENDS_packagegroup-meta-python3 = "\
     python3-pretend \
     python3-prettytable \
     python3-priority \
+    python3-process-tests \
     python3-progress \
     python3-prompt-toolkit \
     python3-protobuf \
     python3-psutil \
     python3-ptyprocess \
     python3-pulsectl \
+    python3-py-cpuinfo \
     python3-py-ubjson \
     python3-pyalsaaudio \
     python3-pyasn1 \
@@ -282,12 +298,14 @@ RDEPENDS_packagegroup-meta-python3 = "\
     python3-pybind11-json \
     python3-pybluez \
     python3-pychromecast \
+    python3-pycocotools \
     python3-pycodestyle \
     python3-pyconnman \
     python3-pycparser \
     python3-pycrypto \
     python3-pycurl \
     python3-pydbus \
+    python3-pydbus-manager \
     python3-pydicti \
     python3-pyephem \
     python3-pyexpect \
@@ -318,15 +336,19 @@ RDEPENDS_packagegroup-meta-python3 = "\
     python3-pyscaffold \
     python3-pyserial \
     python3-pysocks \
+    python3-pysonos \
     python3-pystache \
     python3-pystemd \
     python3-pytest-asyncio \
+    python3-pytest-benchmark \
+    python3-pytest-cache \
     python3-pytest-helpers-namespace \
     python3-pytest-html \
     python3-pytest-metadata \
     python3-pytest-runner \
     python3-pytest-tempdir \
     python3-pytest-timeout \
+    python3-pythonping \
     python3-python-vlc \
     python3-pytoml \
     python3-pytun \
@@ -355,10 +377,10 @@ RDEPENDS_packagegroup-meta-python3 = "\
     python3-robotframework-seriallibrary \
     python3-rsa \
     python3-ruamel-yaml \
-    python3-scapy \
     python3-scrypt \
     python3-sdnotify \
     python3-semver \
+    python3-semantic-version \
     python3-send2trash \
     python3-sentry-sdk \
     python3-serpent \
@@ -403,6 +425,7 @@ RDEPENDS_packagegroup-meta-python3 = "\
     python3-twitter \
     python3-twofish \
     python3-txaio \
+    python3-txdbus \
     python3-txws \
     python3-typed-ast \
     python3-typeguard \
@@ -442,8 +465,9 @@ RDEPENDS_packagegroup-meta-python3 = "\
     python3-zopeinterface \
     telepathy-python3 \
 "
+RDEPENDS:packagegroup-meta-python3:remove:libc-musl:powerpc64le = "python3-grpcio python3-grpcio-tools"
 
-RDEPENDS_packagegroup-meta-python3-ptest = "\
+RDEPENDS:packagegroup-meta-python3-ptest = "\
     python3-cryptography-ptest \
     python3-jinja2-ptest \
     python3-markupsafe-ptest \
@@ -505,6 +529,7 @@ RDEPENDS_packagegroup-meta-python3-ptest = "\
     python3-uritemplate-ptest \
     python3-webcolors-ptest \
     python3-whoosh-ptest \
+    python3-wpa-supplicant \
     python3-xlrd-ptest \
     python3-xmltodict-ptest \
     python3-xxhash-ptest \

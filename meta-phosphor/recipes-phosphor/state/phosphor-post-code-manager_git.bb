@@ -4,7 +4,7 @@ interface /xyz/openbmc_project/state/boot/raw by snoopd daemon and save them \
 in a file under /var/lib for history."
 
 SRC_URI = "git://github.com/openbmc/phosphor-post-code-manager.git"
-SRCREV = "08125ca77fde5a8d6bfefcdacd1d96cbb3bd7e9c"
+SRCREV = "aed7b3de090005433b16ca986ed3df4dbc81446f"
 
 S = "${WORKDIR}/git"
 
@@ -22,7 +22,7 @@ def get_service(d):
     else:
       return " ".join(["xyz.openbmc_project.State.Boot.PostCode@{}.service".format(x) for x in d.getVar('OBMC_HOST_INSTANCES').split()])
 
-SYSTEMD_SERVICE_${PN} = "${@get_service(d)}"
+SYSTEMD_SERVICE:${PN} = "${@get_service(d)}"
 
 DEPENDS += " \
     sdbusplus \
@@ -30,5 +30,5 @@ DEPENDS += " \
     phosphor-logging \
     "
 
-FILES_${PN}  += "${systemd_system_unitdir}/xyz.openbmc_project.State.Boot.PostCode@.service"
-FILES_${PN}  += "${systemd_system_unitdir}/xyz.openbmc_project.State.Boot.PostCode.service"
+FILES:${PN}  += "${systemd_system_unitdir}/xyz.openbmc_project.State.Boot.PostCode@.service"
+FILES:${PN}  += "${systemd_system_unitdir}/xyz.openbmc_project.State.Boot.PostCode.service"

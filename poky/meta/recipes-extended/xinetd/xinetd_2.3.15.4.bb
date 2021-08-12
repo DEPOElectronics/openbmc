@@ -1,5 +1,6 @@
 SUMMARY = "Socket-based service activation daemon"
 HOMEPAGE = "https://github.com/xinetd-org/xinetd"
+DESCRIPTION = "xinetd is a powerful replacement for inetd, xinetd has access control mechanisms, extensive logging capabilities, the ability to make services available based on time, can place limits on the number of servers that can be started, and has deployable defence mechanisms to protect against port scanners, among other things."
 
 # xinetd is a BSD-like license
 # Apple and Gentoo say BSD here.
@@ -18,9 +19,12 @@ SRCREV = "6a4af7786630ce48747d9687e2f18f45ea6684c4"
 
 S = "${WORKDIR}/git"
 
+# https://github.com/xinetd-org/xinetd/pull/10 is merged into this git tree revision
+CVE_CHECK_WHITELIST += "CVE-2013-4342"
+
 inherit autotools update-rc.d systemd pkgconfig
 
-SYSTEMD_SERVICE_${PN} = "xinetd.service"
+SYSTEMD_SERVICE:${PN} = "xinetd.service"
 
 INITSCRIPT_NAME = "xinetd"
 INITSCRIPT_PARAMS = "defaults"
@@ -28,9 +32,9 @@ INITSCRIPT_PARAMS = "defaults"
 PACKAGECONFIG ??= "tcp-wrappers"
 PACKAGECONFIG[tcp-wrappers] = "--with-libwrap,,tcp-wrappers"
 
-CONFFILES_${PN} = "${sysconfdir}/xinetd.conf"
+CONFFILES:${PN} = "${sysconfdir}/xinetd.conf"
 
-do_install_append() {
+do_install:append() {
        install -d "${D}${sysconfdir}/init.d"
        install -d "${D}${sysconfdir}/default"
        install -m 755 "${WORKDIR}/xinetd.init" "${D}${sysconfdir}/init.d/xinetd"
@@ -44,4 +48,4 @@ do_install_append() {
               ${D}${systemd_unitdir}/system/xinetd.service
 }
 
-RDEPENDS_${PN} += "perl"
+RDEPENDS:${PN} += "perl"

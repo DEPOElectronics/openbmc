@@ -1,1 +1,1 @@
-PACKAGECONFIG_rainier = "hwmontempsensor"
+PACKAGECONFIG:p10bmc = "hwmontempsensor"

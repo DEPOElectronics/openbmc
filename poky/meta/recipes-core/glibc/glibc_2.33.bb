@@ -1,12 +1,25 @@
 require glibc.inc
 require glibc-version.inc
 
-CVE_CHECK_WHITELIST += "CVE-2020-10029"
+CVE_CHECK_WHITELIST += "CVE-2020-10029 CVE-2021-27645"
+
+# glibc https://web.nvd.nist.gov/view/vuln/detail?vulnId=CVE-2019-1010022
+# glibc https://web.nvd.nist.gov/view/vuln/detail?vulnId=CVE-2019-1010023
+# glibc https://web.nvd.nist.gov/view/vuln/detail?vulnId=CVE-2019-1010024
+# Upstream glibc maintainers dispute there is any issue and have no plans to address it further.
+# "this is being treated as a non-security bug and no real threat."
+CVE_CHECK_WHITELIST += "CVE-2019-1010022 CVE-2019-1010023 CVE-2019-1010024"
+
+# glibc https://web.nvd.nist.gov/view/vuln/detail?vulnId=CVE-2019-1010025
+# Allows for ASLR bypass so can bypass some hardening, not an exploit in itself, may allow
+# easier access for another. "ASLR bypass itself is not a vulnerability."
+# Potential patch at https://sourceware.org/bugzilla/show_bug.cgi?id=22853
+CVE_CHECK_WHITELIST += "CVE-2019-1010025"
 
 DEPENDS += "gperf-native bison-native make-native"
 
 NATIVESDKFIXES ?= ""
-NATIVESDKFIXES_class-nativesdk = "\
+NATIVESDKFIXES:class-nativesdk = "\
            file://0003-nativesdk-glibc-Look-for-host-system-ld.so.cache-as-.patch \
            file://0004-nativesdk-glibc-Fix-buffer-overrun-with-a-relocated-.patch \
            file://0005-nativesdk-glibc-Raise-the-size-of-arrays-containing-.patch \
@@ -43,7 +56,8 @@ SRC_URI =  "${GLIBC_GIT_URI};branch=${SRCBRANCH};name=glibc \
            file://0028-readlib-Add-OECORE_KNOWN_INTERPRETER_NAMES-to-known-.patch \
            file://0029-wordsize.h-Unify-the-header-between-arm-and-aarch64.patch \
            file://0030-powerpc-Do-not-ask-compiler-for-finding-arch.patch \
-           file://0031-x86-Require-full-ISA-support-for-x86-64-level-marker.patch \
+           file://mte-backports.patch \
+           file://CVE-2021-33574.patch \
            "
 S = "${WORKDIR}/git"
 B = "${WORKDIR}/build-${TARGET_SYS}"
@@ -76,13 +90,14 @@ EXTRA_OECONF = "--enable-kernel=${OLDEST_KERNEL} \
 
 EXTRA_OECONF += "${@get_libc_fpu_setting(bb, d)}"
 
-EXTRA_OECONF_append_x86 = " --enable-cet"
-EXTRA_OECONF_append_x86-64 = " --enable-cet"
+EXTRA_OECONF:append:x86 = " --enable-cet"
+EXTRA_OECONF:append:x86-64 = " --enable-cet"
 
-PACKAGECONFIG ??= "nscd"
+PACKAGECONFIG ??= "nscd memory-tagging"
 PACKAGECONFIG[nscd] = "--enable-nscd,--disable-nscd"
+PACKAGECONFIG[memory-tagging] = "--enable-memory-tagging,--disable-memory-tagging"
 
-do_patch_append() {
+do_patch:append() {
     bb.build.exec_func('do_fix_readlib_c', d)
 }
 

@@ -2,21 +2,22 @@ PR = "r1"
 LICENSE = "Apache-2.0"
 LIC_FILES_CHKSUM = "file://${COREBASE}/meta/files/common-licenses/Apache-2.0;md5=89aea4e17d99a7cacdbeed46a0096b10"
 
-
 inherit systemd
 inherit obmc-phosphor-systemd
-
 
 SRC_URI = " file://phosphor-ipmi-flash-bmc-verify.service \
             file://bmc-verify.sh \
             file://config-bmc.json \
           "
 
-FILES_${PN} += "${datadir}/phosphor-ipmi-flash/config-bmc.json"
+FILES:${PN} += "${datadir}/phosphor-ipmi-flash/config-bmc.json"
+
+PROVIDES += "virtual/bmc-update"
+RPROVIDES:${PN} += "virtual/bmc-update"
 
 DEPENDS += "systemd"
 DEPENDS += "phosphor-ipmi-flash"
-RDEPENDS_${PN} = "bash"
+RDEPENDS:${PN} = "bash"
 
 do_install() {
     install -d ${D}${bindir}
@@ -31,4 +32,4 @@ do_install() {
 
 
 SYSTEMD_PACKAGES = "${PN}"
-SYSTEMD_SERVICE_${PN} = "phosphor-ipmi-flash-bmc-verify.service"
+SYSTEMD_SERVICE:${PN} = "phosphor-ipmi-flash-bmc-verify.service"

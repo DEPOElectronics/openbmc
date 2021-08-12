@@ -6,15 +6,42 @@ DEPENDS = "libsocketcan"
 
 SRC_URI = "git://github.com/linux-can/${BPN}.git;protocol=git"
 
-SRCREV = "eb66451df280f95a9a12e78b151b8d867e1b78ed"
+SRCREV = "e9dd86fa5c4e6ecdfc34e487634a32f19e5c4d63"
 
-PV = "2020.12.0"
+PV = "2021.06.0"
 
 S = "${WORKDIR}/git"
 
 inherit autotools pkgconfig update-alternatives
 
-ALTERNATIVE_${PN} = "candump cansend cansequence"
+PACKAGES =+ "${PN}-access ${PN}-isotp ${PN}-j1939 ${PN}-cantest ${PN}-slcan ${PN}-log"
+
+FILES:${PN}-access = " \
+    ${bindir}/cangw \
+    ${bindir}/canlogserver \
+    ${bindir}/bcmserver \
+    ${bindir}/socketcand \
+    ${bindir}/cannelloni \
+"
+
+FILES:${PN}-isotp = "${bindir}/isotp*"
+
+FILES:${PN}-j1939 = " \
+    ${bindir}/j* \
+    ${bindir}/testj1939 \
+"
+
+FILES:${PN}-cantest = " \
+    ${bindir}/canbusload \
+    ${bindir}/can-calc-bit-timing \
+    ${bindir}/canfdtest \
+"
+
+FILES:${PN}-slcan = "${bindir}/slcan*"
+
+FILES:${PN}-log = "${bindir}/*log*"
+
+ALTERNATIVE:${PN} = "candump cansend cansequence"
 ALTERNATIVE_LINK_NAME[candump] = "${bindir}/candump"
 ALTERNATIVE_LINK_NAME[cansend] = "${bindir}/cansend"
 ALTERNATIVE_LINK_NAME[cansequence] = "${bindir}/cansequence"

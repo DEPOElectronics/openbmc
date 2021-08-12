@@ -16,6 +16,9 @@ SRC_URI[sha256sum] = "e87470d9c984317f658567c03bfefb6b0c829ff17dbf6b0de48d71a4c8
 
 inherit autotools gettext texinfo
 
+# Issue applies to use of cpio in SUSE/OBS, doesn't apply to us
+CVE_CHECK_WHITELIST += "CVE-2010-4226"
+
 EXTRA_OECONF += "DEFAULT_RMT_DIR=${sbindir}"
 
 do_install () {
@@ -34,14 +37,14 @@ do_install () {
 
 PACKAGES =+ "${PN}-rmt"
 
-FILES_${PN}-rmt = "${sbindir}/rmt*"
+FILES:${PN}-rmt = "${sbindir}/rmt*"
 
 inherit update-alternatives
 
 ALTERNATIVE_PRIORITY = "100"
 
-ALTERNATIVE_${PN} = "cpio"
-ALTERNATIVE_${PN}-rmt = "rmt"
+ALTERNATIVE:${PN} = "cpio"
+ALTERNATIVE:${PN}-rmt = "rmt"
 
 ALTERNATIVE_LINK_NAME[cpio] = "${base_bindir}/cpio"
 

@@ -70,7 +70,7 @@ FEATURE_PACKAGES_obmc-user-mgmt-ldap ?= "packagegroup-obmc-apps-user-mgmt-ldap"
 # FIXME: phosphor-net-ipmi depends on phosphor-ipmi-host !?!? and
 # cannot be built on core-qemu machines because of the dependency
 # tree under phosphor-ipmi-host
-FEATURE_PACKAGES_obmc-net-ipmi_qemuall = ""
+FEATURE_PACKAGES_obmc-net-ipmi:qemuall = ""
 
 # Add new packages to be installed to a package group in
 # packagegroup-obmc-apps, not here.
@@ -88,7 +88,9 @@ remove_etc_version() {
 }
 
 enable_ldap_nsswitch() {
-    sed -i 's/\(\(passwd\|group\|shadow\):\s*\).*/\1files ldap/' \
+    sed -i 's/\(\(passwd\|group\):\s*\).*/\1files systemd ldap/' \
+        "${IMAGE_ROOTFS}${sysconfdir}/nsswitch.conf"
+    sed -i 's/\(shadow:\s*\).*/\1files ldap/' \
         "${IMAGE_ROOTFS}${sysconfdir}/nsswitch.conf"
 }
 

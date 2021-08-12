@@ -10,7 +10,7 @@ DEPENDS = "openscap-native python3 python3-pyyaml-native python3-jinja2-native l
 
 S = "${WORKDIR}/git"
 
-inherit cmake pkgconfig python3native
+inherit cmake pkgconfig python3native python3targetconfig
 
 STAGING_OSCAP_BUILDDIR = "${TMPDIR}/work-shared/openscap/oscap-build-artifacts"
 export OSCAP_CPE_PATH="${STAGING_OSCAP_BUILDDIR}${datadir_native}/openscap/cpe"
@@ -25,11 +25,11 @@ B = "${S}/build"
 
 do_configure[depends] += "openscap-native:do_install"
 
-do_configure_prepend () {
+do_configure:prepend () {
     sed -i -e 's:NAMES\ sed:NAMES\ ${HOSTTOOLS_DIR}/sed:g' ${S}/CMakeLists.txt
     sed -i -e 's:NAMES\ grep:NAMES\ ${HOSTTOOLS_DIR}/grep:g' ${S}/CMakeLists.txt
 }
 
-FILES_${PN} += "${datadir}/xml"
+FILES:${PN} += "${datadir}/xml"
 
-RDEPENDS_${PN} = "openscap"
+RDEPENDS:${PN} = "openscap"

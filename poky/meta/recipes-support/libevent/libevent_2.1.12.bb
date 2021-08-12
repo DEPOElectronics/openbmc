@@ -1,4 +1,9 @@
 SUMMARY = "An asynchronous event notification library"
+DESCRIPTION = "A software library that provides asynchronous event \
+notification. The libevent API provides a mechanism to execute a callback \
+function when a specific event occurs on a file descriptor or after a \
+timeout has been reached. libevent also supports callbacks triggered \
+by signals and regular timeouts"
 HOMEPAGE = "http://libevent.org/"
 BUGTRACKER = "https://github.com/libevent/libevent/issues"
 SECTION = "libs"
@@ -10,6 +15,7 @@ SRC_URI = "https://github.com/libevent/libevent/releases/download/release-${PV}-
            file://Makefile-missing-test-dir.patch \
            file://run-ptest \
            file://0001-test-regress_dns.c-patch-out-tests-that-require-a-wo.patch \
+           file://0002-test-regress.h-Increase-default-timeval-tolerance-50.patch \
            "
 
 SRC_URI[sha256sum] = "92e6de1be9ec176428fd2367677e61ceffc2ee1cb119035037a27d346b0403bb"
@@ -34,11 +40,11 @@ PACKAGES_DYNAMIC = "^${PN}-.*$"
 python split_libevent_libs () {
     do_split_packages(d, '${libdir}', r'^libevent_([a-z]*)-.*\.so\..*', '${PN}-%s', '${SUMMARY} (%s)', prepend=True, allow_links=True)
 }
-PACKAGESPLITFUNCS_prepend = "split_libevent_libs "
+PACKAGESPLITFUNCS:prepend = "split_libevent_libs "
 
 BBCLASSEXTEND = "native nativesdk"
 
-do_install_append() {
+do_install:append() {
 	rm ${D}${bindir}/event_rpcgen.py
 	rmdir ${D}${bindir}
         oe_multilib_header event2/event-config.h

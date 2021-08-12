@@ -13,6 +13,7 @@ UPSTREAM_CHECK_URI = "https://roy.marples.name/downloads/dhcpcd/"
 
 SRC_URI = "https://roy.marples.name/downloads/${BPN}/${BPN}-${PV}.tar.xz \
            file://0001-remove-INCLUDEDIR-to-prevent-build-issues.patch \
+           file://0002-src-privsep-linux.c-add-support-for-arc-28.patch \
            file://dhcpcd.service \
            file://dhcpcd@.service \
            "
@@ -21,7 +22,7 @@ SRC_URI[sha256sum] = "41a69297f380bf15ee8f94f73154f8c2bca7157a087c0d5aca8de000ba
 
 inherit pkgconfig autotools-brokensep systemd useradd
 
-SYSTEMD_SERVICE_${PN} = "dhcpcd.service"
+SYSTEMD_SERVICE:${PN} = "dhcpcd.service"
 
 PACKAGECONFIG ?= "udev ${@bb.utils.filter('DISTRO_FEATURES', 'ipv6', d)}"
 
@@ -43,9 +44,9 @@ EXTRA_OECONF = "--enable-ipv4 \
                "
 
 USERADD_PACKAGES = "${PN}"
-USERADD_PARAM_${PN} = "--system -d ${localstatedir}/lib/${BPN} -M -s /bin/false -U dhcpcd"
+USERADD_PARAM:${PN} = "--system -d ${localstatedir}/lib/${BPN} -M -s /bin/false -U dhcpcd"
 
-do_install_append () {
+do_install:append () {
     # install systemd unit files
     install -d ${D}${systemd_unitdir}/system
     install -m 0644 ${WORKDIR}/dhcpcd*.service ${D}${systemd_unitdir}/system
@@ -54,4 +55,4 @@ do_install_append () {
     chown dhcpcd:dhcpcd ${D}${localstatedir}/lib/${BPN}
 }
 
-FILES_${PN}-dbg += "${libdir}/dhcpcd/dev/.debug"
+FILES:${PN}-dbg += "${libdir}/dhcpcd/dev/.debug"

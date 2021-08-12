@@ -15,6 +15,7 @@ XSERVER = " \
     "
 
 RPI_KERNEL_DEVICETREE_OVERLAYS ?= " \
+    overlays/overlay_map.dtb \
     overlays/at86rf233.dtbo \
     overlays/disable-bt.dtbo \
     overlays/dwc2.dtbo \
@@ -30,6 +31,7 @@ RPI_KERNEL_DEVICETREE_OVERLAYS ?= " \
     overlays/justboom-digi.dtbo \
     overlays/i2c-rtc.dtbo \
     overlays/imx219.dtbo \
+    overlays/imx477.dtbo \
     overlays/iqaudio-dac.dtbo \
     overlays/iqaudio-dacplus.dtbo \
     overlays/mcp2515-can0.dtbo \
@@ -44,8 +46,11 @@ RPI_KERNEL_DEVICETREE_OVERLAYS ?= " \
     overlays/rpi-poe.dtbo \
     overlays/vc4-fkms-v3d.dtbo \
     overlays/vc4-kms-v3d.dtbo \
+    overlays/vc4-kms-v3d-pi4.dtbo \
+    overlays/vc4-kms-dsi-7inch.dtbo \
     overlays/w1-gpio.dtbo \
     overlays/w1-gpio-pullup.dtbo \
+    overlays/wm8960-soundcard.dtbo \
     "
 
 RPI_KERNEL_DEVICETREE ?= " \
@@ -99,7 +104,7 @@ SERIAL_CONSOLES_CHECK ??= "${SERIAL_CONSOLES}"
 BOOTFILES_DIR_NAME ?= "bootfiles"
 
 # Set Raspberrypi splash image
-SPLASH = "psplash-raspberrypi"
+SPLASH ?= "psplash-raspberrypi"
 
 def make_dtb_boot_files(d):
     # Generate IMAGE_BOOT_FILES entries for device tree files listed in
@@ -109,17 +114,17 @@ def make_dtb_boot_files(d):
 
     def transform(dtb):
         base = os.path.basename(dtb)
-        if dtb.endswith('dtb'):
-            # eg: whatever/bcm2708-rpi-b.dtb has:
-            #     DEPLOYDIR file: bcm2708-rpi-b.dtb
-            #     destination: bcm2708-rpi-b.dtb
-            return base
-        elif dtb.endswith('dtbo'):
+        if dtb.endswith('dtbo') or base == 'overlay_map.dtb':
             # overlay dtb:
             # eg: overlays/hifiberry-amp.dtbo has:
             #     DEPLOYDIR file: hifiberry-amp.dtbo
             #     destination: overlays/hifiberry-amp.dtbo
             return '{};{}'.format(base, dtb)
+        elif dtb.endswith('dtb'):
+            # eg: whatever/bcm2708-rpi-b.dtb has:
+            #     DEPLOYDIR file: bcm2708-rpi-b.dtb
+            #     destination: bcm2708-rpi-b.dtb
+            return base
 
     return ' '.join([transform(dtb) for dtb in alldtbs.split(' ') if dtb])
 
@@ -139,4 +144,4 @@ do_image_wic[recrdeps] = "do_build"
 
 # The kernel image is installed into the FAT32 boot partition and does not need
 # to also be installed into the rootfs.
-RDEPENDS_${KERNEL_PACKAGE_NAME}-base = ""
+RDEPENDS:${KERNEL_PACKAGE_NAME}-base = ""

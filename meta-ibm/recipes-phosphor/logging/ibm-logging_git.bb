@@ -6,7 +6,7 @@ HOMEPAGE = "https://github.com/openbmc/ibm-logging"
 LICENSE = "Apache-2.0"
 LIC_FILES_CHKSUM = "file://${S}/LICENSE;md5=86d3f3a95c324c9479bd8986968f4327"
 SRC_URI += "git://github.com/openbmc/ibm-logging"
-SRCREV = "aeaa374a6fa097b2359acfc4d694ed3ebe8eecaa"
+SRCREV = "074d53b723a26a50b628387c635a97c730555bce"
 
 inherit autotools
 inherit pkgconfig
@@ -31,11 +31,11 @@ SRC_URI += "file://policyTable.json"
 PACKAGECONFIG ??= ""
 PACKAGECONFIG[policy-interface] = "--enable-policy-interface, --disable-policy-interface,,"
 
-PACKAGECONFIG_ibm-ac-server = "policy-interface"
-PACKAGECONFIG_mihawk = "policy-interface"
+PACKAGECONFIG:ibm-ac-server = "policy-interface"
+PACKAGECONFIG:mihawk = "policy-interface"
 
 SERVICE = "com.ibm.Logging.service"
-DBUS_SERVICE_${PN} += "${SERVICE}"
+DBUS_SERVICE:${PN} += "${SERVICE}"
 
 #The link is so that this service will restart if phosphor-logging restarts.
 #The BindsTo in the service will not do the restart, it will only do the
@@ -43,7 +43,7 @@ DBUS_SERVICE_${PN} += "${SERVICE}"
 LOG_FMT = "../${SERVICE}:xyz.openbmc_project.Logging.service.wants/${SERVICE}"
 SYSTEMD_LINK_${PN} += "${LOG_FMT}"
 
-do_install_append(){
+do_install:append(){
 
     install -d ${D}${datadir}/ibm-logging
 

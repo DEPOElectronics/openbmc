@@ -9,24 +9,32 @@ SRC_URI += " \
   file://50-gbmc-ncsi.rules.in \
   file://gbmc-ncsi-sslh.socket.in \
   file://gbmc-ncsi-sslh.service \
+  file://gbmc-ncsi-nft.sh.in \
+  file://gbmc-ncsi-br-pub-addr.sh.in \
+  file://gbmc-ncsi-set-nicenabled.service.in \
   "
 
 S = "${WORKDIR}"
 
-RDEPENDS_${PN} += " \
+RDEPENDS:${PN} += " \
+  gbmc-ip-monitor \
   ncsid \
   nftables-systemd \
   sslh \
   "
 
-FILES_${PN} += "${systemd_unitdir}"
-
-SYSTEMD_SERVICE_${PN} += " \
-  gbmc-ncsi-sslh.service \
-  gbmc-ncsi-sslh.socket \
+FILES:${PN} += " \
+  ${datadir}/gbmc-ip-monitor \
+  ${systemd_unitdir} \
   "
 
-do_install_append() {
+SYSTEMD_SERVICE:${PN} += " \
+  gbmc-ncsi-sslh.service \
+  gbmc-ncsi-sslh.socket \
+  gbmc-ncsi-set-nicenabled.service \
+  "
+
+do_install:append() {
   if_name='${GBMC_NCSI_IF_NAME}'
   if [ -z "$if_name" ]; then
     echo "Missing if_name" >&2
@@ -50,7 +58,7 @@ do_install_append() {
 
   nftdir=${D}${sysconfdir}/nftables
   install -d -m0755 "$nftdir"
-  sed "s,@NCSI_IF@,$if_name," ${WORKDIR}/50-gbmc-ncsi.rules.in \
+  sed "s,@NCSI_IF@,$if_name,g" ${WORKDIR}/50-gbmc-ncsi.rules.in \
     >"$nftdir"/50-gbmc-ncsi.rules
 
   wantdir=${D}${systemd_system_unitdir}/multi-user.target.wants
@@ -58,6 +66,18 @@ do_install_append() {
   ln -sv ../ncsid@.service "$wantdir"/ncsid@$if_name.service
 
   install -m 0644 ${WORKDIR}/gbmc-ncsi-sslh.service ${D}${systemd_system_unitdir}
-  sed "s,@NCSI_IF@,$if_name," ${WORKDIR}/gbmc-ncsi-sslh.socket.in \
+  sed "s,@NCSI_IF@,$if_name,g" ${WORKDIR}/gbmc-ncsi-sslh.socket.in \
     >${D}${systemd_system_unitdir}/gbmc-ncsi-sslh.socket
+
+  mondir=${D}${datadir}/gbmc-ip-monitor/
+  install -d -m0755 $mondir
+  sed "s,@NCSI_IF@,$if_name,g" ${WORKDIR}/gbmc-ncsi-nft.sh.in \
+    >${WORKDIR}/gbmc-ncsi-nft.sh
+  install -m644 ${WORKDIR}/gbmc-ncsi-nft.sh $mondir
+  sed "s,@NCSI_IF@,$if_name,g" ${WORKDIR}/gbmc-ncsi-br-pub-addr.sh.in \
+    >${WORKDIR}/gbmc-ncsi-br-pub-addr.sh
+  install -m644 ${WORKDIR}/gbmc-ncsi-br-pub-addr.sh $mondir
+
+  sed "s,@NCSI_IF@,$if_name,g" ${WORKDIR}/gbmc-ncsi-set-nicenabled.service.in \
+    >${D}${systemd_system_unitdir}/gbmc-ncsi-set-nicenabled.service
 }

@@ -1,2 +1,6 @@
-RDEPENDS_${PN}-extras_append_mtjade = " phosphor-webui phosphor-image-signing"
-RDEPENDS_${PN}-inventory_append_mtjade = " fault-monitor id-button"
+RDEPENDS:${PN}-extras:append:mtjade = " webui-vue phosphor-image-signing phosphor-virtual-sensor"
+RDEPENDS:${PN}-inventory:append:mtjade = " fault-monitor id-button psu-hotswap-reset"
+
+RDEPENDS:${PN}-inventory:append:mtjade = " \
+                                        host-gpio-handling \
+                                        "

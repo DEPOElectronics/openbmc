@@ -332,6 +332,14 @@ class Wget(FetchMethod):
                 # debug for now to avoid spamming the logs in e.g. remote sstate searches
                 logger.debug2("checkstatus() urlopen failed: %s" % e)
                 return False
+        except ConnectionResetError as e:
+            if try_again:
+                logger.debug2("checkstatus: trying again")
+                return self.checkstatus(fetch, ud, d, False)
+            else:
+                # debug for now to avoid spamming the logs in e.g. remote sstate searches
+                logger.debug2("checkstatus() urlopen failed: %s" % e)
+                return False
         return True
 
     def _parse_path(self, regex, s):
@@ -464,7 +472,7 @@ class Wget(FetchMethod):
         version_dir = ['', '', '']
         version = ['', '', '']
 
-        dirver_regex = re.compile(r"(?P<pfx>\D*)(?P<ver>(\d+[\.\-_])+(\d+))")
+        dirver_regex = re.compile(r"(?P<pfx>\D*)(?P<ver>(\d+[\.\-_])*(\d+))")
         s = dirver_regex.search(dirver)
         if s:
             version_dir[1] = s.group('ver')

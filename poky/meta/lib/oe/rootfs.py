@@ -114,7 +114,7 @@ class Rootfs(object, metaclass=ABCMeta):
             shutil.rmtree(self.image_rootfs + '-orig')
         except:
             pass
-        os.rename(self.image_rootfs, self.image_rootfs + '-orig')
+        bb.utils.rename(self.image_rootfs, self.image_rootfs + '-orig')
 
         bb.note("  Creating debug rootfs...")
         bb.utils.mkdirhier(self.image_rootfs)
@@ -165,10 +165,10 @@ class Rootfs(object, metaclass=ABCMeta):
             shutil.rmtree(self.image_rootfs + '-dbg')
         except:
             pass
-        os.rename(self.image_rootfs, self.image_rootfs + '-dbg')
+        bb.utils.rename(self.image_rootfs, self.image_rootfs + '-dbg')
 
-        bb.note("  Restoreing original rootfs...")
-        os.rename(self.image_rootfs + '-orig', self.image_rootfs)
+        bb.note("  Restoring original rootfs...")
+        bb.utils.rename(self.image_rootfs + '-orig', self.image_rootfs)
 
     def _exec_shell_cmd(self, cmd):
         fakerootcmd = self.d.getVar('FAKEROOT')
@@ -250,13 +250,11 @@ class Rootfs(object, metaclass=ABCMeta):
 
 
     def _uninstall_unneeded(self):
-        # Remove unneeded init script symlinks
+        # Remove the run-postinsts package if no delayed postinsts are found
         delayed_postinsts = self._get_delayed_postinsts()
         if delayed_postinsts is None:
-            if os.path.exists(self.d.expand("${IMAGE_ROOTFS}${sysconfdir}/init.d/run-postinsts")):
-                self._exec_shell_cmd(["update-rc.d", "-f", "-r",
-                                      self.d.getVar('IMAGE_ROOTFS'),
-                                      "run-postinsts", "remove"])
+            if os.path.exists(self.d.expand("${IMAGE_ROOTFS}${sysconfdir}/init.d/run-postinsts")) or os.path.exists(self.d.expand("${IMAGE_ROOTFS}${systemd_unitdir}/system/run-postinsts.service")):
+                self.pm.remove(["run-postinsts"])
 
         image_rorfs = bb.utils.contains("IMAGE_FEATURES", "read-only-rootfs",
                                         True, False, self.d)
@@ -304,10 +302,20 @@ class Rootfs(object, metaclass=ABCMeta):
             self._exec_shell_cmd(['ldconfig', '-r', self.image_rootfs, '-c',
                                   'new', '-v', '-X'])
 
+        image_rorfs = bb.utils.contains("IMAGE_FEATURES", "read-only-rootfs",
+                                        True, False, self.d)
+        ldconfig_in_features = bb.utils.contains("DISTRO_FEATURES", "ldconfig",
+                                                 True, False, self.d)
+        if image_rorfs or not ldconfig_in_features:
+            ldconfig_cache_dir = os.path.join(self.image_rootfs, "var/cache/ldconfig")
+            if os.path.exists(ldconfig_cache_dir):
+                bb.note("Removing ldconfig auxiliary cache...")
+                shutil.rmtree(ldconfig_cache_dir)
+
     def _check_for_kernel_modules(self, modules_dir):
         for root, dirs, files in os.walk(modules_dir, topdown=True):
             for name in files:
-                found_ko = name.endswith(".ko")
+                found_ko = name.endswith((".ko", ".ko.gz", ".ko.xz"))
                 if found_ko:
                     return found_ko
         return False

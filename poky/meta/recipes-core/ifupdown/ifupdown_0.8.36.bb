@@ -1,4 +1,5 @@
 SUMMARY = "ifupdown: basic ifup and ifdown used by initscripts"
+HOMEPAGE = "https://salsa.debian.org/debian/ifupdown"
 DESCRIPTION = "High level tools to configure network interfaces \
 This package provides the tools ifup and ifdown which may be used to \
 configure (or, respectively, deconfigure) network interfaces, based on \
@@ -12,6 +13,7 @@ SRC_URI = "git://salsa.debian.org/debian/ifupdown.git;protocol=https \
            file://0001-Define-FNM_EXTMATCH-for-musl.patch \
            file://0001-Makefile-do-not-use-dpkg-for-determining-OS-type.patch \
            file://run-ptest \
+           file://0001-ifupdown-skip-wrong-test-case.patch \
            ${@bb.utils.contains('DISTRO_FEATURES', 'ptest', 'file://tweak-ptest-script.patch', '', d)} \
            "
 SRCREV = "c73226073e2b13970ca613b20a13b9c0253bf9da"
@@ -49,7 +51,7 @@ do_install_ptest () {
 }
 
 ALTERNATIVE_PRIORITY = "100"
-ALTERNATIVE_${PN} = "ifup ifdown"
+ALTERNATIVE:${PN} = "ifup ifdown"
 
 ALTERNATIVE_LINK_NAME[ifup] = "${base_sbindir}/ifup"
 ALTERNATIVE_LINK_NAME[ifdown] = "${base_sbindir}/ifdown"

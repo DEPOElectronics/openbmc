@@ -13,11 +13,8 @@ DEPENDS = "coreutils-native fribidi libtool libgcrypt libgcrypt-native \
    libmtp libopus orc libsamplerate0 libusb1 schroedinger taglib \
    tiff"
 
-LDFLAGS_append_riscv64 = " -latomic"
-LDFLAGS_append_riscv32 = " -latomic"
-
-# While this item does not require it, it depends on ffmpeg which does
-LICENSE_FLAGS = "commercial"
+LDFLAGS:append:riscv64 = " -latomic"
+LDFLAGS:append:riscv32 = " -latomic"
 
 SRC_URI = "http://download.videolan.org/pub/videolan/${BPN}/${PV}/${BP}.tar.xz \
            file://0001-make-opencv-configurable.patch \
@@ -25,6 +22,7 @@ SRC_URI = "http://download.videolan.org/pub/videolan/${BPN}/${PV}/${BP}.tar.xz \
            file://0003-fix-luaL-checkint.patch \
            file://0004-Use-packageconfig-to-detect-mmal-support.patch \
            file://0005-linux-thread-Use-SYS_futex-instead-of-__NR_futex.patch \
+           file://0001-include-limits-header.patch \
 "
 SRC_URI[sha256sum] = "eff458f38a92126094f44f2263c2bf2c7cdef271b48192d0fe7b1726388cf879"
 
@@ -97,7 +95,7 @@ PACKAGECONFIG[png] = "--enable-png,--disable-png,libpng"
 PACKAGECONFIG[vdpau] = "--enable-vdpau,--disable-vdpau,libvdpau"
 PACKAGECONFIG[wayland] = "--enable-wayland,--disable-wayland,wayland wayland-native"
 
-do_configure_append() {
+do_configure:append() {
     sed -i -e s:'${top_builddir_slash}libtool':'${top_builddir_slash}'${TARGET_SYS}-libtool:g ${B}/doltlibtool
 
     # moc needs support: precreate build paths
@@ -111,9 +109,9 @@ do_configure_append() {
 PACKAGES =+ "libvlc"
 
 LEAD_SONAME_libvlc = "libvlc.so.5"
-FILES_libvlc = "${libdir}/lib*.so.*"
+FILES:libvlc = "${libdir}/lib*.so.*"
 
-FILES_${PN} += "\
+FILES:${PN} += "\
     ${bindir}/vlc \
     ${libdir}/vlc/vlc/libvlc_vdpau.so \
     ${datadir}/applications \
@@ -122,14 +120,15 @@ FILES_${PN} += "\
     ${datadir}/metainfo/vlc.appdata.xml \
 "
 
-FILES_${PN}-dbg += "\
+FILES:${PN}-dbg += "\
     ${libdir}/vlc/*/.debug \
     ${libdir}/vlc/plugins/*/.debug \
 "
 
-FILES_${PN}-staticdev += "\
+FILES:${PN}-staticdev += "\
     ${libdir}/vlc/plugins/*/*.a \
 "
 
-INSANE_SKIP_${PN} = "dev-so"
+INSANE_SKIP:${PN} = "dev-so"
 
+EXCLUDE_FROM_WORLD = "${@bb.utils.contains("LICENSE_FLAGS_WHITELIST", "commercial", "0", "1", d)}"

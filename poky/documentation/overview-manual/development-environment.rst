@@ -71,7 +71,7 @@ section in
 the Yocto Project Development Tasks Manual.
 
 If your development host is going to be a system that runs a Linux
-distribution, steps still exist that you must take to prepare the system
+distribution, you must still take steps to prepare the system
 for use with the Yocto Project. You need to be sure that the Linux
 distribution on the system is one that supports the Yocto Project. You
 also need to be sure that the correct set of host packages are installed
@@ -80,8 +80,8 @@ set up a development host that runs Linux, see the
 ":ref:`dev-manual/start:setting up a native linux host`"
 section in the Yocto Project Development Tasks Manual.
 
-Once your development host is set up to use the Yocto Project, several
-methods exist for you to do work in the Yocto Project environment:
+Once your development host is set up to use the Yocto Project, there
+are several ways of working in the Yocto Project environment:
 
 -  *Command Lines, BitBake, and Shells:* Traditional development in the
    Yocto Project involves using the :term:`OpenEmbedded Build System`,
@@ -157,7 +157,8 @@ these tarballs gives you a snapshot of the released files.
 
    -  The recommended method for setting up the Yocto Project
       :term:`Source Directory` and the files
-      for supported BSPs (e.g., ``meta-intel``) is to use `Git <#git>`__
+      for supported BSPs (e.g., ``meta-intel``) is to use
+      :ref:`overview-manual/development-environment:git`
       to create a local copy of the upstream repositories.
 
    -  Be sure to always work in matching branches for both the selected
@@ -214,7 +215,8 @@ Git Workflows and the Yocto Project
 ===================================
 
 Developing using the Yocto Project likely requires the use of
-`Git <#git>`__. Git is a free, open source distributed version control
+:ref:`overview-manual/development-environment:git`.
+Git is a free, open source distributed version control
 system used as part of many collaborative design environments. This
 section provides workflow concepts using the Yocto Project and Git. In
 particular, the information covers basic practices that describe roles
@@ -269,7 +271,7 @@ files that are being worked on simultaneously by more than one person.
 All this work is done locally on the development host before anything is
 pushed to a "contrib" area and examined at the maintainer's level.
 
-A somewhat formal method exists by which developers commit changes and
+There is a somewhat formal method by which developers commit changes and
 push them into the "contrib" area and subsequently request that the
 maintainer include them into an upstream branch. This process is called
 "submitting a patch" or "submitting a change." For information on
@@ -277,9 +279,9 @@ submitting patches and changes, see the
 ":ref:`dev-manual/common-tasks:submitting a change to the yocto project`"
 section in the Yocto Project Development Tasks Manual.
 
-In summary, a single point of entry exists for changes into a "master"
+In summary, there is a single point of entry for changes into a "master"
 or development branch of the Git repository, which is controlled by the
-project's maintainer. And, a set of developers exist who independently
+project's maintainer. A set of developers independently
 develop, test, and submit changes to "contrib" areas for the maintainer
 to examine. The maintainer then chooses which changes are going to
 become a permanent part of the project.
@@ -382,11 +384,10 @@ commands.
 Repositories, Tags, and Branches
 --------------------------------
 
-As mentioned briefly in the previous section and also in the "`Git
-Workflows and the Yocto
-Project <#gs-git-workflows-and-the-yocto-project>`__" section, the Yocto
-Project maintains source repositories at :yocto_git:`/`. If you
-look at this web-interface of the repositories, each item is a separate
+As mentioned briefly in the previous section and also in the
+":ref:`overview-manual/development-environment:git workflows and the yocto project`"
+section, the Yocto Project maintains source repositories at :yocto_git:`/`.
+If you look at this web-interface of the repositories, each item is a separate
 Git repository.
 
 Git repositories use branching techniques that track content change (not
@@ -429,8 +430,7 @@ local working area (also called a branch) that tracks a specific
 development branch from the upstream source Git repository. in other
 words, you can define your local Git environment to work on any
 development branch in the repository. To help illustrate, consider the
-following example Git commands:
-::
+following example Git commands::
 
    $ cd ~
    $ git clone git://git.yoctoproject.org/poky
@@ -475,8 +475,7 @@ create and checkout a local working Git branch based on a tag name. When
 you do this, you get a snapshot of the Git repository that reflects the
 state of the files when the change was made associated with that tag.
 The most common use is to checkout a working branch that matches a
-specific Yocto Project release. Here is an example:
-::
+specific Yocto Project release. Here is an example::
 
    $ cd ~
    $ git clone git://git.yoctoproject.org/poky
@@ -541,7 +540,7 @@ descriptions and strategies on how to use these commands:
    in this form assumes the local branch already exists. This command is
    analogous to "cd".
 
--  *git checkout –b working-branch upstream-branch:* Creates and
+-  *git checkout -b working-branch upstream-branch:* Creates and
    checks out a working branch on your local machine. The local branch
    tracks the upstream branch. You can use your local branch to isolate
    your work. It is a good idea to use local branches when adding

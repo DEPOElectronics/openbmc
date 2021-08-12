@@ -66,7 +66,7 @@ oe_runmake() {
 }
 
 
-def base_dep_prepend(d):
+def get_base_dep(d):
     if d.getVar('INHIBIT_DEFAULT_DEPS', False):
         return ""
     return "${BASE_DEFAULT_DEPS}"
@@ -74,10 +74,10 @@ def base_dep_prepend(d):
 BASE_DEFAULT_DEPS = "virtual/${TARGET_PREFIX}gcc virtual/${TARGET_PREFIX}compilerlibs virtual/libc"
 
 BASEDEPENDS = ""
-BASEDEPENDS_class-target = "${@base_dep_prepend(d)}"
-BASEDEPENDS_class-nativesdk = "${@base_dep_prepend(d)}"
+BASEDEPENDS:class-target = "${@get_base_dep(d)}"
+BASEDEPENDS:class-nativesdk = "${@get_base_dep(d)}"
 
-DEPENDS_prepend="${BASEDEPENDS} "
+DEPENDS:prepend="${BASEDEPENDS} "
 
 FILESPATH = "${@base_set_filespath(["${FILE_DIRNAME}/${BP}", "${FILE_DIRNAME}/${BPN}", "${FILE_DIRNAME}/files"], d)}"
 # THISDIR only works properly with imediate expansion as it has to run
@@ -91,7 +91,7 @@ def extra_path_elements(d):
         path = path + "${STAGING_BINDIR_NATIVE}/" + e + ":"
     return path
 
-PATH_prepend = "${@extra_path_elements(d)}"
+PATH:prepend = "${@extra_path_elements(d)}"
 
 def get_lic_checksum_file_list(d):
     filelist = []
@@ -481,8 +481,8 @@ python () {
                             % (d.getVar('PN'), flag, 's' if len(intersec) > 1 else '', ' '.join(intersec)))
 
         appendVar('DEPENDS', extradeps)
-        appendVar('RDEPENDS_${PN}', extrardeps)
-        appendVar('RRECOMMENDS_${PN}', extrarrecs)
+        appendVar('RDEPENDS:${PN}', extrardeps)
+        appendVar('RRECOMMENDS:${PN}', extrarrecs)
         appendVar('PACKAGECONFIG_CONFARGS', extraconf)
 
     pn = d.getVar('PN')
@@ -593,6 +593,8 @@ python () {
     srcuri = d.getVar('SRC_URI')
     for uri_string in srcuri.split():
         uri = bb.fetch.URI(uri_string)
+        # Also check downloadfilename as the URL path might not be useful for sniffing
+        path = uri.params.get("downloadfilename", uri.path)
 
         # HTTP/FTP use the wget fetcher
         if uri.scheme in ("http", "https", "ftp"):
@@ -626,27 +628,27 @@ python () {
             d.appendVarFlag('do_fetch', 'depends', ' nodejs-native:do_populate_sysroot')
 
         # *.lz4 should DEPEND on lz4-native for unpacking
-        if uri.path.endswith('.lz4'):
+        if path.endswith('.lz4'):
             d.appendVarFlag('do_unpack', 'depends', ' lz4-native:do_populate_sysroot')
 
         # *.lz should DEPEND on lzip-native for unpacking
-        elif uri.path.endswith('.lz'):
+        elif path.endswith('.lz'):
             d.appendVarFlag('do_unpack', 'depends', ' lzip-native:do_populate_sysroot')
 
         # *.xz should DEPEND on xz-native for unpacking
-        elif uri.path.endswith('.xz') or uri.path.endswith('.txz'):
+        elif path.endswith('.xz') or path.endswith('.txz'):
             d.appendVarFlag('do_unpack', 'depends', ' xz-native:do_populate_sysroot')
 
         # .zip should DEPEND on unzip-native for unpacking
-        elif uri.path.endswith('.zip') or uri.path.endswith('.jar'):
+        elif path.endswith('.zip') or path.endswith('.jar'):
             d.appendVarFlag('do_unpack', 'depends', ' unzip-native:do_populate_sysroot')
 
         # Some rpm files may be compressed internally using xz (for example, rpms from Fedora)
-        elif uri.path.endswith('.rpm'):
+        elif path.endswith('.rpm'):
             d.appendVarFlag('do_unpack', 'depends', ' xz-native:do_populate_sysroot')
 
         # *.deb should DEPEND on xz-native for unpacking
-        elif uri.path.endswith('.deb'):
+        elif path.endswith('.deb'):
             d.appendVarFlag('do_unpack', 'depends', ' xz-native:do_populate_sysroot')
 
     if needsrcrev:

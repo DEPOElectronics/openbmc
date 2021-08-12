@@ -8,7 +8,7 @@ LIC_FILES_CHKSUM = "file://COPYING;md5=f9d20a453221a1b7e32ae84694da2c37"
 SRCREV = "ab8a2cc330253321be7bc69dea88bfaa3d48415e"
 
 SRC_URI = "\
-    git://git.kernel.org/pub/scm/linux/kernel/git/shemminger/bridge-utils.git \
+    git://git.kernel.org/pub/scm/linux/kernel/git/shemminger/bridge-utils.git;branch=main \
     file://kernel-headers.patch \
     file://0005-build-don-t-ignore-CFLAGS-from-environment.patch \
     file://0006-libbridge-Modifying-the-AR-to-cross-toolchain.patch \
@@ -20,16 +20,16 @@ DEPENDS = "sysfsutils"
 
 inherit autotools-brokensep update-alternatives
 
-ALTERNATIVE_${PN} = "brctl"
+ALTERNATIVE:${PN} = "brctl"
 ALTERNATIVE_PRIORITY[brctl] = "100"
 ALTERNATIVE_LINK_NAME[brctl] = "${sbindir}/brctl"
 
 EXTRA_OECONF = "--with-linux-headers=${STAGING_INCDIR}"
 
-do_install_append () {
+do_install:append () {
     install -d ${D}/${datadir}/bridge-utils
     install -d ${D}/${sysconfdir}/network/if-pre-up.d
     install -d ${D}/${sysconfdir}/network/if-post-down.d
 }
 
-RRECOMMENDS_${PN} = "kernel-module-bridge"
+RRECOMMENDS:${PN} = "kernel-module-bridge"

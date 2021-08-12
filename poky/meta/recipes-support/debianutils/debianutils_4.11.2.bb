@@ -1,4 +1,9 @@
 SUMMARY = "Miscellaneous utilities specific to Debian"
+DESCRIPTION = "Provides a number of small utilities which are used \
+primarily by the installation scripts of Debian packages, although \
+you may use them directly. "
+HOMEPAGE = "https://packages.debian.org/sid/debianutils"
+BUGTRACKER = "https://bugs.debian.org/cgi-bin/pkgreport.cgi?pkg=debianutils;dist=unstable"
 SECTION = "base"
 LICENSE = "GPLv2 & SMAIL_GPL"
 LIC_FILES_CHKSUM = "file://debian/copyright;md5=9b912cd0cc654134c0ef3424a0705b94"
@@ -13,11 +18,11 @@ SRC_URI[sha256sum] = "3b680e81709b740387335fac8f8806d71611dcf60874e1a792e862e48a
 inherit autotools update-alternatives
 
 S = "${WORKDIR}/debianutils"
-do_configure_prepend() {
+do_configure:prepend() {
     sed -i -e 's:tempfile.1 which.1:which.1:g' ${S}/Makefile.am
 }
 
-do_install_append() {
+do_install:append() {
     if [ "${base_bindir}" != "${bindir}" ]; then
         # Debian places some utils into ${base_bindir} as does busybox
         install -d ${D}${base_bindir}
@@ -30,18 +35,18 @@ do_install_append() {
 # Note that we package the update-alternatives name.
 #
 PACKAGES =+ "${PN}-run-parts"
-FILES_${PN}-run-parts = "${base_bindir}/run-parts.debianutils"
+FILES:${PN}-run-parts = "${base_bindir}/run-parts.debianutils"
 
-RDEPENDS_${PN} += "${PN}-run-parts"
-RDEPENDS_${PN}_class-native = ""
+RDEPENDS:${PN} += "${PN}-run-parts"
+RDEPENDS:${PN}:class-native = ""
 
 ALTERNATIVE_PRIORITY = "30"
-ALTERNATIVE_${PN} = "add-shell installkernel remove-shell savelog tempfile which"
+ALTERNATIVE:${PN} = "add-shell installkernel remove-shell savelog tempfile which"
 
 ALTERNATIVE_PRIORITY_${PN}-run-parts = "60"
-ALTERNATIVE_${PN}-run-parts = "run-parts"
+ALTERNATIVE:${PN}-run-parts = "run-parts"
 
-ALTERNATIVE_${PN}-doc = "which.1"
+ALTERNATIVE:${PN}-doc = "which.1"
 ALTERNATIVE_LINK_NAME[which.1] = "${mandir}/man1/which.1"
 
 ALTERNATIVE_LINK_NAME[add-shell] = "${sbindir}/add-shell"

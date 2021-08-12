@@ -50,23 +50,23 @@ class ImageOptionsTests(OESelftestTestCase):
     def test_read_only_image(self):
         distro_features = get_bb_var('DISTRO_FEATURES')
         if not ('x11' in distro_features and 'opengl' in distro_features):
-            self.skipTest('core-image-sato requires x11 and opengl in distro features')
+            self.skipTest('core-image-sato/weston requires x11 and opengl in distro features')
         self.write_config('IMAGE_FEATURES += "read-only-rootfs"')
-        bitbake("core-image-sato")
+        bitbake("core-image-sato core-image-weston")
         # do_image will fail if there are any pending postinsts
 
 class DiskMonTest(OESelftestTestCase):
 
     def test_stoptask_behavior(self):
-        self.write_config('BB_DISKMON_DIRS = "STOPTASKS,${TMPDIR},100000G,100K"')
+        self.write_config('BB_DISKMON_DIRS = "STOPTASKS,${TMPDIR},100000G,100K"\nBB_HEARTBEAT_EVENT = "1"')
         res = bitbake("delay -c delay", ignore_status = True)
         self.assertTrue('ERROR: No new tasks can be executed since the disk space monitor action is "STOPTASKS"!' in res.output, msg = "Tasks should have stopped. Disk monitor is set to STOPTASK: %s" % res.output)
         self.assertEqual(res.status, 1, msg = "bitbake reported exit code %s. It should have been 1. Bitbake output: %s" % (str(res.status), res.output))
-        self.write_config('BB_DISKMON_DIRS = "ABORT,${TMPDIR},100000G,100K"')
+        self.write_config('BB_DISKMON_DIRS = "ABORT,${TMPDIR},100000G,100K"\nBB_HEARTBEAT_EVENT = "1"')
         res = bitbake("delay -c delay", ignore_status = True)
         self.assertTrue('ERROR: Immediately abort since the disk space monitor action is "ABORT"!' in res.output, "Tasks should have been aborted immediatelly. Disk monitor is set to ABORT: %s" % res.output)
         self.assertEqual(res.status, 1, msg = "bitbake reported exit code %s. It should have been 1. Bitbake output: %s" % (str(res.status), res.output))
-        self.write_config('BB_DISKMON_DIRS = "WARN,${TMPDIR},100000G,100K"')
+        self.write_config('BB_DISKMON_DIRS = "WARN,${TMPDIR},100000G,100K"\nBB_HEARTBEAT_EVENT = "1"')
         res = bitbake("delay -c delay")
         self.assertTrue('WARNING: The free space' in res.output, msg = "A warning should have been displayed for disk monitor is set to WARN: %s" %res.output)
 
@@ -78,9 +78,9 @@ class SanityOptionsTest(OESelftestTestCase):
 
     def test_options_warnqa_errorqa_switch(self):
 
-        self.write_config("INHERIT_remove = \"report-error\"")
+        self.write_config("INHERIT:remove = \"report-error\"")
         if "packages-list" not in get_bb_var("ERROR_QA"):
-            self.append_config("ERROR_QA_append = \" packages-list\"")
+            self.append_config("ERROR_QA:append = \" packages-list\"")
 
         self.write_recipeinc('xcursor-transparent-theme', 'PACKAGES += \"${PN}-dbg\"')
         self.add_command_to_tearDown('bitbake -c clean xcursor-transparent-theme')
@@ -90,8 +90,8 @@ class SanityOptionsTest(OESelftestTestCase):
         self.assertTrue(line and line.startswith("ERROR:"), msg=res.output)
         self.assertEqual(res.status, 1, msg = "bitbake reported exit code %s. It should have been 1. Bitbake output: %s" % (str(res.status), res.output))
         self.write_recipeinc('xcursor-transparent-theme', 'PACKAGES += \"${PN}-dbg\"')
-        self.append_config('ERROR_QA_remove = "packages-list"')
-        self.append_config('WARN_QA_append = " packages-list"')
+        self.append_config('ERROR_QA:remove = "packages-list"')
+        self.append_config('WARN_QA:append = " packages-list"')
         res = bitbake("xcursor-transparent-theme -f -c package")
         self.delete_recipeinc('xcursor-transparent-theme')
         line = self.getline(res, "QA Issue: xcursor-transparent-theme-dbg is listed in PACKAGES multiple times, this leads to packaging errors.")
@@ -168,7 +168,7 @@ class ToolchainOptions(OESelftestTestCase):
         Test that Fortran works by building a Hello, World binary.
         """
 
-        features = 'FORTRAN_forcevariable = ",fortran"\n'
+        features = 'FORTRAN:forcevariable = ",fortran"\n'
         self.write_config(features)
         bitbake('fortran-helloworld')
 
@@ -197,3 +197,9 @@ PREMIRRORS = "\\
 
         bitbake("world --runall fetch")
 
+
+class Poisoning(OESelftestTestCase):
+    def test_poisoning(self):
+        res = bitbake("poison", ignore_status=True)
+        self.assertNotEqual(res.status, 0)
+        self.assertTrue("is unsafe for cross-compilation" in res.output)

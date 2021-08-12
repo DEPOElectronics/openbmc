@@ -159,7 +159,7 @@ command (eg. bootz) to be used.
 
 To build an initramfs image:
 
-* Set this 3 kernel variables (in kernel's do_configure_prepend in linux-raspberrypi.inc after the line kernel_configure_variable LOCALVERSION "\"\""
+* Set this 3 kernel variables (in kernel's do_configure:prepend in linux-raspberrypi.inc after the line kernel_configure_variable LOCALVERSION "\"\""
 )
   - kernel_configure_variable BLK_DEV_INITRD y
   - kernel_configure_variable INITRAMFS_SOURCE ""
@@ -195,7 +195,7 @@ by tasks that image building task must depend upon, to ensure that the
 files are available when they are needed, so these component deploy
 tasks must be added to: RPI_SDIMG_EXTRA_DEPENDS.
 
-    RPI_SDIMG_EXTRA_DEPENDS_append = " example:do_deploy"
+    RPI_SDIMG_EXTRA_DEPENDS:append = " example:do_deploy"
 
 ## Enable SPI bus
 
@@ -211,7 +211,7 @@ When using device tree kernels, set this variable to enable I2C:
 
 Furthermore, to auto-load I2C kernel modules set:
 
-    KERNEL_MODULE_AUTOLOAD_rpi += "i2c-dev i2c-bcm2708"
+    KERNEL_MODULE_AUTOLOAD:rpi += "i2c-dev i2c-bcm2708"
 
 ## Enable PiTFT support
 
@@ -349,3 +349,24 @@ Also, this will enable adding Contiguous Memory Allocation value in the cmdline.
 Ref.:
 * <https://github.com/raspberrypi/documentation/blob/master/linux/software/libcamera/README.md>
 * <https://www.raspberrypi.org/blog/an-open-source-camera-stack-for-raspberry-pi-using-libcamera/>
+
+## WM8960 soundcard support
+
+Support for WM8960 based sound cards such as the WM8960 Hi-Fi Sound Card HAT for Raspberry Pi from Waveshare, and ReSpeaker 2 / 4 / 6 Mics Pi HAT from Seeed Studio, can be enabled in `local.conf`
+
+    ```conf
+    MACHINE_FEATURES += "wm8960"
+    ```
+
+You may need to adjust volume and toggle switches that are off by default
+
+    ```bash
+    amixer -c1 sset 'Headphone',0 80%,80%
+    amixer -c1 sset 'Speaker',0 80%,80%
+    amixer -c1 sset 'Left Input Mixer Boost' toggle
+    amixer -c1 sset 'Left Output Mixer PCM' toggle
+    amixer -c1 sset 'Right Input Mixer Boost' toggle
+    amixer -c1 sset 'Right Output Mixer PCM' toggle
+    ```
+
+Audio capture on ReSpeaker 2 / 4 / 6 Mics Pi HAT from Seeed Studio is very noisy.

@@ -19,23 +19,25 @@ DEPENDS += "sdbusplus"
 DEPENDS += "phosphor-logging"
 DEPENDS += "${PN}-config-native"
 
-DBUS_SERVICE_${PN} += "xyz.openbmc_project.ObjectMapper.service"
-SYSTEMD_SERVICE_${PN} += " \
+DBUS_SERVICE:${PN} += "xyz.openbmc_project.ObjectMapper.service"
+SYSTEMD_SERVICE:${PN} += " \
         mapper-wait@.service \
         mapper-subtree-remove@.service \
         "
 SRC_URI += "git://github.com/openbmc/phosphor-objmgr"
 
-SRCREV = "bb40bd36854dde1eb466a2bf093351496ce458bb"
+SRCREV = "bdaa7f8bb4b34ec4d5f806135364e3ffcc427c0e"
 
 S = "${WORKDIR}/git"
 
-python populate_packages_prepend () {
+EXTRA_OECONF += "--disable-tests"
+
+python populate_packages:prepend () {
     mapperlibdir = d.getVar("libdir", True)
     do_split_packages(d, mapperlibdir, '^lib(.*)\.so\.*', 'lib%s', 'Phosphor mapper %s library', extra_depends='', allow_links=True)
 }
 PACKAGES_DYNAMIC += "^libmapper.*"
-FILES_${PN}_remove = "${libdir}/lib*.so.* ${libdir}/*"
+FILES:${PN}:remove = "${libdir}/lib*.so.* ${libdir}/*"
 
 # Construct a systemd environment file with mapper commandline
 # from the native sysroot /usr/share/phosphor-mapper filesystem.

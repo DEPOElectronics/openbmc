@@ -1,6 +1,8 @@
 # Note, we can probably remove the lzma option as it has be replaced with xz,
 # and I don't think the kernel supports it any more.
 SUMMARY = "Tools for manipulating SquashFS filesystems"
+HOMEPAGE = "https://github.com/plougher/squashfs-tools"
+DESCRIPTION = "Tools to create and extract Squashfs filesystems."
 SECTION = "base"
 LICENSE = "GPL-2"
 LIC_FILES_CHKSUM = "file://../COPYING;md5=b234ee4d69f5fce4486a80fdaf4a4263"
@@ -30,12 +32,14 @@ do_compile() {
 }
 
 do_install() {
+	install -d "${D}${includedir}"
 	oe_runmake install INSTALL_DIR=${D}${sbindir}
+	install -m 0644 "${S}"/squashfs_fs.h "${D}${includedir}"
 }
 
-ARM_INSTRUCTION_SET_armv4 = "arm"
-ARM_INSTRUCTION_SET_armv5 = "arm"
-ARM_INSTRUCTION_SET_armv6 = "arm"
+ARM_INSTRUCTION_SET:armv4 = "arm"
+ARM_INSTRUCTION_SET:armv5 = "arm"
+ARM_INSTRUCTION_SET:armv6 = "arm"
 
 BBCLASSEXTEND = "native nativesdk"
 

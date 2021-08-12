@@ -9,17 +9,28 @@ DESCRIPTION = "Utility to write IPMI SEL records to the journal"
 #   SEL_LOGGER_MONITOR_THRESHOLD_EVENTS:
 #      Monitors and logs SEL records for threshold sensor events
 
-inherit cmake systemd
+inherit meson systemd
 S = "${WORKDIR}/git"
 
 LICENSE = "Apache-2.0"
 LIC_FILES_CHKSUM = "file://LICENSE;md5=86d3f3a95c324c9479bd8986968f4327"
 
-DEPENDS += "systemd sdbusplus boost phosphor-ipmi-host"
+DEPENDS += " \
+  boost \
+  sdbusplus \
+  systemd \
+  "
 
 SRC_URI = "git://github.com/openbmc/phosphor-sel-logger.git;protocol=git"
-SRCREV = "aaffc124b6f49d9bc267e65565bdd5d4c1db1aaf"
+SRCREV = "e295fd9d6f7572b49b2c6b72e715a01eb68807d0"
 
 PV = "0.1+git${SRCPV}"
 
-SYSTEMD_SERVICE_${PN} += "xyz.openbmc_project.Logging.IPMI.service"
+SYSTEMD_SERVICE:${PN} += "xyz.openbmc_project.Logging.IPMI.service"
+
+PACKAGECONFIG ??= ""
+PACKAGECONFIG[log-threshold] = "-Dlog-threshold=true,-Dlog-threshold=false,"
+PACKAGECONFIG[log-pulse] = "-Dlog-pulse=true,-Dlog-pulse=false,"
+PACKAGECONFIG[log-watchdog] = "-Dlog-watchdog=true,-Dlog-watchdog=false,"
+PACKAGECONFIG[log-alarm] = "-Dlog-alarm=true,-Dlog-alarm=false,"
+PACKAGECONFIG[send-to-logger] = "-Dsend-to-logger=true,-Dsend-to-logger=false,phosphor-logging"

@@ -12,8 +12,8 @@
 
 # Toolchain should be baremetal or newlib based.
 # TCLIBC="baremetal" or TCLIBC="newlib"
-COMPATIBLE_HOST_libc-musl_class-target = "null"
-COMPATIBLE_HOST_libc-glibc_class-target = "null"
+COMPATIBLE_HOST:libc-musl:class-target = "null"
+COMPATIBLE_HOST:libc-glibc:class-target = "null"
 
 
 inherit rootfs-postcommands
@@ -50,6 +50,10 @@ python do_rootfs(){
         if os.path.lexists(manifest_link):
             os.remove(manifest_link)
         os.symlink(os.path.basename(manifest_name), manifest_link)
+    # A lot of postprocess commands assume the existence of rootfs/etc
+    sysconfdir = d.getVar("IMAGE_ROOTFS") + d.getVar('sysconfdir')
+    bb.utils.mkdirhier(sysconfdir)
+
     execute_pre_post_process(d, d.getVar('ROOTFS_POSTPROCESS_COMMAND'))
 }
 
@@ -57,7 +61,7 @@ python do_rootfs(){
 # Assure binaries, manifest and qemubootconf are populated on DEPLOY_DIR_IMAGE
 do_image_complete[dirs] = "${TOPDIR}"
 SSTATETASKS += "do_image_complete"
-SSTATE_SKIP_CREATION_task-image-complete = '1'
+SSTATE_SKIP_CREATION:task-image-complete = '1'
 do_image_complete[sstate-inputdirs] = "${IMGDEPLOYDIR}"
 do_image_complete[sstate-outputdirs] = "${DEPLOY_DIR_IMAGE}"
 do_image_complete[stamp-extra-info] = "${MACHINE_ARCH}"
@@ -73,7 +77,19 @@ QB_DEFAULT_KERNEL ?= "${IMAGE_LINK_NAME}.bin"
 QB_MEM ?= "-m 256"
 QB_DEFAULT_FSTYPE ?= "bin"
 QB_DTB ?= ""
-QB_OPT_APPEND = "-nographic"
+QB_OPT_APPEND:append = " -nographic"
+
+# RISC-V tunes set the BIOS, unset, and instruct QEMU to
+# ignore the BIOS and boot from -kernel
+QB_DEFAULT_BIOS:qemuriscv64 = ""
+QB_OPT_APPEND:append:qemuriscv64 = " -bios none"
+
+
+# Use the medium-any code model for the RISC-V 64 bit implementation,
+# since medlow can only access addresses below 0x80000000 and RAM
+# starts at 0x80000000 on RISC-V 64
+CFLAGS:append:qemuriscv64 = " -mcmodel=medany"
+
 
 # This next part is necessary to trick the build system into thinking
 # its building an image recipe so it generates the qemuboot.conf

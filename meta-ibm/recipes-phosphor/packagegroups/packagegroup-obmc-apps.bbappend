@@ -7,8 +7,8 @@ POWER_SERVICE_PACKAGES_AC_SERVER = " \
     phosphor-power \
 "
 
-# Rainier does not need/want the old PSU monitor
-POWER_SERVICE_PACKAGES_RAINIER = " \
+# P10 does not need/want the old PSU monitor
+POWER_SERVICE_PACKAGES_P10 = " \
     phosphor-power-sequencer \
     phosphor-power-systemd-links-sequencer \
     phosphor-power-utils \
@@ -18,26 +18,26 @@ POWER_SERVICE_PACKAGES_RAINIER = " \
 "
 
 EXTRA_IBM_LOGGING_PKGS = ""
-EXTRA_IBM_LOGGING_PKGS_witherspoon = "ibm-logging"
-EXTRA_IBM_LOGGING_PKGS_witherspoon-tacoma = ""
-EXTRA_IBM_LOGGING_PKGS_mihawk = "ibm-logging"
+EXTRA_IBM_LOGGING_PKGS:witherspoon = "ibm-logging"
+EXTRA_IBM_LOGGING_PKGS:witherspoon-tacoma = ""
+EXTRA_IBM_LOGGING_PKGS:mihawk = "ibm-logging"
 
-RDEPENDS_${PN}-inventory_append_ibm-ac-server = " openpower-fru-vpd openpower-occ-control phosphor-cooling-type virtual/obmc-gpio-presence"
-RDEPENDS_${PN}-inventory_append_rainier = " openpower-fru-vpd openpower-occ-control virtual/obmc-gpio-presence"
-RDEPENDS_${PN}-inventory_append_mihawk = " openpower-fru-vpd openpower-occ-control virtual/obmc-gpio-presence id-button phosphor-cooling-type"
-RDEPENDS_${PN}-fan-control_append_ibm-ac-server = " fan-watchdog"
-RDEPENDS_${PN}-fan-control_append_rainier = " fan-watchdog sensor-monitor"
-RDEPENDS_${PN}-extras_append_ibm-ac-server = " ${POWER_SERVICE_PACKAGES_AC_SERVER} witherspoon-power-supply-sync phosphor-webui"
-RDEPENDS_${PN}-extras_append_rainier = " ${POWER_SERVICE_PACKAGES_RAINIER} webui-vue dbus-sensors phosphor-virtual-sensor"
-RDEPENDS_${PN}-extras_append_mihawk = " phosphor-webui phosphor-image-signing wistron-ipmi-oem ${POWER_SERVICE_PACKAGES_AC_SERVER}"
-RDEPENDS_${PN}-extras_append_witherspoon-tacoma = " pldm srvcfg-manager webui-vue biosconfig-manager phosphor-post-code-manager phosphor-host-postd"
+RDEPENDS:${PN}-inventory:append:ibm-ac-server = " openpower-fru-vpd openpower-occ-control phosphor-cooling-type virtual/obmc-gpio-presence"
+RDEPENDS:${PN}-inventory:append:p10bmc = " openpower-fru-vpd openpower-occ-control virtual/obmc-gpio-presence"
+RDEPENDS:${PN}-inventory:append:mihawk = " openpower-fru-vpd openpower-occ-control virtual/obmc-gpio-presence id-button phosphor-cooling-type"
+RDEPENDS:${PN}-fan-control:append:ibm-ac-server = " fan-watchdog"
+RDEPENDS:${PN}-fan-control:append:p10bmc = " fan-watchdog sensor-monitor"
+RDEPENDS:${PN}-extras:append:ibm-ac-server = " ${POWER_SERVICE_PACKAGES_AC_SERVER} witherspoon-power-supply-sync phosphor-webui"
+RDEPENDS:${PN}-extras:append:p10bmc = " ${POWER_SERVICE_PACKAGES_P10} webui-vue dbus-sensors phosphor-virtual-sensor kexec-tools makedumpfile kdump vmcore-dmesg"
+RDEPENDS:${PN}-extras:append:p10bmc = " pldm openpower-hw-diags srvcfg-manager biosconfig-manager phosphor-post-code-manager phosphor-host-postd debug-trigger mctp"
+RDEPENDS:${PN}-extras:append:mihawk = " phosphor-webui phosphor-image-signing wistron-ipmi-oem ${POWER_SERVICE_PACKAGES_AC_SERVER}"
+RDEPENDS:${PN}-extras:append:witherspoon-tacoma = " pldm srvcfg-manager webui-vue biosconfig-manager phosphor-post-code-manager phosphor-host-postd kexec-tools makedumpfile kdump vmcore-dmesg debug-trigger"
 
-RDEPENDS_${PN}-extras_remove_rainier = "obmc-ikvm liberation-fonts uart-render-controller"
-RDEPENDS_${PN}-extras_remove_swift = "obmc-ikvm"
-RDEPENDS_${PN}-extras_remove_witherspoon-tacoma = "obmc-ikvm liberation-fonts uart-render-controller phosphor-webui"
-RDEPENDS_${PN}-logging_append = " ${EXTRA_IBM_LOGGING_PKGS}"
-RDEPENDS_${PN}-extras_append_rainier = " pldm openpower-hw-diags srvcfg-manager biosconfig-manager phosphor-post-code-manager phosphor-host-postd"
-RDEPENDS_${PN}-leds_remove_rainier = "phosphor-led-manager-faultmonitor"
-RDEPENDS_${PN}-leds_remove_witherspoon-tacoma = "phosphor-led-manager-faultmonitor"
+RDEPENDS:${PN}-extras:remove:p10bmc = "obmc-ikvm liberation-fonts uart-render-controller"
+RDEPENDS:${PN}-host-state-mgmt:remove:p10bmc = "checkstop-monitor"
+RDEPENDS:${PN}-extras:remove:swift = "obmc-ikvm"
+RDEPENDS:${PN}-extras:remove:witherspoon-tacoma = "obmc-ikvm liberation-fonts uart-render-controller phosphor-webui"
+RDEPENDS:${PN}-logging:append = " ${EXTRA_IBM_LOGGING_PKGS}"
+RDEPENDS:${PN}-leds:remove:witherspoon-tacoma = "phosphor-led-manager-faultmonitor"
 
-${PN}-software-extras_append_ibm-ac-server = " phosphor-software-manager-sync"
+${PN}-software-extras:append:ibm-ac-server = " phosphor-software-manager-sync"

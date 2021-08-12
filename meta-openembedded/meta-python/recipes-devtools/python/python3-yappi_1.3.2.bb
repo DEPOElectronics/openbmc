@@ -8,20 +8,23 @@ SRC_URI[sha256sum] = "a51d3e6e5563cc74b5bb82ed6e7bd44a9c1a7eae3d97e4d52e9465edb3
 
 SRC_URI += " \
     file://run-ptest \
+    file://0001-Fix-imports-for-ptests.patch \
 "
 
 inherit pypi setuptools3 ptest
 
-RDEPENDS_${PN} += "\
+RDEPENDS:${PN} += "\
     ${PYTHON_PN}-datetime \
     ${PYTHON_PN}-pickle \
     ${PYTHON_PN}-threading \
 "
 
-RDEPENDS_${PN}-ptest += " \
-    ${PYTHON_PN}-pytest \
+RDEPENDS:${PN}-ptest += " \
+    ${PYTHON_PN}-gevent \
     ${PYTHON_PN}-multiprocessing \
+    ${PYTHON_PN}-pytest \
     ${PYTHON_PN}-profile \
+    ${PYTHON_PN}-zopeinterface \
 "
 
 do_install_ptest() {

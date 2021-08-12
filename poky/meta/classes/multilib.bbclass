@@ -105,7 +105,6 @@ python __anonymous () {
         d.setVar("LINGUAS_INSTALL", "")
         # FIXME, we need to map this to something, not delete it!
         d.setVar("PACKAGE_INSTALL_ATTEMPTONLY", "")
-        bb.build.deltask('do_populate_sdk', d)
         bb.build.deltask('do_populate_sdk_ext', d)
         return
 }
@@ -177,7 +176,7 @@ def reset_alternative_priority(d):
                 bb.debug(1, '%s: Setting ALTERNATIVE_PRIORITY_%s to %s' % (pkg, pkg, reset_priority))
                 d.setVar('ALTERNATIVE_PRIORITY_%s' % pkg, reset_priority)
 
-        for alt_name in (d.getVar('ALTERNATIVE_%s' % pkg) or "").split():
+        for alt_name in (d.getVar('ALTERNATIVE:%s' % pkg) or "").split():
             # ALTERNATIVE_PRIORITY_pkg[tool]  = priority
             alt_priority_pkg_name = d.getVarFlag('ALTERNATIVE_PRIORITY_%s' % pkg, alt_name)
             # ALTERNATIVE_PRIORITY[tool] = priority
@@ -192,7 +191,7 @@ def reset_alternative_priority(d):
                 bb.debug(1, '%s: Setting ALTERNATIVE_PRIORITY[%s] to %s' % (pkg, alt_name, reset_priority))
                 d.setVarFlag('ALTERNATIVE_PRIORITY', alt_name, reset_priority)
 
-PACKAGEFUNCS_append = " do_package_qa_multilib"
+PACKAGEFUNCS:append = " do_package_qa_multilib"
 
 python do_package_qa_multilib() {
 

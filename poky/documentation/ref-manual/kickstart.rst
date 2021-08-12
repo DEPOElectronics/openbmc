@@ -30,10 +30,9 @@ Command: part or partition
 ==========================
 
 Either of these commands creates a partition on the system and uses the
-following syntax:
-::
+following syntax::
 
-   part [mntpoint] 
+   part [mntpoint]
    partition [mntpoint]
 
 If you do not
@@ -55,12 +54,11 @@ must also provide one of the ``--ondrive``, ``--ondisk``, or
 .. note::
 
    The mount program must understand the PARTUUID syntax you use with
-   ``--use-uuid`` and non-root *mountpoint*, including swap. The busybox
+   ``--use-uuid`` and non-root *mountpoint*, including swap. The BusyBox
    versions of these application are currently excluded.
 
 Here is an example that uses "/" as the mountpoint. The command uses
-``--ondisk`` to force the partition onto the ``sdb`` disk:
-::
+``--ondisk`` to force the partition onto the ``sdb`` disk::
 
       part / --source rootfs --ondisk sdb --fstype=ext3 --label platform --align 1024
 
@@ -108,13 +106,15 @@ the ``part`` and ``partition`` commands:
 -  ``--fstype``: Sets the file system type for the partition. Valid
    values are:
 
-   -  ``ext4``
+   -  ``btrfs``
 
-   -  ``ext3``
+   -  ``erofs``
 
    -  ``ext2``
 
-   -  ``btrfs``
+   -  ``ext3``
+
+   -  ``ext4``
 
    -  ``squashfs``
 
@@ -208,9 +208,9 @@ supports the following options:
    bootloader times out and boots the default option.
 
 -  ``--append``: Specifies kernel parameters. These parameters will be
-   added to the syslinux ``APPEND`` or ``grub`` kernel command line.
+   added to the syslinux :term:`APPEND` or ``grub`` kernel command line.
 
 -  ``--configfile``: Specifies a user-defined configuration file for
    the bootloader. You can provide a full pathname for the file or a
-   file that exists in the ``canned-wks`` folder. This option overrides
+   file located in the ``canned-wks`` folder. This option overrides
    all other bootloader options.

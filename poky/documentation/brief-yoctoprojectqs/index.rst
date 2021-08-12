@@ -60,10 +60,10 @@ following requirements:
 
 -
 
-   -  Git 1.8.3.1 or greater
-   -  tar 1.28 or greater
-   -  Python 3.5.0 or greater.
-   -  gcc 5.0 or greater.
+   -  Git &MIN_GIT_VERSION; or greater
+   -  tar &MIN_TAR_VERSION; or greater
+   -  Python &MIN_PYTHON_VERSION; or greater.
+   -  gcc &MIN_GCC_VERSION; or greater.
 
 If your build host does not meet any of these three listed version
 requirements, you can take steps to prepare the system so that you
@@ -106,42 +106,57 @@ commands to clone the Poky repository.
    Resolving deltas: 100% (323116/323116), done.
    Checking connectivity... done.
 
-Move to the ``poky`` directory and take a look at the tags:
+Go to :yocto_wiki:`Releases wiki page </Releases>`, and choose a release
+codename (such as ``&DISTRO_NAME_NO_CAP;``), corresponding to either the
+latest stable release or a Long Term Support release.
+
+Then move to the ``poky`` directory and take a look at existing branches:
 
 .. code-block:: shell
 
    $ cd poky
-   $ git fetch --tags
-   $ git tag
-   1.1_M1.final
-   1.1_M1.rc1
-   1.1_M1.rc2
-   1.1_M2.final
-   1.1_M2.rc1
+   $ git branch -a
    .
    .
    .
-   yocto-2.5
-   yocto-2.5.1
-   yocto-2.5.2
-   yocto-2.6
-   yocto-2.6.1
-   yocto-2.6.2
-   yocto-2.7
-   yocto_1.5_M5.rc8
+   remotes/origin/HEAD -> origin/master
+   remotes/origin/dunfell
+   remotes/origin/dunfell-next
+   .
+   .
+   .
+   remotes/origin/gatesgarth
+   remotes/origin/gatesgarth-next
+   .
+   .
+   .
+   remotes/origin/master
+   remotes/origin/master-next
+   .
+   .
+   .
 
-For this example, check out the branch based on the
-``&DISTRO_REL_TAG;`` release:
+
+For this example, check out the ``&DISTRO_NAME_NO_CAP;`` branch based on the
+``&DISTRO_NAME;`` release:
 
 .. code-block:: shell
 
-   $ git checkout tags/&DISTRO_REL_TAG; -b my-&DISTRO_REL_TAG;
-   Switched to a new branch 'my-&DISTRO_REL_TAG;'
+   $ git checkout -t origin/&DISTRO_NAME_NO_CAP; -b my-&DISTRO_NAME_NO_CAP;
+   Branch 'my-&DISTRO_NAME_NO_CAP;' set up to track remote branch '&DISTRO_NAME_NO_CAP;' from 'origin'.
+   Switched to a new branch 'my-&DISTRO_NAME_NO_CAP;'
 
 The previous Git checkout command creates a local branch named
-``my-&DISTRO_REL_TAG;``. The files available to you in that branch exactly
-match the repository's files in the ``&DISTRO_NAME_NO_CAP;`` development
-branch at the time of the Yocto Project &DISTRO_REL_TAG; release.
+``my-&DISTRO_NAME_NO_CAP;``. The files available to you in that branch
+exactly match the repository's files in the ``&DISTRO_NAME_NO_CAP;``
+release branch.
+
+Note that you can regularly type the following command in the same directory
+to keep your local files in sync with the release branch:
+
+.. code-block:: shell
+
+   $ git pull
 
 For more options and information about accessing Yocto Project related
 repositories, see the
@@ -176,7 +191,7 @@ an entire Linux distribution, including the toolchain, from source.
 
    .. code-block:: shell
 
-      $ cd ~/poky
+      $ cd poky
       $ source oe-init-build-env
       You had no conf/local.conf file. This configuration file has therefore been
       created for you with some default values. You may wish to edit it to, for
@@ -189,10 +204,10 @@ an entire Linux distribution, including the toolchain, from source.
 
       The Yocto Project has extensive documentation about OE including a reference
       manual which can be found at:
-          http://yoctoproject.org/documentation
+          https://docs.yoctoproject.org
 
       For more information about OpenEmbedded see their website:
-          http://www.openembedded.org/
+          https://www.openembedded.org/
 
       ### Shell environment set up for builds. ###
 
@@ -200,11 +215,18 @@ an entire Linux distribution, including the toolchain, from source.
 
       Common targets are:
           core-image-minimal
+          core-image-full-cmdline
           core-image-sato
+          core-image-weston
           meta-toolchain
           meta-ide-support
 
-      You can also run generated qemu images with a command like 'runqemu qemux86-64'
+      You can also run generated QEMU images with a command like 'runqemu qemux86-64'
+
+      Other commonly useful commands are:
+       - 'devtool' and 'recipetool' handle common recipe tasks
+       - 'bitbake-layers' handles common layer tasks
+       - 'oe-pkgdata-util' handles common target package tasks
 
    Among other things, the script creates the :term:`Build Directory`, which is
    ``build`` in this case and is located in the :term:`Source Directory`.  After
@@ -223,7 +245,7 @@ an entire Linux distribution, including the toolchain, from source.
 
       You can significantly speed up your build and guard against fetcher
       failures by using mirrors. To use mirrors, add these lines to your
-      local.conf file in the Build directory: ::
+      local.conf file in the Build directory::
 
          SSTATE_MIRRORS = "\
          file://.* http://sstate.yoctoproject.org/dev/PATH;downloadfilename=PATH \n \
@@ -245,8 +267,9 @@ an entire Linux distribution, including the toolchain, from source.
 
    For information on using the ``bitbake`` command, see the
    :ref:`overview-manual/concepts:bitbake` section in the Yocto Project Overview and
-   Concepts Manual, or see the ":ref:`BitBake Command
-   <bitbake:bitbake-user-manual/bitbake-user-manual-intro:the bitbake command>`" section in the BitBake User Manual.
+   Concepts Manual, or see
+   :ref:`bitbake:bitbake-user-manual/bitbake-user-manual-intro:the bitbake command`
+   in the BitBake User Manual.
 
 #. **Simulate Your Image Using QEMU:** Once this particular image is
    built, you can start QEMU, which is a Quick EMUlator that ships with
@@ -282,7 +305,7 @@ modular development and makes it easier to reuse the layer metadata.
 
 Follow these steps to add a hardware layer:
 
-#. **Find a Layer:** Lots of hardware layers exist. The Yocto Project
+#. **Find a Layer:** Many hardware layers are available. The Yocto Project
    :yocto_git:`Source Repositories <>` has many hardware layers.
    This example adds the
    `meta-altera <https://github.com/kraj/meta-altera>`__ hardware layer.
@@ -293,7 +316,7 @@ Follow these steps to add a hardware layer:
 
    .. code-block:: shell
 
-      $ cd ~/poky
+      $ cd poky
       $ git clone https://github.com/kraj/meta-altera.git
       Cloning into 'meta-altera'...
       remote: Counting objects: 25170, done.
@@ -303,8 +326,8 @@ Follow these steps to add a hardware layer:
       Resolving deltas: 100% (13385/13385), done.
       Checking connectivity... done.
 
-   The hardware layer now exists
-   with other layers inside the Poky reference repository on your build
+   The hardware layer is now available
+   next to other layers inside the Poky reference repository on your build
    host as ``meta-altera`` and contains all the metadata needed to
    support hardware from Altera, which is owned by Intel.
 
@@ -317,7 +340,7 @@ Follow these steps to add a hardware layer:
 #. **Change the Configuration to Build for a Specific Machine:** The
    :term:`MACHINE` variable in the
    ``local.conf`` file specifies the machine for the build. For this
-   example, set the ``MACHINE`` variable to ``cyclone5``. These
+   example, set the :term:`MACHINE` variable to ``cyclone5``. These
    configurations are used:
    https://github.com/kraj/meta-altera/blob/master/conf/machine/cyclone5.conf.
 
@@ -337,7 +360,7 @@ Follow these steps to add a hardware layer:
 
    .. code-block:: shell
 
-      $ cd ~/poky/build
+      $ cd poky/build
       $ bitbake-layers add-layer ../meta-altera
       NOTE: Starting bitbake server...
       Parsing recipes: 100% |##################################################################| Time: 0:00:32
@@ -374,7 +397,7 @@ The following commands run the tool to create a layer named
 
 .. code-block:: shell
 
-   $ cd ~/poky
+   $ cd poky
    $ bitbake-layers create-layer meta-mylayer
    NOTE: Starting bitbake server...
    Add your new layer with 'bitbake-layers add-layer meta-mylayer'
@@ -416,8 +439,8 @@ information including the website, wiki pages, and user manuals:
    information.
 
 -  **Yocto Project Mailing Lists:** Related mailing lists provide a forum
-   for discussion, patch submission and announcements. Several mailing
-   lists exist and are grouped according to areas of concern. See the
+   for discussion, patch submission and announcements. There are several
+   mailing lists grouped by topic. See the
    :ref:`ref-manual/resources:mailing lists`
    section in the Yocto Project Reference Manual for a complete list of
    Yocto Project mailing lists.

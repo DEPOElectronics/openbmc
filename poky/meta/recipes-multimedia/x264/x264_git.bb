@@ -14,7 +14,7 @@ SRC_URI = "git://github.com/mirror/x264;branch=stable \
            "
 UPSTREAM_CHECK_COMMITS = "1"
 
-SRCREV = "544c61f082194728d0391fb280a6e138ba320a96"
+SRCREV = "5db6aa6cab1b146e07b60cc1736a01f21da01154"
 
 PV = "r3039+git${SRCPV}"
 
@@ -23,11 +23,11 @@ S = "${WORKDIR}/git"
 inherit lib_package pkgconfig
 
 X264_DISABLE_ASM = ""
-X264_DISABLE_ASM_x86 = "--disable-asm"
-X264_DISABLE_ASM_armv4 = "--disable-asm"
-X264_DISABLE_ASM_armv5 = "--disable-asm"
-X264_DISABLE_ASM_powerpc = "${@bb.utils.contains("TUNE_FEATURES", "spe", "--disable-asm", "", d)}"
-X264_DISABLE_ASM_mipsarch = "${@bb.utils.contains("TUNE_FEATURES", "r6", "", "--disable-asm", d)}"
+X264_DISABLE_ASM:x86 = "--disable-asm"
+X264_DISABLE_ASM:armv4 = "--disable-asm"
+X264_DISABLE_ASM:armv5 = "--disable-asm"
+X264_DISABLE_ASM:powerpc = "${@bb.utils.contains("TUNE_FEATURES", "spe", "--disable-asm", "", d)}"
+X264_DISABLE_ASM:mipsarch = "${@bb.utils.contains("TUNE_FEATURES", "r6", "", "--disable-asm", d)}"
 
 EXTRA_OECONF = '--prefix=${prefix} \
                 --host=${HOST_SYS} \

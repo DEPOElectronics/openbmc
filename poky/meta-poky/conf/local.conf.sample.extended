@@ -33,8 +33,8 @@
 
 # If you want to get an image based on directfb without x11 alter
 # DISTRO_FEATURES:
-DISTRO_FEATURES_append = " directfb"
-DISTRO_FEATURES_remove = "x11"
+DISTRO_FEATURES:append = " directfb"
+DISTRO_FEATURES:remove = "x11"
 
 # ENABLE_BINARY_LOCALE_GENERATION controls the generation of binary locale
 # packages at build time using qemu-native. Disabling it (by setting it to 0)
@@ -118,15 +118,6 @@ DISTRO_FEATURES_remove = "x11"
 # you would set it as follows:
 #
 # TCMODE ?= "external-sourcery"
-
-# mklibs library size optimization is more useful to smaller images,
-# and less useful for bigger images. Also mklibs library optimization
-# can break the ABI compatibility, so should not be applied to the
-# images which are to be extended or upgraded later.
-#This enabled mklibs library size optimization just for the specified image.
-#MKLIBS_OPTIMIZED_IMAGES ?= "core-image-minimal"
-#This enable mklibs library size optimization will be for all the images.
-#MKLIBS_OPTIMIZED_IMAGES ?= "all"
 
 # This value is currently used by pseudo to determine if the recipe should
 # build both the 32-bit and 64-bit wrapper libraries on a 64-bit build system.
@@ -389,4 +380,9 @@ DISTRO_FEATURES_remove = "x11"
 # Enable LTO system-wide
 #
 #require conf/distro/include/lto.inc
-#DISTRO_FEATURES_append = " lto"
+#DISTRO_FEATURES:append = " lto"
+
+#
+# Set PS1 for SDK
+#
+#SDK_PS1 ?= "${SDK_NAME}${SDK_VENDOR}:\$ "

@@ -37,32 +37,34 @@ PACKAGECONFIG[mmc_layout] = "-Ddevice-type=mmc"
 PACKAGECONFIG[virtual_pnor] = "-Dvpnor=enabled, -Dvpnor=disabled"
 
 EXTRA_OEMESON += " \
+    -Dtests=disabled \
     -Dmsl="v2.0.10 v2.2" \
     "
 
 DEPENDS += " \
         cli11 \
         dbus \
+        nlohmann-json \
         openssl \
         phosphor-dbus-interfaces \
         phosphor-logging \
         sdbusplus \
         "
 
-RDEPENDS_${PN} += " \
+RDEPENDS:${PN} += " \
         virtual-obmc-image-manager \
         "
 
-FILES_${PN} += "${datadir}/dbus-1/system.d/org.open_power.Software.Host.Updater.conf"
+FILES:${PN} += "${datadir}/dbus-1/system.d/org.open_power.Software.Host.Updater.conf"
 
 S = "${WORKDIR}/git"
 
 SRC_URI += "git://github.com/openbmc/openpower-pnor-code-mgmt"
 
-SRCREV = "0529d284b008fa4b4ff9512da5f375decfd62740"
+SRCREV = "5dc5d6cc6796ef038c59e41297349a982c8dd296"
 
-DBUS_SERVICE_${PN} += "org.open_power.Software.Host.Updater.service"
+DBUS_SERVICE:${PN} += "org.open_power.Software.Host.Updater.service"
 
-SYSTEMD_SERVICE_${PN} += " \
+SYSTEMD_SERVICE:${PN} += " \
         op-pnor-msl.service \
         "
