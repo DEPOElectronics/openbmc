@@ -3,7 +3,7 @@
 default_eth0addr=98:A7:B0:00:00:01
 default_eth1addr=98:A7:B0:00:00:02
 
-bmc_addr_base=0x3E
+bmc_addr_base=0x1E
 
 if [ -f /var/volatile/motherboard_info.xml ]
 then
