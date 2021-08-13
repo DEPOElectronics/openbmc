@@ -1,6 +1,6 @@
 [Unit]
 Description=Read RTC from motherboard
-After=sysinit.target
+After=mcst-fruid.service
 
 [Service]
 Type=oneshot
