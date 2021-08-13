@@ -1,0 +1,59 @@
+#!/bin/bash
+
+INTERFACES="eth0 eth1"
+
+N=0
+for intf in $INTERFACES
+do
+    COUNTDN[$N]="no"
+    ADAPTER[$N]=$intf
+    TIMEOUT[$N]=`grep FallbackTimeout /etc/systemd/network/00-bmc-$intf.network | cut -d= -f2 2>/dev/null`
+    ADDRESS[$N]=`grep FallbackAddress /etc/systemd/network/00-bmc-$intf.network | cut -d= -f2 2>/dev/null`
+    [ ${TIMEOUT[$N]} -gt 0 ] 2>/dev/null && COUNTDN[$N]="yes"
+    N=$(($N + 1))
+done
+
+initialized()
+{
+    ip addr list dev $1 | grep -q "inet "
+}
+
+assign()
+{
+    ip addr add $2 dev $1
+}
+
+# Wait until last interface will be initialized
+while true
+do
+    do_exit=yes
+
+    for i in `seq 0 $(($N - 1))`
+    do
+        if [ ${COUNTDN[$i]} = yes ]
+        then
+            do_exit=no
+            TIMEOUT[$i]=$((${TIMEOUT[$i]} - 1))
+
+            if initialized ${ADAPTER[$i]}
+            then
+                echo "Adapter ${ADAPTER[$i]} is online (${TIMEOUT[$i]} seconds remaining), stopping countdown"
+                COUNTDN[$i]="no"
+            fi
+
+            if [ ${TIMEOUT[$i]} -eq 0 ]
+            then
+                echo "Adapter ${ADAPTER[$i]} is still offline, setting fallback address ${ADDRESS[$i]}"
+                COUNTDN[$i]="no"
+                assign ${ADAPTER[$i]} ${ADDRESS[$i]}
+            fi
+        fi
+    done
+    sleep 1
+
+    if [ $do_exit = yes ]
+    then
+        echo "All adapters are processed, exiting"
+        exit 0
+    fi
+done
