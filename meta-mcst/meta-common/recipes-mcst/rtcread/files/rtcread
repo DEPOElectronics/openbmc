@@ -1,9 +1,6 @@
 #!/bin/bash
 
-CONFFILE=/etc/reimu.conf
 INTERNAL_RTC=/dev/rtc0
-
-. $CONFFILE
 
 exit_ok()
 {
@@ -17,7 +14,16 @@ exit_err()
     exit 1
 }
 
-[ -z "$RTC_MODEL" -o -z "$RTC_ADDR" -o -z "$RTC_I2C_BUS" ] && exit_ok "No onboard RTC specified in $CONFFILE."
+# Should return empty string, or something like "mcp7941x:6f:2"
+RTC_STRING=`/libexec/find_i2c_device mcp7941x`
+
+[ -z "$RTC_STRING" ] && exit_ok "No onboard RTC in device tree, exitting."
+
+RTC_MODEL=`echo $RTC_STRING | cut -d: -f1`
+RTC_ADDR=`echo $RTC_STRING | cut -d: -f2`
+RTC_I2C_BUS=`echo $RTC_STRING | cut -d: -f3`
+
+[ -z "$RTC_MODEL" -o -z "$RTC_ADDR" -o -z "$RTC_I2C_BUS" ] && exit_err "Can't parse RTC identification string $RTC_STRING."
 
 sysfsdir=/sys/class/i2c-adapter/i2c-${RTC_I2C_BUS}/${RTC_I2C_BUS}-00${RTC_ADDR}/rtc/
 

@@ -7,4 +7,4 @@ Type=oneshot
 ExecStart=/libexec/rtcread
 
 [Install]
-WantedBy=basic.target
+WantedBy=sysinit.target

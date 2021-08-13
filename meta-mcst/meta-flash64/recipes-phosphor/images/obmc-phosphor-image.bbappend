@@ -12,4 +12,5 @@ OBMC_IMAGE_EXTRA_INSTALL_append += " \
   sudo \
   hwmon-instantiator \
   phosphor-sel-logger \
+  rtcread \
   "
