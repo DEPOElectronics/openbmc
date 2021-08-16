@@ -64,6 +64,7 @@ OBMC_KERNEL_MODULES = " \
   kernel-module-xt-state \
   kernel-module-xt-tcpmss \
   kernel-module-xt-tcpudp \
+  kernel-module-l-pcs-i2c \
   "
 
 OBMC_IMAGE_EXTRA_INSTALL_append = " \
