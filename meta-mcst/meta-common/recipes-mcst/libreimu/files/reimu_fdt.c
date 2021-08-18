@@ -5,6 +5,8 @@
 #include <libfdt.h>
 #include "reimu.h"
 
+#define REIMU_DEBUG 0
+
 const char *reimu_devtree_path = "/var/volatile/motherboard_devtree.dtb";
 
 const char *reimu_prop_empty = "";
@@ -73,7 +75,9 @@ void reimu_traverse_node(int node, const char *nodename, traverse_callback_t cal
     const int *preg = reimu_getprop(node, "reg", 1, 12, "Error reading reg value from node 0x%08x:", node);
     int reg = *preg >> 24;
     const char *label = reimu_getprop(node, "label", 0, 13, "Error reading label value from node 0x%08x:", node);
-    printf("Node %s (0x%08x): compatible=\"%s\", bus=%d, slave=0x%02x, label=\"%s\" found\n", nodename, node, pcompatible, bus, reg, label);
+    #if REIMU_DEBUG
+        printf("Node %s (0x%08x): compatible=\"%s\", bus=%d, slave=0x%02x, label=\"%s\" found\n", nodename, node, pcompatible, bus, reg, label);
+    #endif
     callback(pcompatible, node, bus, reg, label, data);
 }
 
@@ -86,8 +90,9 @@ void reimu_traverse_all_i2c(void *data, traverse_callback_t callback)
 {
     int bmc_offset = fdt_path_offset(reimu_dtb, "/bmc");
     if (bmc_offset < 0) reimu_cancel(2, "Can't find /bmc block in DTB: %s\n", fdt_strerror(bmc_offset));
-    printf("/bmc block found at offset 0x%08x\n", bmc_offset);
-
+    #if REIMU_DEBUG
+        printf("/bmc block found at offset 0x%08x\n", bmc_offset);
+    #endif
     for (int i2c = 0; i2c < 15; ++i2c)
     {
         char i2cbus[10];
@@ -97,14 +102,20 @@ void reimu_traverse_all_i2c(void *data, traverse_callback_t callback)
         const char *path = reimu_getprop(bmc_offset, i2cbus, 0, 3, "Error enumerating i2c buses in /bmc block:");
         if (reimu_is_prop_empty(path))
         {
-            printf("Bus %s not found in DTB\n", i2cbus);
+            #if REIMU_DEBUG
+                printf("Bus %s not found in DTB\n", i2cbus);
+            #endif
         }
         else
         {
-            printf("Bus %s corresponds to path %s\n", i2cbus, path);
+            #if REIMU_DEBUG
+                printf("Bus %s corresponds to path %s\n", i2cbus, path);
+            #endif
             int i2c_offset = fdt_path_offset(reimu_dtb, path);
             if (i2c_offset < 0) reimu_cancel(4, "Can't find %s path in DTB: %s\n", path, fdt_strerror(bmc_offset));
-            printf("%s (%s) node found at offset 0x%08x\n", i2cbus, path, i2c_offset);
+            #if REIMU_DEBUG
+                printf("%s (%s) node found at offset 0x%08x\n", i2cbus, path, i2c_offset);
+            #endif
             if (reimu_i2c_traverse(i2c, i2c_offset, data, callback)) reimu_cancel(10, "Error traversing i2c bus at %d\n", i2c_offset);
         }
     }
