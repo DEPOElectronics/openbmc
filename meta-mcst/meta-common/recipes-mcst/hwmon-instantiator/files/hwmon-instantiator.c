@@ -109,7 +109,7 @@ static void create_config_file(int bus, int dev)
     if (reimu_create_config_file(config_path)) reimu_cancel(32, "Error while creating config file for device %d-%04x (%s): %s\n", bus, dev, config_path, strerror(errno));
 }
 
-static void create_sensor(int node, const char *nodename, void *data, void *unused)
+static void create_sensor(int node, const char *nodename, void *unused1, void *data, int unused2)
 {
     if (nodename == NULL) reimu_cancel(22, "Error reading name of node 0x%08x\n", node);
 
@@ -176,7 +176,7 @@ static void create_sensor(int node, const char *nodename, void *data, void *unus
 static void create_config(int parent, int bus, int dev, char *devlabel)
 {
     create_config_file(bus, dev);
-    if(reimu_for_each_subnode(parent, (void *)devlabel, NULL, create_sensor))
+    if(reimu_for_each_subnode(parent, NULL, (void *)devlabel, 0, create_sensor))
     {
         reimu_cancel(21, "Error traversing i2c device %d-%04x (%s), node 0x%08x\n", bus, dev, devlabel, parent);
     }

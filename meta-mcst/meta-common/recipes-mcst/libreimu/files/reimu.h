@@ -8,6 +8,7 @@ int reimu_is_in_dict(const char *dict[], const char *name);
 /* reimu_control */
 
 void reimu_cancel(int num, const char *fmt, ...);
+void reimu_set_atexit(int already_done, void (*func)(void));
 
 /* reimu_files */
 
@@ -21,11 +22,12 @@ int reimu_recurse_mkdir(char *path);
 
 /* reimu_devicetree */
 
+typedef void (*traverse_callback_t)(const char *, int, int, int, const char *, const void *);
 void reimu_free_dtb(void);
 int reimu_open_dtb(void);
 const void *reimu_getprop(int node, const char *name, int mandatory, int failval, const char *fmt, ...);
 int reimu_is_prop_empty(const char *prop);
-int reimu_for_each_subnode(int parent, void *data, void *data2, void (*function)(int node, const char *nodename, void *data, void *data2));
+int reimu_for_each_subnode(int parent, traverse_callback_t callback, void *data, int bus, void (*function)(int node, const char *nodename,  traverse_callback_t callback, void *data, int bus));
 
 /* reimu_configfile */
 

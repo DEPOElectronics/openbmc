@@ -9,6 +9,7 @@ SRC_URI = " \
             file://LICENSE \
             file://Makefile \
             file://reimu.c \
+            file://reimu_fdt.c \
             file://reimu.h \
           "
 
@@ -27,10 +28,12 @@ do_install_append() {
   install -d ${D}${libdir}
   install -d ${D}${includedir}
   install -m 755 lib${libname}.so.${PV} ${D}${libdir}
-  install -m 644 lib${libname}.a ${D}${libdir}
+  install -m 755 lib${libname}_fdt.so.${PV} ${D}${libdir}
   install -m 644 ${libname}.h ${D}${includedir}
   ln -s lib${libname}.so.${PV} ${D}${libdir}/lib${libname}.so
   ln -s lib${libname}.so.${PV} ${D}${libdir}/lib${libname}.so.${PV_MAJOR}
+  ln -s lib${libname}_fdt.so.${PV} ${D}${libdir}/lib${libname}_fdt.so
+  ln -s lib${libname}_fdt.so.${PV} ${D}${libdir}/lib${libname}_fdt.so.${PV_MAJOR}
 }
 
 FILES_${PN} = "${prefix}/lib"
