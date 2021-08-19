@@ -1,38 +1,32 @@
-VERSION     = 0.1
+VERSION  = 0.1
+CFLAGS  ?= -g -O3 -Wall
+MODULES  = reimu reimu_gpio reimu_dbus reimu_fdt
 
-PREFIX     ?= /usr/local
-DESTDIR    ?=
-LIBDIR      = $(DESTDIR)$(PREFIX)/lib
-
-CFLAGS     ?= -g -O3 -Wall
-
-HEADERFILE  = reimu.h
-
-SHAREDLIB   = libreimu.so.$(VERSION)
-SONAME      = libreimu.so.$(firstword $(subst ., ,$(VERSION)))
-
-SHAREDLIB_F = libreimu_fdt.so.$(VERSION)
-SONAME_F    = libreimu_fdt.so.$(firstword $(subst ., ,$(VERSION)))
+reimu_CFLAGS      =
+reimu_gpio_CFLAGS =
+reimu_dbus_CFLAGS = $(shell pkg-config --cflags dbus-1)
+reimu_fdt_CFLAGS  =
+reimu_LIBS        =
+reimu_gpio_LIBS   = -lgpiod
+reimu_dbus_LIBS   = $(shell pkg-config --libs dbus-1)
+reimu_fdt_LIBS    = -lfdt
 
 .PHONY: all clean
 
-V ?= 0
-Q = $(if $(filter-out 0,$(V)),,@)
-LOG = $(if $(filter-out 0,$(V)),true,echo -e)
+V   ?= 0
+Q    = $(if $(filter-out 0,$(V)),,@)
+LOG  = $(if $(filter-out 0,$(V)),true,echo -e)
 
-all: $(HEADERFILE) $(SHAREDLIB) $(SHAREDLIB_F)
+all: reimu.h $(addprefix lib,$(addsuffix .so.$(VERSION),$(MODULES)))
 
-$(SHAREDLIB): reimu.o
+lib%.so.$(VERSION): %.o
 	@$(LOG) \\tLD\\t$@
-	$(Q)$(CC) -shared -Wl,-soname,$(SONAME) $(LDFLAGS) -o $@ $^
+	$(Q)$(CC) -shared -Wl,-soname,$(firstword $(subst ., ,$@)).so.$(firstword $(subst ., ,$(VERSION))) $(LDFLAGS) $($(subst lib,,$(firstword $(subst ., ,$@)))_LIBS) -o $@ $^
 
-$(SHAREDLIB_F): reimu_fdt.o
-	@$(LOG) \\tLD\\t$@
-	$(Q)$(CC) -shared -Wl,-soname,$(SONAME_F) $(LDFLAGS) -lfdt -o $@ $^
-
+.SECONDARY:
 %.o: %.c
 	@$(LOG) \\tCC\\t$@
-	$(Q)$(CC) -o $@ -c -fPIC $(CFLAGS) $<
+	$(Q)$(CC) -o $@ -c -fPIC $(CFLAGS) $($(firstword $(subst ., ,$@))_CFLAGS) $<
 
 clean:
-	rm -f *.o $(SHAREDLIB) $(SONAME) $(SHAREDLIB_F) $(SONAME_F)
+	rm -f reimu*.o libreimu*.so.*

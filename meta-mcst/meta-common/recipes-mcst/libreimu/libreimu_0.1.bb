@@ -10,30 +10,34 @@ SRC_URI = " \
             file://Makefile \
             file://reimu.c \
             file://reimu_fdt.c \
+            file://reimu_dbus.c \
+            file://reimu_gpio.c \
             file://reimu.h \
           "
 
-DEPENDS = "dtc"
+DEPENDS = "pkgconfig-native dtc dbus libgpiod"
 
 prefix = "/usr"
 libdir = "${prefix}/lib"
 includedir = "${prefix}/include"
 libname = "reimu"
+suffixes = "{,_fdt,_gpio,_dbus}"
 
 PV_MAJOR = "${@d.getVar('PV',d,1).split('.')[0]}"
 
 S = "${WORKDIR}"
 
+
 do_install_append() {
   install -d ${D}${libdir}
   install -d ${D}${includedir}
-  install -m 755 lib${libname}.so.${PV} ${D}${libdir}
-  install -m 755 lib${libname}_fdt.so.${PV} ${D}${libdir}
+  install -m 755 lib${libname}${suffixes}.so.${PV} ${D}${libdir}
   install -m 644 ${libname}.h ${D}${includedir}
-  ln -s lib${libname}.so.${PV} ${D}${libdir}/lib${libname}.so
-  ln -s lib${libname}.so.${PV} ${D}${libdir}/lib${libname}.so.${PV_MAJOR}
-  ln -s lib${libname}_fdt.so.${PV} ${D}${libdir}/lib${libname}_fdt.so
-  ln -s lib${libname}_fdt.so.${PV} ${D}${libdir}/lib${libname}_fdt.so.${PV_MAJOR}
+  for lib in lib${libname}${suffixes}.so
+  do
+      ln -s $lib.${PV} ${D}${libdir}/$lib
+      ln -s $lib.${PV} ${D}${libdir}/$lib.${PV_MAJOR}
+  done
 }
 
 FILES_${PN} = "${prefix}/lib"

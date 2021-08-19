@@ -3,6 +3,7 @@
 #include <string.h>
 #include <stdarg.h>
 #include <dirent.h>
+#include <time.h>
 #include <sys/stat.h>
 
 int reimu_is_in_dict(const char *dict[], const char *name)
@@ -21,35 +22,59 @@ void reimu_set_atexit(int already_done, void (*func)(void))
     atexit(func);
 }
 
-int reimu_is_atexit_close_config_file = 0;
-FILE *reimu_configfile = NULL;
+int reimu_is_atexit_close_text_file = 0;
+FILE *reimu_textfile = NULL;
 
-void reimu_close_config_file(void)
+void reimu_close_text_file(void)
 {
-    if (reimu_configfile) fclose(reimu_configfile);
-    reimu_configfile = NULL;
+    if (reimu_textfile) fclose(reimu_textfile);
+    reimu_textfile = NULL;
 }
 
-int reimu_is_config_file_opened(void)
+int reimu_create_text_file(const char *path)
 {
-    return (reimu_configfile != NULL);
+    reimu_set_atexit(reimu_is_atexit_close_text_file, reimu_close_text_file);
+
+    if (reimu_textfile != NULL) return 1;
+    reimu_textfile = fopen(path, "w");
+    return (reimu_textfile == NULL);
 }
 
-int reimu_create_config_file(const char *path)
-{
-    reimu_set_atexit(reimu_is_atexit_close_config_file, reimu_close_config_file);
-
-    reimu_configfile = fopen(path, "w");
-    return (reimu_configfile == NULL);
-}
-
-void reimu_cancel(int num, const char *fmt, ...)
+void __attribute__((format(printf, 2, 3))) reimu_cancel(int num, const char *fmt, ...)
 {
     va_list ap;
     va_start(ap, fmt);
     vfprintf(stderr, fmt, ap);
     va_end(ap);
     exit(num);
+}
+
+void __attribute__((format(printf, 2, 3))) reimu_message(FILE *stream, const char *fmt, ...)
+{
+    va_list ap;
+    va_start (ap, fmt);
+    vfprintf(stream, fmt, ap);
+    va_end (ap);
+    fflush(stream);
+}
+
+char reimu_s_timestr[1024];
+char *reimu_gettime(void)
+{
+    time_t tm = time(NULL);
+    strncpy(reimu_s_timestr, ctime(&tm), 1023);
+
+    char *pos;
+    for(pos = reimu_s_timestr; (*pos != '\0') && (*pos != '\n'); ++pos);
+    *pos = '\0';
+
+    return reimu_s_timestr;
+}
+
+void reimu_msleep(long value)
+{
+    struct timespec rem, req = { value / 1000L, (value % 1000L) * 1000000L };
+    while(nanosleep(&req, &rem)) req = rem;
 }
 
 int reimu_readfile(const char *name, char **p_buf, long *p_size)
@@ -117,12 +142,12 @@ int reimu_recurse_mkdir(char *path)
     return 0;
 }
 
-void reimu_write_config_file(const char *fmt, ...)
+void __attribute__((format(printf, 1, 2))) reimu_write_text_file(const char *fmt, ...)
 {
-    if (!reimu_configfile) reimu_cancel(50, "Error while writing config file: File isn't opened\n");
+    if (!reimu_textfile) reimu_cancel(50, "Error while writing text file: File isn't opened\n");
     va_list ap;
     va_start(ap, fmt);
-    int rv = vfprintf(reimu_configfile, fmt, ap);
+    int rv = vfprintf(reimu_textfile, fmt, ap);
     va_end(ap);
-    if (rv < 0) reimu_cancel(51, "Error while writing config file: vfprintf() returned %d\n", rv);
+    if (rv < 0) reimu_cancel(51, "Error while writing text file: vfprintf() returned %d\n", rv);
 }

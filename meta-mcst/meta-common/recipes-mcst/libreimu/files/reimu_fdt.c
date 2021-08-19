@@ -23,7 +23,7 @@ void reimu_free_dtb(void)
     free(reimu_dtb);
 }
 
-const void *reimu_getprop(int node, const char *name, int mandatory, int failval, const char *fmt, ...)
+const void* __attribute__((format(printf, 5, 6))) reimu_getprop(int node, const char *name, int mandatory, int failval, const char *fmt, ...)
 {
     int err;
     const void *ptr = fdt_getprop(reimu_dtb, node, name, &err);
@@ -88,6 +88,8 @@ int reimu_i2c_traverse(int bus, int offset, void *data, traverse_callback_t call
 
 void reimu_traverse_all_i2c(void *data, traverse_callback_t callback)
 {
+    if (reimu_open_dtb()) reimu_cancel(1, "Can't read device tree file\n");
+
     int bmc_offset = fdt_path_offset(reimu_dtb, "/bmc");
     if (bmc_offset < 0) reimu_cancel(2, "Can't find /bmc block in DTB: %s\n", fdt_strerror(bmc_offset));
     #if REIMU_DEBUG

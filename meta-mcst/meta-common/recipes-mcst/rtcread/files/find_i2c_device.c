@@ -12,7 +12,6 @@ static void check_device(const char *pcompatible, int node, int bus, int reg, co
 int main(int argc, char *argv[])
 {
     if (argc != 2) reimu_cancel(EINVAL, "You must specify compatible name\n");
-    if (reimu_open_dtb()) reimu_cancel(EBADF, "Can't open DTB file\n");
     reimu_traverse_all_i2c(argv[1], check_device);
     return 0;
 }
