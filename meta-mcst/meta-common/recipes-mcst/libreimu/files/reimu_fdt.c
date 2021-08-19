@@ -45,7 +45,7 @@ const void* __attribute__((format(printf, 5, 6))) reimu_getprop(int node, const 
     return ptr;
 }
 
-int reimu_for_each_subnode(int parent, traverse_callback_t callback, void *data, int bus, void (*function)(int node, const char *nodename, traverse_callback_t callback, void *data, int bus))
+int reimu_for_each_subnode(int parent, traverse_callback_t callback, const void *data, int bus, void (*function)(int node, const char *nodename, traverse_callback_t callback, const void *data, int bus))
 {
     int node;
     fdt_for_each_subnode(node, reimu_dtb, parent)
@@ -68,7 +68,7 @@ int reimu_open_dtb(void)
     return 0;
 }
 
-void reimu_traverse_node(int node, const char *nodename, traverse_callback_t callback, void *data, int bus)
+void reimu_traverse_node(int node, const char *nodename, traverse_callback_t callback, const void *data, int bus)
 {
     const char *pcompatible = reimu_getprop(node, "compatible", 1, 11, "Error reading compatible value from node 0x%08x:", node);
     for (const char *compatible; (compatible = strchr(pcompatible, ',')) != NULL; pcompatible = compatible + 1);
@@ -81,12 +81,12 @@ void reimu_traverse_node(int node, const char *nodename, traverse_callback_t cal
     callback(pcompatible, node, bus, reg, label, data);
 }
 
-int reimu_i2c_traverse(int bus, int offset, void *data, traverse_callback_t callback)
+int reimu_i2c_traverse(int bus, int offset, const void *data, traverse_callback_t callback)
 {
     return reimu_for_each_subnode(offset, callback, data, bus, reimu_traverse_node);
 }
 
-void reimu_traverse_all_i2c(void *data, traverse_callback_t callback)
+void reimu_traverse_all_i2c(const void *data, traverse_callback_t callback)
 {
     if (reimu_open_dtb()) reimu_cancel(1, "Can't read device tree file\n");
 

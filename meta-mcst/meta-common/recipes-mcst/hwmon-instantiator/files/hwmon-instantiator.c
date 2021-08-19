@@ -93,7 +93,7 @@ static void detect_addresses(int i2c, int *apb, int *bus)
     free(real_path);
 }
 
-static void create_sensor(int node, const char *nodename, traverse_callback_t unused1, void *data, int unused2)
+static void create_sensor(int node, const char *nodename, traverse_callback_t unused1, const void *data, int unused2)
 {
     if (nodename == NULL) reimu_cancel(22, "Error reading name of node 0x%08x\n", node);
 
@@ -157,7 +157,7 @@ static void create_sensor(int node, const char *nodename, traverse_callback_t un
     }
 }
 
-static void create_config(int parent, int bus, int dev, char *devlabel)
+static void create_config(int parent, int bus, int dev, const char *devlabel)
 {
     int apb_addr, bus_addr;
     detect_addresses(bus, &apb_addr, &bus_addr);
@@ -168,7 +168,7 @@ static void create_config(int parent, int bus, int dev, char *devlabel)
     snprintf(config_path, 1023, "%s@%08x/%08x.i2c-bus/i2c-%d/%d-%04x.conf", config_dir, apb_addr, bus_addr, bus, bus, dev);
     if (reimu_create_text_file(config_path)) reimu_cancel(32, "Error while creating config file for device %d-%04x (%s): %s\n", bus, dev, config_path, strerror(errno));
 
-    if(reimu_for_each_subnode(parent, NULL, (void *)devlabel, 0, create_sensor))
+    if(reimu_for_each_subnode(parent, NULL, (const void *)devlabel, 0, create_sensor))
     {
         reimu_cancel(21, "Error traversing i2c device %d-%04x (%s), node 0x%08x\n", bus, dev, devlabel, parent);
     }

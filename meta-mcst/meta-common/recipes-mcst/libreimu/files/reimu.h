@@ -45,8 +45,8 @@ int reimu_get_gpio_by_name(const char *name);
 typedef void (*traverse_callback_t)(const char *, int, int, int, const char *, const void *);
 const void* __attribute__((format(printf, 5, 6))) reimu_getprop(int node, const char *name, int mandatory, int failval, const char *fmt, ...);
 int reimu_is_prop_empty(const char *prop);
-int reimu_for_each_subnode(int parent, traverse_callback_t callback, void *data, int bus, void (*function)(int node, const char *nodename,  traverse_callback_t callback, void *data, int bus));
-void reimu_traverse_all_i2c(void *data, void (*function)(const char *pcompatible, int node, int bus, int reg, const char *label, const void *data));
+int reimu_for_each_subnode(int parent, traverse_callback_t callback, const void *data, int bus, void (*function)(int node, const char *nodename,  traverse_callback_t callback, const void *data, int bus));
+void reimu_traverse_all_i2c(const void *data, void (*function)(const char *pcompatible, int node, int bus, int reg, const char *label, const void *data));
 
 /* reimu_dbus (requires libdbus-1) */
 
@@ -60,6 +60,6 @@ int reimu_dbus_set_property_str(const char *service, const char *object, const c
 // void reimu_init_dbus(void);
 // void reimu_free_dtb(void);
 // int reimu_open_dtb(void);
-// int reimu_i2c_traverse(int bus, int offset, void *data, void (*function)(const char *pcompatible, int node, int bus, int reg, const char *label, const void *data));
+// int reimu_i2c_traverse(int bus, int offset, const void *data, void (*function)(const char *pcompatible, int node, int bus, int reg, const char *label, const void *data));
 
 #endif
