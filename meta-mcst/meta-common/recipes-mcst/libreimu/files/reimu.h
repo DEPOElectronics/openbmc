@@ -29,6 +29,7 @@ int reimu_recurse_mkdir(char *path);
 
 int reimu_readfile(const char *name, char **p_buf, long *p_size);
 int reimu_writefile(const char *name, const void *buf, long size);
+int reimu_find_in_file(const char *name, const char *needle);
 
 /* reimu_textfile */
 
@@ -39,6 +40,7 @@ void reimu_close_text_file(void);
 /* reimu_gpio (requires libgpiod) */
 
 int reimu_get_gpio_by_name(const char *name);
+int reimu_set_gpio_by_name(const char *name, int val, int delay);
 
 /* reimu_fdt (requires libfdt) */
 
@@ -52,14 +54,8 @@ void reimu_traverse_all_i2c(const void *data, void (*function)(const char *pcomp
 
 void reimu_dbus_manage_service(const char *service, const char *command);
 int reimu_dbus_set_property_str(const char *service, const char *object, const char *interface, const char *property, const char *value);
-
-/* libreimu internals (to be removed) */
-
-// void reimu_dbus_fini(void);
-// void reimu_dbus_msg_fini(void);
-// void reimu_init_dbus(void);
-// void reimu_free_dtb(void);
-// int reimu_open_dtb(void);
-// int reimu_i2c_traverse(int bus, int offset, const void *data, void (*function)(const char *pcompatible, int node, int bus, int reg, const char *label, const void *data));
+int reimu_dbus_set_property_bool(const char *service, const char *object, const char *interface, const char *property, int value);
+int reimu_dbus_get_property_bool(const char *service, const char *object, const char *interface, const char *property);
+int reimu_dbus_call_method(const char *destination, const char *path, const char *iface, const char *method);
 
 #endif

@@ -115,6 +115,21 @@ int reimu_writefile(const char *name, const void *buf, long size)
     return 0;
 }
 
+int reimu_find_in_file(const char *name, const char *needle)
+{
+    char *filedata = NULL;
+    long filelength = 0;
+    if(reimu_readfile(name, &filedata, &filelength)) return -2;
+
+    int rv = -1;
+    for(char *pos = filedata; (pos - filedata) <= filelength - strlen(needle); ++pos)
+    {
+        if (!strncmp(pos, needle, strlen(needle))) { rv = 0; break; }
+    }
+    free(filedata);
+    return rv;
+}
+
 int reimu_chkdir(const char *path)
 {
     DIR *d;

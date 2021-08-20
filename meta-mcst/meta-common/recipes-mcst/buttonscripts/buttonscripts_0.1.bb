@@ -8,7 +8,7 @@ LIC_FILES_CHKSUM = "file://LICENSE;md5=b234ee4d69f5fce4486a80fdaf4a4263"
 inherit systemd
 inherit features_check
 
-DEPENDS = "pkgconfig-native libgpiod dbus"
+DEPENDS = "pkgconfig-native libgpiod dbus libreimu"
 
 REQUIRED_DISTRO_FEATURES = "systemd"
 SYSTEMD_SERVICE_${PN} = "host-poweroff-hard.service host-poweroff.service host-poweron.service host-reset.service"
