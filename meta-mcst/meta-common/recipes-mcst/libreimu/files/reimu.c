@@ -4,6 +4,7 @@
 #include <stdarg.h>
 #include <dirent.h>
 #include <time.h>
+#include <errno.h>
 #include <sys/stat.h>
 
 int reimu_is_in_dict(const char *dict[], const char *name)
@@ -137,16 +138,33 @@ int reimu_find_in_file(const char *name, const char *needle)
 int reimu_chkfile(const char *name)
 {
     struct stat st;
-    if(stat(name, &st)) return -1;
-    if(!S_ISREG(st.st_mode) && !S_ISLNK(st.st_mode)) return -2;
+    if(stat(name, &st)) return -ENOENT;
+    if(!S_ISREG(st.st_mode) && !S_ISLNK(st.st_mode)) return -EINVAL;
     return 0;
 }
 
 int reimu_chkdir(const char *path)
 {
     DIR *d;
-    if((d = opendir(path)) == NULL) return 1;
-    if(closedir(d) != 0) return 2;
+    if((d = opendir(path)) == NULL) return -EIO;
+    if(closedir(d) != 0) return -EBADF;
+    return 0;
+}
+
+int reimu_find_filename(int order, char *path, char **name)
+{
+    DIR *d;
+    if((d = opendir(path)) == NULL) return -EIO;
+
+    struct dirent *f;
+    while(order >= 0)
+    {
+        if((f = readdir(d)) == NULL) { closedir(d); return -ENOENT; }
+        if (f->d_name[0] != '.') --order;
+    }
+
+    if(closedir(d) != 0) return -EBADF;
+    if((*name = strdup(f->d_name)) == NULL) return -ENOMEM;
     return 0;
 }
 

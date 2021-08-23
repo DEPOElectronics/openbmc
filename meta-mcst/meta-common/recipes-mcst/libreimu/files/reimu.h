@@ -21,12 +21,13 @@ void reimu_msleep(long value, volatile int *exit_request);
 
 /* reimu_dir */
 
+int reimu_chkfile(const char *name);
 int reimu_chkdir(const char *path);
+int reimu_find_filename(int order, char *path, char **name);
 int reimu_recurse_mkdir(char *path);
 
 /* reimu_file */
 
-int reimu_chkfile(const char *name);
 int reimu_readfile(const char *name, char **p_buf, long *p_size);
 int reimu_writefile(const char *name, const void *buf, long size);
 int reimu_find_in_file(const char *name, const char *needle);

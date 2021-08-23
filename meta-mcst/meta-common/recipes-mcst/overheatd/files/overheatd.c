@@ -12,7 +12,6 @@ int debug;
 long cpu_temp_limit;
 long wait_msec;
 long blink_msec;
-long cpu_i2c_num;
 
 #define dbg_printf if(debug) reimu_message
 
@@ -33,57 +32,67 @@ static void rm_pidfile(void)
     unlink("/run/overheatd.pid");
 }
 
-/* This only requires until we rewrite following two functions to hwmon */
-#include <sys/stat.h>
-#include <sys/ioctl.h>
-#include <linux/i2c-dev.h>
-#include <fcntl.h>
-#include <i2c/smbus.h>
+int s_cpus[4] = {0, 0, 0, 0};
+int s_buses[4] = {0, 0, 0, 0};
+long s_hwmons[4] = {-1, -1, -1, -1};
 
-static int detect_cpus(int cpu_i2c_num, int *cpus)
+static void detect_hwmon(int bus, int reg, int cpu)
 {
-    char dev[50];
-    snprintf(dev, 50, "/dev/i2c-%d", cpu_i2c_num);
+    if (s_hwmons[cpu] > 0) return;
 
-    int file = open(dev, O_RDWR);
-    if (file == -1) reimu_cancel(78, "(%s) I2C bus %d failure\n", reimu_gettime(), cpu_i2c_num);
+    char path[1024];
+    snprintf(path, 1023, "/sys/class/i2c-adapter/i2c-%d/%d-00%02x/hwmon", bus, bus, reg);
 
-    for(int i = 0; i <=3; ++i)
-    {
-        int rv, slave = 0x20 + 0x10 * i;
-        cpus[i] = 0;
-        dbg_printf(stdout, "I2C_SLAVE IOCTL for %s, slave 0x%02x returned %d\n", dev, slave, rv = ioctl(file, I2C_SLAVE, slave));
-        if (rv < 0) continue;
-        dbg_printf(stdout, "SMBus Write Quick returned %d\n", rv = i2c_smbus_write_quick(file, I2C_SMBUS_WRITE));
-        if (rv != 0) continue;
-        cpus[i] = 1;
-    }
-    close(file);
-    return 0;
+    char *file = NULL;
+    if (reimu_find_filename(0, path, &file)) return;
+    if(!memcmp(file, "hwmon", 5)) { free(file); return; }
+
+    char *chwmon = file + 5;
+    if(!*chwmon) { free(file); return; }
+
+    char *chwmonend;
+    long hwmon = strtol(chwmon, &chwmonend, 10);
+    if(*chwmonend) { free(file); return; }
+    free(file);
+
+    s_hwmons[cpu] = hwmon;
 }
 
-static int get_i2c_temperature(int cpu_i2c_num, int cpu, int sensor, double *result)
+static void detect_cpus(const char *pcompatible, int node, int bus, int reg, const char *label, const void *data)
 {
-    char dev[50];
-    snprintf(dev, 50, "/dev/i2c-%d", cpu_i2c_num);
+    if (!strcmp(pcompatible, "l_pcs_i2c") && !(reg & 0x0f))
+    {
+        int cpu = (reg >> 4) - 2;
+        detect_hwmon(bus, reg, cpu);
+        if (s_hwmons[cpu] > 0)
+        {
+            char path[1024];
+            snprintf(path, 1023, "/sys/class/i2c-adapter/i2c-%d/%d-00%02x/hwmon/hwmon%ld/temp1_input", bus, bus, reg, s_hwmons[cpu]);
+            if(!reimu_chkfile(path))
+            {
+                s_cpus[cpu] = 1;
+                s_buses[cpu] = bus;
+            }
+        }
+    }
+}
 
-    int file = open(dev, O_RDWR);
-    if (file == -1) reimu_cancel(79, "(%s) I2C bus %d failure\n", reimu_gettime(), cpu_i2c_num);
+static long get_temperature(int cpu, int sensor, double *result)
+{
+    if (s_hwmons[cpu] < 0) return -257;
 
-    int rv = ioctl(file, I2C_SLAVE, 0x20 + cpu * 0x10 + sensor);
-    if (rv) reimu_cancel(80, "(%s) I2C_SLAVE IOCTL for %s, cpu %d, sensor %d unexpectedly returned %d\n", reimu_gettime(), dev, cpu, sensor, rv);
+    char path[1024];
+    snprintf(path, 1023, "/sys/class/i2c-adapter/i2c-%d/%d-00%02x/hwmon/hwmon%ld/temp1_input", s_buses[cpu], s_buses[cpu], 0x20 + (0x10 * cpu) + sensor, s_hwmons[cpu]);
 
-    uint8_t bytes[2];
-    rv = (read(file, bytes, 2) != 2);
-    close(file);
-    if (rv) return -1;
+    char *ctemp, *ctempend;
+    if (reimu_readfile(path, &ctemp, NULL)) return -258;
 
-    int temp = bytes[0];
-    temp <<= 8;
-    temp |= bytes[1];
+    long temp = strtol(ctemp, &ctempend, 10);
+    if (*ctempend && (*ctempend != '\n')) return -259;
+
     *result = temp;
-    *result /= 8;
-    temp /= 8;
+    *result /= 1000;
+    temp /= 1000;
     return temp;
 }
 
@@ -275,8 +284,7 @@ static void reload_config(const char *configfile)
             "DEBUG=off\n"
             "CPU_TEMP_LIMIT=85\n"
             "WAIT_MSEC=5000\n"
-            "BLINK_MSEC=500\n"
-            "CPU_I2C_NUM=3\n";
+            "BLINK_MSEC=500\n";
 
         if(reimu_writefile(configfile, defaultconfig, strlen(defaultconfig))) reimu_cancel(77, "Can't create new config %s\n", defaultconfig);
     }
@@ -291,11 +299,10 @@ static void reload_config(const char *configfile)
     cpu_temp_limit    = reimu_get_conf_long(daemoncfg, daemoncfg_len, "CPU_TEMP_LIMIT");
     wait_msec         = reimu_get_conf_long(daemoncfg, daemoncfg_len, "WAIT_MSEC");
     blink_msec        = reimu_get_conf_long(daemoncfg, daemoncfg_len, "BLINK_MSEC");
-    cpu_i2c_num       = reimu_get_conf_long(daemoncfg, daemoncfg_len, "CPU_I2C_NUM");
 
     free(daemoncfg);
 
-    if((overheatd_enabled < 0) || (debug < 0) || (cpu_temp_limit < 0) || (wait_msec < 0) || (blink_msec < 0) || (cpu_i2c_num < 0))
+    if((overheatd_enabled < 0) || (debug < 0) || (cpu_temp_limit < 0) || (wait_msec < 0) || (blink_msec < 0))
     {
         reimu_cancel(96, "Malformed values in %s\n", configfile);
     }
@@ -346,7 +353,7 @@ int main(int argc, char *argv[])
     for(;;)
     {
         reload_config("/etc/overheatd.conf");
-        dbg_printf(stdout, "Reloaded config: (OVERHEATD_ENABLED = %d, DEBUG = %d; CPU_TEMP_LIMIT = %ld; WAIT_MSEC = %ld; BLINK_MSEC = %ld; CPU_I2C_NUM = %ld)\n", overheatd_enabled, debug, cpu_temp_limit, wait_msec, blink_msec, cpu_i2c_num);
+        dbg_printf(stdout, "Reloaded config: (OVERHEATD_ENABLED = %d, DEBUG = %d; CPU_TEMP_LIMIT = %ld; WAIT_MSEC = %ld; BLINK_MSEC = %ld)\n", overheatd_enabled, debug, cpu_temp_limit, wait_msec, blink_msec);
 
         if(overheatd_enabled)
         {
@@ -436,14 +443,14 @@ int main(int argc, char *argv[])
                 if (powered_on)
                 {
                     /* Detect available cpus */
-                    int cpus[4] = {0, 0, 0, 0};
-                    detect_cpus(cpu_i2c_num, cpus);
-                    dbg_printf(stdout, "Bus %ld, CPUs detected: %d, %d, %d, %d\n", cpu_i2c_num, cpus[0], cpus[1], cpus[2], cpus[3]);
+                    s_cpus[0] = 0; s_cpus[1] = 0; s_cpus[2] = 0; s_cpus[3] = 0;
+                    reimu_traverse_all_i2c(NULL, detect_cpus);
+                    dbg_printf(stdout, "CPUs detected: %d, %d, %d, %d\n", s_cpus[0], s_cpus[1], s_cpus[2], s_cpus[3]);
                     reimu_textfile_buf_append("\t<cpus>");
                     int first = 1;
                     for (int cpu = 0; cpu <= 3; ++cpu)
                     {
-                        if (cpus[cpu])
+                        if (s_cpus[cpu])
                         {
                             reimu_textfile_buf_append(first ? "%d" : " %d", cpu);
                             first = 0;
@@ -452,27 +459,30 @@ int main(int argc, char *argv[])
                     reimu_textfile_buf_append("<cpus>\n");
 
                     /* Check temperature of each cpu sensor */
-                    int maxtemp = 0;
+                    long maxtemp = 0;
                     for (int cpu = 0; cpu <= 3; ++cpu)
                     {
-                        if (cpus[cpu])
+                        if (s_cpus[cpu])
                         {
                             for (int sensor = 0; sensor <= 7; ++sensor)
                             {
-                                int temp;
+                                long temp;
                                 double tempdbl;
-                                if((temp = get_i2c_temperature(cpu_i2c_num, cpu, sensor, &tempdbl)) < 0)
+                                if((temp = get_temperature(cpu, sensor, &tempdbl)) < -256)
                                 {
-                                    reimu_message(stderr, "(%s) Failure reading I2C device (bus = %ld, cpu = %d, sensor = %d)", reimu_gettime(), cpu_i2c_num, cpu, sensor);
+                                    reimu_message(stderr, "(%s) Failure reading HWMON device (cpu = %d, sensor = %d)", reimu_gettime(), cpu, sensor);
                                 }
-                                dbg_printf(stdout, "Temp (%d:%d): %d (%f)\n", cpu, sensor, temp, tempdbl);
-                                reimu_textfile_buf_append("\t<temperature cpu=\"%d\" sensor=\"%d\">%f</temperature>\n", cpu, sensor, tempdbl);
-                                if (temp > maxtemp) maxtemp = temp;
+                                else
+                                {
+                                    dbg_printf(stdout, "Temp (%d:%d): %ld (%f)\n", cpu, sensor, temp, tempdbl);
+                                    reimu_textfile_buf_append("\t<temperature cpu=\"%d\" sensor=\"%d\">%f</temperature>\n", cpu, sensor, tempdbl);
+                                    if (temp > maxtemp) maxtemp = temp;
+                                }
                             }
                         }
                     }
-                    dbg_printf(stdout, "maxtemp: %d\n", maxtemp);
-                    if (s_dbg_state == 1) { maxtemp = cpu_temp_limit + 1; dbg_printf(stdout, "DEBUG MODE: maxtemp altered to %d\n", maxtemp); }
+                    dbg_printf(stdout, "maxtemp: %ld\n", maxtemp);
+                    if (s_dbg_state == 1) { maxtemp = cpu_temp_limit + 1; dbg_printf(stdout, "DEBUG MODE: maxtemp altered to %ld\n", maxtemp); }
 
                     /* Any of temperatures is greater than limit */
                     if (maxtemp > cpu_temp_limit) led_trigger = "timer";
