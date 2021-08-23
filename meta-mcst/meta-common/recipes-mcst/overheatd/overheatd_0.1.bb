@@ -10,7 +10,7 @@ inherit features_check
 
 DEPENDS = "libgpiod i2c-tools"
 REQUIRED_DISTRO_FEATURES = "systemd"
-RDEPENDS_${PN} += "systemd bash gpio-funcs reimu-conf"
+RDEPENDS_${PN} += "systemd bash gpio-funcs"
 SYSTEMD_SERVICE_${PN} = "overheatd.service"
 
 SRC_URI = " \

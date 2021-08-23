@@ -40,4 +40,4 @@ do_install() {
 
 FILES_${PN} = "/usr/bin /libexec ${systemd_system_unitdir}"
 
-RDEPENDS_${PN} += "systemd gpio-funcs reimu-conf"
+RDEPENDS_${PN} += "systemd gpio-funcs"

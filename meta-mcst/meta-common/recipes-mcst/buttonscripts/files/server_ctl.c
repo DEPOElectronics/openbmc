@@ -98,7 +98,7 @@ static int uid_init(void)
     }
 
     /* Try to check whether TinySPI is enabled, and tinyspi sysfs directory exist. If success, consider TSPI protocol applicable. */
-    if (!reimu_find_in_file("/etc/reimu.conf", "TINYSPI=yes"))
+    if (!reimu_find_in_file("/etc/reimu.conf", "TINYSPI=yes") || !reimu_find_in_file("/var/volatile/reimu.conf", "TINYSPI=yes") || !reimu_find_in_file("/var/volatile/boardid", "1111"))
     {
         if(reimu_chkdir("/sys/kernel/tinyspi/")) return 39;
         s_uid_api = UID_API_TSPI;

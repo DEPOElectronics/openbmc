@@ -65,6 +65,7 @@ OBMC_KERNEL_MODULES = " \
   kernel-module-xt-tcpmss \
   kernel-module-xt-tcpudp \
   kernel-module-l-pcs-i2c \
+  kernel-module-tinyspi \
   "
 
 OBMC_IMAGE_EXTRA_INSTALL_append = " \
@@ -87,7 +88,6 @@ OBMC_IMAGE_EXTRA_INSTALL_append = " \
   glibc-utils \
   mc mc-fish mc-helpers mc-helpers-perl mc-locale-ru \
   overheatd \
-  reimu-conf \
   autofs \
   htop \
   mcst-fruid \

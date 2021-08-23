@@ -195,15 +195,15 @@ static int detect_tinyspi(void)
 {
     if (s_tinyspi < 0)
     {
-        char *reimucfg;
-        long reimucfg_len;
-        if(readfile("/etc/reimu.conf", &reimucfg, &reimucfg_len) != 0) error(91, "Unable to read /etc/reimu.conf\n");
-        if ((s_tinyspi = get_conf_bool(reimucfg, reimucfg_len, "TINYSPI")) < 0) { free(reimucfg); error(92, "No TINYSPI entry in /etc/reimu.conf\n"); }
-        free(reimucfg);
-        if (s_tinyspi && chkdir("/sys/kernel/tinyspi/")) error(90, "TinySPI is enabled, but no API files exported by kernel\n");
+        if (!reimu_find_in_file("/etc/reimu.conf", "TINYSPI=yes") || !reimu_find_in_file("/var/volatile/reimu.conf", "TINYSPI=yes") || !reimu_find_in_file("/var/volatile/boardid", "1111"))
+        {
+            if(reimu_chkdir("/sys/kernel/tinyspi/")) error(90, "TinySPI is enabled, but no API files exported by kernel\n");
+            s_tinyspi = 1;
+            return 1;
+        }
     }
-
-    return s_tinyspi;
+    s_tinyspi = 0;
+    return 0;
 }
 
 struct gpiod_chip *s_gpiochip = NULL;
@@ -514,13 +514,13 @@ static uint32_t get_alerts_gpio(void)
     b[31] = get_gpio_by_name("GPIO_RESET_IN");
     b[23] = get_gpio_by_name("GPIO_APMDZ_LED");
     b[21] = get_gpio_by_name("GPIO_POWER_IN");
-    b[14] = get_gpio_by_name("GPIO_ALERT_CPU");
-    b[12] = get_gpio_by_name("GPIO_ALERT_CPU2");
-    b[6]  = get_gpio_by_name("GPIO_ALERT_MEM");
-    b[11] = get_gpio_by_name("GPIO_ALERT_PCIE");
-    b[10] = get_gpio_by_name("GPIO_ALERT_FRU");
-    b[8]  = get_gpio_by_name("GPIO_ALERT_SMBUS");
-    b[9]  = get_gpio_by_name("GPIO_TCRIT_SMBUS");
+    b[14] = get_gpio_by_name("GPIO_ALERT_1");
+    b[12] = get_gpio_by_name("GPIO_ALERT_2");
+    b[6]  = get_gpio_by_name("GPIO_ALERT_4");
+    b[11] = get_gpio_by_name("GPIO_ALERT_3");
+    b[10] = get_gpio_by_name("GPIO_ALERT_7");
+    b[8]  = get_gpio_by_name("GPIO_ALERT_5");
+    b[9]  = get_gpio_by_name("GPIO_ALERT_6");
     b[4]  = get_gpio_by_name("GPIO_INTRUSION");
 
     uint32_t alerts = 0;

@@ -1,13 +1,10 @@
 #!/bin/sh
 
-. /etc/reimu.conf
+TINYSPI="no"
+[ -f /etc/reimu.conf ] && . /etc/reimu.conf
+[ -f /var/volatile/reimu.conf ] && . /var/volatile/reimu.conf
 . /libexec/gpio-funcs
-
-if [ "$TINYSPI" = "yes" ]
-then
-    modprobe tinyspi # Just in case module is not loaded
-    sysfsdir="/sys/kernel/tinyspi"
-fi
+[ "`detect_tinyspi`" = "yes" ] && TINYSPI="yes"
 
 usage()
 {
@@ -82,5 +79,5 @@ then
         echo $trigger > "/sys/class/leds/platform:red:$ledname/trigger"
     done
 else
-    echo $ledbits > $sysfsdir/$tspireg
+    echo $ledbits > /sys/kernel/tinyspi/$tspireg
 fi

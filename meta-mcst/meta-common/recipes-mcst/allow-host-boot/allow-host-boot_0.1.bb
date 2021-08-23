@@ -9,7 +9,7 @@ inherit systemd
 inherit features_check
 
 REQUIRED_DISTRO_FEATURES = "systemd"
-RDEPENDS_${PN} += "systemd bash gpio-funcs buttonscripts"
+RDEPENDS_${PN} += "systemd bash gpio-funcs buttonscripts kernel-module-tinyspi"
 SYSTEMD_SERVICE_${PN} = "allow_host_boot.service"
 
 SRC_URI = " \

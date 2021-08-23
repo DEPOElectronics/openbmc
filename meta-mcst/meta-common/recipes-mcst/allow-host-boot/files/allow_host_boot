@@ -1,6 +1,11 @@
 #!/bin/sh
 
+TINYSPI="no"
 . /libexec/gpio-funcs
+[ "`detect_tinyspi`" = "yes" ] && TINYSPI="yes"
+echo "TinySPI detected: $TINYSPI"
+echo "TINYSPI=$TINYSPI" > /var/volatile/reimu.conf
+[ "$TINYSPI" = "yes" ] && modprobe tinyspi
 
 echo "Releasing platform RESET"
 spigpio=`gpio2num $GPIO_SPI_CONNECT`
