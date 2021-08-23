@@ -22,21 +22,21 @@ void reimu_set_atexit(int already_done, void (*func)(void))
     atexit(func);
 }
 
-int reimu_is_atexit_close_text_file = 0;
+int reimu_is_atexit_textfile_close = 0;
 FILE *reimu_textfile = NULL;
 
-void reimu_close_text_file(void)
+void reimu_textfile_close(void)
 {
     if (reimu_textfile) fclose(reimu_textfile);
     reimu_textfile = NULL;
 }
 
-int reimu_create_text_file(const char *path)
+int reimu_textfile_create(const char *name)
 {
-    reimu_set_atexit(reimu_is_atexit_close_text_file, reimu_close_text_file);
+    reimu_set_atexit(reimu_is_atexit_textfile_close, reimu_textfile_close);
 
     if (reimu_textfile != NULL) return 1;
-    reimu_textfile = fopen(path, "w");
+    reimu_textfile = fopen(name, "w");
     return (reimu_textfile == NULL);
 }
 
@@ -58,23 +58,27 @@ void __attribute__((format(printf, 2, 3))) reimu_message(FILE *stream, const cha
     fflush(stream);
 }
 
-char reimu_s_timestr[1024];
+char reimu_timestr[1024];
 char *reimu_gettime(void)
 {
     time_t tm = time(NULL);
-    strncpy(reimu_s_timestr, ctime(&tm), 1023);
+    strncpy(reimu_timestr, ctime(&tm), 1023);
 
     char *pos;
-    for(pos = reimu_s_timestr; (*pos != '\0') && (*pos != '\n'); ++pos);
+    for(pos = reimu_timestr; (*pos != '\0') && (*pos != '\n'); ++pos);
     *pos = '\0';
 
-    return reimu_s_timestr;
+    return reimu_timestr;
 }
 
-void reimu_msleep(long value)
+void reimu_msleep(long value, volatile int *exit_request)
 {
     struct timespec rem, req = { value / 1000L, (value % 1000L) * 1000000L };
-    while(nanosleep(&req, &rem)) req = rem;
+    while(nanosleep(&req, &rem))
+    {
+        if(exit_request != NULL && *exit_request) exit(0);
+        req = rem;
+    }
 }
 
 int reimu_readfile(const char *name, char **p_buf, long *p_size)
@@ -130,6 +134,14 @@ int reimu_find_in_file(const char *name, const char *needle)
     return rv;
 }
 
+int reimu_chkfile(const char *name)
+{
+    struct stat st;
+    if(stat(name, &st)) return -1;
+    if(!S_ISREG(st.st_mode) && !S_ISLNK(st.st_mode)) return -2;
+    return 0;
+}
+
 int reimu_chkdir(const char *path)
 {
     DIR *d;
@@ -157,7 +169,7 @@ int reimu_recurse_mkdir(char *path)
     return 0;
 }
 
-void __attribute__((format(printf, 1, 2))) reimu_write_text_file(const char *fmt, ...)
+void __attribute__((format(printf, 1, 2))) reimu_textfile_write(const char *fmt, ...)
 {
     if (!reimu_textfile) reimu_cancel(50, "Error while writing text file: File isn't opened\n");
     va_list ap;
@@ -165,4 +177,71 @@ void __attribute__((format(printf, 1, 2))) reimu_write_text_file(const char *fmt
     int rv = vfprintf(reimu_textfile, fmt, ap);
     va_end(ap);
     if (rv < 0) reimu_cancel(51, "Error while writing text file: vfprintf() returned %d\n", rv);
+}
+
+char *reimu_textfile_buf = NULL;
+
+void reimu_textfile_buf_alloc(void)
+{
+    if ((reimu_textfile_buf = realloc(reimu_textfile_buf, 2)) == NULL) reimu_cancel(94, "Out of memory\n");
+    strcpy(reimu_textfile_buf,"");
+}
+
+int reimu_textfile_buf_commit(const char *name)
+{
+    int rv = reimu_writefile(name, reimu_textfile_buf, strlen(reimu_textfile_buf));
+    reimu_textfile_buf_alloc();
+    return rv;
+}
+
+int __attribute__((format(printf, 1, 2))) reimu_textfile_buf_append(const char *fmt, ...)
+{
+    char str[1024];
+    va_list ap;
+    va_start (ap, fmt);
+    vsnprintf (str, 1023, fmt, ap);
+    va_end (ap);
+    if ((reimu_textfile_buf = realloc(reimu_textfile_buf, strlen(reimu_textfile_buf) + strlen(str) + 1)) == NULL) reimu_cancel(93, "Out of memory\n");
+    strcat(reimu_textfile_buf, str);
+}
+
+int reimu_get_conf_bool(const char *confbuf, int conflen, const char *needle)
+{
+    int ndlen = strlen(needle);
+    for(const char *pos = confbuf; (pos - confbuf) <= conflen - ndlen - 2; ++pos)
+    {
+        if (!strncmp(pos, needle, ndlen))
+        {
+            if (pos[ndlen] != '=') continue;
+
+            pos += ndlen + 1;
+            int toeol = conflen - (pos - confbuf);
+            if ((toeol >= 4) && !strncmp(pos, "yes\n", 4)) return 1;
+            if ((toeol >= 3) && !strncmp(pos, "no\n",  3)) return 0;
+            if ((toeol >= 3) && !strncmp(pos, "on\n",  3)) return 1;
+            if ((toeol >= 4) && !strncmp(pos, "off\n", 4)) return 0;
+            return -2; /* Malformed data */
+        }
+    }
+    return -1; /* Not found */
+}
+
+long reimu_get_conf_long(const char *confbuf, int conflen, const char *needle)
+{
+    int ndlen = strlen(needle);
+    for(const char *pos = confbuf; (pos - confbuf) <= conflen - ndlen - 2; ++pos)
+    {
+        if (!strncmp(pos, needle, ndlen))
+        {
+            if (pos[ndlen] != '=') continue;
+
+            pos += ndlen + 1;
+
+            char *endptr;
+            long rv = strtol(pos, &endptr, 0);
+            if (*endptr != '\n') return -2; /* Malformed data */
+            return rv;
+        }
+    }
+    return -1; /* Not found */
 }

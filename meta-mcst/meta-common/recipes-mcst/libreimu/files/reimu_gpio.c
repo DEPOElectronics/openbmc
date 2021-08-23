@@ -3,19 +3,19 @@
 #include "reimu.h"
 
 int reimu_is_atexit_gpiochip_fini = 0;
-struct gpiod_chip *reimu_s_gpiochip = NULL;
+struct gpiod_chip *reimu_gpiochip = NULL;
 void reimu_gpiochip_fini(void)
 {
-    if (reimu_s_gpiochip) gpiod_chip_close(reimu_s_gpiochip);
-    reimu_s_gpiochip = NULL;
+    if (reimu_gpiochip) gpiod_chip_close(reimu_gpiochip);
+    reimu_gpiochip = NULL;
 }
 
 int reimu_gpiochip_init(void)
 {
-    if (reimu_s_gpiochip) return 0;
-    reimu_s_gpiochip = gpiod_chip_open("/dev/gpiochip0");
+    if (reimu_gpiochip) return 0;
+    reimu_gpiochip = gpiod_chip_open("/dev/gpiochip0");
     reimu_set_atexit(reimu_is_atexit_gpiochip_fini, reimu_gpiochip_fini);
-    if (reimu_s_gpiochip) return 0;
+    if (reimu_gpiochip) return 0;
     return 1;
 }
 
@@ -24,7 +24,7 @@ int reimu_get_gpio(int num)
     int rv = reimu_gpiochip_init();
     if (rv) return -1;
 
-    struct gpiod_line *line = gpiod_chip_get_line(reimu_s_gpiochip, num);
+    struct gpiod_line *line = gpiod_chip_get_line(reimu_gpiochip, num);
     if (line == NULL) return -2;
 
     rv = gpiod_line_request_input(line, "libreimu");
@@ -40,13 +40,13 @@ int reimu_set_gpio(int num, int value, int delay)
     int rv = reimu_gpiochip_init();
     if (rv) return -1;
 
-    struct gpiod_line *line = gpiod_chip_get_line(reimu_s_gpiochip, num);
+    struct gpiod_line *line = gpiod_chip_get_line(reimu_gpiochip, num);
     if (line == NULL) return -2;
 
     rv = gpiod_line_request_output(line, "libreimu", value);
     if (rv) { gpiod_line_release(line); return -3; }
 
-    reimu_msleep(delay);
+    reimu_msleep(delay, NULL);
     gpiod_line_release(line);
 
     rv = gpiod_line_request_input(line, "libreimu");
@@ -55,18 +55,18 @@ int reimu_set_gpio(int num, int value, int delay)
 }
 
 int reimu_is_atexit_gpioconfig_fini = 0;
-char *reimu_s_gpioconfig = NULL;
-long reimu_s_gpioconfig_len = 0;
+char *reimu_gpioconfig = NULL;
+long reimu_gpioconfig_len = 0;
 void reimu_gpioconfig_fini(void)
 {
-    if (reimu_s_gpioconfig) free(reimu_s_gpioconfig);
-    reimu_s_gpioconfig = NULL;
+    if (reimu_gpioconfig) free(reimu_gpioconfig);
+    reimu_gpioconfig = NULL;
 }
 
 int reimu_gpioconfig_init(void)
 {
-    if (reimu_s_gpioconfig) return 0;
-    int rv = reimu_readfile("/etc/gpiotab", &reimu_s_gpioconfig, &reimu_s_gpioconfig_len);
+    if (reimu_gpioconfig) return 0;
+    int rv = reimu_readfile("/etc/gpiotab", &reimu_gpioconfig, &reimu_gpioconfig_len);
     if (!rv) reimu_set_atexit(reimu_is_atexit_gpioconfig_fini, reimu_gpioconfig_fini);
     return rv;
 }
@@ -74,14 +74,14 @@ int reimu_gpioconfig_init(void)
 char *reimu_find_gpioconfig(const char *needle)
 {
     int ndlen = strlen(needle);
-    for(char *pos = reimu_s_gpioconfig; (pos - reimu_s_gpioconfig) <= reimu_s_gpioconfig_len - (ndlen + 3); ++pos)
+    for(char *pos = reimu_gpioconfig; (pos - reimu_gpioconfig) <= reimu_gpioconfig_len - (ndlen + 3); ++pos)
     {
         if (!strncmp(pos, needle, ndlen) && *(pos + ndlen) == '=')
         {
             char *rv = pos + ndlen + 1;
             if ((rv[0] < 'A') || (rv[0] > 'Z')) return NULL;
             if ((rv[1] >= '0') && (rv[1] <= '9')) return rv;
-            if (rv + 2 >= reimu_s_gpioconfig + reimu_s_gpioconfig_len) return NULL;
+            if (rv + 2 >= reimu_gpioconfig + reimu_gpioconfig_len) return NULL;
             if ((rv[1] < 'A') || (rv[1] > 'Z')) return NULL;
             if ((rv[2] < '0') || (rv[2] > '9')) return NULL;
             return rv;

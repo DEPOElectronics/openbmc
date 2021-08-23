@@ -28,11 +28,11 @@ PV_MAJOR = "${@d.getVar('PV',d,1).split('.')[0]}"
 S = "${WORKDIR}"
 
 
-do_install_append() {
+do_install() {
   install -d ${D}${libdir}
   install -d ${D}${includedir}
   install -m 755 lib${libname}${suffixes}.so.${PV} ${D}${libdir}
-  install -m 644 ${libname}.h ${D}${includedir}
+  install -m 644 ${S}/${libname}.h ${D}${includedir}
   for lib in lib${libname}${suffixes}.so
   do
       ln -s $lib.${PV} ${D}${libdir}/$lib
@@ -40,4 +40,5 @@ do_install_append() {
   done
 }
 
-FILES_${PN} = "${prefix}/lib"
+FILES_${PN} = "${libdir}/*.so.*"
+FILES_${PN}-dev = "${includedir} ${libdir}/*.so"

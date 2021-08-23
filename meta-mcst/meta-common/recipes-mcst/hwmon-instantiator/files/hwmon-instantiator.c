@@ -126,7 +126,7 @@ static void create_sensor(int node, const char *nodename, traverse_callback_t un
                 *p = '_';
             }
             printf(" - adding sensor %s as %s%d (%s)\n", nodename, type, reg, sensor_label);
-            reimu_write_text_file("LABEL_%s%d=%s\n", type, reg, sensor_label);
+            reimu_textfile_write("LABEL_%s%d=%s\n", type, reg, sensor_label);
 
             const char *warnlo = reimu_getprop(node, "min_alert", 1, 25, "Error reading min alert value from node 0x%08x:", node);
             const char *warnhi = reimu_getprop(node, "max_alert", 1, 26, "Error reading max alert value from node 0x%08x:", node);
@@ -134,17 +134,17 @@ static void create_sensor(int node, const char *nodename, traverse_callback_t un
             const char *crithi = reimu_getprop(node, "max_crit", 0, 28, "Error reading max crit value from node 0x%08x:", node);
 
             printf(" - %s: warn %s..%s", nodename, warnlo, warnhi);
-            reimu_write_text_file("WARNLO_%s%d=%s\nWARNHI_%s%d=%s\n", type, reg, warnlo, type, reg, warnhi);
+            reimu_textfile_write("WARNLO_%s%d=%s\nWARNHI_%s%d=%s\n", type, reg, warnlo, type, reg, warnhi);
             char *event = "WARNHI,WARNLO";
 
             if (reimu_is_prop_empty(crithi) || reimu_is_prop_empty(critlo))
             {
                 printf(", crit %s..%s", critlo, crithi);
-                reimu_write_text_file("CRITLO_%s%d=%s\nCRITHI_%s%d=%s\n", type, reg, critlo, type, reg, crithi);
+                reimu_textfile_write("CRITLO_%s%d=%s\nCRITHI_%s%d=%s\n", type, reg, critlo, type, reg, crithi);
                 event = "WARNHI,WARNLO,CRITHI,CRITLO";
             }
             printf("\n");
-            reimu_write_text_file("EVENT_%s%d=\"%s\"\nASYNC_READ_TIMEOUT_%s%d=\"1000\"\n\n", type, reg, event, type, reg);
+            reimu_textfile_write("EVENT_%s%d=\"%s\"\nASYNC_READ_TIMEOUT_%s%d=\"1000\"\n\n", type, reg, event, type, reg);
         }
         else
         {
@@ -166,13 +166,13 @@ static void create_config(int parent, int bus, int dev, const char *devlabel)
     snprintf(config_path, 1023, "%s@%08x/%08x.i2c-bus/i2c-%d", config_dir, apb_addr, bus_addr, bus);
     if(reimu_recurse_mkdir(config_path)) reimu_cancel(31, "Error while creating directory for config file for device %d-%04x (%s): %s\n", bus, dev, config_path, strerror(errno));
     snprintf(config_path, 1023, "%s@%08x/%08x.i2c-bus/i2c-%d/%d-%04x.conf", config_dir, apb_addr, bus_addr, bus, bus, dev);
-    if (reimu_create_text_file(config_path)) reimu_cancel(32, "Error while creating config file for device %d-%04x (%s): %s\n", bus, dev, config_path, strerror(errno));
+    if (reimu_textfile_create(config_path)) reimu_cancel(32, "Error while creating config file for device %d-%04x (%s): %s\n", bus, dev, config_path, strerror(errno));
 
     if(reimu_for_each_subnode(parent, NULL, (const void *)devlabel, 0, create_sensor))
     {
         reimu_cancel(21, "Error traversing i2c device %d-%04x (%s), node 0x%08x\n", bus, dev, devlabel, parent);
     }
-    reimu_close_text_file();
+    reimu_textfile_close();
 }
 
 enum serv_op { SERVICE_START, SERVICE_STOP, SERVICE_OP_UNKNOWN };

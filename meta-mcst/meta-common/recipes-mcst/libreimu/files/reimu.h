@@ -4,21 +4,20 @@
 /* reimu_string */
 
 int reimu_is_in_dict(const char *dict[], const char *name);
+int reimu_get_conf_bool(const char *confbuf, int conflen, const char *needle);
+long reimu_get_conf_long(const char *confbuf, int conflen, const char *needle);
 
 /* reimu_control */
-
-void reimu_set_atexit(int already_done, void (*func)(void));
-
-/* reimu_logging */
 
 #include <stdio.h>
 void __attribute__((format(printf, 2, 3))) reimu_cancel(int num, const char *fmt, ...);
 void __attribute__((format(printf, 2, 3))) reimu_message(FILE *stream, const char *fmt, ...);
+void reimu_set_atexit(int already_done, void (*func)(void));
 
 /* reimu_time */
 
 char *reimu_gettime(void);
-void reimu_msleep(long value);
+void reimu_msleep(long value, volatile int *exit_request);
 
 /* reimu_dir */
 
@@ -27,15 +26,22 @@ int reimu_recurse_mkdir(char *path);
 
 /* reimu_file */
 
+int reimu_chkfile(const char *name);
 int reimu_readfile(const char *name, char **p_buf, long *p_size);
 int reimu_writefile(const char *name, const void *buf, long size);
 int reimu_find_in_file(const char *name, const char *needle);
 
 /* reimu_textfile */
 
-int reimu_create_text_file(const char *path);
-void __attribute__((format(printf, 1, 2))) reimu_write_text_file(const char *fmt, ...);
-void reimu_close_text_file(void);
+int reimu_textfile_create(const char *name);
+void __attribute__((format(printf, 1, 2))) reimu_textfile_write(const char *fmt, ...);
+void reimu_textfile_close(void);
+
+/* reimu_textfile_buf */
+
+void reimu_textfile_buf_alloc(void);
+int __attribute__((format(printf, 1, 2))) reimu_textfile_buf_append(const char *fmt, ...);
+int reimu_textfile_buf_commit(const char *name);
 
 /* reimu_gpio (requires libgpiod) */
 

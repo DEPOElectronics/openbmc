@@ -78,7 +78,7 @@ static int server_watchdog_reset(int argc, char *argv[])
             case 0: break;
             default: return power_state;
         }
-        reimu_msleep(1000);
+        reimu_msleep(1000, NULL);
     }
     return 35;
 }
@@ -154,7 +154,7 @@ static int uid_set_tspi(int state)
 {
     char *bits = state ? "00000004\n" : "00000008\n";
     if(reimu_writefile("/sys/kernel/tinyspi/command_bits_set", bits, strlen(bits))) return 43;
-    reimu_msleep(10);
+    reimu_msleep(10, NULL);
     if(reimu_writefile("/sys/kernel/tinyspi/command_bits_reset", bits, strlen(bits))) return 45;
     return 0;
 }

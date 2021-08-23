@@ -58,7 +58,7 @@ int poll_pgood()
         if(((powered_on = reimu_get_gpio_by_name("GPIO_POWER_IN")) < 0) && (i > 0))
         {
             reimu_message(stderr, "Warning: (%s) GPIO_POWER_IN is unavailable, retrying in 100 ms, %d attempts remaining\n", reimu_gettime(), i);
-            reimu_msleep(100);
+            reimu_msleep(100, NULL);
             continue;
         }
         break;
@@ -96,6 +96,6 @@ int main(void)
             }
         }
         if (update_delay >= 0) --update_delay;
-        reimu_msleep(1000);
+        reimu_msleep(1000, NULL);
     }
 }
