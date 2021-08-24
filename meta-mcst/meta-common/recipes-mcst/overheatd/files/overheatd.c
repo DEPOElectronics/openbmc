@@ -58,7 +58,7 @@ static void detect_hwmon(int bus, int reg, int cpu)
     s_hwmons[cpu] = hwmon;
 }
 
-static void detect_cpus(const char *pcompatible, int node, int bus, int reg, const char *label, const void *data)
+static int detect_cpus(const char *pcompatible, int node, int bus, int reg, const char *label, const void *data)
 {
     if (!strcmp(pcompatible, "l_pcs_i2c") && !(reg & 0x0f))
     {
@@ -75,6 +75,7 @@ static void detect_cpus(const char *pcompatible, int node, int bus, int reg, con
             }
         }
     }
+    return 0;
 }
 
 static long get_temperature(int cpu, int sensor, double *result)
@@ -347,7 +348,7 @@ int main(int argc, char *argv[])
     int last_dbg_state = 0;
     set_signal_handlers();
     create_pidfile();
-    reimu_textfile_buf_alloc();
+    if (reimu_textfile_buf_alloc()) reimu_cancel(-250, "Out of memory\n");
     int tinyspi = detect_tinyspi();
 
     for(;;)
@@ -357,7 +358,7 @@ int main(int argc, char *argv[])
 
         if(overheatd_enabled)
         {
-            reimu_textfile_buf_append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<state date=\"%s\">\n", reimu_gettime());
+            if(reimu_textfile_buf_append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<state date=\"%s\">\n", reimu_gettime())) reimu_cancel(-250, "Out of memory\n");
 
             if (last_dbg_state != s_dbg_state)
             {
@@ -401,7 +402,7 @@ int main(int argc, char *argv[])
             }
 
             dbg_printf(stdout, "Alerts: 0x%08x\n", alerts);
-            reimu_textfile_buf_append("\t<alerts>0x%08x</alerts>\n", alerts);
+            if(reimu_textfile_buf_append("\t<alerts>0x%08x</alerts>\n", alerts)) reimu_cancel(-250, "Out of memory\n");
 
             if (s_dbg_state == 2) { alerts &= 0xffff7fff; dbg_printf(stdout, "DEBUG MODE: alerts altered to 0x%08x\n", alerts); }
 
@@ -444,19 +445,19 @@ int main(int argc, char *argv[])
                 {
                     /* Detect available cpus */
                     s_cpus[0] = 0; s_cpus[1] = 0; s_cpus[2] = 0; s_cpus[3] = 0;
-                    reimu_traverse_all_i2c(NULL, detect_cpus);
+                    reimu_traverse_all_i2c(NULL, detect_cpus, 1);
                     dbg_printf(stdout, "CPUs detected: %d, %d, %d, %d\n", s_cpus[0], s_cpus[1], s_cpus[2], s_cpus[3]);
-                    reimu_textfile_buf_append("\t<cpus>");
+                    if(reimu_textfile_buf_append("\t<cpus>")) reimu_cancel(-250, "Out of memory\n");
                     int first = 1;
                     for (int cpu = 0; cpu <= 3; ++cpu)
                     {
                         if (s_cpus[cpu])
                         {
-                            reimu_textfile_buf_append(first ? "%d" : " %d", cpu);
+                            if(reimu_textfile_buf_append(first ? "%d" : " %d", cpu)) reimu_cancel(-250, "Out of memory\n");
                             first = 0;
                         }
                     }
-                    reimu_textfile_buf_append("<cpus>\n");
+                    if(reimu_textfile_buf_append("<cpus>\n")) reimu_cancel(-250, "Out of memory\n");
 
                     /* Check temperature of each cpu sensor */
                     long maxtemp = 0;
@@ -475,7 +476,7 @@ int main(int argc, char *argv[])
                                 else
                                 {
                                     dbg_printf(stdout, "Temp (%d:%d): %ld (%f)\n", cpu, sensor, temp, tempdbl);
-                                    reimu_textfile_buf_append("\t<temperature cpu=\"%d\" sensor=\"%d\">%f</temperature>\n", cpu, sensor, tempdbl);
+                                    if(reimu_textfile_buf_append("\t<temperature cpu=\"%d\" sensor=\"%d\">%f</temperature>\n", cpu, sensor, tempdbl)) reimu_cancel(-250, "Out of memory\n");
                                     if (temp > maxtemp) maxtemp = temp;
                                 }
                             }
@@ -504,7 +505,7 @@ int main(int argc, char *argv[])
             }
 
             /* Finalize statefile */
-            reimu_textfile_buf_append("</state>\n");
+            if(reimu_textfile_buf_append("</state>\n")) reimu_cancel(-250, "Out of memory\n");
             if(reimu_textfile_buf_commit("/var/volatile/systemstate.xml")) reimu_cancel(24, "(%s) Can't update statefile\n", reimu_gettime());
         }
 
