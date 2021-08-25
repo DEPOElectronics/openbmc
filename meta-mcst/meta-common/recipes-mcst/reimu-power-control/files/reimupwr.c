@@ -67,6 +67,11 @@ int poll_pgood()
     return powered_on;
 }
 
+int dbus_available()
+{
+    return !reimu_dbus_call_method("xyz.openbmc_project.State.Host", "/xyz/openbmc_project/state/host0", "org.freedesktop.DBus.Introspectable", "Introspect");
+}
+
 int main(void)
 {
     int old_pgood = -1;
@@ -80,7 +85,7 @@ int main(void)
         if ((pgood != old_pgood) || !success)
         {
             reimu_message(stdout, "(%s) Power good state changed from %d to %d, changing power state\n", reimu_gettime(), old_pgood, pgood);
-            set_power_state_on_dbus(pgood);
+            if (dbus_available()) set_power_state_on_dbus(pgood);
             reimu_message(stdout, "(%s) Deferring power state being saved for %d seconds\n", reimu_gettime(), s_update_delay);
             update_delay = s_update_delay;
             old_pgood = pgood;
