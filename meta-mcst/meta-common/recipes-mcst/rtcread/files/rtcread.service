@@ -5,6 +5,7 @@ After=mcst-fruid.service
 [Service]
 Type=oneshot
 ExecStart=/libexec/rtcread
+RemainAfterExit=yes
 
 [Install]
-WantedBy=sysinit.target
+WantedBy=time-set.target
