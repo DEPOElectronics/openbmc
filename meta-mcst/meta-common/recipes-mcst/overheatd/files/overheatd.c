@@ -58,7 +58,7 @@ static void detect_hwmon(int bus, int reg, int cpu)
     s_hwmons[cpu] = hwmon;
 }
 
-static int detect_cpus(const char *pcompatible, int node, int bus, int reg, const char *label, const void *data)
+static int detect_cpus(int unused __attribute__((unused)), const char *pcompatible, int node, int bus, int reg, const char *label, const void *data __attribute__((unused)))
 {
     if (!strcmp(pcompatible, "l_pcs_i2c") && !(reg & 0x0f))
     {
@@ -97,7 +97,7 @@ static long get_temperature(int cpu, int sensor, double *result)
     return temp;
 }
 
-static int overheat_set_led_gpio(const char *trigger)
+static void overheat_set_led_gpio(const char *trigger)
 {
     char *triggerlf;
     if ((triggerlf = malloc(strlen(trigger) + 2)) == NULL) reimu_cancel(94, "Out of memory\n");
@@ -177,7 +177,7 @@ static void tspi_led_init(void)
     {
         timer_create(CLOCK_MONOTONIC, NULL, &s_tspi_timer);
         signal(SIGALRM, tspi_led_handler);
-        reimu_set_atexit(is_atexit_tspi_led_fini, tspi_led_fini);
+        reimu_set_atexit(&is_atexit_tspi_led_fini, tspi_led_fini);
         dbg_printf(stdout, "Created TinySPI LED timer\n");
         s_tspi_timer_ready = 1;
     }
@@ -188,7 +188,7 @@ static void tspi_led_init(void)
     }
 }
 
-static int overheat_set_led_tspi(const char *trigger)
+static void overheat_set_led_tspi(const char *trigger)
 {
     tspi_led_init();
     if(!strcmp(trigger, "timer"))
@@ -291,7 +291,7 @@ static void reload_config(const char *configfile)
     }
 
     char *daemoncfg;
-    long daemoncfg_len;
+    size_t daemoncfg_len;
 
     if(reimu_readfile(configfile, &daemoncfg, &daemoncfg_len)) reimu_cancel(91, "Unable to read config file\n");
 
@@ -325,7 +325,7 @@ static void create_pidfile(void)
 {
     char pid[10];
     sprintf(pid, "%d\n", getpid());
-    reimu_set_atexit(0, rm_pidfile);
+    reimu_set_atexit(NULL, rm_pidfile);
     if(reimu_writefile("/run/overheatd.pid", pid, strlen(pid))) reimu_cancel(127, "Can't create pid file\n");
 }
 
@@ -445,7 +445,7 @@ int main(int argc, char *argv[])
                 {
                     /* Detect available cpus */
                     s_cpus[0] = 0; s_cpus[1] = 0; s_cpus[2] = 0; s_cpus[3] = 0;
-                    reimu_traverse_all_i2c(NULL, detect_cpus, 1);
+                    reimu_traverse_all_i2c(NULL, detect_cpus, 0);
                     dbg_printf(stdout, "CPUs detected: %d, %d, %d, %d\n", s_cpus[0], s_cpus[1], s_cpus[2], s_cpus[3]);
                     if(reimu_textfile_buf_append("\t<cpus>")) reimu_cancel(-250, "Out of memory\n");
                     int first = 1;
