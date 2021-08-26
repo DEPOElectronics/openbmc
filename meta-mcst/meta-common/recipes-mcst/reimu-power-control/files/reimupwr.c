@@ -85,7 +85,14 @@ int main(void)
         if ((pgood != old_pgood) || !success)
         {
             reimu_message(stdout, "(%s) Power good state changed from %d to %d, changing power state\n", reimu_gettime(), old_pgood, pgood);
-            if (dbus_available()) set_power_state_on_dbus(pgood);
+            if (dbus_available())
+            {
+                set_power_state_on_dbus(pgood);
+            }
+            else
+            {
+                success = 1;
+            }
             reimu_message(stdout, "(%s) Deferring power state being saved for %d seconds\n", reimu_gettime(), s_update_delay);
             update_delay = s_update_delay;
             old_pgood = pgood;
