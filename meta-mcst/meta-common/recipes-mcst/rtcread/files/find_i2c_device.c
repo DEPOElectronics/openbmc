@@ -3,7 +3,7 @@
 #include <reimu.h>
 #include <errno.h>
 
-static int check_device(const char *pcompatible, int node, int bus, int reg, const char *label, const void *data)
+static int check_device(int unused __attribute((unused)), const char *pcompatible, int node, int bus, int reg, const char *label, const void *data)
 {
     const char *model = (const char *)data;
     if (!strcmp(pcompatible, model) && !strcmp(label, "platform")) printf("%s:%x:%d\n", model, reg, bus);
