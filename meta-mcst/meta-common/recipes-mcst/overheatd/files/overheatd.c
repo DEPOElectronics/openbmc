@@ -445,7 +445,7 @@ int main(int argc, char *argv[])
                 {
                     /* Detect available cpus */
                     s_cpus[0] = 0; s_cpus[1] = 0; s_cpus[2] = 0; s_cpus[3] = 0;
-                    reimu_traverse_all_i2c(NULL, detect_cpus, 0);
+                    reimu_traverse_all_i2c(NULL, detect_cpus, JUST_PRINT_ERROR);
                     dbg_printf(stdout, "CPUs detected: %d, %d, %d, %d\n", s_cpus[0], s_cpus[1], s_cpus[2], s_cpus[3]);
                     if(reimu_textfile_buf_append("\t<cpus>")) reimu_cancel(-250, "Out of memory\n");
                     int first = 1;
