@@ -11,13 +11,13 @@ static int instantiate(int node, const char *compatible, int bus, int reg)
 {
     if (!reimu_is_in_dict(supported_devices, compatible))
     {
-        printf(" - device is unsupported, skipping\n");
+        printf(" - device %s (%d:%02x) is unsupported, skipping\n", compatible, bus, reg);
         return 1;
     }
-    const char *status = reimu_getprop(BE_SILENT, node, "status", 1, 29, "Error reading status value from node 0x%08x:", node);
+    const char *status = reimu_getprop(BE_SILENT, node, "status", 1, 29, "Error reading status value from node 0x%08x (device %s, %d:%02x):", node, compatible, bus, reg);
     if ((status != NULL) && !strcmp(status, "disabled"))
     {
-        printf(" - device is disabled, skipping\n");
+        printf(" - device %s (%d:%02x) is disabled, skipping\n", compatible, bus, reg);
         return 1;
     }
 
@@ -27,18 +27,18 @@ static int instantiate(int node, const char *compatible, int bus, int reg)
     snprintf(sysfsdata, 255, "%s 0x%02x\n", compatible, reg);
     if(reimu_writefile(sysfspath, sysfsdata, strlen(sysfsdata)))
     {
-        printf("- instantiating failed (%s), skipping\n", strerror(errno));
+        printf(" - instantiating of %s (%d:%02x) failed (%s), skipping\n", compatible, bus, reg, strerror(errno));
         return 2;
     }
 
     snprintf(sysfspath, 511, "/sys/class/i2c-adapter/i2c-%d/%d-%04x/hwmon", bus, bus, reg);
     if (reimu_chkdir(sysfspath))
     {
-        printf("- no hwmon directory exported (%s), skipping\n", strerror(errno));
+        printf(" - device %s (%d:%02x) exported no hwmon directory (%s), skipping\n", compatible, bus, reg, strerror(errno));
         return 3;
     }
 
-    printf(" - instantiated device %s at %d-%04x\n", compatible, bus, reg);
+    printf(" - instantiated device %s (%d:%02x) \n", compatible, bus, reg);
     return 0;
 }
 
@@ -46,13 +46,13 @@ static int deinstantiate(int node, const char *compatible, int bus, int reg)
 {
     if (!reimu_is_in_dict(supported_devices, compatible))
     {
-        printf(" - device is unsupported, skipping\n");
+        printf(" - device %s (%d:%02x) is unsupported, skipping\n", compatible, bus, reg);
         return 1;
     }
-    const char *status = reimu_getprop(BE_SILENT, node, "status", 1, 29, "Error reading status value from node 0x%08x:", node);
+    const char *status = reimu_getprop(BE_SILENT, node, "status", 1, 29, "Error reading status value from node 0x%08x (device %s, %d:%02x):", node, compatible, bus, reg);
     if ((status != NULL) && !strcmp(status, "disabled"))
     {
-        printf(" - device is disabled, skipping\n");
+        printf(" - device %s (%d:%02x) is disabled, skipping\n", compatible, bus, reg);
         return 1;
     }
 
@@ -62,11 +62,11 @@ static int deinstantiate(int node, const char *compatible, int bus, int reg)
     snprintf(sysfsdata, 255, "0x%02x\n", reg);
     if(reimu_writefile(sysfspath, sysfsdata, strlen(sysfsdata)))
     {
-        printf("- deinstantiating failed (%s), skipping\n", strerror(errno));
+        printf(" - deinstantiating of %s (%d:%02x) failed (%s), skipping\n", compatible, bus, reg, strerror(errno));
         return 2;
     }
 
-    printf(" - deinstantiated device %s at %d-%04x\n", compatible, bus, reg);
+    printf(" - deinstantiated device %s (%d:%02x) \n", compatible, bus, reg);
     return 0;
 }
 
@@ -121,8 +121,8 @@ static int create_sensor(enum cancel_type_t unused __attribute__((unused)), int 
     {
         const int *preg = reimu_getprop(CANCEL_ON_ERROR, node, "reg", 1, 23, "Error reading reg value from node 0x%08x:", node);
         int reg = *preg >> 24;
-        const char *label = reimu_getprop(JUST_PRINT_ERROR, node, "label", 0, 24, "Error reading label value from node 0x%08x:", node);
-        const char *status = reimu_getprop(JUST_PRINT_ERROR, node, "status", 1, 29, "Error reading status value from node 0x%08x:", node);
+        const char *label = reimu_getprop(BE_SILENT, node, "label", 0, 24, "Error reading label value from node 0x%08x:", node);
+        const char *status = reimu_getprop(BE_SILENT, node, "status", 1, 29, "Error reading status value from node 0x%08x:", node);
 
         if ((label != NULL) && (status != NULL) && !strcmp(status, "okay"))
         {
@@ -137,7 +137,7 @@ static int create_sensor(enum cancel_type_t unused __attribute__((unused)), int 
                 if ((*p >= '0') && (*p <= '9')) continue;
                 *p = '_';
             }
-            printf(" - adding sensor %s as %s%d (%s)\n", nodename, type, reg, sensor_label);
+            printf(" - - adding sensor %s as %s%d (%s)\n", nodename, type, reg, sensor_label);
             reimu_textfile_write(CANCEL_ON_ERROR, "LABEL_%s%d=%s\n", type, reg, sensor_label);
 
             const char *warnlo = reimu_getprop(JUST_PRINT_ERROR, node, "min_alert", 1, 25, "Error reading min alert value from node 0x%08x:", node);
@@ -145,7 +145,7 @@ static int create_sensor(enum cancel_type_t unused __attribute__((unused)), int 
             const char *critlo = reimu_getprop(JUST_PRINT_ERROR, node, "min_crit", 0, 27, "Error reading min crit value from node 0x%08x:", node);
             const char *crithi = reimu_getprop(JUST_PRINT_ERROR, node, "max_crit", 0, 28, "Error reading max crit value from node 0x%08x:", node);
 
-            printf(" - %s: warn %s..%s", nodename, warnlo, warnhi);
+            printf(" - - sensor %s: warn %s..%s", nodename, warnlo, warnhi);
             reimu_textfile_write(CANCEL_ON_ERROR, "WARNLO_%s%d=%s\nWARNHI_%s%d=%s\n", type, reg, warnlo, type, reg, warnhi);
             char *event = "WARNHI,WARNLO";
 
@@ -160,12 +160,12 @@ static int create_sensor(enum cancel_type_t unused __attribute__((unused)), int 
         }
         else
         {
-            printf(" - %s is disabled or lack required properties, skipping\n", nodename);
+            printf(" - - sensor %s is disabled or lack required properties, skipping\n", nodename);
         }
     }
     else
     {
-        printf(" - %s is not of supported types, skipping\n", nodename);
+        printf(" - - sensor %s is not of supported types, skipping\n", nodename);
     }
     return 0;
 }
