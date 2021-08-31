@@ -1,6 +1,7 @@
 [Unit]
 Description=Rotate SoL log file
 RequiresMountsFor=/var/log
+After=tmux-logger.service
 
 [Service]
 Type=oneshot
