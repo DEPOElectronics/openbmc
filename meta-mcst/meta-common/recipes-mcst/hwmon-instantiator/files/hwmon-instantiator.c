@@ -14,8 +14,8 @@ static int instantiate(int node, const char *compatible, int bus, int reg)
         printf(" - device %s (%d:%02x) is unsupported, skipping\n", compatible, bus, reg);
         return 1;
     }
-    const char *status = reimu_getprop(BE_SILENT, node, "status", 1, 29, "Error reading status value from node 0x%08x (device %s, %d:%02x):", node, compatible, bus, reg);
-    if ((status != NULL) && !strcmp(status, "disabled"))
+    const char *status = reimu_getprop(CANCEL_ON_ERROR, node, "status", 0, 29, "Error reading status value from node 0x%08x (device %s, %d:%02x):", node, compatible, bus, reg);
+    if (!strcmp(status, "disabled"))
     {
         printf(" - device %s (%d:%02x) is disabled, skipping\n", compatible, bus, reg);
         return 1;
@@ -32,10 +32,17 @@ static int instantiate(int node, const char *compatible, int bus, int reg)
     }
 
     snprintf(sysfspath, 511, "/sys/class/i2c-adapter/i2c-%d/%d-%04x/hwmon", bus, bus, reg);
-    if (reimu_chkdir(sysfspath))
+
+    int attempt = 0;
+    while(reimu_chkdir(sysfspath))
     {
-        printf(" - device %s (%d:%02x) exported no hwmon directory (%s), skipping\n", compatible, bus, reg, strerror(errno));
-        return 3;
+        if (++attempt == 10 || errno != ENOENT)
+        {
+            printf(" - device %s (%d:%02x) exported no hwmon directory (%s), skipping\n", compatible, bus, reg, strerror(errno));
+            return 3;
+        }
+        printf(" - device %s (%d:%02x) exported no hwmon directory yet, delaying (attempt %d/10)\n", compatible, bus, reg, attempt);
+        reimu_msleep(100, NULL);
     }
 
     printf(" - instantiated device %s (%d:%02x) \n", compatible, bus, reg);
@@ -121,46 +128,53 @@ static int create_sensor(enum cancel_type_t unused __attribute__((unused)), int 
     {
         const int *preg = reimu_getprop(CANCEL_ON_ERROR, node, "reg", 1, 23, "Error reading reg value from node 0x%08x:", node);
         int reg = *preg >> 24;
-        const char *label = reimu_getprop(BE_SILENT, node, "label", 0, 24, "Error reading label value from node 0x%08x:", node);
-        const char *status = reimu_getprop(BE_SILENT, node, "status", 1, 29, "Error reading status value from node 0x%08x:", node);
+        const char *label = reimu_getprop(CANCEL_ON_ERROR, node, "label", 0, 24, "Error reading label value from node 0x%08x:", node);
+        const char *status = reimu_getprop(CANCEL_ON_ERROR, node, "status", 0, 29, "Error reading status value from node 0x%08x:", node);
 
-        if ((label != NULL) && (status != NULL) && !strcmp(status, "okay"))
+        if (!reimu_is_prop_empty(label) && !strcmp(status, "okay"))
         {
-            char sensor_label[1024];
-            snprintf(sensor_label, 1023, "%s %s", devlabel, label);
+            const char *warnlo = reimu_getprop(CANCEL_ON_ERROR, node, "min_alert", 0, 25, "Error reading min alert value from node 0x%08x:", node);
+            const char *warnhi = reimu_getprop(CANCEL_ON_ERROR, node, "max_alert", 0, 26, "Error reading max alert value from node 0x%08x:", node);
+            const char *critlo = reimu_getprop(CANCEL_ON_ERROR, node, "min_crit", 0, 27, "Error reading min crit value from node 0x%08x:", node);
+            const char *crithi = reimu_getprop(CANCEL_ON_ERROR, node, "max_crit", 0, 28, "Error reading max crit value from node 0x%08x:", node);
 
-            for (char *p = sensor_label; *p; ++p)
+            if (reimu_is_prop_empty(warnhi) || reimu_is_prop_empty(warnlo))
             {
-                /* The label shall comply with "Valid Object Paths" of D-Bus Spec, that shall only contain the ASCII characters "[A-Z][a-z][0-9]_". */
-                if ((*p >= 'A') && (*p <= 'Z')) continue;
-                if ((*p >= 'a') && (*p <= 'z')) continue;
-                if ((*p >= '0') && (*p <= '9')) continue;
-                *p = '_';
+                printf(" - - sensor %s lacks required properties, skipping\n", nodename);
             }
-            printf(" - - adding sensor %s as %s%d (%s)\n", nodename, type, reg, sensor_label);
-            reimu_textfile_write(CANCEL_ON_ERROR, "LABEL_%s%d=%s\n", type, reg, sensor_label);
-
-            const char *warnlo = reimu_getprop(JUST_PRINT_ERROR, node, "min_alert", 1, 25, "Error reading min alert value from node 0x%08x:", node);
-            const char *warnhi = reimu_getprop(JUST_PRINT_ERROR, node, "max_alert", 1, 26, "Error reading max alert value from node 0x%08x:", node);
-            const char *critlo = reimu_getprop(JUST_PRINT_ERROR, node, "min_crit", 0, 27, "Error reading min crit value from node 0x%08x:", node);
-            const char *crithi = reimu_getprop(JUST_PRINT_ERROR, node, "max_crit", 0, 28, "Error reading max crit value from node 0x%08x:", node);
-
-            printf(" - - sensor %s: warn %s..%s", nodename, warnlo, warnhi);
-            reimu_textfile_write(CANCEL_ON_ERROR, "WARNLO_%s%d=%s\nWARNHI_%s%d=%s\n", type, reg, warnlo, type, reg, warnhi);
-            char *event = "WARNHI,WARNLO";
-
-            if (reimu_is_prop_empty(crithi) || reimu_is_prop_empty(critlo))
+            else
             {
-                printf(", crit %s..%s", critlo, crithi);
-                reimu_textfile_write(CANCEL_ON_ERROR, "CRITLO_%s%d=%s\nCRITHI_%s%d=%s\n", type, reg, critlo, type, reg, crithi);
-                event = "WARNHI,WARNLO,CRITHI,CRITLO";
+                char sensor_label[1024];
+                snprintf(sensor_label, 1023, "%s %s", devlabel, label);
+
+                for (char *p = sensor_label; *p; ++p)
+                {
+                    /* The label shall comply with "Valid Object Paths" of D-Bus Spec, that shall only contain the ASCII characters "[A-Z][a-z][0-9]_". */
+                    if ((*p >= 'A') && (*p <= 'Z')) continue;
+                    if ((*p >= 'a') && (*p <= 'z')) continue;
+                    if ((*p >= '0') && (*p <= '9')) continue;
+                    *p = '_';
+                }
+
+                printf(" - - adding sensor %s as %s%d (%s)\n", nodename, type, reg, sensor_label);
+                reimu_textfile_write(CANCEL_ON_ERROR, "LABEL_%s%d=%s\n", type, reg, sensor_label);
+                printf(" - - sensor %s: warn %s..%s", nodename, warnlo, warnhi);
+                reimu_textfile_write(CANCEL_ON_ERROR, "WARNLO_%s%d=%s\nWARNHI_%s%d=%s\n", type, reg, warnlo, type, reg, warnhi);
+                char *event = "WARNHI,WARNLO";
+
+                if (reimu_is_prop_empty(crithi) || reimu_is_prop_empty(critlo))
+                {
+                    printf(", crit %s..%s", critlo, crithi);
+                    reimu_textfile_write(CANCEL_ON_ERROR, "CRITLO_%s%d=%s\nCRITHI_%s%d=%s\n", type, reg, critlo, type, reg, crithi);
+                    event = "WARNHI,WARNLO,CRITHI,CRITLO";
+                }
+                printf("\n");
+                reimu_textfile_write(CANCEL_ON_ERROR, "EVENT_%s%d=\"%s\"\nASYNC_READ_TIMEOUT_%s%d=\"1000\"\n\n", type, reg, event, type, reg);
             }
-            printf("\n");
-            reimu_textfile_write(CANCEL_ON_ERROR, "EVENT_%s%d=\"%s\"\nASYNC_READ_TIMEOUT_%s%d=\"1000\"\n\n", type, reg, event, type, reg);
         }
         else
         {
-            printf(" - - sensor %s is disabled or lack required properties, skipping\n", nodename);
+            printf(" - - sensor %s is disabled or lacks required properties, skipping\n", nodename);
         }
     }
     else
@@ -170,7 +184,7 @@ static int create_sensor(enum cancel_type_t unused __attribute__((unused)), int 
     return 0;
 }
 
-static void create_config(int parent, int bus, int dev, const char *devlabel)
+static void create_config(int parent, const char *pcompatible, int bus, int dev, const char *devlabel)
 {
     int apb_addr, bus_addr;
     detect_addresses(bus, &apb_addr, &bus_addr);
@@ -181,6 +195,7 @@ static void create_config(int parent, int bus, int dev, const char *devlabel)
     snprintf(config_path, 1023, "%s@%08x/%08x.i2c-bus/i2c-%d/%d-%04x.conf", config_dir, apb_addr, bus_addr, bus, bus, dev);
     if (reimu_textfile_create(config_path)) reimu_cancel(32, "Error while creating config file for device %d-%04x (%s): %s\n", bus, dev, config_path, strerror(errno));
 
+    printf(" - creating %s sensors for %s (%d:%02x):\n", devlabel, pcompatible, bus, dev);
     if(reimu_for_each_subnode(CANCEL_ON_ERROR, parent, NULL, (const void *)devlabel, 0, create_sensor))
     {
         reimu_cancel(21, "Error traversing i2c device %d-%04x (%s), node 0x%08x\n", bus, dev, devlabel, parent);
@@ -196,7 +211,7 @@ static int instantiator_callback(enum cancel_type_t unused __attribute__((unused
     switch(op)
     {
         case SERVICE_START:
-            create_config(node, bus, reg, label);
+            create_config(node, pcompatible, bus, reg, label);
             instantiate(node, pcompatible, bus, reg);
             break;
 
