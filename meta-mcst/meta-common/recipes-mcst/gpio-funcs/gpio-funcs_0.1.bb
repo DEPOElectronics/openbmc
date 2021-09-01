@@ -22,7 +22,7 @@ do_install() {
   install -d ${D}/libexec
   install -d ${D}/etc
   install -m 755 gpio-funcs ${D}/libexec/gpio-funcs
-  install -m 644 gpiotab.2400 gpiotab.2500 gpiotab.2600 gpiotab.common ${D}/etc
+  install -m 644 gpiotab gpiotab.2400 gpiotab.2500 gpiotab.2600 gpiotab.common ${D}/etc
 }
 
 FILES_${PN} = " /libexec /etc "
