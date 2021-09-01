@@ -5,13 +5,12 @@ PR = "r1"
 LICENSE = "GPLv2"
 LIC_FILES_CHKSUM = "file://LICENSE;md5=b234ee4d69f5fce4486a80fdaf4a4263"
 
-SRC_URI = "file://astclkinfo \
-           file://LICENSE \
-          "
+SRC_URI = "git://github.com/makise-homura/astclkinfo.git;protocol=https"
+SRCREV = "${AUTOREV}"
 
-RDEPENDS_${PN} += "bash"
+RDEPENDS_${PN} += "bash busybox"
 
-S = "${WORKDIR}"
+S = "${WORKDIR}/git"
 
 do_install() {
   install -d ${D}/usr/bin
