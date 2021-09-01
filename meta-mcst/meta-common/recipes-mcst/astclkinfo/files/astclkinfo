@@ -1,7 +1,7 @@
 #!/bin/bash
 
-case `grep '^model name' /proc/cpuinfo | sed 's/.*(//;s/).*//'` in
-    v5l) # AST2400
+case `cat /sys/devices/soc0/family` in
+    AST2400)
         REGCPU=$((`devmem 0x1E6E2070` >> 8 & 3))
         REGAHB=$((`devmem 0x1E6E2070` >> 10 & 3))
         REGPCLK=$((`devmem 0x1E6E2008` >> 23 & 7))
@@ -33,7 +33,7 @@ case `grep '^model name' /proc/cpuinfo | sed 's/.*(//;s/).*//'` in
 
         echo "CPU: $MHZCPU MHz, AHB: $(($MHZCPU / $DIVAHB)) MHz, PCLK: $(($MHZCPU / $DIVPCLK)) MHz"
     ;;
-    v6l) # AST2500
+    AST2500)
         CLKIN=24
 
         REGCPUP=$((`devmem 0x1E6E2024` >> 13 & 63))
@@ -101,5 +101,118 @@ case `grep '^model name' /proc/cpuinfo | sed 's/.*(//;s/).*//'` in
         esac
 
         echo "CPU: $MHZCPU MHz, MEM: $MHZMEM MHz, DPLL: $KHZDPLL kHz, AHB: $(($MHZCPU / $DIVAHB)) MHz, PCLK: $(($MHZCPU / $DIVPCLK)) MHz, BCLK: $(($MHZCPU / $DIVBCLK)) MHz, HCLK: $(($MHZCPU / $DIVHCLK)) MHz"
+    ;;
+    AST2600)
+        CLKIN=25
+
+        REGCPUP=$((`devmem 0x1E6E2200` >> 19 & 15))
+        REGCPUN=$((`devmem 0x1E6E2200` >> 13 & 63))
+        REGCPUM=$((`devmem 0x1E6E2200` >> 0 & 8191))
+        REGAPLLP=$((`devmem 0x1E6E2210` >> 19 & 15))
+        REGAPLLN=$((`devmem 0x1E6E2210` >> 13 & 63))
+        REGAPLLM=$((`devmem 0x1E6E2210` >> 0 & 8191))
+        REGMEMP=$((`devmem 0x1E6E2220` >> 19 & 15))
+        REGMEMN=$((`devmem 0x1E6E2220` >> 13 & 63))
+        REGMEMM=$((`devmem 0x1E6E2220` >> 0 & 8191))
+        REGEPLLP=$((`devmem 0x1E6E2240` >> 19 & 15))
+        REGEPLLN=$((`devmem 0x1E6E2240` >> 13 & 63))
+        REGEPLLM=$((`devmem 0x1E6E2240` >> 0 & 8191))
+        REGDPLLP=$((`devmem 0x1E6E2260` >> 19 & 15))
+        REGDPLLN=$((`devmem 0x1E6E2260` >> 13 & 63))
+        REGDPLLM=$((`devmem 0x1E6E2260` >> 0 & 8191))
+
+        MHZHPLL=$(($CLKIN * ($REGCPUM + 1) / ($REGCPUN + 1) / ($REGCPUP + 1)))
+        MHZAPLL=$(($CLKIN * ($REGAPLLM + 1) / ($REGAPLLN + 1) / ($REGAPLLP + 1)))
+        MHZMPLL=$(($CLKIN * ($REGMEMM + 1) / ($REGMEMN + 1) / ($REGMEMP + 1)))
+        MHZEPLL=$(($CLKIN * ($REGEPLLM + 1) / ($REGEPLLN + 1) / ($REGEPLLP + 1)))
+        MHZDPLL=$(($CLKIN * ($REGDPLLM + 1) / ($REGDPLLN + 1) / ($REGDPLLP + 1)))
+
+        TEXTHPLL="$MHZHPLL MHz"
+        [ $((`devmem 0x1E6E2200` >> 23 & 1)) -eq 1 ] && TEXTHPLL="Disabled" && MHZHPLL=0
+        [ $((`devmem 0x1E6E2200` >> 24 & 1)) -eq 1 ] && TEXTHPLL="$CLKIN MHz" && MHZHPLL=$CLKIN
+
+        TEXTAPLL="$MHZAPLL MHz"
+        [ $((`devmem 0x1E6E2210` >> 23 & 1)) -eq 1 ] && TEXTAPLL="Disabled" && MHZAPLL=0
+        [ $((`devmem 0x1E6E2210` >> 24 & 1)) -eq 1 ] && TEXTAPLL="$CLKIN MHz" && MHZAPLL=$CLKIN
+
+        TEXTMPLL="$MHZMPLL MHz"
+        [ $((`devmem 0x1E6E2220` >> 23 & 1)) -eq 1 ] && TEXTMPLL="Disabled" && MHZMPLL=0
+        [ $((`devmem 0x1E6E2220` >> 24 & 1)) -eq 1 ] && TEXTMPLL="$CLKIN MHz" && MHZMPLL=$CLKIN
+
+        TEXTEPLL="$MHZEPLL MHz"
+        [ $((`devmem 0x1E6E2240` >> 23 & 1)) -eq 1 ] && TEXTEPLL="Disabled" && MHZEPLL=0
+        [ $((`devmem 0x1E6E2240` >> 24 & 1)) -eq 1 ] && TEXTEPLL="$CLKIN MHz" && MHZEPLL=$CLKIN
+
+        TEXTDPLL="$MHZDPLL MHz"
+        [ $((`devmem 0x1E6E2260` >> 23 & 1)) -eq 1 ] && TEXTDPLL="Disabled" && MHZDPLL=0
+        [ $((`devmem 0x1E6E2260` >> 24 & 1)) -eq 1 ] && TEXTDPLL="$CLKIN MHz" && MHZDPLL=$CLKIN
+
+        REGECLK=$((`devmem 0x1E6E2300` >> 26 & 3))
+        REGPCLK=$((`devmem 0x1E6E2300` >> 23 & 7))
+        REGBCLK=$((`devmem 0x1E6E2300` >> 20 & 7))
+        REGECSEL=$((`devmem 0x1E6E2300` >> 19 & 1))
+        REGAHB=$((`devmem 0x1E6E2300` >> 16 & 7))
+
+        REGAXID=$((`devmem 0x1E6E2500` >> 16 & 1))
+        REGHCLK=$((`devmem 0x1E6E2500` >> 11 & 3))
+
+        case $REGECSEL in
+            0) MHZECCRSA=$MHZMPLL;;
+            1) MHZECCRSA=$MHZHPLL;;
+        esac
+
+        case $REGECLK in
+            0) DIVECLK=2;;
+            1) DIVECLK=2;;
+            2) DIVECLK=3;;
+            3) DIVECLK=4;;
+        esac
+
+        case $REGPCLK in
+            0) DIVPCLK=4;;
+            1) DIVPCLK=8;;
+            2) DIVPCLK=12;;
+            3) DIVPCLK=16;;
+            4) DIVPCLK=20;;
+            5) DIVPCLK=24;;
+            6) DIVPCLK=28;;
+            7) DIVPCLK=32;;
+        esac
+
+        case $REGBCLK in
+            0) DIVBCLK=4;;
+            1) DIVBCLK=8;;
+            2) DIVBCLK=12;;
+            3) DIVBCLK=16;;
+            4) DIVBCLK=20;;
+            5) DIVBCLK=24;;
+            6) DIVBCLK=28;;
+            7) DIVBCLK=32;;
+        esac
+
+        case $REGAHB in
+            0) DIVAHB=4;;
+            1) DIVAHB=4;;
+            2) DIVAHB=6;;
+            3) DIVAHB=8;;
+            4) DIVAHB=10;;
+            5) DIVAHB=12;;
+            6) DIVAHB=14;;
+            7) DIVAHB=16;;
+        esac
+
+        case $REGAXID in
+            0) DIVAXI=2;;
+            1) DIVAXI=1;;
+        esac
+
+        case $REGHCLK in
+            0) MHZHCLK=200;;
+            1) MHZHCLK=$(($MHZHPLL / 4));;
+            2) MHZHCLK=$(($MHZHPLL / 6));;
+            3) MHZHCLK=$(($MHZHPLL / 8));;
+        esac
+
+        echo "CPU: $TEXTHPLL, MEM: $TEXTMPLL, APLL: $TEXTAPLL, EPLL: $TEXTEPLL, DPLL: $TEXTDPLL, AHB: $(($MHZHPLL / $DIVAHB)) MHz, ECC/RSA: $(($MHZECCRSA / $DIVECLK)) MHz, PCLK: $(($MHZHPLL / $DIVPCLK)) MHz, BCLK: $(($MHZHPLL / $DIVBCLK)) MHz, AXI: $(($MHZHPLL / $DIVAXI)) MHz, HCLK: $MHZHCLK MHz"
     ;;
 esac
