@@ -16,8 +16,8 @@ BBLAYERS ?= " \
   ##OEROOT##/meta-aspeed \
   ##OEROOT##/meta-mcst/meta-common \
   ##OEROOT##/meta-mcst/meta-flash64 \
-  ##OEROOT##/meta-mcst/meta-embedded \
-  ##OEROOT##/meta-mcst/meta-embedded-2500 \
+  ##OEROOT##/meta-mcst/meta-leds-keys-gpio \
+  ##OEROOT##/meta-mcst/meta-uid-gpio-actlo \
   ##OEROOT##/meta-mcst/meta-uart5 \
   ##OEROOT##/meta-mcst/meta-reliable-upgrade \
   ##OEROOT##/meta-mcst/meta-device-reimu-5564 \
@@ -33,8 +33,8 @@ BBLAYERS_NON_REMOVABLE ?= " \
   ##OEROOT##/meta-aspeed \
   ##OEROOT##/meta-mcst/meta-common \
   ##OEROOT##/meta-mcst/meta-flash64 \
-  ##OEROOT##/meta-mcst/meta-embedded \
-  ##OEROOT##/meta-mcst/meta-embedded-2500 \
+  ##OEROOT##/meta-mcst/meta-leds-keys-gpio \
+  ##OEROOT##/meta-mcst/meta-uid-gpio-actlo \
   ##OEROOT##/meta-mcst/meta-uart5 \
   ##OEROOT##/meta-mcst/meta-reliable-upgrade \
   ##OEROOT##/meta-mcst/meta-device-reimu-5564 \
