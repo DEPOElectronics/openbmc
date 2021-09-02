@@ -10,7 +10,22 @@
 #include <linux/gpio.h>
 #include <linux/delay.h>
 
-// Default setup as in E8C-SWTX board
+#if   defined (CONFIG_MACH_ASPEED_G4)
+    #define TINYSPI_CLK_OFFSET  104
+    #define TINYSPI_SEL_OFFSET  106
+    #define TINYSPI_DATA_OFFSET 105
+#elif defined (CONFIG_MACH_ASPEED_G5)
+    #define TINYSPI_CLK_OFFSET  104
+    #define TINYSPI_SEL_OFFSET  106
+    #define TINYSPI_DATA_OFFSET 105
+#elif defined (CONFIG_MACH_ASPEED_G6)
+    #define TINYSPI_CLK_OFFSET  168
+    #define TINYSPI_SEL_OFFSET  170
+    #define TINYSPI_DATA_OFFSET 169
+#else
+    #error You should define ASPEED SoC family to build this module.
+#endif
+
 static int gpio_clk = 0;
 static int gpio_sel = 0;
 static int gpio_data = 0;
@@ -248,9 +263,9 @@ static int __init tinyspi_init (void)
         if (offset == 4096) { printk(KERN_ERR "tinyspi: failed to autodetect GPIO offset\n"); return -ENOENT; }
 
         printk(KERN_INFO "tinyspi: first GPIO detected at %d.\n", offset);
-        gpio_clk  = offset + 104;
-        gpio_sel  = offset + 106;
-        gpio_data = offset + 105;
+        gpio_clk  = offset + TINYSPI_CLK_OFFSET;
+        gpio_sel  = offset + TINYSPI_SEL_OFFSET;
+        gpio_data = offset + TINYSPI_DATA_OFFSET;
     }
 
     printk(KERN_INFO "tinyspi: startup (CLK=GPIO%d, DATA=GPIO%d, SEL=GPIO%d).\n", gpio_clk, gpio_data, gpio_sel);
