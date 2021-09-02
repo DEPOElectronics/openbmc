@@ -30,4 +30,4 @@ IMAGE_FEATURES_remove = "obmc-telemetry"
 IMAGE_FEATURES_remove = "obmc-user-mgmt"
 IMAGE_FEATURES_remove = "obmc-user-mgmt-ldap"
 
-OBMC_IMAGE_EXTRA_INSTALL_append += " sudo-sudo reimu-power-control "
+OBMC_IMAGE_EXTRA_INSTALL_append += " sudo-sudo reimu-power-control pam-plugin-access pam-ipmi "
