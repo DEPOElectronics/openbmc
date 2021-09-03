@@ -16,7 +16,7 @@
 -                          reading.hasOwnProperty('CriticalHigh') &&
 -                          reading.Value >= reading.WarningHigh &&
 -                          reading.Value <= reading.CriticalHigh) {
-+                          reading.Value >= reading.WarningHigh {
++                          reading.Value >= reading.WarningHigh) {
                          severityFlags.warning = true;
                          severityText = 'warning';
                          order = 1;
