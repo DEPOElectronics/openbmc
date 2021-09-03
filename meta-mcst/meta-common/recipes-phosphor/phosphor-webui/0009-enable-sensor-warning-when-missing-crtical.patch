@@ -1,0 +1,22 @@
+--- a/app/common/services/api-utils.js	2021-03-31 19:02:04.759421560 +0300
++++ b/app/common/services/api-utils.js	2021-04-28 23:19:02.093106259 +0300
+@@ -997,18 +997,14 @@
+                         severityText = 'critical';
+                         order = 2;
+                       } else if (
+-                          reading.hasOwnProperty('CriticalLow') &&
+                           reading.hasOwnProperty('WarningLow') &&
+-                          reading.Value >= reading.CriticalLow &&
+                           reading.Value <= reading.WarningLow) {
+                         severityFlags.warning = true;
+                         severityText = 'warning';
+                         order = 1;
+                       } else if (
+                           reading.hasOwnProperty('WarningHigh') &&
+-                          reading.hasOwnProperty('CriticalHigh') &&
+-                          reading.Value >= reading.WarningHigh &&
+-                          reading.Value <= reading.CriticalHigh) {
++                          reading.Value >= reading.WarningHigh {
+                         severityFlags.warning = true;
+                         severityText = 'warning';
+                         order = 1;

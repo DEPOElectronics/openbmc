@@ -8,4 +8,5 @@ SRC_URI += " \
              file://0006-alert-on-websocket-failure.patch \
              file://0007-omit-power-parameters.patch \
              file://0008-set-nameservers-correctly.patch \
+             file://0009-enable-sensor-warning-when-missing-crtical.patch \
            "
