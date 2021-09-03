@@ -5,7 +5,8 @@
 #include "aspeed-bmc-mcst-ast2500.dtsi"
 #include "aspeed-bmc-mcst-uart5.dtsi"
 #include "aspeed-bmc-mcst-flash64.dtsi"
-#include "aspeed-bmc-mcst-gpio-2500.dtsi"
+#include "aspeed-bmc-mcst-gpio.dtsi"
+#include "aspeed-bmc-mcst-uid-gpio-actlo.dtsi"
 #include "aspeed-bmc-mcst-additional-flash.dtsi"
 
 / {
