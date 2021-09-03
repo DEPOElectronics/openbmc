@@ -117,12 +117,12 @@ static int create_sensor(enum cancel_type_t unused __attribute__((unused)), int 
     if (nodename == NULL) reimu_cancel(22, "Error reading name of node 0x%08x\n", node);
 
     const char *devlabel = (const char *)data;
-    const char *type = NULL;
-    if (!strncmp(nodename, "fan", 3))   type = "fan";
-    if (!strncmp(nodename, "temp", 4))  type = "temp";
-    if (!strncmp(nodename, "in", 2))    type = "in";
-    if (!strncmp(nodename, "curr", 4))  type = "curr";
-    if (!strncmp(nodename, "power", 5)) type = "power";
+    const char *type = NULL, *minvalue = NULL, *maxvalue = NULL;
+    if (!strncmp(nodename, "fan", 3))   { type = "fan";   minvalue = "0";       maxvalue = "50000";      }
+    if (!strncmp(nodename, "temp", 4))  { type = "temp";  minvalue = "-125000"; maxvalue = "125000";     }
+    if (!strncmp(nodename, "in", 2))    { type = "in";    minvalue = "0";       maxvalue = "300000";     }
+    if (!strncmp(nodename, "curr", 4))  { type = "curr";  minvalue = "0";       maxvalue = "100000";     }
+    if (!strncmp(nodename, "power", 5)) { type = "power"; minvalue = "0";       maxvalue = "1000000000"; }
 
     if (type != NULL)
     {
@@ -160,16 +160,14 @@ static int create_sensor(enum cancel_type_t unused __attribute__((unused)), int 
                 reimu_textfile_write(CANCEL_ON_ERROR, "LABEL_%s%d=%s\n", type, reg, sensor_label);
                 printf(" - - sensor %s: warn %s..%s", nodename, warnlo, warnhi);
                 reimu_textfile_write(CANCEL_ON_ERROR, "WARNLO_%s%d=%s\nWARNHI_%s%d=%s\n", type, reg, warnlo, type, reg, warnhi);
-                char *event = "WARNHI,WARNLO";
 
                 if (reimu_is_prop_empty(crithi) || reimu_is_prop_empty(critlo))
                 {
                     printf(", crit %s..%s", critlo, crithi);
                     reimu_textfile_write(CANCEL_ON_ERROR, "CRITLO_%s%d=%s\nCRITHI_%s%d=%s\n", type, reg, critlo, type, reg, crithi);
-                    event = "WARNHI,WARNLO,CRITHI,CRITLO";
                 }
                 printf("\n");
-                reimu_textfile_write(CANCEL_ON_ERROR, "EVENT_%s%d=\"%s\"\nASYNC_READ_TIMEOUT_%s%d=\"1000\"\n\n", type, reg, event, type, reg);
+                reimu_textfile_write(CANCEL_ON_ERROR, "MINVALUE_%s%d=%s\nMAXVALUE_%s%d=%s\nASYNC_READ_TIMEOUT_%s%d=\"1000\"\n\n", type, reg, minvalue, type, reg, maxvalue, type, reg);
             }
         }
         else
