@@ -1,0 +1,80 @@
+#!/bin/bash
+
+cancel()
+{
+    rv=$1
+    shift
+    echo $@ 1>&2
+    exit $rv
+}
+
+check_once()
+{
+    if [ "$TINYSPI" = "yes" ]
+    then
+        rv=$((0x`cat /sys/kernel/tinyspi/state_reg` & 0x8))
+        case $rv in
+            8) return 0;; # Active, return true
+            0) return 1;; # Inactive, return false
+            *) cancel 2 "Failure reading TinySPI UID state";;
+        esac
+    else
+        test -f /tmp/uid_pressed
+    fi
+}
+
+led_on()
+{
+    if [ "$TINYSPI" = "yes" ]
+    then
+        echo 00000004 > /sys/kernel/tinyspi/command_bits_set
+        echo 00000004 > /sys/kernel/tinyspi/command_bits_reset
+    else
+        echo "default-on" > /sys/class/leds/platform\:blue\:uid/trigger
+    fi
+}
+
+led_off()
+{
+    if [ "$TINYSPI" = "yes" ]
+    then
+        echo 00000008 > /sys/kernel/tinyspi/command_bits_set
+        echo 00000008 > /sys/kernel/tinyspi/command_bits_reset
+    else
+        echo "none" > /sys/class/leds/platform\:blue\:uid/trigger
+    fi
+}
+
+indicate()
+{
+    led_on
+    sleep 1
+    led_off
+    sleep 1
+    led_on
+    sleep 1
+    led_off
+    sleep 1
+    led_on
+    sleep 1
+    led_off
+}
+
+. /libexec/gpio-funcs
+[ -f /var/volatile/reimu.conf ] || cancel 1 "No TinySPI config file, aborting."
+. /var/volatile/reimu.conf
+
+confirm=`[ "$TINYSPI" = "yes" ] && echo "Don't turn off UID" || echo "Keep holding UID"`
+
+check_once || exit 0
+echo "We're probably want to clean RW partition. $confirm to confirm for 5 seconds." 1>&2
+sleep 5
+check_once || cancel 0 "Ok, we DON'T want to clean RW partition. Exiting."
+
+echo "We're REALLY want to clean RW partition..." 1>&2
+indicate
+
+rm -rf /run/initramfs/rw/cow/
+
+echo -e "\e[1;33m *** Note: BMC is reverted to manufacturer's settings, rebooting. *** \e[0m" 1>&2
+reboot
