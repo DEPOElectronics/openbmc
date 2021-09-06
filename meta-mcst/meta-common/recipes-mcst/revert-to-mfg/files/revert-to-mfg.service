@@ -1,6 +1,6 @@
 [Unit]
 Description=Revert to manufacturer settings if needed
-After=sysinit.target triggerhappy
+After=sysinit.target
 
 [Service]
 ExecStart=/libexec/revert-to-mfg

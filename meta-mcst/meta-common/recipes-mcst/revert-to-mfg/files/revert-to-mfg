@@ -19,7 +19,13 @@ check_once()
             *) cancel 2 "Failure reading TinySPI UID state";;
         esac
     else
-        test -f /tmp/uid_pressed
+        status=`devmem $GPIO_UID_BTN_ADDR` || cancel 2 "Failure querying GPIO register"
+        mask=$((1 << $GPIO_UID_BTN_BIT))
+        case $status in
+            0)     return 0;; # Pressed, return true
+            $mask) return 1;; # Released, return false
+            *) cancel 3 "Inconsistent data in GPIO register";;
+        esac
     fi
 }
 
