@@ -1,0 +1,22 @@
+diff -ru a/app/common/services/constants.js b/app/common/services/constants.js
+--- a/app/common/services/constants.js	2021-09-03 22:51:34.498920374 +0300
++++ b/app/common/services/constants.js	2021-09-06 18:21:42.515244644 +0300
+@@ -75,6 +75,7 @@
+         'xyz.openbmc_project.Sensor.Value.Unit.Watts': 'watts',
+         'xyz.openbmc_project.Sensor.Value.Unit.Amperes': 'amperes',
+-        'xyz.openbmc_project.Sensor.Value.Unit.Joules': 'joules'
++        'xyz.openbmc_project.Sensor.Value.Unit.Joules': 'joules',
++        'xyz.openbmc_project.Sensor.Value.Unit.Percent': '%'
+       },
+       SERVER_HEALTH: {
+         critical: 'Critical',
+@@ -89,7 +90,8 @@
+         'xyz.openbmc_project.Sensor.Value.Unit.Volts',
+         'xyz.openbmc_project.Sensor.Value.Unit.Amperes',
+         'xyz.openbmc_project.Sensor.Value.Unit.Joules',
+-        'xyz.openbmc_project.Sensor.Value.Unit.Meters'
++        'xyz.openbmc_project.Sensor.Value.Unit.Meters',
++        'xyz.openbmc_project.Sensor.Value.Unit.Percent'
+       ],
+       SENSOR_SORT_ORDER_DEFAULT: 8,
+       FIRMWARE: {

@@ -1,0 +1,12 @@
+diff -ru a/healthMonitor.cpp b/healthMonitor.cpp
+--- a/healthMonitor.cpp	2021-09-03 22:54:59.882918111 +0300
++++ b/healthMonitor.cpp	2021-09-06 19:18:11.871207307 +0300
+@@ -215,6 +215,8 @@
+ {
+     CriticalInterface::criticalHigh(criticalHigh);
+     WarningInterface::warningHigh(warningHigh);
++    CriticalInterface::criticalLow(0.0);
++    WarningInterface::warningLow(0.0);
+ }
+ 
+ void HealthSensor::setSensorValueToDbus(const double value)
