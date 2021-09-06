@@ -9,4 +9,5 @@ SRC_URI += " \
              file://0007-omit-power-parameters.patch \
              file://0008-set-nameservers-correctly.patch \
              file://0009-enable-sensor-warning-when-missing-crtical.patch \
+             file://0010-truncate-sensor-values.patch \
            "
