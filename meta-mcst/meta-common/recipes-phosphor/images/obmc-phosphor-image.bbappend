@@ -96,6 +96,7 @@ OBMC_IMAGE_EXTRA_INSTALL_append = " \
   nss-pam-ldapd \
   sysstat \
   preload-hwrng \
+  revert-to-mfg \
   "
 
 IMAGE_FEATURES_remove = "ssh-server-dropbear"
