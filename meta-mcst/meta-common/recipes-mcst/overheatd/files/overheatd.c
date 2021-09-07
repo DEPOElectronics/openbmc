@@ -34,18 +34,22 @@ static void rm_pidfile(void)
 
 int s_cpus[4] = {0, 0, 0, 0};
 int s_buses[4] = {0, 0, 0, 0};
-long s_hwmons[4] = {-1, -1, -1, -1};
+long s_hwmons[4][8] = {{-1, -1, -1, -1, -1, -1, -1, -1}, {-1, -1, -1, -1, -1, -1, -1, -1}, {-1, -1, -1, -1, -1, -1, -1, -1}, {-1, -1, -1, -1, -1, -1, -1, -1}};
 
-static void detect_hwmon(int bus, int reg, int cpu)
+static void detect_hwmon(int bus, int reg)
 {
-    if (s_hwmons[cpu] > 0) return;
+    int cpu = (reg >> 4) - 2;
+    int sensor = reg & 0x0f;
+    if(s_hwmons[cpu][sensor] >= 0) return;
 
     char path[1024];
     snprintf(path, 1023, "/sys/class/i2c-adapter/i2c-%d/%d-00%02x/hwmon", bus, bus, reg);
+    dbg_printf(stdout, "Trying to check %s\n", path);
 
     char *file = NULL;
     if (reimu_find_filename(0, path, &file)) return;
-    if(!memcmp(file, "hwmon", 5)) { free(file); return; }
+    dbg_printf(stdout, "Found file %s\n", file);
+    if(memcmp(file, "hwmon", 5)) { free(file); return; }
 
     char *chwmon = file + 5;
     if(!*chwmon) { free(file); return; }
@@ -54,20 +58,23 @@ static void detect_hwmon(int bus, int reg, int cpu)
     long hwmon = strtol(chwmon, &chwmonend, 10);
     if(*chwmonend) { free(file); return; }
     free(file);
+    dbg_printf(stdout, "Sensor %d:%02x is hwmon%d\n", bus, reg, hwmon);
 
-    s_hwmons[cpu] = hwmon;
+    s_hwmons[cpu][sensor] = hwmon;
 }
 
 static int detect_cpus(int unused __attribute__((unused)), const char *pcompatible, int node, int bus, int reg, const char *label, const void *data __attribute__((unused)))
 {
-    if (!strcmp(pcompatible, "l_pcs_i2c") && !(reg & 0x0f))
+    if (!strcmp(pcompatible, "l_pcs_i2c"))
     {
         int cpu = (reg >> 4) - 2;
-        detect_hwmon(bus, reg, cpu);
-        if (s_hwmons[cpu] > 0)
+        int sensor = reg & 0x0f;
+        detect_hwmon(bus, reg);
+        if ((s_cpus[cpu] == 0) && (s_hwmons[cpu][sensor] >= 0))
         {
             char path[1024];
-            snprintf(path, 1023, "/sys/class/i2c-adapter/i2c-%d/%d-00%02x/hwmon/hwmon%ld/temp1_input", bus, bus, reg, s_hwmons[cpu]);
+            snprintf(path, 1023, "/sys/class/i2c-adapter/i2c-%d/%d-00%02x/hwmon/hwmon%ld/temp1_input", bus, bus, reg, s_hwmons[cpu][sensor]);
+            dbg_printf(stdout, "Trying to read %s\n", path);
             if(!reimu_chkfile(path))
             {
                 s_cpus[cpu] = 1;
@@ -80,10 +87,9 @@ static int detect_cpus(int unused __attribute__((unused)), const char *pcompatib
 
 static long get_temperature(int cpu, int sensor, double *result)
 {
-    if (s_hwmons[cpu] < 0) return -257;
-
     char path[1024];
-    snprintf(path, 1023, "/sys/class/i2c-adapter/i2c-%d/%d-00%02x/hwmon/hwmon%ld/temp1_input", s_buses[cpu], s_buses[cpu], 0x20 + (0x10 * cpu) + sensor, s_hwmons[cpu]);
+    int reg = 0x20 + (0x10 * cpu) | sensor;
+    snprintf(path, 1023, "/sys/class/i2c-adapter/i2c-%d/%d-00%02x/hwmon/hwmon%ld/temp1_input", s_buses[cpu], s_buses[cpu], reg, s_hwmons[cpu][sensor]);
 
     char *ctemp, *ctempend;
     if (reimu_readfile(path, &ctemp, NULL)) return -258;
@@ -210,18 +216,18 @@ static void overheat_set_led_tspi(const char *trigger)
 static uint32_t get_alerts_tinyspi(void)
 {
     /* Reset TinySPI alert */
-    if(reimu_writefile("/sys/kernel/tinyspi/command_bits_set", "00000010\n", 9)) reimu_cancel(3, "(%s) Can't start resetting TinySPI alert", reimu_gettime());
+    if(reimu_writefile("/sys/kernel/tinyspi/command_bits_set", "00000010\n", 9)) reimu_cancel(3, "(%s) Can't start resetting TinySPI alert\n", reimu_gettime());
     reimu_msleep(10, &s_exit_req);
-    if(reimu_writefile("/sys/kernel/tinyspi/command_bits_reset", "00000010\n", 9)) reimu_cancel(5, "(%s) Can't finish resetting TinySPI alert", reimu_gettime());
+    if(reimu_writefile("/sys/kernel/tinyspi/command_bits_reset", "00000010\n", 9)) reimu_cancel(5, "(%s) Can't finish resetting TinySPI alert\n", reimu_gettime());
 
     /* Read status register */
     char *tinyspi_state;
     int rv = reimu_readfile("/sys/kernel/tinyspi/state_reg", &tinyspi_state, NULL);
-    if (rv) reimu_cancel(64, "(%s) Can't read TinySPI status register", reimu_gettime());
+    if (rv) reimu_cancel(64, "(%s) Can't read TinySPI status register\n", reimu_gettime());
 
     char *endptr;
     uint32_t res = strtoul(tinyspi_state, &endptr, 16);
-    if (*endptr != '\n') reimu_cancel(65, "(%s) Wrong data in TinySPI status register", reimu_gettime());
+    if (*endptr != '\n') reimu_cancel(65, "(%s) Wrong data in TinySPI status register\n", reimu_gettime());
     free(tinyspi_state);
     return res;
 }
@@ -467,11 +473,12 @@ int main(int argc, char *argv[])
                         {
                             for (int sensor = 0; sensor <= 7; ++sensor)
                             {
+                                if (s_hwmons[cpu][sensor] < 0) continue;
                                 long temp;
                                 double tempdbl;
                                 if((temp = get_temperature(cpu, sensor, &tempdbl)) < -256)
                                 {
-                                    reimu_message(stderr, "(%s) Failure reading HWMON device (cpu = %d, sensor = %d)", reimu_gettime(), cpu, sensor);
+                                    reimu_message(stderr, "(%s) Failure reading HWMON device (cpu = %d, sensor = %d)\n", reimu_gettime(), cpu, sensor);
                                 }
                                 else
                                 {
