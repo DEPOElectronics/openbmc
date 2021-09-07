@@ -4,7 +4,7 @@ cancel()
 {
     rv=$1
     shift
-    echo $@ 1>&2
+    echo -e $@ 1>&2
     exit $rv
 }
 
@@ -73,14 +73,14 @@ indicate()
 confirm=`[ "$TINYSPI" = "yes" ] && echo "Turn off UID in less than 5 seconds to cancel." || echo "Keep holding UID for 5 seconds to confirm."`
 
 check_once || exit 0
-echo "\e[1;33m *** You're probably want to clean RW partition. $confirm *** \e[0m" 1>&2
+echo -e "\e[1;33m*** You're probably want to clean RW partition. $confirm *** \e[0m" 1>&2
 sleep 5
 check_once || cancel 0 "Ok, we DON'T want to clean RW partition. Exiting."
 
-echo "We're REALLY want to clean RW partition. Proceeding to this..." 1>&2
+echo -e "\e[1;33mWe're REALLY want to clean RW partition. Proceeding to this...\e[0m" 1>&2
 indicate
 
 rm -rf /run/initramfs/rw/cow/
 
-echo -e "\e[1;33m *** BMC is reverted to manufacturer's settings, rebooting. *** \e[0m" 1>&2
+echo -e "\e[1;33m*** BMC is reverted to manufacturer's settings, rebooting. *** \e[0m" 1>&2
 reboot
