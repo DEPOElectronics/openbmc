@@ -1,6 +1,6 @@
 [Unit]
 Description=Revert to manufacturer settings if needed
-After=sysinit.target
+After=sysinit.target allow_host_boot.service
 
 [Service]
 ExecStart=/libexec/revert-to-mfg
