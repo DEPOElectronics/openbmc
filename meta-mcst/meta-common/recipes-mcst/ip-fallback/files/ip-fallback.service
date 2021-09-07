@@ -3,7 +3,7 @@ Description=Wait for IP being correctly assigned
 After=network.target
 
 [Service]
-ExecStart=/libexec/ip_fallback
+ExecStart=/libexec/ip-fallback
 Type=oneshot
 RemainAfterExit=yes
 StandardError=journal+console

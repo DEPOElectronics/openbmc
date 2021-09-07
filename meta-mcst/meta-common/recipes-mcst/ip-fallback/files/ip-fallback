@@ -1,14 +1,15 @@
 #!/bin/bash
 
 INTERFACES="eth0 eth1"
+CONFIGFILES="/etc/ip-fallback/fallback"
 
 N=0
 for intf in $INTERFACES
 do
     COUNTDN[$N]="no"
     ADAPTER[$N]=$intf
-    TIMEOUT[$N]=`grep FallbackTimeout /etc/systemd/network/00-bmc-$intf.network | cut -d= -f2 2>/dev/null`
-    ADDRESS[$N]=`grep FallbackAddress /etc/systemd/network/00-bmc-$intf.network | cut -d= -f2 2>/dev/null`
+    TIMEOUT[$N]=`grep FallbackTimeout $CONFIGFILES-$intf.conf | cut -d= -f2 2>/dev/null`
+    ADDRESS[$N]=`grep FallbackAddress $CONFIGFILES-$intf.conf | cut -d= -f2 2>/dev/null`
     [ ${TIMEOUT[$N]} -gt 0 ] 2>/dev/null && COUNTDN[$N]="yes"
     N=$(($N + 1))
 done

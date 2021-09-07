@@ -11,20 +11,25 @@ inherit systemd
 inherit features_check
 
 REQUIRED_DISTRO_FEATURES = "systemd"
-SYSTEMD_SERVICE_${PN} = "ip_fallback.service"
+SYSTEMD_SERVICE_${PN} = "ip-fallback.service"
 
-SRC_URI = "file://ip_fallback \
-           file://ip_fallback.service \
+SRC_URI = "file://ip-fallback \
+           file://ip-fallback.service \
+           file://fallback-eth0.conf \
+           file://fallback-eth1.conf \
            file://LICENSE \
           "
 
 S = "${WORKDIR}"
 
 do_install() {
+  install -d ${D}/etc/ip-fallback/
   install -d ${D}/libexec
   install -d ${D}${systemd_system_unitdir}
-  install -m 755 ip_fallback ${D}/libexec
-  install -m 644 ip_fallback.service ${D}${systemd_system_unitdir}
+  install -m 755 ip-fallback ${D}/libexec
+  install -m 644 ip-fallback.service ${D}${systemd_system_unitdir}
+  install -m 644 fallback-eth0.conf ${D}/etc/ip-fallback/
+  install -m 644 fallback-eth1.conf ${D}/etc/ip-fallback/
 }
 
-FILES_${PN} = "/libexec ${systemd_system_unitdir}"
+FILES_${PN} = "/etc/ip-fallback /libexec ${systemd_system_unitdir}"

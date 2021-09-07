@@ -6,5 +6,3 @@ DHCP=yes
 ClientIdentifier=mac
 UseDNS=yes
 UseDomains=yes
-FallbackAddress=192.168.1.1/24
-FallbackTimeout=60
