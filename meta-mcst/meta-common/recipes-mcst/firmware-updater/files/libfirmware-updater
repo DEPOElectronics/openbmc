@@ -80,6 +80,53 @@ upload() # $1 = URL, $2 = destination file. Sets $PROTO. May change $DEST.
             echo "    Destination file: $DEST"
             scp $SRC $DEST || error "Calling scp failed, aborting."
             ;;
+        "smb")
+            echo $1 | grep -qv "^smb://" && error "Malformed SMB URL, use smb://[user@]host:/path/to/file."
+            intro $1
+            SRC="`echo $1 | sed 's#^smb://##'`"
+            WORKDIR=/tmp/smb-data
+            USER=
+            if echo $SRC | grep -q '@'
+            then
+                USER=`echo $SRC | cut -d@ -f1`
+                SRC=`echo $SRC | cut -d@ -f2-`
+                echo "    User: $USER"
+            fi
+            SRC="`echo $SRC | sed 's#:##'`"
+            SRCPATH=`dirname $SRC`
+            SRCFILE=`basename $SRC`
+            DEST="$2"
+            echo "    Source CIFS (SMB) path: //$SRCPATH"
+            echo "    Source filename: $SRCFILE"
+            echo "    Working directory: $WORKDIR"
+            echo "    Destination file: $DEST"
+            [ "$USER" ] && USER="-o user=$USER"
+            mkdir -p $WORKDIR || error "Can't create working directory."
+            mount.cifs $USER //$SRCPATH $WORKDIR || error "Unable to mount CIFS resource."
+            echo "Mount successful, copying file:"
+            SIZE=`stat -c%s $WORKDIR/$SRCFILE` || error "Unable to find desired file."
+            cat $WORKDIR/$SRCFILE | pv -s $SIZE > $DEST || error "Unable to read source file from CIFS."
+            umount $WORKDIR
+            ;;
+        "nfs")
+            echo $1 | grep -qv "^nfs://" && error "Malformed NFS URL, use nfs://host:/path/to/file."
+            intro $1
+            SRC="`echo $1 | sed 's#^nfs://##'`"
+            WORKDIR=/tmp/nfs-data
+            SRCPATH=`echo $SRC | cut -d/ -f-2`
+            SRCFILE=`echo $SRC | cut -d/ -f3-`
+            DEST="$2"
+            echo "    NFS share: $SRCPATH"
+            echo "    Source file path: $SRCFILE"
+            echo "    Working directory: $WORKDIR"
+            echo "    Destination file: $DEST"
+            mkdir -p $WORKDIR || error "Can't create working directory."
+            mount.nfs $SRCPATH $WORKDIR || error "Unable to mount NFS resource."
+            echo "Mount successful, copying file:"
+            SIZE=`stat -c%s $WORKDIR/$SRCFILE` || error "Unable to find desired file."
+            cat $WORKDIR/$SRCFILE | pv -s $SIZE > $DEST || error "Unable to read source file from NFS."
+            umount $WORKDIR
+            ;;
         "file")
             echo $1 | grep -qv "^file:///" && error "Malformed file URL, use file:///path/to/file."
             DEST="`echo $1 | sed 's#^file://##'`"
