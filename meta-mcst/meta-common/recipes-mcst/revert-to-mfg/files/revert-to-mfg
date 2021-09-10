@@ -34,7 +34,9 @@ led_on()
     if [ "$TINYSPI" = "yes" ]
     then
         echo 00000004 > /sys/kernel/tinyspi/command_bits_set
+        usleep 100000
         echo 00000004 > /sys/kernel/tinyspi/command_bits_reset
+        usleep 100000
     else
         echo "default-on" > /sys/class/leds/platform\:blue\:uid/trigger
     fi
@@ -45,7 +47,9 @@ led_off()
     if [ "$TINYSPI" = "yes" ]
     then
         echo 00000008 > /sys/kernel/tinyspi/command_bits_set
+        usleep 100000
         echo 00000008 > /sys/kernel/tinyspi/command_bits_reset
+        usleep 100000
     else
         echo "none" > /sys/class/leds/platform\:blue\:uid/trigger
     fi
@@ -85,3 +89,4 @@ rm -rf /run/initramfs/rw/cow/
 
 echo -e "\e[1;33m*** BMC is reverted to manufacturer's settings, rebooting. ***\e[0m" 1>&2
 reboot
+
