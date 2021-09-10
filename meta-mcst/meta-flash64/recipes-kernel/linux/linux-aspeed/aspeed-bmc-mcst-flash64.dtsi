@@ -8,6 +8,6 @@
 		status = "okay";
 		m25p,fast-read;
 		label = "bmc";
-		#include "openbmc-flash-layout-64.dtsi"
+		#include "mcst-reimu64-flash-layout.dtsi"
 	};
 };
