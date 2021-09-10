@@ -8,8 +8,12 @@ for intf in $INTERFACES
 do
     COUNTDN[$N]="no"
     ADAPTER[$N]=$intf
-    TIMEOUT[$N]=`grep FallbackTimeout $CONFIGFILES-$intf.conf | cut -d= -f2 2>/dev/null`
-    ADDRESS[$N]=`grep FallbackAddress $CONFIGFILES-$intf.conf | cut -d= -f2 2>/dev/null`
+    TIMEOUT[$N]=0
+    if [ -f $CONFIGFILES-$intf.conf ]
+    then
+        TIMEOUT[$N]=`grep FallbackTimeout $CONFIGFILES-$intf.conf | cut -d= -f2 2>/dev/null`
+        ADDRESS[$N]=`grep FallbackAddress $CONFIGFILES-$intf.conf | cut -d= -f2 2>/dev/null`
+    fi
     [ ${TIMEOUT[$N]} -gt 0 ] 2>/dev/null && COUNTDN[$N]="yes"
     N=$(($N + 1))
 done
