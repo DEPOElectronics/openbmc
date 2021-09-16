@@ -1,12 +1,19 @@
 #!/bin/bash
 
-if [ ! -d /sys/class/gpio/gpiochip* ]
+FIRSTGPIO=
+for i in /sys/class/gpio/gpiochip*
+do
+    [ -d $i ] || continue
+    [ -f $i/label ] || continue
+    [ -f $i/base ] || continue
+    [ `cat $i/label` = 1e780000.gpio ] && FIRSTGPIO=`cat $i/base`
+done
+
+if [ -z $FIRSTGPIO ]
 then
-    echo "GPIO subsystem not initialized: no /sys/class/gpio/gpiochip* entry" 1>&2
+    echo "GPIO subsystem not initialized: no suitable /sys/class/gpio/gpiochip* entry" 1>&2
     exit 240
 fi
-
-FIRSTGPIO=`ls -d /sys/class/gpio/gpiochip* | head -n1 | sed 's/.*gpiochip//'`
 
 # Note: this is GPIO set for REIMU, MUS-A has some GPIOs absent,
 # and corresponding LEDs and buttons are served through TinySPI.
