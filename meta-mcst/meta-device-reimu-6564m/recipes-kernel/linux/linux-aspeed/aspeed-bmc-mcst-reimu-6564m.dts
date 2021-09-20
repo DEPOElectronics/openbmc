@@ -3,6 +3,7 @@
 /dts-v1/;
 
 #include "aspeed-bmc-mcst-ast2600.dtsi"
+#include "aspeed-bmc-mcst-mus-2600.dtsi"
 #include "aspeed-bmc-mcst-uart5.dtsi"
 #include "aspeed-bmc-mcst-flash64.dtsi"
 #include "aspeed-bmc-mcst-tinyspi.dtsi"
