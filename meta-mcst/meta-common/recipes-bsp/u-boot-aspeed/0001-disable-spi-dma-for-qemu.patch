@@ -1,8 +1,0 @@
-diff -ru a/configs/ast2600_openbmc_defconfig b/configs/ast2600_openbmc_defconfig
---- a/configs/ast2600_openbmc_defconfig	2021-09-15 23:53:34.386626442 +0300
-+++ b/configs/ast2600_openbmc_defconfig	2021-09-16 23:20:23.502362392 +0300
-@@ -99,3 +99,4 @@
- CONFIG_WDT=y
- CONFIG_HEXDUMP=y
- # CONFIG_GENERATE_SMBIOS_TABLE is not set
-+CONFIG_ASPEED_SPI_DMA=n
