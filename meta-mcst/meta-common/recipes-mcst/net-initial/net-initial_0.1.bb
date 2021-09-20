@@ -33,6 +33,7 @@ do_install() {
   install -m 644 00-bmc-eth0.network ${D}${CONFDIR}/00-bmc-eth0.network
   install -m 644 00-bmc-eth1.network ${D}${CONFDIR}/00-bmc-eth1.network
   install -m 644 set_mac.service ${D}${systemd_system_unitdir}
+  echo "FRUID_SOURCE=${FRUID_SOURCE}" > ${D}/etc/reimu_fruid.conf
 }
 
-FILES_${PN} = "${CONFDIR} /libexec ${systemd_system_unitdir}"
+FILES_${PN} = "${CONFDIR} /etc/reimu_fruid.conf /libexec ${systemd_system_unitdir}"
