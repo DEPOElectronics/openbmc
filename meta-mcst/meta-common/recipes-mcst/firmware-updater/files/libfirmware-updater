@@ -181,7 +181,7 @@ listimages()
 getversion()
 {
     USTAR="`dd bs=1 count=7 skip=257 if=$1 2>/dev/null`" || error "Can't read $1."
-    [ "$USTAR" == "ustar  " ] || error "$1 is not a TAR file."
+    [ "$USTAR" = "ustar  " ] || error "$1 is not a TAR file."
     VERSSTRING=`tar xOf $1 MANIFEST | grep '^version=' | head -n1` || error "Can't unpack manifest from $1."
     [ -z "$VERSSTRING" ] && error "Can't read version from manifest unpacked from $1."
     DOWNLOADED=`echo -n $VERSSTRING | sed 's/^version=//' | sha512sum | head -c8`

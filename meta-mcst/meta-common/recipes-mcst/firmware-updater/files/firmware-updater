@@ -58,7 +58,7 @@ upload $1 $DEST || error "Upload failure. Check your network connectivity or URL
 if [ "$DBUS_UPDATE" = "no" ]
 then
     USTAR="`dd bs=1 count=7 skip=257 if=$DEST 2>/dev/null`"
-    if [ "$USTAR" == "ustar  " ]
+    if [ "$USTAR" = "ustar  " ]
     then
         echo "The file you just uploaded is highly likely the TAR file. You must use the MTD file instead, since you don't use DBus update mechanism now."
         echo "Attempt to flash TAR file in place of MTD will brick the BMC, and you'll need external flash programmer to recover from this."
