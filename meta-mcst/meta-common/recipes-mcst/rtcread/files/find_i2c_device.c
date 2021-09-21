@@ -6,7 +6,7 @@
 static int check_device(enum cancel_type_t unused __attribute((unused)), const char *pcompatible, int node, int bus, int reg, const char *label, const void *data)
 {
     const char *model = (const char *)data;
-    if (!strcmp(pcompatible, model) && !strcmp(label, "platform")) printf("%s:%x:%d\n", model, reg, bus);
+    if (!strcmp(pcompatible, model) && !strcmp(label, RTC_LABEL)) printf("%s:%x:%d\n", model, reg, bus);
     return 0;
 }
 

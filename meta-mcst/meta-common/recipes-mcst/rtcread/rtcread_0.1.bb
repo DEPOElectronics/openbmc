@@ -27,7 +27,8 @@ do_install() {
   install -d ${D}/libexec
   install -m 644 rtcread.service ${D}${systemd_system_unitdir}
   install -m 755 rtcread ${D}/libexec
-  install -m 755 find_i2c_device ${D}/libexec
+  install -m 755 find_i2c_device-platform ${D}/libexec
+  install -m 755 find_i2c_device-module ${D}/libexec
 }
 
 FILES_${PN} = "/libexec ${systemd_system_unitdir}"

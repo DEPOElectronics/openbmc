@@ -1,6 +1,16 @@
 #!/bin/bash
 
-INTERNAL_RTC=/dev/rtc0
+TIME_LIMIT=`date +%s -d "Jan 1, 2010"`
+
+time_is_correct()
+{
+    test "$1" -gt "$TIME_LIMIT"
+}
+
+time_is_incorrect()
+{
+    test "$1" -le "$TIME_LIMIT"
+}
 
 exit_ok()
 {
@@ -14,38 +24,108 @@ exit_err()
     exit 1
 }
 
-# Should return empty string, or something like "mcp7941x:6f:2"
-RTC_STRING=`/libexec/find_i2c_device mcp7941x`
+show_rtc()
+{
+    echo "Time from $1 RTC:"
+    hwclock -r -f $2
+}
 
-[ -z "$RTC_STRING" ] && exit_ok "No onboard RTC in device tree, exitting."
+# Should return something like "/dev/rtc2", or empty string on error
+instantiate_rtc()
+{
+    model=`echo $1 | cut -d: -f1`
+    slave=`echo $1 | cut -d: -f2`
+    bus=`echo $1 | cut -d: -f3`
 
-RTC_MODEL=`echo $RTC_STRING | cut -d: -f1`
-RTC_ADDR=`echo $RTC_STRING | cut -d: -f2`
-RTC_I2C_BUS=`echo $RTC_STRING | cut -d: -f3`
+    if [ -z "$model" -o -z "$slave" -o -z "$bus" ]
+    then
+        echo "Can't parse $2 RTC identification string $1." 1>&2
+        return
+    fi
 
-[ -z "$RTC_MODEL" -o -z "$RTC_ADDR" -o -z "$RTC_I2C_BUS" ] && exit_err "Can't parse RTC identification string $RTC_STRING."
+    sysfsdir=/sys/class/i2c-adapter/i2c-${bus}/${bus}-00${slave}/rtc/
+    if [ ! -d $sysfsdir ]
+    then
+        echo "$model 0x$slave" > /sys/class/i2c-adapter/i2c-$bus/new_device
+        usleep 100000
+    fi
 
-sysfsdir=/sys/class/i2c-adapter/i2c-${RTC_I2C_BUS}/${RTC_I2C_BUS}-00${RTC_ADDR}/rtc/
+    if [ -d $sysfsdir ]
+    then
+        devname=/dev/`ls $sysfsdir`
+        [ -c $devname ] && echo $devname || echo "Device did not export $2 RTC to devtmpfs." 1>&2
+    else
+        echo "Device did not export $2 RTC to sysfs." 1>&2
+    fi
+}
 
-if [ ! -d $sysfsdir ]
-then
-    echo "Instantiating $RTC_MODEL an I2C bus $RTC_I2C_BUS slave 0x$RTC_ADDR"
-    echo "$RTC_MODEL 0x$RTC_ADDR" > /sys/class/i2c-adapter/i2c-${RTC_I2C_BUS}/new_device
-    [ -d $sysfsdir ] || exit_err "Device did not export RTC to sysfs."
-fi
+# Should return something like "mcp7941x:6f:2", or empty string on error
+detect_rtc()
+{
+    /libexec/find_i2c_device-$1 mcp7941x
+}
 
-devname=/dev/`ls $sysfsdir`
-[ -c $devname ] || exit_err "Device did not export RTC to devtmpfs."
+set_time_from()
+{
+    echo "Setting system time from $1 RTC..."
+    hwclock --hctosys -f $2
+}
 
-echo "Time from onboard RTC:"
-hwclock -r -f $devname
+write_time_to()
+{
+    [ -c $2 ] || echo "No device available." 1>&2
+    echo "Writing time to $1 RTC..."
+    hwclock --systohc -f $2 || echo "Time write failed." 1>&2
+}
 
-echo "Time from internal RTC:"
-hwclock -r -f $INTERNAL_RTC
+read_rtc()
+{
+    date +%s -d "`hwclock -r -f $1`"
+}
 
-echo "Setting system time from onboard RTC..."
-hwclock --hctosys -f $devname || exit_err "Time read failed."
-echo "Writing time to internal RTC..."
-hwclock --systohc -f $INTERNAL_RTC || exit_err "Time write failed."
+# Search device trees for RTC identification string
+RTC_STRING_M=""
+FRUID_SOURCE="platform"
+RTC_STRING_P=`detect_rtc platform`
+[ -f "/etc/reimu_fruid.conf" ] && . /etc/reimu_fruid.conf
+[ "$FRUID_SOURCE" = "module" ] && RTC_STRING_M=`detect_rtc module`
+[ -z "$RTC_STRING_P" -a -z "$RTC_STRING_M" ] && exit_ok "No onboard/on-module RTC in platform/BMC device tree defined, exitting."
 
-exit_ok "Succeeded."
+# Instantiate and detect corresponding devtmpfs nodes
+RTC_I=/dev/`ls /sys/devices/platform/ahb/ahb:apb/1e781000.rtc/rtc/`
+[ -c $RTC_I ] || "No internal RTC detected, won't save the clock there." 1>&2
+RTC_M=""
+RTC_P="`instantiate_rtc $RTC_STRING_P onboard`"
+[ "$FRUID_SOURCE" = "module" ] && RTC_M="`instantiate_rtc $RTC_STRING_M on-module`"
+
+# Show date, if available
+echo "Current system date:"; date
+[ -c "$RTC_I" ] && show_rtc "internal" $RTC_I
+[ -c "$RTC_P" ] && show_rtc "onboard" $RTC_P
+[ -c "$RTC_M" ] && show_rtc "on-module" $RTC_M
+
+# Read time from RTC
+TIME_P=0; TIME_M=0
+[ -c "$RTC_P" ] && TIME_P=`read_rtc $RTC_P`
+[ -c "$RTC_M" ] && TIME_M=`read_rtc $RTC_M`
+
+time_is_set=n
+
+# Try to set time from module RTC, if it is there
+[ "$FRUID_SOURCE" = "module" ] && time_is_correct $TIME_M && set_time_from on-module $RTC_M && time_is_set=y
+
+# Try to set onboard RTC from module, if time is set
+[ $time_is_set = y ] && time_is_incorrect $TIME_P && echo -n "Warning, onboard time is incorrect. " && write_time_to onboard $RTC_P
+
+# If still no time is set, try to set it from onboard RTC, if it is there
+[ $time_is_set = n ] && time_is_correct $TIME_P && set_time_from onboard $RTC_P && time_is_set=y
+
+# Correct module RTC if needed
+[ $time_is_set = y -a "$FRUID_SOURCE" = "module" ] && time_is_incorrect $TIME_M && echo -n "Warning, on-module time is incorrect. " && write_time_to on-module $RTC_M
+
+# Save time to internal RTC
+[ $time_is_set = y ] && write_time_to internal $RTC_I
+
+[ $time_is_set = n ] && exit_err "No time is set. Correct your RTC and system time manually."
+
+echo "Current system date:"; date; exit_ok "Succeeded."
