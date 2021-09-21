@@ -1,12 +1,15 @@
-BINARYNAME=find_i2c_device
+BINARYNAME = find_i2c_device
+TARGETS = $(BINARYNAME)-module $(BINARYNAME)-platform
 
-all: $(BINARYNAME)-module $(BINARYNAME)-platform
+.PHONY: all clean
 
-$(BINARYNAME)-$(LABEL): $(BINARYNAME).o
-	$(CC) -o $(BINARYNAME) $(BINARYNAME).o -DRTC_LABEL="$(LABEL)" -lfdt -lreimu -lreimu_fdt $(LDFLAGS)
+all: $(TARGETS)
 
-$(BINARYNAME).o: $(BINARYNAME).c
-	$(CC) -o $(BINARYNAME).o -c $(BINARYNAME).c
+%: %.o
+	$(CC) -o $@ $^ -lfdt -lreimu -lreimu_fdt $(LDFLAGS)
+
+%.o: $(BINARYNAME).c
+	$(CC) -o $@ -DRTC_LABEL=\"$(patsubst $(BINARYNAME)-%.o,%,$@)\" -c $^
 
 clean:
-	rm -f *.o $(BINARYNAME)
+	rm -f *.o $(TARGETS)
