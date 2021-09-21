@@ -15,6 +15,14 @@ do
         ADDRESS[$N]=`grep FallbackAddress $CONFIGFILES-$intf.conf | cut -d= -f2 2>/dev/null`
     fi
     [ ${TIMEOUT[$N]} -gt 0 ] 2>/dev/null && COUNTDN[$N]="yes"
+    if [ -f /etc/systemd/network/00-bmc-$intf.network ]
+    then
+        if grep -qi '^[[:space:]]*unmanaged[[:space:]]*=[[:space:]]*yes[[:space:]]*$' /etc/systemd/network/00-bmc-$intf.network
+        then
+            echo "Adapter $intf is unmanaged, skipping"
+            COUNTDN[$N]="no"
+        fi
+    fi
     N=$(($N + 1))
 done
 
