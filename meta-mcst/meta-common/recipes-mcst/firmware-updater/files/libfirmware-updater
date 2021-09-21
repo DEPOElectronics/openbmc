@@ -165,6 +165,10 @@ listimages()
         ACT=`busctl get-property xyz.openbmc_project.Software.BMC.Updater /xyz/openbmc_project/software/$IMG xyz.openbmc_project.Software.Activation Activation | sed 's/.*\.//;s/"//'`
         RACT=`busctl get-property xyz.openbmc_project.Software.BMC.Updater /xyz/openbmc_project/software/$IMG xyz.openbmc_project.Software.Activation RequestedActivation | sed 's/.*\.//;s/"//'`
         [ $1 = full ] && echo -e "  $IMG\t$ACT\t\t$RACT"
+        if [ "$ACT" = "Active" ]
+        then
+            ACTIVEID=$IMG
+        fi
         if [ "$ACT" = "Ready" ]
         then
             PENDING=$(($PENDING + 1))
@@ -172,4 +176,13 @@ listimages()
         fi
     done
     [ $1 = full ] && echo "--------------------------------------------------"
+}
+
+getversion()
+{
+    USTAR="`dd bs=1 count=7 skip=257 if=$1 2>/dev/null`" || error "Can't read $1."
+    [ "$USTAR" == "ustar  " ] || error "$1 is not a TAR file."
+    VERSSTRING=`tar xOf $1 MANIFEST | grep '^version=' | head -n1` || error "Can't unpack manifest from $1."
+    [ -z "$VERSSTRING" ] && error "Can't read version from manifest unpacked from $1."
+    DOWNLOADED=`echo -n $VERSSTRING | sed 's/^version=//' | sha512sum | head -c8`
 }

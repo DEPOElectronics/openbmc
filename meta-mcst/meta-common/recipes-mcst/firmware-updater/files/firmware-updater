@@ -54,11 +54,39 @@ DEST="/tmp/firmware"
 export WGET_PARAMS
 upload $1 $DEST || error "Upload failure. Check your network connectivity or URL."
 
+# Check if we are mistaken with file type
+if [ "$DBUS_UPDATE" = "no" ]
+then
+    USTAR="`dd bs=1 count=7 skip=257 if=$DEST 2>/dev/null`"
+    if [ "$USTAR" == "ustar  " ]
+    then
+        echo "The file you just uploaded is highly likely the TAR file. You must use the MTD file instead, since you don't use DBus update mechanism now."
+        echo "Attempt to flash TAR file in place of MTD will brick the BMC, and you'll need external flash programmer to recover from this."
+        echo -n "If you're ABSOLUTELY SURE what you're doing, type 'yes' and press ENTER: "
+        read A
+        [ "$A" = "yes" ] || error "Ok, aborting due to incorrect file type. Check $DEST to be sure."
+        echo "Ok, will flash whatever you want."
+    fi
+fi
+
 # DBus mode
 if [ "$DBUS_UPDATE" = "yes" ]
 then
+    # Check if that's correct tar file
+    getversion $DEST
+    echo "Downloaded image with ID $DOWNLOADED."
+
+    # Check all files
+    P=`tar tf $DEST 2>/dev/null` || error "Can't get list of files for $DEST."
+    for PART in u-boot rofs rwfs kernel
+    do
+        echo $P | grep -q image-$PART || error "Image does not contain $PART partition."
+    done
+
     # List current images
     listimages full
+
+    [ "$ACTIVEID" = "$DOWNLOADED" ] && error "You just uploaded image that have the same version as active one. Skipping update."
     [ "$PENDING" -ne 0 ] && error -e "There are some update images pending. Commit the update manually, or delete them\n(see https://github.com/openbmc/docs/blob/master/architecture/code-update/code-update.md#deleting-an-image for details)."
 
     # Copy or move file to BMC Updater working directory and wait for it to appear
