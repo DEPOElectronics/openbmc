@@ -1,0 +1,249 @@
+diff -ru a/include/sel_logger.hpp b/include/sel_logger.hpp
+--- a/include/sel_logger.hpp	2021-09-03 22:27:25.678936334 +0300
++++ b/include/sel_logger.hpp	2021-09-23 22:07:17.171589156 +0300
+@@ -42,3 +42,10 @@
+     selAddSystemRecord(const std::string& message, const std::string& path,
+                        const std::vector<uint8_t>& selData, const bool& assert,
+                        const uint16_t& genId, T&&... metadata);
++
++static void
++    selAddSensorRecord(const std::shared_ptr<sdbusplus::asio::connection>& conn,
++                       const std::string& message, const std::string& severity,
++                       const std::string& path, const std::vector<uint8_t>& selData,
++                       const bool& assert, const uint16_t& genId,
++                       const std::string messageID, const std::string messageArgs);
+diff -ru a/include/threshold_alarm_event_monitor.hpp b/include/threshold_alarm_event_monitor.hpp
+--- a/include/threshold_alarm_event_monitor.hpp	2021-09-03 22:27:25.678936334 +0300
++++ b/include/threshold_alarm_event_monitor.hpp	2021-09-23 21:58:33.595594923 +0300
+@@ -60,6 +60,7 @@
+     }
+ 
+     std::string event;
++    std::string severity;
+     std::string thresholdInterface;
+     std::string threshold;
+     std::string direction;
+@@ -80,11 +81,13 @@
+             assert = true;
+             direction = "low";
+             redfishMessageID += ".SensorThresholdWarningLowGoingLow";
++            severity = "xyz.openbmc_project.Logging.Entry.Level.Warning";
+         }
+         else if (signalName == "WarningLowAlarmDeasserted")
+         {
+             direction = "high";
+             redfishMessageID += ".SensorThresholdWarningLowGoingHigh";
++            severity = "xyz.openbmc_project.Logging.Entry.Level.Info";
+         }
+     }
+     else if (signalName == "WarningHighAlarmAsserted" ||
+@@ -100,11 +103,13 @@
+             assert = true;
+             direction = "high";
+             redfishMessageID += ".SensorThresholdWarningHighGoingHigh";
++            severity = "xyz.openbmc_project.Logging.Entry.Level.Warning";
+         }
+         else if (signalName == "WarningHighAlarmDeasserted")
+         {
+             direction = "low";
+             redfishMessageID += ".SensorThresholdWarningHighGoingLow";
++            severity = "xyz.openbmc_project.Logging.Entry.Level.Info";
+         }
+     }
+     else if (signalName == "CriticalLowAlarmAsserted" ||
+@@ -120,11 +125,13 @@
+             assert = true;
+             direction = "low";
+             redfishMessageID += ".SensorThresholdCriticalLowGoingLow";
++            severity = "xyz.openbmc_project.Logging.Entry.Level.Critical";
+         }
+         else if (signalName == "CriticalLowAlarmDeasserted")
+         {
+             direction = "high";
+             redfishMessageID += ".SensorThresholdCriticalLowGoingHigh";
++            severity = "xyz.openbmc_project.Logging.Entry.Level.Info";
+         }
+     }
+     else if (signalName == "CriticalHighAlarmAsserted" ||
+@@ -140,11 +147,13 @@
+             assert = true;
+             direction = "high";
+             redfishMessageID += ".SensorThresholdCriticalHighGoingHigh";
++            severity = "xyz.openbmc_project.Logging.Entry.Level.Critical";
+         }
+         else if (signalName == "CriticalHighAlarmDeasserted")
+         {
+             direction = "low";
+             redfishMessageID += ".SensorThresholdCriticalHighGoingLow";
++            severity = "xyz.openbmc_project.Logging.Entry.Level.Info";
+         }
+     }
+     // Indicate that bytes 2 and 3 are threshold sensor trigger values
+@@ -239,11 +248,10 @@
+                            ". Reading=" + std::to_string(assertValue) +
+                            " Threshold=" + std::to_string(thresholdVal) + ".");
+ 
+-    selAddSystemRecord(journalMsg, std::string(msg.get_path()), eventData,
+-                       assert, selBMCGenID, "REDFISH_MESSAGE_ID=%s",
+-                       redfishMessageID.c_str(),
+-                       "REDFISH_MESSAGE_ARGS=%.*s,%f,%f", sensorName.length(),
+-                       sensorName.data(), assertValue, thresholdVal);
++    selAddSensorRecord(
++        conn, journalMsg, severity, std::string(msg.get_path()), eventData,
++        assert, selBMCGenID, redfishMessageID, std::string(sensorName) + "," +
++        std::to_string(assertValue) + "," + std::to_string(thresholdVal));
+ }
+ 
+ inline static void startThresholdAlarmMonitor(
+diff -ru a/include/threshold_event_monitor.hpp b/include/threshold_event_monitor.hpp
+--- a/include/threshold_event_monitor.hpp	2021-09-03 22:27:25.678936334 +0300
++++ b/include/threshold_event_monitor.hpp	2021-09-23 22:02:07.171592571 +0300
+@@ -204,6 +204,7 @@
+ 
+         std::string threshold;
+         std::string direction;
++        std::string severity;
+         std::string redfishMessageID =
+             "OpenBMC." + openBMCMessageRegistryVersion;
+         if (event == "CriticalLow")
+@@ -213,11 +214,13 @@
+             {
+                 direction = "low";
+                 redfishMessageID += ".SensorThresholdCriticalLowGoingLow";
++                severity = "xyz.openbmc_project.Logging.Entry.Level.Critical";
+             }
+             else
+             {
+                 direction = "high";
+                 redfishMessageID += ".SensorThresholdCriticalLowGoingHigh";
++                severity = "xyz.openbmc_project.Logging.Entry.Level.Info";
+             }
+         }
+         else if (event == "WarningLow")
+@@ -227,11 +230,13 @@
+             {
+                 direction = "low";
+                 redfishMessageID += ".SensorThresholdWarningLowGoingLow";
++                severity = "xyz.openbmc_project.Logging.Entry.Level.Warning";
+             }
+             else
+             {
+                 direction = "high";
+                 redfishMessageID += ".SensorThresholdWarningLowGoingHigh";
++                severity = "xyz.openbmc_project.Logging.Entry.Level.Info";
+             }
+         }
+         else if (event == "WarningHigh")
+@@ -241,11 +246,13 @@
+             {
+                 direction = "high";
+                 redfishMessageID += ".SensorThresholdWarningHighGoingHigh";
++                severity = "xyz.openbmc_project.Logging.Entry.Level.Warning";
+             }
+             else
+             {
+                 direction = "low";
+                 redfishMessageID += ".SensorThresholdWarningHighGoingLow";
++                severity = "xyz.openbmc_project.Logging.Entry.Level.Info";
+             }
+         }
+         else if (event == "CriticalHigh")
+@@ -255,11 +262,13 @@
+             {
+                 direction = "high";
+                 redfishMessageID += ".SensorThresholdCriticalHighGoingHigh";
++                severity = "xyz.openbmc_project.Logging.Entry.Level.Critical";
+             }
+             else
+             {
+                 direction = "low";
+                 redfishMessageID += ".SensorThresholdCriticalHighGoingLow";
++                severity = "xyz.openbmc_project.Logging.Entry.Level.Info";
+             }
+         }
+ 
+@@ -269,11 +278,10 @@
+                                " Threshold=" + std::to_string(thresholdVal) +
+                                ".");
+ 
+-        selAddSystemRecord(
+-            journalMsg, std::string(msg.get_path()), eventData, assert,
+-            selBMCGenID, "REDFISH_MESSAGE_ID=%s", redfishMessageID.c_str(),
+-            "REDFISH_MESSAGE_ARGS=%.*s,%f,%f", sensorName.length(),
+-            sensorName.data(), assertValue, thresholdVal);
++        selAddSensorRecord(
++            conn, journalMsg, severity, std::string(msg.get_path()), eventData,
++            assert, selBMCGenID, redfishMessageID, std::string(sensorName) + "," +
++            std::to_string(assertValue) + "," + std::to_string(thresholdVal));
+     };
+     sdbusplus::bus::match::match thresholdAssertMatcher(
+         static_cast<sdbusplus::bus::bus&>(*conn),
+diff -ru a/include/watchdog_event_monitor.hpp b/include/watchdog_event_monitor.hpp
+--- a/include/watchdog_event_monitor.hpp	2021-09-03 22:27:25.678936334 +0300
++++ b/include/watchdog_event_monitor.hpp	2021-09-23 21:44:50.799603987 +0300
+@@ -262,10 +262,10 @@
+ 
+             std::string redfishMessageID = "OpenBMC.0.1.IPMIWatchdog";
+ 
+-            selAddSystemRecord(
+-                journalMsg, std::string(msg.get_path()), eventData, assert,
+-                selBMCGenID, "REDFISH_MESSAGE_ID=%s", redfishMessageID.c_str(),
+-                "REDFISH_MESSAGE_ARGS=%s", eventMessageArgs.c_str(), NULL);
++            selAddSensorRecord(
++                conn, journalMsg, "xyz.openbmc_project.Logging.Entry.Level.Info",
++                std::string(msg.get_path()), eventData, assert,
++                selBMCGenID, redfishMessageID, eventMessageArgs);
+         }
+     };
+     sdbusplus::bus::match::match watchdogEventMatcher(
+diff -ru a/src/sel_logger.cpp b/src/sel_logger.cpp
+--- a/src/sel_logger.cpp	2021-09-03 22:27:25.678936334 +0300
++++ b/src/sel_logger.cpp	2021-09-23 22:13:52.335584803 +0300
+@@ -144,6 +144,47 @@
+     hexStr = stream.str();
+ }
+ 
++static void
++    selAddSensorRecord(const std::shared_ptr<sdbusplus::asio::connection>& conn,
++                       const std::string& message, const std::string& severity,
++                       const std::string& path, const std::vector<uint8_t>& selData,
++                       const bool& assert, const uint16_t& genId,
++                       const std::string messageID, const std::string messageArgs)
++{
++    auto method = conn->new_method_call(
++        "xyz.openbmc_project.Logging", "/xyz/openbmc_project/logging",
++        "xyz.openbmc_project.Logging.Create", "Create");
++    // Signature is ssa{ss}
++    method.append(message);
++    method.append(severity);
++
++    std::string selDataStr;
++    toHexStr(selData, selDataStr);
++    auto data = std::array<std::pair<std::string, std::string>, 10>
++    ({
++        std::pair<std::string, std::string>("PRIORITY", std::to_string(selPriority)),
++        std::pair<std::string, std::string>("MESSAGE_ID", selMessageId),
++        std::pair<std::string, std::string>("IPMI_SEL_RECORD_TYPE", std::to_string(selSystemType)),
++        std::pair<std::string, std::string>("IPMI_SEL_GENERATOR_ID", std::to_string(genId)),
++        std::pair<std::string, std::string>("IPMI_SEL_SENSOR_PATH", path),
++        std::pair<std::string, std::string>("IPMI_SEL_EVENT_DIR", std::to_string(assert)),
++        std::pair<std::string, std::string>("IPMI_SEL_DATA", selDataStr),
++        std::pair<std::string, std::string>("REDFISH_MESSAGE_ID", messageID),
++        std::pair<std::string, std::string>("REDFISH_MESSAGE_ARGS", messageArgs)
++    });
++    method.append(data);
++
++    try
++    {
++        conn->call_noreply(method);
++    }
++    catch (const sdbusplus::exception::SdBusError& e)
++    {
++        log<level::ERR>("Failed to create SEL log entry",
++                        entry("SDBUSERR=%s", e.what()));
++    }
++}
++
+ template <typename... T>
+ static uint16_t
+     selAddSystemRecord(const std::string& message, const std::string& path,
