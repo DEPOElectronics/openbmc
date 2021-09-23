@@ -11,4 +11,5 @@ SRC_URI += " \
              file://0009-enable-sensor-warning-when-missing-crtical.patch \
              file://0010-truncate-sensor-values.patch \
              file://0011-show-percents-in-sensors.patch \
+             file://0012-event-log-from-menu.patch \
            "
