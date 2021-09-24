@@ -138,7 +138,7 @@ static int create_sensor(enum cancel_type_t unused __attribute__((unused)), int 
             const char *critlo = reimu_getprop(CANCEL_ON_ERROR, node, "min_crit", 0, 27, "Error reading min crit value from node 0x%08x:", node);
             const char *crithi = reimu_getprop(CANCEL_ON_ERROR, node, "max_crit", 0, 28, "Error reading max crit value from node 0x%08x:", node);
 
-            if (reimu_is_prop_empty(warnhi) || reimu_is_prop_empty(warnlo))
+            if (reimu_is_prop_empty(warnhi) && reimu_is_prop_empty(warnlo) && reimu_is_prop_empty(crithi) && reimu_is_prop_empty(critlo))
             {
                 printf(" - - sensor %s lacks required properties, skipping\n", nodename);
             }
@@ -158,15 +158,33 @@ static int create_sensor(enum cancel_type_t unused __attribute__((unused)), int 
 
                 printf(" - - adding sensor %s as %s%d (%s)\n", nodename, type, reg, sensor_label);
                 reimu_textfile_write(CANCEL_ON_ERROR, "LABEL_%s%d=%s\n", type, reg, sensor_label);
-                printf(" - - sensor %s: warn %s..%s", nodename, warnlo, warnhi);
-                reimu_textfile_write(CANCEL_ON_ERROR, "WARNLO_%s%d=%s\nWARNHI_%s%d=%s\n", type, reg, warnlo, type, reg, warnhi);
+                printf(" - - sensor %s: { ", nodename);
 
-                if (reimu_is_prop_empty(crithi) || reimu_is_prop_empty(critlo))
+                if (!reimu_is_prop_empty(warnlo))
                 {
-                    printf(", crit %s..%s", critlo, crithi);
-                    reimu_textfile_write(CANCEL_ON_ERROR, "CRITLO_%s%d=%s\nCRITHI_%s%d=%s\n", type, reg, critlo, type, reg, crithi);
+                    printf("warn low %s ", warnlo);
+                    reimu_textfile_write(CANCEL_ON_ERROR, "WARNLO_%s%d=%s\n", type, reg, warnlo);
                 }
-                printf("\n");
+
+                if (!reimu_is_prop_empty(warnhi))
+                {
+                    printf("warn high %s ", warnhi);
+                    reimu_textfile_write(CANCEL_ON_ERROR, "WARNHI_%s%d=%s\n", type, reg, warnhi);
+                }
+
+                if (!reimu_is_prop_empty(critlo))
+                {
+                    printf("crit low %s ", critlo);
+                    reimu_textfile_write(CANCEL_ON_ERROR, "CRITLO_%s%d=%s\n", type, reg, critlo);
+                }
+
+                if (!reimu_is_prop_empty(crithi))
+                {
+                    printf("crit high %s ", crithi);
+                    reimu_textfile_write(CANCEL_ON_ERROR, "CRITHI_%s%d=%s\n", type, reg, crithi);
+                }
+
+                printf("}\n");
                 reimu_textfile_write(CANCEL_ON_ERROR, "MINVALUE_%s%d=%s\nMAXVALUE_%s%d=%s\nASYNC_READ_TIMEOUT_%s%d=\"1000\"\n\n", type, reg, minvalue, type, reg, maxvalue, type, reg);
             }
         }

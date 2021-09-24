@@ -12,4 +12,5 @@ SRC_URI += " \
              file://0010-truncate-sensor-values.patch \
              file://0011-show-percents-in-sensors.patch \
              file://0012-event-log-from-menu.patch \
+             file://0013-separate-hi-and-lo-alarms.patch \
            "

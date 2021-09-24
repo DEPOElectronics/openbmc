@@ -1,0 +1,100 @@
+diff -ru a/thresholds.hpp b/thresholds.hpp
+--- a/thresholds.hpp	2021-08-25 00:05:39.571234435 +0300
++++ b/thresholds.hpp	2021-09-24 02:41:45.304574726 +0300
+@@ -79,9 +79,9 @@
+     auto hi = (*realIface.*Thresholds<T>::getHi)();
+     auto alarmLowState = (*realIface.*Thresholds<T>::getAlarmLow)();
+     auto alarmHighState = (*realIface.*Thresholds<T>::getAlarmHigh)();
+-    (*realIface.*Thresholds<T>::alarmLo)(value <= lo);
+-    (*realIface.*Thresholds<T>::alarmHi)(value >= hi);
+-    if (alarmLowState != (value <= lo))
++    if (!std::isnan(lo)) (*realIface.*Thresholds<T>::alarmLo)(value <= lo);
++    if (!std::isnan(hi)) (*realIface.*Thresholds<T>::alarmHi)(value >= hi);
++    if (!std::isnan(lo) && (alarmLowState != (value <= lo)))
+     {
+         if (value <= lo)
+         {
+@@ -92,7 +92,7 @@
+             (*realIface.*Thresholds<T>::deassertLowSignal)(value);
+         }
+     }
+-    if (alarmHighState != (value >= hi))
++    if (!std::isnan(hi) && (alarmHighState != (value >= hi)))
+     {
+         if (value >= hi)
+         {
+@@ -127,42 +127,51 @@
+ 
+     auto tLo = env::getEnv(Thresholds<T>::envLo, sensorType, sensorID);
+     auto tHi = env::getEnv(Thresholds<T>::envHi, sensorType, sensorID);
+-    if (!tLo.empty() && !tHi.empty())
++    if (!tLo.empty() || !tHi.empty())
+     {
+         static constexpr bool deferSignals = true;
+         auto& bus = *std::get<sdbusplus::bus::bus*>(info);
+ 
+         iface = std::make_shared<T>(bus, objPath.c_str(), deferSignals);
+-        auto lo = stod(tLo) * std::pow(10, scale);
+-        auto hi = stod(tHi) * std::pow(10, scale);
+-        (*iface.*Thresholds<T>::setLo)(lo);
+-        (*iface.*Thresholds<T>::setHi)(hi);
+-        auto alarmLowState = (*iface.*Thresholds<T>::getAlarmLow)();
+-        auto alarmHighState = (*iface.*Thresholds<T>::getAlarmHigh)();
+-        (*iface.*Thresholds<T>::alarmLo)(value <= lo);
+-        (*iface.*Thresholds<T>::alarmHi)(value >= hi);
+-        if (alarmLowState != (value <= lo))
++
++        if (!tLo.empty())
+         {
+-            if (value <= lo)
+-            {
+-                (*iface.*Thresholds<T>::assertLowSignal)(value);
+-            }
+-            else
++            auto lo = stod(tLo) * std::pow(10, scale);
++            (*iface.*Thresholds<T>::setLo)(lo);
++            auto alarmLowState = (*iface.*Thresholds<T>::getAlarmLow)();
++            (*iface.*Thresholds<T>::alarmLo)(value <= lo);
++            if (alarmLowState != (value <= lo))
+             {
+-                (*iface.*Thresholds<T>::deassertLowSignal)(value);
++                if (value <= lo)
++                {
++                    (*iface.*Thresholds<T>::assertLowSignal)(value);
++                }
++                else
++                {
++                    (*iface.*Thresholds<T>::deassertLowSignal)(value);
++                }
+             }
+         }
+-        if (alarmHighState != (value >= hi))
++
++        if (!tHi.empty())
+         {
+-            if (value >= hi)
++            auto hi = stod(tHi) * std::pow(10, scale);
++            (*iface.*Thresholds<T>::setHi)(hi);
++            auto alarmHighState = (*iface.*Thresholds<T>::getAlarmHigh)();
++            (*iface.*Thresholds<T>::alarmHi)(value >= hi);
++            if (alarmHighState != (value >= hi))
+             {
+-                (*iface.*Thresholds<T>::assertHighSignal)(value);
+-            }
+-            else
+-            {
+-                (*iface.*Thresholds<T>::deassertHighSignal)(value);
++                if (value >= hi)
++                {
++                    (*iface.*Thresholds<T>::assertHighSignal)(value);
++                }
++                else
++                {
++                    (*iface.*Thresholds<T>::deassertHighSignal)(value);
++                }
+             }
+         }
++
+         auto type = Thresholds<T>::type;
+         obj[type] = iface;
+     }

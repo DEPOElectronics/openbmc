@@ -1,0 +1,64 @@
+diff -ru a/app/common/services/api-utils.js b/app/common/services/api-utils.js
+--- a/app/common/services/api-utils.js	2021-09-06 19:13:16.615210559 +0300
++++ b/app/common/services/api-utils.js	2021-09-24 03:16:34.980551706 +0300
+@@ -1025,13 +1025,17 @@
+                         severity = getSensorStatus(content.data[key]);
+ 
+                         if (!content.data[key].hasOwnProperty('CriticalLow')) {
+-                          content.data[key].CriticalLow = '--';
+-                          content.data[key].CriticalHigh = '--';
++                          content.data[key].CriticalLow = '';
++                        }
++                        if (!content.data[key].hasOwnProperty('CriticalHigh')) {
++                          content.data[key].CriticalHigh = '';
+                         }
+ 
+                         if (!content.data[key].hasOwnProperty('WarningLow')) {
+-                          content.data[key].WarningLow = '--';
+-                          content.data[key].WarningHigh = '--';
++                          content.data[key].WarningLow = '';
++                        }
++                        if (!content.data[key].hasOwnProperty('WarningHigh')) {
++                          content.data[key].WarningHigh = '';
+                         }
+ 
+                         tempKeyParts = key.split('/');
+diff -ru a/app/server-health/controllers/sensors-overview-controller.html b/app/server-health/controllers/sensors-overview-controller.html
+--- a/app/server-health/controllers/sensors-overview-controller.html	2021-09-06 19:13:16.675210558 +0300
++++ b/app/server-health/controllers/sensors-overview-controller.html	2021-09-24 03:15:23.972552488 +0300
+@@ -65,7 +65,7 @@
+         </th>
+         <td class="sensors__tbody-cell">
+           <span class="sensors__tbody-cell__title">Low critical</span>
+-          <span class="sensors__tbody-cell__content">
++          <span class="sensors__tbody-cell__content" ng-if="sensor.CriticalLow != ''">
+               <span class="sensors__tbody-info">{{sensor.CriticalLow}}</span>
+               <span class="sensors__tbody-degree" ng-if="sensor.unit == 'C'">&deg;</span>
+             <span class="sensors__tbody-unit">{{sensor.unit}}</span>
+@@ -73,7 +73,7 @@
+         </td>
+         <td class="sensors__tbody-cell">
+           <span class="sensors__tbody-cell__title">Low warning</span>
+-          <span class="sensors__tbody-cell__content">
++          <span class="sensors__tbody-cell__content" ng-if="sensor.WarningLow != ''">
+               <span class="sensors__tbody-info">{{sensor.WarningLow}}</span>
+               <span class="sensors__tbody-degree" ng-if="sensor.unit == 'C'">&deg;</span>
+             <span class="sensors__tbody-unit">{{sensor.unit}}</span>
+@@ -89,7 +89,7 @@
+         </td>
+         <td class="sensors__tbody-cell">
+           <span class="sensors__tbody-cell__title">High warning</span>
+-          <span class="sensors__tbody-cell__content">
++          <span class="sensors__tbody-cell__content" ng-if="sensor.WarningHigh != ''">
+             <span class="sensors__tbody-info">{{sensor.WarningHigh}}</span>
+             <span class="sensors__tbody-degree" ng-if="sensor.unit == 'C'">&deg;</span>
+             <span class="sensors__tbody-unit">{{sensor.unit}}</span>
+@@ -97,7 +97,7 @@
+         </td>
+         <td class="sensors__tbody-cell">
+           <span class="sensors__tbody-cell__title">High critical</span>
+-          <span class="sensors__tbody-cell__content">
++          <span class="sensors__tbody-cell__content" ng-if="sensor.CriticalHigh != ''">
+             <span class="sensors__tbody-info">{{sensor.CriticalHigh}}</span>
+             <span class="sensors__tbody-degree" ng-if="sensor.unit == 'C'">&deg;</span>
+             <span class="sensors__tbody-unit">{{sensor.unit}}</span>
