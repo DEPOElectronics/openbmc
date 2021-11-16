@@ -101,17 +101,15 @@ adjustments:
 
 -  Generally, you want to have a shared state mirror set up so users of
    the SDK can add additional items to the SDK after installation
-   without needing to build the items from source. See the "`Providing
-   Additional Installable Extensible SDK
-   Content <#sdk-providing-additional-installable-extensible-sdk-content>`__"
+   without needing to build the items from source. See the
+   ":ref:`sdk-manual/appendix-customizing:providing additional installable extensible sdk content`"
    section for information.
 
 -  If you want users of the SDK to be able to easily update the SDK, you
    need to set the
    :term:`SDK_UPDATE_URL`
-   variable. For more information, see the "`Providing Updates to the
-   Extensible SDK After
-   Installation <#sdk-providing-updates-to-the-extensible-sdk-after-installation>`__"
+   variable. For more information, see the
+   ":ref:`sdk-manual/appendix-customizing:providing updates to the extensible sdk after installation`"
    section.
 
 -  If you have adjusted the list of files and directories that appear in
@@ -139,9 +137,9 @@ Changing the Extensible SDK Installer Title
 
 You can change the displayed title for the SDK installer by setting the
 :term:`SDK_TITLE` variable and then
-rebuilding the the SDK installer. For information on how to build an SDK
-installer, see the "`Building an SDK
-Installer <#sdk-building-an-sdk-installer>`__" section.
+rebuilding the SDK installer. For information on how to build an SDK
+installer, see the ":ref:`sdk-manual/appendix-obtain:building an sdk installer`"
+section.
 
 By default, this title is derived from
 :term:`DISTRO_NAME` when it is
@@ -151,8 +149,7 @@ from the :term:`DISTRO` variable.
 The
 :ref:`populate_sdk_base <ref-classes-populate-sdk-*>`
 class defines the default value of the ``SDK_TITLE`` variable as
-follows:
-::
+follows::
 
    SDK_TITLE ??= "${@d.getVar('DISTRO_NAME') or d.getVar('DISTRO')} SDK"
 
@@ -164,8 +161,7 @@ an example, assume you have your own layer for your distribution named
 does the default "poky" distribution. If so, you could update the
 ``SDK_TITLE`` variable in the
 ``~/meta-mydistro/conf/distro/mydistro.conf`` file using the following
-form:
-::
+form::
 
    SDK_TITLE = "your_title"
 
@@ -189,16 +185,14 @@ the installed SDKs to update the installed SDKs by using the
    variable to point to the corresponding HTTP or HTTPS URL. Setting
    this variable causes any SDK built to default to that URL and thus,
    the user does not have to pass the URL to the ``devtool sdk-update``
-   command as described in the "`Applying Updates to an Installed
-   Extensible
-   SDK <#sdk-applying-updates-to-an-installed-extensible-sdk>`__"
+   command as described in the
+   ":ref:`sdk-manual/extensible:applying updates to an installed extensible sdk`"
    section.
 
 3. Build the extensible SDK normally (i.e., use the
    ``bitbake -c populate_sdk_ext`` imagename command).
 
-4. Publish the SDK using the following command:
-   ::
+4. Publish the SDK using the following command::
 
       $ oe-publish-sdk some_path/sdk-installer.sh path_to_shared_http_directory
 
@@ -208,9 +202,9 @@ the installed SDKs to update the installed SDKs by using the
 
 Completing the above steps allows users of the existing installed SDKs
 to simply run ``devtool sdk-update`` to retrieve and apply the latest
-updates. See the "`Applying Updates to an Installed Extensible
-SDK <#sdk-applying-updates-to-an-installed-extensible-sdk>`__" section
-for further information.
+updates. See the
+":ref:`sdk-manual/extensible:applying updates to an installed extensible sdk`"
+section for further information.
 
 Changing the Default SDK Installation Directory
 ===============================================
@@ -221,8 +215,7 @@ installation directory for the SDK is based on the
 :term:`SDKEXTPATH` variables from
 within the
 :ref:`populate_sdk_base <ref-classes-populate-sdk-*>`
-class as follows:
-::
+class as follows::
 
    SDKEXTPATH ??= "~/${@d.getVar('DISTRO')}_sdk"
 
@@ -239,8 +232,7 @@ assume you have your own layer for your distribution named
 does the default "poky" distribution. If so, you could update the
 ``SDKEXTPATH`` variable in the
 ``~/meta-mydistro/conf/distro/mydistro.conf`` file using the following
-form:
-::
+form::
 
    SDKEXTPATH = "some_path_for_your_installed_sdk"
 
@@ -275,8 +267,7 @@ source, you need to do a number of things:
 
 3. Set the appropriate configuration so that the produced SDK knows how
    to find the configuration. The variable you need to set is
-   :term:`SSTATE_MIRRORS`:
-   ::
+   :term:`SSTATE_MIRRORS`::
 
       SSTATE_MIRRORS = "file://.* http://example.com/some_path/sstate-cache/PATH"
 
@@ -290,8 +281,7 @@ source, you need to do a number of things:
       side, and its contents will not interfere with the build), then
       you can set the variable in your ``local.conf`` or custom distro
       configuration file. You can then "whitelist" the variable through
-      to the SDK by adding the following:
-      ::
+      to the SDK by adding the following::
 
          SDK_LOCAL_CONF_WHITELIST = "SSTATE_MIRRORS"
 
@@ -316,8 +306,7 @@ everything needed to reconstruct the image for which the SDK was built.
 This bundling can lead to an SDK installer file that is a Gigabyte or
 more in size. If the size of this file causes a problem, you can build
 an SDK that has just enough in it to install and provide access to the
-``devtool command`` by setting the following in your configuration:
-::
+``devtool command`` by setting the following in your configuration::
 
    SDK_EXT_TYPE = "minimal"
 
@@ -339,8 +328,7 @@ information enables the ``devtool search`` command to return useful
 results.
 
 To facilitate this wider range of information, you would need to set the
-following:
-::
+following::
 
    SDK_INCLUDE_PKGDATA = "1"
 

@@ -30,10 +30,9 @@ Command: part or partition
 ==========================
 
 Either of these commands creates a partition on the system and uses the
-following syntax:
-::
+following syntax::
 
-   part [mntpoint] 
+   part [mntpoint]
    partition [mntpoint]
 
 If you do not
@@ -55,12 +54,11 @@ must also provide one of the ``--ondrive``, ``--ondisk``, or
 .. note::
 
    The mount program must understand the PARTUUID syntax you use with
-   ``--use-uuid`` and non-root *mountpoint*, including swap. The busybox
+   ``--use-uuid`` and non-root *mountpoint*, including swap. The BusyBox
    versions of these application are currently excluded.
 
 Here is an example that uses "/" as the mountpoint. The command uses
-``--ondisk`` to force the partition onto the ``sdb`` disk:
-::
+``--ondisk`` to force the partition onto the ``sdb`` disk::
 
       part / --source rootfs --ondisk sdb --fstype=ext3 --label platform --align 1024
 

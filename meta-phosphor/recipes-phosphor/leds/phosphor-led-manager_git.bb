@@ -5,12 +5,14 @@ PV = "1.0+git${SRCPV}"
 
 require ${PN}.inc
 
-inherit autotools pkgconfig python3native
+inherit meson pkgconfig python3native
 inherit obmc-phosphor-dbus-service obmc-phosphor-systemd
 
 PACKAGECONFIG ??= ""
-PACKAGECONFIG[use-json] = "--enable-use-json, --disable-use-json"
-PACKAGECONFIG[use-lamp-test] = "--enable-use-lamp-test, --disable-use-lamp-test"
+PACKAGECONFIG[use-json] = "-Duse-json=enabled, -Duse-json=disabled"
+PACKAGECONFIG[use-lamp-test] = "-Duse-lamp-test=enabled, -Duse-lamp-test=disabled"
+PACKAGECONFIG[monitor-operational-status] = "-Dmonitor-operational-status=enabled, \
+                                             -Dmonitor-operational-status=disabled"
 
 SYSTEMD_PACKAGES = "${PN} ${PN}-faultmonitor"
 PACKAGE_BEFORE_PN += "${PN}-faultmonitor"

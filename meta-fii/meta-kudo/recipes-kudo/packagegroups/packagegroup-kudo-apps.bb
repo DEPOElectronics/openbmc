@@ -5,26 +5,46 @@ inherit packagegroup
 
 PROVIDES = "${PACKAGES}"
 PACKAGES = " \
-     ${PN}-kudo-system \
-     ${PN}-kudo-common-utils \
-     "
+    ${PN}-kudo-system \
+    ${PN}-kudo-fw \
+    ${PN}-fan-mgmt \
+    "
 
 PROVIDES += "virtual/obmc-system-mgmt"
+PROVIDES += "virtual/obmc-fan-mgmt"
 
 RPROVIDES_${PN}-kudo-system += "virtual-obmc-system-mgmt"
+RPROVIDES_${PN}-kudo-fw += "virtual-obmc-flash-mgmt"
+RPROVIDES_${PN}-fan-mgmt += "virtual-obmc-fan-mgmt"
 
 SUMMARY_${PN}-kudo-system = "KUDO System"
 RDEPENDS_${PN}-kudo-system = " \
-    google-ipmi-sys \
-    google-ipmi-i2c \
+    ipmitool \
+    ethtool \
+    memtester \
+    loadsvf \
+    fii-ipmi-oem \
+    kudo-entity-association-map \
+    hotswap-power-cycle \
+    obmc-console \
+    usb-network \
+    ncsid \
+    gbmc-mac-config \
+    kudo-boot \
+    kudo-cmd \
     "
 
-SUMMARY_${PN}-kudo-common-utils = "KUDO common utils"
-RDEPENDS_${PN}-kudo-common-utils = " \
-    ipmitool \
-    phosphor-webui \
-    phosphor-host-postd \
-    loadsvf \
-    obmc-console \
-    phosphor-sel-logger \
+SUMMARY_${PN}-kudo-fw = "KUDO Firmware"
+RDEPENDS_${PN}-kudo-fw = " \
+    kudo-fw \
+    kudo-bios-update \
+    kudo-bmc-update \
+    kudo-cpld-update \
+    kudo-scp-update \
+    "
+
+SUMMARY_${PN}-fan-mgmt = "kudo fan mgmt"
+RDEPENDS_${PN}-fan-mgmt = " \
+    pwm-init \
+    phosphor-pid-control \
     "

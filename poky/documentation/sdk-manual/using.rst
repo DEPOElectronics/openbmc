@@ -16,8 +16,9 @@ standard SDK.
    " section.
 
 You can use a standard SDK to work on Makefile and Autotools-based
-projects. See the "`Using the SDK Toolchain
-Directly <#sdk-working-projects>`__" chapter for more information.
+projects. See the
+":ref:`sdk-manual/working-projects:using the sdk toolchain directly`" chapter
+for more information.
 
 Why use the Standard SDK and What is in It?
 ===========================================
@@ -31,9 +32,9 @@ the extensible SDK, which provides an internal build system and the
 The installed Standard SDK consists of several files and directories.
 Basically, it contains an SDK environment setup script, some
 configuration files, and host and target root filesystems to support
-usage. You can see the directory structure in the "`Installed Standard
-SDK Directory
-Structure <#sdk-installed-standard-sdk-directory-structure>`__" section.
+usage. You can see the directory structure in the
+":ref:`sdk-manual/appendix-obtain:installed standard sdk directory structure`"
+section.
 
 Installing the SDK
 ==================
@@ -76,8 +77,7 @@ immediately followed by a string representing the target architecture.
 
 For example, the following SDK installer is for a 64-bit
 development host system and a i586-tuned target architecture based off
-the SDK for ``core-image-sato`` and using the current DISTRO snapshot:
-::
+the SDK for ``core-image-sato`` and using the current DISTRO snapshot::
 
    poky-glibc-x86_64-core-image-sato-i586-toolchain-DISTRO.sh
 
@@ -120,9 +120,9 @@ architecture. The example assumes the SDK installer is located in
    Each time you wish to use the SDK in a new shell session, you need to source the environment setup script e.g.
     $ . /opt/poky/&DISTRO;/environment-setup-i586-poky-linux
 
-Again, reference the "`Installed Standard SDK Directory
-Structure <#sdk-installed-standard-sdk-directory-structure>`__" section
-for more details on the resulting directory structure of the installed
+Again, reference the
+":ref:`sdk-manual/appendix-obtain:installed standard sdk directory structure`"
+section for more details on the resulting directory structure of the installed
 SDK.
 
 Running the SDK Environment Setup Script
@@ -140,14 +140,12 @@ begin with the string "``environment-setup``" and include as part of
 their name the tuned target architecture. As an example, the following
 commands set the working directory to where the SDK was installed and
 then source the environment setup script. In this example, the setup
-script is for an IA-based target machine using i586 tuning:
-::
+script is for an IA-based target machine using i586 tuning::
 
    $ source /opt/poky/&DISTRO;/environment-setup-i586-poky-linux
 
 When you run the
 setup script, the same environment variables are defined as are when you
-run the setup script for an extensible SDK. See the "`Running the
-Extensible SDK Environment Setup
-Script <#sdk-running-the-extensible-sdk-environment-setup-script>`__"
+run the setup script for an extensible SDK. See the
+":ref:`sdk-manual/appendix-obtain:installed extensible sdk directory structure`"
 section for more information.

@@ -55,16 +55,14 @@ available. Follow these general steps to run QEMU:
 
    -  If you cloned the ``poky`` repository or you downloaded and
       unpacked a Yocto Project release tarball, you can source the build
-      environment script (i.e. :ref:`structure-core-script`):
-      ::
+      environment script (i.e. :ref:`structure-core-script`)::
 
          $ cd poky
          $ source oe-init-build-env
 
    -  If you installed a cross-toolchain, you can run the script that
       initializes the toolchain. For example, the following commands run
-      the initialization script from the default ``poky_sdk`` directory:
-      ::
+      the initialization script from the default ``poky_sdk`` directory::
 
          . poky_sdk/environment-setup-core2-64-poky-linux
 
@@ -86,8 +84,7 @@ available. Follow these general steps to run QEMU:
    Extensible Software Development Kit (eSDK) manual for information on
    how to extract a root filesystem.
 
-4. *Run QEMU:* The basic ``runqemu`` command syntax is as follows:
-   ::
+4. *Run QEMU:* The basic ``runqemu`` command syntax is as follows::
 
       $ runqemu [option ] [...]
 
@@ -222,18 +219,15 @@ using an NFS server.
    Should you need to start, stop, or restart the NFS share, you can use
    the following commands:
 
-   -  The following command starts the NFS share:
-      ::
+   -  The following command starts the NFS share::
 
          runqemu-export-rootfs start file-system-location
 
-   -  The following command stops the NFS share:
-      ::
+   -  The following command stops the NFS share::
 
          runqemu-export-rootfs stop file-system-location
 
-   -  The following command restarts the NFS share:
-      ::
+   -  The following command restarts the NFS share::
 
          runqemu-export-rootfs restart file-system-location
 
@@ -306,15 +300,14 @@ present, the toolchain is also automatically used.
       tarball by using the ``runqemu-extract-sdk`` command. After
       running the command, you must then point the ``runqemu`` script to
       the extracted directory instead of a root filesystem image file.
-      See the "`Running Under a Network File System (NFS)
-      Server <#qemu-running-under-a-network-file-system-nfs-server>`__"
+      See the
+      ":ref:`dev-manual/qemu:running under a network file system (nfs) server`"
       section for more information.
 
 QEMU Command-Line Syntax
 ========================
 
-The basic ``runqemu`` command syntax is as follows:
-::
+The basic ``runqemu`` command syntax is as follows::
 
    $ runqemu [option ] [...]
 
@@ -325,8 +318,7 @@ timestamp when it needs to look for an image. Minimally, through the use
 of options, you must provide either a machine name, a virtual machine
 image (``*wic.vmdk``), or a kernel image (``*.bin``).
 
-Following is the command-line help output for the ``runqemu`` command:
-::
+Following is the command-line help output for the ``runqemu`` command::
 
    $ runqemu --help
 
@@ -452,7 +444,7 @@ command line:
    or "qemux86-64" QEMU architectures. For KVM with VHOST to work, the
    following conditions must be met:
 
-   -  `kvm <#kvm-cond>`__ option conditions must be met.
+   -  ``kvm`` option conditions defined above must be met.
 
    -  Your build host has to have virtio net device, which are
       ``/dev/vhost-net``.

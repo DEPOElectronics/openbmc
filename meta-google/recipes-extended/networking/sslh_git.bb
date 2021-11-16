@@ -4,7 +4,7 @@ LICENSE = "GPLv2"
 LIC_FILES_CHKSUM = "file://COPYING;md5=b234ee4d69f5fce4486a80fdaf4a4263"
 
 SRC_URI = "git://github.com/yrutschle/sslh"
-SRCREV = "de8e5725c27ba6941f47254e6fcb485e94f2de35"
+SRCREV = "517e4ad5b4d57dae396790882bd4629947be1632"
 S = "${WORKDIR}/git"
 
 inherit perlnative

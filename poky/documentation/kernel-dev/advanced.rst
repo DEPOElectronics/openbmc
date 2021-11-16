@@ -56,8 +56,8 @@ using the same BSP description. Multiple Corei7-based BSPs could share
 the same "intel-corei7-64" value for ``KMACHINE``. It is important to
 realize that ``KMACHINE`` is just for kernel mapping, while ``MACHINE``
 is the machine type within a BSP Layer. Even with this distinction,
-however, these two variables can hold the same value. See the `BSP
-Descriptions <#bsp-descriptions>`__ section for more information.
+however, these two variables can hold the same value. See the
+":ref:`kernel-dev/advanced:bsp descriptions`" section for more information.
 
 Every linux-yocto style recipe must also indicate the Linux kernel
 source repository branch used to build the Linux kernel. The
@@ -67,8 +67,7 @@ to indicate the branch.
 .. note::
 
    You can use the ``KBRANCH`` value to define an alternate branch typically
-   with a machine override as shown here from the ``meta-yocto-bsp`` layer:
-   ::
+   with a machine override as shown here from the ``meta-yocto-bsp`` layer::
 
            KBRANCH_edgerouter = "standard/edgerouter"
 
@@ -87,7 +86,7 @@ Together with ``KMACHINE``, ``LINUX_KERNEL_TYPE`` defines the search
 arguments used by the kernel tools to find the appropriate description
 within the kernel Metadata with which to build out the sources and
 configuration. The linux-yocto recipes define "standard", "tiny", and
-"preempt-rt" kernel types. See the "`Kernel Types <#kernel-types>`__"
+"preempt-rt" kernel types. See the ":ref:`kernel-dev/advanced:kernel types`"
 section for more information on kernel types.
 
 During the build, the kern-tools search for the BSP description file
@@ -106,15 +105,13 @@ You can use the
 variable to include features (configuration fragments, patches, or both)
 that are not already included by the ``KMACHINE`` and
 ``LINUX_KERNEL_TYPE`` variable combination. For example, to include a
-feature specified as "features/netfilter/netfilter.scc", specify:
-::
+feature specified as "features/netfilter/netfilter.scc", specify::
 
    KERNEL_FEATURES += "features/netfilter/netfilter.scc"
 
 To include a
 feature called "cfg/sound.scc" just for the ``qemux86`` machine,
-specify:
-::
+specify::
 
    KERNEL_FEATURES_append_qemux86 = " cfg/sound.scc"
 
@@ -123,8 +120,8 @@ the entries in ``KERNEL_FEATURES`` are dependent on their location
 within the kernel Metadata itself. The examples here are taken from the
 ``yocto-kernel-cache`` repository. Each branch of this repository
 contains "features" and "cfg" subdirectories at the top-level. For more
-information, see the "`Kernel Metadata
-Syntax <#kernel-metadata-syntax>`__" section.
+information, see the ":ref:`kernel-dev/advanced:kernel metadata syntax`"
+section.
 
 Kernel Metadata Syntax
 ======================
@@ -148,7 +145,7 @@ Features aggregate sources in the form of patches and configuration
 fragments into a modular reusable unit. You can use features to
 implement conceptually separate kernel Metadata descriptions such as
 pure configuration fragments, simple patches, complex features, and
-kernel types. `Kernel types <#kernel-types>`__ define general kernel
+kernel types. :ref:`kernel-dev/advanced:kernel types` define general kernel
 features and policy to be reused in the BSPs.
 
 BSPs define hardware-specific features and aggregate them with kernel
@@ -157,8 +154,7 @@ types to form the final description of what will be assembled and built.
 While the kernel Metadata syntax does not enforce any logical separation
 of configuration fragments, patches, features or kernel types, best
 practices dictate a logical separation of these types of Metadata. The
-following Metadata file hierarchy is recommended:
-::
+following Metadata file hierarchy is recommended::
 
    base/
       bsp/
@@ -167,10 +163,9 @@ following Metadata file hierarchy is recommended:
       ktypes/
       patches/
 
-The ``bsp`` directory contains the `BSP
-descriptions <#bsp-descriptions>`__. The remaining directories all
-contain "features". Separating ``bsp`` from the rest of the structure
-aids conceptualizing intended usage.
+The ``bsp`` directory contains the :ref:`kernel-dev/advanced:bsp descriptions`.
+The remaining directories all contain "features". Separating ``bsp`` from the
+rest of the structure aids conceptualizing intended usage.
 
 Use these guidelines to help place your ``scc`` description files within
 the structure:
@@ -198,11 +193,12 @@ contain "features" as far as the kernel tools are concerned.
 Paths used in kernel Metadata files are relative to base, which is
 either
 :term:`FILESEXTRAPATHS` if
-you are creating Metadata in `recipe-space <#recipe-space-metadata>`__,
+you are creating Metadata in
+:ref:`recipe-space <kernel-dev/advanced:recipe-space metadata>`,
 or the top level of
 :yocto_git:`yocto-kernel-cache </yocto-kernel-cache/tree/>`
-if you are creating `Metadata outside of the
-recipe-space <#metadata-outside-the-recipe-space>`__.
+if you are creating
+:ref:`kernel-dev/advanced:metadata outside the recipe-space`.
 
 .. [1]
    ``scc`` stands for Series Configuration Control, but the naming has
@@ -222,8 +218,7 @@ used with the ``linux-yocto-4.12`` kernel as defined outside of the
 recipe space (i.e. ``yocto-kernel-cache``). This Metadata consists of
 two files: ``smp.scc`` and ``smp.cfg``. You can find these files in the
 ``cfg`` directory of the ``yocto-4.12`` branch in the
-``yocto-kernel-cache`` Git repository:
-::
+``yocto-kernel-cache`` Git repository::
 
    cfg/smp.scc:
       define KFEATURE_DESCRIPTION "Enable SMP for 32 bit builds"
@@ -265,8 +260,7 @@ non-hardware fragment.
 
 As described in the
 ":ref:`kernel-dev/common:validating configuration`" section, you can
-use the following BitBake command to audit your configuration:
-::
+use the following BitBake command to audit your configuration::
 
    $ bitbake linux-yocto -c kernel_configcheck -f
 
@@ -287,8 +281,7 @@ in the ``patches/build`` directory of the ``yocto-4.12`` branch in the
 ``yocto-kernel-cache`` Git repository.
 
 The following listings show the ``build.scc`` file and part of the
-``modpost-mask-trivial-warnings.patch`` file:
-::
+``modpost-mask-trivial-warnings.patch`` file::
 
    patches/build/build.scc:
       patch arm-serialize-build-targets.patch
@@ -334,8 +327,7 @@ Features
 
 Features are complex kernel Metadata types that consist of configuration
 fragments, patches, and possibly other feature description files. As an
-example, consider the following generic listing:
-::
+example, consider the following generic listing::
 
    features/myfeature.scc
       define KFEATURE_DESCRIPTION "Enable myfeature"
@@ -353,9 +345,9 @@ as how an additional feature description file is included with the
 Typically, features are less granular than configuration fragments and
 are more likely than configuration fragments and patches to be the types
 of things you want to specify in the ``KERNEL_FEATURES`` variable of the
-Linux kernel recipe. See the "`Using Kernel Metadata in a
-Recipe <#using-kernel-metadata-in-a-recipe>`__" section earlier in the
-manual.
+Linux kernel recipe. See the
+":ref:`kernel-dev/advanced:using kernel metadata in a recipe`" section earlier
+in the manual.
 
 Kernel Types
 ------------
@@ -364,22 +356,20 @@ A kernel type defines a high-level kernel policy by aggregating
 non-hardware configuration fragments with patches you want to use when
 building a Linux kernel of a specific type (e.g. a real-time kernel).
 Syntactically, kernel types are no different than features as described
-in the "`Features <#features>`__" section. The
+in the ":ref:`kernel-dev/advanced:features`" section. The
 :term:`LINUX_KERNEL_TYPE`
 variable in the kernel recipe selects the kernel type. For example, in
 the ``linux-yocto_4.12.bb`` kernel recipe found in
 ``poky/meta/recipes-kernel/linux``, a
 :ref:`require <bitbake:bitbake-user-manual/bitbake-user-manual-metadata:\`\`require\`\` directive>` directive
 includes the ``poky/meta/recipes-kernel/linux/linux-yocto.inc`` file,
-which has the following statement that defines the default kernel type:
-::
+which has the following statement that defines the default kernel type::
 
    LINUX_KERNEL_TYPE ??= "standard"
 
 Another example would be the real-time kernel (i.e.
 ``linux-yocto-rt_4.12.bb``). This kernel recipe directly sets the kernel
-type as follows:
-::
+type as follows::
 
    LINUX_KERNEL_TYPE = "preempt-rt"
 
@@ -412,8 +402,7 @@ for Linux Yocto kernels:
 For any given kernel type, the Metadata is defined by the ``.scc`` (e.g.
 ``standard.scc``). Here is a partial listing for the ``standard.scc``
 file, which is found in the ``ktypes/standard`` directory of the
-``yocto-kernel-cache`` Git repository:
-::
+``yocto-kernel-cache`` Git repository::
 
    # Include this kernel type fragment to get the standard features and
    # configuration values.
@@ -482,15 +471,13 @@ Description Overview
 For simplicity, consider the following root BSP layer description files
 for the BeagleBone board. These files employ both a structure and naming
 convention for consistency. The naming convention for the file is as
-follows:
-::
+follows::
 
    bsp_root_name-kernel_type.scc
 
 Here are some example root layer
 BSP filenames for the BeagleBone Board BSP, which is supported by the
-Yocto Project:
-::
+Yocto Project::
 
    beaglebone-standard.scc
    beaglebone-preempt-rt.scc
@@ -498,8 +485,7 @@ Yocto Project:
 Each file uses the root name (i.e "beaglebone") BSP name followed by the
 kernel type.
 
-Examine the ``beaglebone-standard.scc`` file:
-::
+Examine the ``beaglebone-standard.scc`` file::
 
    define KMACHINE beaglebone
    define KTYPE standard
@@ -533,24 +519,21 @@ description file match.
 
 To separate your kernel policy from your hardware configuration, you
 include a kernel type (``ktype``), such as "standard". In the previous
-example, this is done using the following:
-::
+example, this is done using the following::
 
    include ktypes/standard/standard.scc
 
 This file aggregates all the configuration
 fragments, patches, and features that make up your standard kernel
-policy. See the "`Kernel Types <#kernel-types>`__" section for more
+policy. See the ":ref:`kernel-dev/advanced:kernel types`" section for more
 information.
 
 To aggregate common configurations and features specific to the kernel
-for `mybsp`, use the following:
-::
+for `mybsp`, use the following::
 
    include mybsp.scc
 
-You can see that in the BeagleBone example with the following:
-::
+You can see that in the BeagleBone example with the following::
 
    include beaglebone.scc
 
@@ -558,15 +541,13 @@ For information on how to break a complete ``.config`` file into the various
 configuration fragments, see the ":ref:`kernel-dev/common:creating configuration fragments`" section.
 
 Finally, if you have any configurations specific to the hardware that
-are not in a ``*.scc`` file, you can include them as follows:
-::
+are not in a ``*.scc`` file, you can include them as follows::
 
    kconf hardware mybsp-extra.cfg
 
 The BeagleBone example does not include these
 types of configurations. However, the Malta 32-bit board does
-("mti-malta32"). Here is the ``mti-malta32-le-standard.scc`` file:
-::
+("mti-malta32"). Here is the ``mti-malta32-le-standard.scc`` file::
 
    define KMACHINE mti-malta32-le
    define KMACHINE qemumipsel
@@ -623,8 +604,7 @@ found on the machine. This ``minnow.scc`` description file is then
 included in each of the three "minnow" description files for the
 supported kernel types (i.e. "standard", "preempt-rt", and "tiny").
 Consider the "minnow" description for the "standard" kernel type (i.e.
-``minnow-standard.scc``):
-::
+``minnow-standard.scc``)::
 
    define KMACHINE minnow
    define KTYPE standard
@@ -656,8 +636,7 @@ that defines all enabled hardware for the BSP that is common to all
 kernel types. Using this command significantly reduces duplication.
 
 Now consider the "minnow" description for the "tiny" kernel type (i.e.
-``minnow-tiny.scc``):
-::
+``minnow-tiny.scc``)::
 
    define KMACHINE minnow
    define KTYPE tiny
@@ -720,8 +699,7 @@ See the ":ref:`kernel-dev/common:modifying an existing recipe`"
 section for more information.
 
 Here is an example that shows a trivial tree of kernel Metadata stored
-in recipe-space within a BSP layer:
-::
+in recipe-space within a BSP layer::
 
    meta-my_bsp_layer/
    `-- recipes-kernel
@@ -744,8 +722,7 @@ value when changing the content of files not explicitly listed in the
 
 If the BSP description is in recipe space, you cannot simply list the
 ``*.scc`` in the ``SRC_URI`` statement. You need to use the following
-form from your kernel append file:
-::
+form from your kernel append file::
 
    SRC_URI_append_myplatform = " \
        file://myplatform;type=kmeta;destsuffix=myplatform \
@@ -759,8 +736,7 @@ reside in a separate repository. The OpenEmbedded build system adds the
 Metadata to the build as a "type=kmeta" repository through the
 :term:`SRC_URI` variable. As an
 example, consider the following ``SRC_URI`` statement from the
-``linux-yocto_4.12.bb`` kernel recipe:
-::
+``linux-yocto_4.12.bb`` kernel recipe::
 
    SRC_URI = "git://git.yoctoproject.org/linux-yocto-4.12.git;name=machine;branch=${KBRANCH}; \
               git://git.yoctoproject.org/yocto-kernel-cache;type=kmeta;name=meta;branch=yocto-4.12;destsuffix=${KMETA}"
@@ -825,11 +801,11 @@ Given this scenario, you do not need to create any branches in the
 source repository. Rather, you just take the static patches you need and
 encapsulate them within a feature description. Once you have the feature
 description, you simply include that into the BSP description as
-described in the "`BSP Descriptions <#bsp-descriptions>`__" section.
+described in the ":ref:`kernel-dev/advanced:bsp descriptions`" section.
 
 You can find information on how to create patches and BSP descriptions
-in the "`Patches <#patches>`__" and "`BSP
-Descriptions <#bsp-descriptions>`__" sections.
+in the ":ref:`kernel-dev/advanced:patches`" and
+":ref:`kernel-dev/advanced:bsp descriptions`" sections.
 
 Machine Branches
 ----------------
@@ -844,14 +820,12 @@ patches into a feature.
 
 Once you have a new branch, you can set up your kernel Metadata to use
 the branch a couple different ways. In the recipe, you can specify the
-new branch as the ``KBRANCH`` to use for the board as follows:
-::
+new branch as the ``KBRANCH`` to use for the board as follows::
 
    KBRANCH = "mynewbranch"
 
 Another method is to use the ``branch`` command in the BSP
-description:
-::
+description::
 
    mybsp.scc:
       define KMACHINE mybsp
@@ -865,15 +839,13 @@ description:
 
 If you find yourself with numerous branches, you might consider using a
 hierarchical branching system similar to what the Yocto Linux Kernel Git
-repositories use:
-::
+repositories use::
 
    common/kernel_type/machine
 
 If you had two kernel types, "standard" and "small" for instance, three
 machines, and common as ``mydir``, the branches in your Git repository
-might look like this:
-::
+might look like this::
 
    mydir/base
    mydir/standard/base
@@ -905,8 +877,7 @@ that have to be regularly updated. The Yocto Project Linux kernel tools
 provide for this with the ``git merge`` command.
 
 To merge a feature branch into a BSP, insert the ``git merge`` command
-after any ``branch`` commands:
-::
+after any ``branch`` commands::
 
    mybsp.scc:
       define KMACHINE mybsp

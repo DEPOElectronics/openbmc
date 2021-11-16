@@ -55,8 +55,7 @@ This section briefly introduces BitBake. If you want more information on
 BitBake, see the :doc:`BitBake User Manual <bitbake:index>`.
 
 To see a list of the options BitBake supports, use either of the
-following commands:
-::
+following commands::
 
    $ bitbake -h
    $ bitbake --help
@@ -66,8 +65,7 @@ The most common usage for BitBake is ``bitbake recipename``, where
 to as the "target"). The target often equates to the first part of a
 recipe's filename (e.g. "foo" for a recipe named ``foo_1.3.0-r0.bb``).
 So, to process the ``matchbox-desktop_1.2.3.bb`` recipe file, you might
-type the following:
-::
+type the following::
 
    $ bitbake matchbox-desktop
 
@@ -132,7 +130,7 @@ Layers
 
 Layers are repositories that contain related metadata (i.e. sets of
 instructions) that tell the OpenEmbedded build system how to build a
-target. Yocto Project's `layer model <#the-yocto-project-layer-model>`__
+target. :ref:`overview-manual/yp-intro:the yocto project layer model`
 facilitates collaboration, sharing, customization, and reuse within the
 Yocto Project development environment. Layers logically separate
 information for your project. For example, you can use a layer to hold
@@ -207,8 +205,8 @@ you can tell BitBake the target architecture for which you are building
 the image, where to store downloaded source, and other build properties.
 
 The following figure shows an expanded representation of the "User
-Configuration" box of the `general workflow
-figure <#general-workflow-figure>`__:
+Configuration" box of the :ref:`general workflow
+figure <overview-manual/concepts:openembedded build system concepts>`:
 
 .. image:: figures/user-configuration.png
    :align: center
@@ -374,7 +372,7 @@ provide Metadata for the software, machine, and policies.
 
 In general, three types of layer input exists. You can see them below
 the "User Configuration" box in the `general workflow
-figure <#general-workflow-figure>`__:
+figure <overview-manual/concepts:openembedded build system concepts>`:
 
 -  *Metadata (.bb + Patches):* Software layers containing
    user-supplied recipe files, patches, and append files. A good example
@@ -387,8 +385,8 @@ figure <#general-workflow-figure>`__:
 -  *Machine BSP Configuration:* Board Support Package (BSP) layers (i.e.
    "BSP Layer" in the following figure) providing machine-specific
    configurations. This type of information is specific to a particular
-   target architecture. A good example of a BSP layer from the `Poky
-   Reference Distribution <#gs-reference-distribution-poky>`__ is the
+   target architecture. A good example of a BSP layer from the
+   :ref:`overview-manual/yp-intro:reference distribution (poky)` is the
    :yocto_git:`meta-yocto-bsp </poky/tree/meta-yocto-bsp>`
    layer.
 
@@ -403,7 +401,8 @@ figure <#general-workflow-figure>`__:
    that contain many policy configurations for the Poky distribution.
 
 The following figure shows an expanded representation of these three
-layers from the `general workflow figure <#general-workflow-figure>`__:
+layers from the :ref:`general workflow figure
+<overview-manual/concepts:openembedded build system concepts>`:
 
 .. image:: figures/layer-input.png
    :align: center
@@ -418,9 +417,9 @@ in the
 section in the
 Yocto Project Development Tasks Manual. For a general discussion on
 layers and the many layers from which you can draw, see the
-"`Layers <#overview-layers>`__" and "`The Yocto Project Layer
-Model <#the-yocto-project-layer-model>`__" sections both earlier in this
-manual.
+":ref:`overview-manual/concepts:layers`" and
+":ref:`overview-manual/yp-intro:the yocto project layer model`" sections both
+earlier in this manual.
 
 If you explored the previous links, you discovered some areas where many
 layers that work with the Yocto Project exist. The :yocto_git:`Source
@@ -514,11 +513,12 @@ Sources
 -------
 
 In order for the OpenEmbedded build system to create an image or any
-target, it must be able to access source files. The `general workflow
-figure <#general-workflow-figure>`__ represents source files using the
-"Upstream Project Releases", "Local Projects", and "SCMs (optional)"
-boxes. The figure represents mirrors, which also play a role in locating
-source files, with the "Source Materials" box.
+target, it must be able to access source files. The :ref:`general workflow
+figure <overview-manual/concepts:openembedded build system concepts>`
+represents source files using the "Upstream Project Releases", "Local
+Projects", and "SCMs (optional)" boxes. The figure represents mirrors,
+which also play a role in locating source files, with the "Source
+Materials" box.
 
 The method by which source files are ultimately organized is a function
 of the project. For example, for released software, projects tend to use
@@ -554,7 +554,7 @@ Directory if needed without fear of removing any downloaded source file.
 
 The remainder of this section provides a deeper look into the source
 files and the mirrors. Here is a more detailed look at the source file
-area of the `general workflow figure <#general-workflow-figure>`__:
+area of the :ref:`general workflow figure <overview-manual/concepts:openembedded build system concepts>`:
 
 .. image:: figures/source-input.png
    :align: center
@@ -628,9 +628,9 @@ Package Feeds
 
 When the OpenEmbedded build system generates an image or an SDK, it gets
 the packages from a package feed area located in the
-:term:`Build Directory`. The `general
-workflow figure <#general-workflow-figure>`__ shows this package feeds
-area in the upper-right corner.
+:term:`Build Directory`. The :ref:`general workflow figure
+<overview-manual/concepts:openembedded build system concepts>`
+shows this package feeds area in the upper-right corner.
 
 This section looks a little closer into the package feeds area used by
 the build system. Here is a more detailed look at the area:
@@ -691,10 +691,10 @@ BitBake Tool
 
 The OpenEmbedded build system uses
 :term:`BitBake` to produce images and
-Software Development Kits (SDKs). You can see from the `general workflow
-figure <#general-workflow-figure>`__, the BitBake area consists of
-several functional areas. This section takes a closer look at each of
-those areas.
+Software Development Kits (SDKs). You can see from the :ref:`general workflow
+figure <overview-manual/concepts:openembedded build system concepts>`,
+the BitBake area consists of several functional areas. This section takes a
+closer look at each of those areas.
 
 .. note::
 
@@ -820,7 +820,7 @@ source files, which are located in the
 :term:`S` directory.
 
 For more information on how the source directories are created, see the
-"`Source Fetching <#source-fetching-dev-environment>`__" section. For
+":ref:`overview-manual/concepts:source fetching`" section. For
 more information on how to create patches and how the build system
 processes patches, see the
 ":ref:`dev-manual/common-tasks:patching code`"
@@ -957,8 +957,8 @@ details on how this is accomplished, you can look at
 Depending on the type of packages being created (RPM, DEB, or IPK), the
 :ref:`do_package_write_* <ref-tasks-package_write_deb>`
 task creates the actual packages and places them in the Package Feed
-area, which is ``${TMPDIR}/deploy``. You can see the "`Package
-Feeds <#package-feeds-dev-environment>`__" section for more detail on
+area, which is ``${TMPDIR}/deploy``. You can see the
+":ref:`overview-manual/concepts:package feeds`" section for more detail on
 that part of the build process.
 
 .. note::
@@ -1066,15 +1066,13 @@ the image. The formats used for the root filesystem depend on the
 support compression.
 
 As an example, a dynamically created task when creating a particular
-image type would take the following form:
-::
+image type would take the following form::
 
    do_image_type
 
 So, if the type
 as specified by the ``IMAGE_FSTYPES`` were ``ext4``, the dynamically
-generated task would be as follows:
-::
+generated task would be as follows::
 
    do_image_ext4
 
@@ -1119,7 +1117,7 @@ and
 :ref:`ref-tasks-populate_sdk_ext`
 tasks use these key variables to help create the list of packages to
 actually install. For information on the variables listed in the figure,
-see the "`Application Development SDK <#sdk-dev-environment>`__"
+see the ":ref:`overview-manual/concepts:application development sdk`"
 section.
 
 The ``do_populate_sdk`` task helps create the standard SDK and handles
@@ -1147,8 +1145,8 @@ For each task that completes successfully, BitBake writes a stamp file
 into the :term:`STAMPS_DIR`
 directory. The beginning of the stamp file's filename is determined by
 the :term:`STAMP` variable, and the end
-of the name consists of the task's name and current `input
-checksum <#overview-checksums>`__.
+of the name consists of the task's name and current :ref:`input
+checksum <overview-manual/concepts:checksums (signatures)>`.
 
 .. note::
 
@@ -1165,10 +1163,10 @@ file does not exist, the task is rerun.
 .. note::
 
    The stamp mechanism is more general than the shared state (sstate)
-   cache mechanism described in the "`Setscene Tasks and Shared
-   State <#setscene-tasks-and-shared-state>`__" section. BitBake avoids
-   rerunning any task that has a valid stamp file, not just tasks that
-   can be accelerated through the sstate cache.
+   cache mechanism described in the
+   ":ref:`overview-manual/concepts:setscene tasks and shared state`" section.
+   BitBake avoids rerunning any task that has a valid stamp file, not just
+   tasks that can be accelerated through the sstate cache.
 
    However, you should realize that stamp files only serve as a marker
    that some work has been done and that these files do not record task
@@ -1271,7 +1269,8 @@ Images
 
 The images produced by the build system are compressed forms of the root
 filesystem and are ready to boot on a target device. You can see from
-the `general workflow figure <#general-workflow-figure>`__ that BitBake
+the :ref:`general workflow figure
+<overview-manual/concepts:openembedded build system concepts>` that BitBake
 output, in part, consists of images. This section takes a closer look at
 this output:
 
@@ -1327,7 +1326,8 @@ current configuration.
 Application Development SDK
 ---------------------------
 
-In the `general workflow figure <#general-workflow-figure>`__, the
+In the :ref:`general workflow figure
+<overview-manual/concepts:openembedded build system concepts>`, the
 output labeled "Application Development SDK" represents an SDK. The SDK
 generation process differs depending on whether you build an extensible
 SDK (e.g. ``bitbake -c populate_sdk_ext`` imagename) or a standard SDK
@@ -1357,8 +1357,8 @@ can initialize the environment before using the tools.
       your own SDK installer.
 
    -  For background information on cross-development toolchains in the
-      Yocto Project development environment, see the "`Cross-Development
-      Toolchain Generation <#cross-development-toolchain-generation>`__"
+      Yocto Project development environment, see the
+      ":ref:`overview-manual/concepts:cross-development toolchain generation`"
       section.
 
    -  For information on setting up a cross-development environment, see
@@ -1474,8 +1474,7 @@ cross-compiler that is used internally within BitBake only.
    gcc-cross
    .
 
-The chain of events that occurs when the standard toolchain is bootstrapped:
-::
+The chain of events that occurs when the standard toolchain is bootstrapped::
 
    binutils-cross -> linux-libc-headers -> gcc-cross -> libgcc-initial -> glibc -> libgcc -> gcc-runtime
 
@@ -1524,8 +1523,7 @@ might not be the same machine as the Build Host.
    can take advantage of pre-built images that ship with the Yocto
    Project and already contain cross-development toolchain installers.
 
-Here is the bootstrap process for the relocatable toolchain:
-::
+Here is the bootstrap process for the relocatable toolchain::
 
    gcc -> binutils-crosssdk -> gcc-crosssdk-initial -> linux-libc-headers -> glibc-initial -> nativesdk-glibc -> gcc-crosssdk -> gcc-cross-canadian
 
@@ -1699,8 +1697,7 @@ to the task.
 
 Like the ``WORKDIR`` case, situations exist where dependencies should be
 ignored. For these situations, you can instruct the build process to
-ignore a dependency by using a line like the following:
-::
+ignore a dependency by using a line like the following::
 
    PACKAGE_ARCHS[vardepsexclude] = "MACHINE"
 
@@ -1710,8 +1707,7 @@ reference it.
 
 Equally, there are cases where you need to add dependencies BitBake is
 not able to find. You can accomplish this by using a line like the
-following:
-::
+following::
 
    PACKAGE_ARCHS[vardeps] = "MACHINE"
 
@@ -1741,8 +1737,7 @@ and the dependent task hashes can be influenced. Within the BitBake
 configuration file, you can give BitBake some extra information to help
 it construct the basehash. The following statement effectively results
 in a list of global variable dependency excludes (i.e. variables never
-included in any checksum):
-::
+included in any checksum)::
 
    BB_HASHBASE_WHITELIST ?= "TMPDIR FILE PATH PWD BB_TASKHASH BBPATH DL_DIR \\
        SSTATE_DIR THISDIR FILESEXTRAPATHS FILE_DIRNAME HOME LOGNAME SHELL TERM \\
@@ -1767,16 +1762,15 @@ desired. This file defines the two basic signature generators
 "OEBasicHash". By default, a dummy "noop" signature handler is enabled
 in BitBake. This means that behavior is unchanged from previous
 versions. OE-Core uses the "OEBasicHash" signature handler by default
-through this setting in the ``bitbake.conf`` file:
-::
+through this setting in the ``bitbake.conf`` file::
 
    BB_SIGNATURE_HANDLER ?= "OEBasicHash"
 
 The "OEBasicHash" ``BB_SIGNATURE_HANDLER`` is the same
-as the "OEBasic" version but adds the task hash to the `stamp
-files <#stamp-files-and-the-rerunning-of-tasks>`__. This results in any
-metadata change that changes the task hash, automatically causing the
-task to be run again. This removes the need to bump
+as the "OEBasic" version but adds the task hash to the :ref:`stamp
+files <overview-manual/concepts:stamp files and the rerunning of tasks>`. This
+results in any metadata change that changes the task hash, automatically causing
+the task to be run again. This removes the need to bump
 :term:`PR` values, and changes to metadata
 automatically ripple across the build.
 
@@ -1822,8 +1816,7 @@ The Yocto Project team has tried to keep the details of the
 implementation hidden in ``sstate`` class. From a user's perspective,
 adding shared state wrapping to a task is as simple as this
 :ref:`ref-tasks-deploy` example taken
-from the :ref:`deploy <ref-classes-deploy>` class:
-::
+from the :ref:`deploy <ref-classes-deploy>` class::
 
    DEPLOYDIR = "${WORKDIR}/deploy-${PN}"
    SSTATETASKS += "do_deploy"
@@ -1867,8 +1860,7 @@ The following list explains the previous example:
       instead, skipping the ``do_deploy`` task.
 
 -  The following task definition is glue logic needed to make the
-   previous settings effective:
-   ::
+   previous settings effective::
 
       python do_deploy_setscene () {
           sstate_setscene(d)
@@ -1894,16 +1886,16 @@ The following list explains the previous example:
       In cases where ``sstate-inputdirs`` and ``sstate-outputdirs`` would be
       the same, you can use ``sstate-plaindirs``. For example, to preserve the
       ${:term:`PKGD`} and ${:term:`PKGDEST`} output from the ``do_package``
-      task, use the following:
-      ::
+      task, use the following::
 
               do_package[sstate-plaindirs] = "${PKGD} ${PKGDEST}"
 
 
 -  The ``do_deploy[stamp-extra-info] = "${MACHINE_ARCH}"`` line appends
-   extra metadata to the `stamp
-   file <#stamp-files-and-the-rerunning-of-tasks>`__. In this case, the
-   metadata makes the task specific to a machine's architecture. See
+   extra metadata to the :ref:`stamp
+   file <overview-manual/concepts:stamp files and the rerunning of tasks>`. In
+   this case, the metadata makes the task specific to a machine's architecture.
+   See
    ":ref:`bitbake:bitbake-user-manual/bitbake-user-manual-execution:the task list`"
    section in the BitBake User Manual for more information on the
    ``stamp-extra-info`` flag.
@@ -1912,24 +1904,21 @@ The following list explains the previous example:
    multiple directories. For example, the following declares
    ``PKGDESTWORK`` and ``SHLIBWORK`` as shared state input directories,
    which populates the shared state cache, and ``PKGDATA_DIR`` and
-   ``SHLIBSDIR`` as the corresponding shared state output directories:
-   ::
+   ``SHLIBSDIR`` as the corresponding shared state output directories::
 
       do_package[sstate-inputdirs] = "${PKGDESTWORK} ${SHLIBSWORKDIR}"
       do_package[sstate-outputdirs] = "${PKGDATA_DIR} ${SHLIBSDIR}"
 
 -  These methods also include the ability to take a lockfile when
    manipulating shared state directory structures, for cases where file
-   additions or removals are sensitive:
-   ::
+   additions or removals are sensitive::
 
       do_package[sstate-lockfile] = "${PACKAGELOCK}"
 
 Behind the scenes, the shared state code works by looking in
 :term:`SSTATE_DIR` and
 :term:`SSTATE_MIRRORS` for
-shared state files. Here is an example:
-::
+shared state files. Here is an example::
 
    SSTATE_MIRRORS ?= "\
        file://.\* http://someserver.tld/share/sstate/PATH;downloadfilename=PATH \n \
@@ -2111,9 +2100,7 @@ accomplished using fakeroot.
    under fakeroot. Otherwise, the task cannot run root-only operations,
    and cannot see the fake file ownership and permissions set by the
    other task. You need to also add a dependency on
-   virtual/fakeroot-native:do_populate_sysroot
-   , giving the following:
-   ::
+   ``virtual/fakeroot-native:do_populate_sysroot``, giving the following::
 
       fakeroot do_mytask () {
           ...

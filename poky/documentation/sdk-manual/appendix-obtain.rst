@@ -25,8 +25,7 @@ Follow these steps to locate and hand-install the toolchain:
    download the installer appropriate for your build host, target
    hardware, and image type.
 
-   The installer files (``*.sh``) follow this naming convention:
-   ::
+   The installer files (``*.sh``) follow this naming convention::
 
       poky-glibc-host_system-core-image-type-arch-toolchain[-ext]-release.sh
 
@@ -38,7 +37,7 @@ Follow these steps to locate and hand-install the toolchain:
                 "sato" or "minimal"
 
           arch is a string representing the target architecture:
-                 "aarch64", "armv5e", "core2-64", "coretexa8hf-neon", "i586", "mips32r2",
+                 "aarch64", "armv5e", "core2-64", "cortexa8hf-neon", "i586", "mips32r2",
                  "mips64", or "ppc7400"
 
           release is the version of Yocto Project.
@@ -55,23 +54,21 @@ Follow these steps to locate and hand-install the toolchain:
 
    For example, if your build host is a 64-bit x86 system and you need
    an extended SDK for a 64-bit core2 target, go into the ``x86_64``
-   folder and download the following installer:
-   ::
+   folder and download the following installer::
 
       poky-glibc-x86_64-core-image-sato-core2-64-toolchain-ext-&DISTRO;.sh
 
 4. *Run the Installer:* Be sure you have execution privileges and run
    the installer. Following is an example from the ``Downloads``
-   directory:
-   ::
+   directory::
 
       $ ~/Downloads/poky-glibc-x86_64-core-image-sato-core2-64-toolchain-ext-&DISTRO;.sh
 
    During execution of the script, you choose the root location for the
-   toolchain. See the "`Installed Standard SDK Directory
-   Structure <#sdk-installed-standard-sdk-directory-structure>`__"
-   section and the "`Installed Extensible SDK Directory
-   Structure <#sdk-installed-extensible-sdk-directory-structure>`__"
+   toolchain. See the
+   ":ref:`sdk-manual/appendix-obtain:installed standard sdk directory structure`"
+   section and the
+   ":ref:`sdk-manual/appendix-obtain:installed extensible sdk directory structure`"
    section for more information.
 
 Building an SDK Installer
@@ -132,8 +129,7 @@ build the SDK installer. Follow these steps:
       using to build the installer. If
       SDKMACHINE
       is not set appropriately, the build fails and provides an error
-      message similar to the following:
-      ::
+      message similar to the following::
 
               The extensible SDK can currently only be built for the same architecture as the machine being built on - SDK_ARCH is
               set to i686 (likely via setting SDKMACHINE) which is different from the architecture of the build machine (x86_64).
@@ -142,10 +138,11 @@ build the SDK installer. Follow these steps:
 
 6. *Build the SDK Installer:* To build the SDK installer for a standard
    SDK and populate the SDK image, use the following command form. Be
-   sure to replace image with an image (e.g. "core-image-sato"): $
-   bitbake image -c populate_sdk You can do the same for the extensible
-   SDK using this command form:
-   ::
+   sure to replace ``image`` with an image (e.g. "core-image-sato")::
+
+      $ bitbake image -c populate_sdk
+
+   You can do the same for the extensible SDK using this command form::
 
       $ bitbake image -c populate_sdk_ext
 
@@ -170,17 +167,16 @@ build the SDK installer. Follow these steps:
          libc-staticdev"
 
 7. *Run the Installer:* You can now run the SDK installer from
-   ``tmp/deploy/sdk`` in the Build Directory. Following is an example:
-   ::
+   ``tmp/deploy/sdk`` in the Build Directory. Following is an example::
 
       $ cd poky/build/tmp/deploy/sdk
       $ ./poky-glibc-x86_64-core-image-sato-core2-64-toolchain-ext-&DISTRO;.sh
 
    During execution of the script, you choose the root location for the
-   toolchain. See the "`Installed Standard SDK Directory
-   Structure <#sdk-installed-standard-sdk-directory-structure>`__"
-   section and the "`Installed Extensible SDK Directory
-   Structure <#sdk-installed-extensible-sdk-directory-structure>`__"
+   toolchain. See the
+   ":ref:`sdk-manual/appendix-obtain:installed standard sdk directory structure`"
+   section and the
+   ":ref:`sdk-manual/appendix-obtain:installed extensible sdk directory structure`"
    section for more information.
 
 Extracting the Root Filesystem
@@ -211,8 +207,7 @@ Follow these steps to extract the root filesystem:
    which you can use with QEMU directly.
 
    The pre-built root filesystem image files follow these naming
-   conventions:
-   ::
+   conventions::
 
       core-image-profile-arch.tar.bz2
 
@@ -233,8 +228,7 @@ Follow these steps to extract the root filesystem:
 
    For example, if you plan on using a BeagleBone device as your target
    hardware and your image is a ``core-image-sato-sdk`` image, you can
-   download the following file:
-   ::
+   download the following file::
 
       core-image-sato-sdk-beaglebone-yocto.tar.bz2
 
@@ -246,8 +240,7 @@ Follow these steps to extract the root filesystem:
    installed the toolchain (e.g. ``poky_sdk``).
 
    Following is an example based on the toolchain installed in the
-   ":ref:`sdk-manual/appendix-obtain:locating pre-built sdk installers`" section:
-   ::
+   ":ref:`sdk-manual/appendix-obtain:locating pre-built sdk installers`" section::
 
       $ source poky_sdk/environment-setup-core2-64-poky-linux
 
@@ -258,12 +251,11 @@ Follow these steps to extract the root filesystem:
    from a previously built root filesystem image that was downloaded
    from the :yocto_dl:`Index of Releases </releases/yocto/yocto-&DISTRO;/machines/>`.
    This command extracts the root filesystem into the ``core2-64-sato``
-   directory:
-   ::
+   directory::
 
       $ runqemu-extract-sdk ~/Downloads/core-image-sato-sdk-beaglebone-yocto.tar.bz2 ~/beaglebone-sato
 
-   You could now point to the target sysroot at ``beablebone-sato``.
+   You could now point to the target sysroot at ``beaglebone-sato``.
 
 Installed Standard SDK Directory Structure
 ==========================================

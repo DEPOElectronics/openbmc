@@ -51,9 +51,9 @@ RDEPENDS_packagegroup-security-scanners = "\
     isic \
     nikto \
     checksecurity \
-    ${@bb.utils.contains_any("TUNE_FEATURES", "riscv32 riscv64", "", " clamav clamav-freshclam clamav-cvd",d)} \
+    ${@bb.utils.contains_any("TUNE_FEATURES", "riscv32 riscv64", "", " clamav clamav-freshclam",d)} \
     "
-RDEPENDS_packagegroup-security-scanners_remove_libc-musl = "clamav clamav-freshclam clamav-cvd"
+RDEPENDS_packagegroup-security-scanners_remove_libc-musl = "clamav clamav-freshclam"
 
 SUMMARY_packagegroup-security-audit = "Security Audit tools "
 RDEPENDS_packagegroup-security-audit = " \
@@ -79,6 +79,9 @@ RDEPENDS_packagegroup-security-mac = " \
     ${@bb.utils.contains("DISTRO_FEATURES", "apparmor", "apparmor", "",d)} \
     ${@bb.utils.contains("DISTRO_FEATURES", "smack", "smack", "",d)} \
     "
+
+RDEPENDS_packagegroup-security-mac_remove_mips64 = "apparmor"
+RDEPENDS_packagegroup-security-mac_remove_mips64le = "apparmor"
 
 RDEPENDS_packagegroup-meta-security-ptest-packages = "\
     ptest-runner \

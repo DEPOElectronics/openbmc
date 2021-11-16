@@ -1,8 +1,8 @@
-Moving to the Yocto Project 3.2 Release
-=======================================
+Moving to the Yocto Project 3.2 Release (gatesgarth)
+====================================================
 
 This section provides migration information for moving to the Yocto
-Project 3.2 Release from the prior release.
+Project 3.2 Release (codename "gatesgarth") from the prior release.
 
 .. _migration-3.2-minimum-system-requirements:
 
@@ -90,12 +90,12 @@ If you have anonymous python or in-line python conditionally adding
 dependencies in your custom recipes, and you intend for those recipes to
 work with multilib, then you will need to ensure that ``${MLPREFIX}``
 is prefixed on the package names in the dependencies, for example
-(from the ``glibc`` recipe): ::
+(from the ``glibc`` recipe)::
 
     RRECOMMENDS_${PN} = "${@bb.utils.contains('DISTRO_FEATURES', 'ldconfig', '${MLPREFIX}ldconfig', '', d)}"
 
 This also applies when conditionally adding packages to :term:`PACKAGES` where
-those packages have dependencies, for example (from the ``alsa-plugins`` recipe): ::
+those packages have dependencies, for example (from the ``alsa-plugins`` recipe)::
 
     PACKAGES += "${@bb.utils.contains('PACKAGECONFIG', 'pulseaudio', 'alsa-plugins-pulseaudio-conf', '', d)}"
     ...
@@ -229,7 +229,7 @@ needs ``/etc/ld.so.conf`` to be present at image build time:
 
 When some recipe installs libraries to a non-standard location, and
 therefore installs in a file in ``/etc/ld.so.conf.d/foo.conf``, we
-need ``/etc/ld.so.conf`` containing: ::
+need ``/etc/ld.so.conf`` containing::
 
   include /etc/ld.so.conf.d/*.conf
 
@@ -308,6 +308,6 @@ Miscellaneous changes
 - Erroneous use of ``inherit +=`` (instead of ``INHERIT +=``) in a configuration file now triggers an error instead of silently being ignored.
 - ptest support has been removed from the ``kbd`` recipe, as upstream has moved to autotest which is difficult to work with in a cross-compilation environment.
 - ``oe.utils.is_machine_specific()`` and ``oe.utils.machine_paths()`` have been removed as their utility was questionable. In the unlikely event that you have references to these in your own code, then the code will need to be reworked.
-- The ``i2ctransfer`` module is now disabled by default when building ``busybox`` in order to be consistent with disabling the other i2c tools there. If you do wish the i2ctransfer module to be built in busybox then add ``CONFIG_I2CTRANSFER=y`` to your custom busybox configuration.
+- The ``i2ctransfer`` module is now disabled by default when building ``busybox`` in order to be consistent with disabling the other i2c tools there. If you do wish the i2ctransfer module to be built in BusyBox then add ``CONFIG_I2CTRANSFER=y`` to your custom BusyBox configuration.
 - In the ``Upstream-Status`` header convention for patches, ``Accepted`` has been replaced with ``Backport`` as these almost always mean the same thing i.e. the patch is already upstream and may need to be removed in a future recipe upgrade. If you are adding these headers to your own patches then use ``Backport`` to indicate that the patch has been sent upstream.
 - The ``tune-supersparc.inc`` tune file has been removed as it does not appear to be widely used and no longer works.

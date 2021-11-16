@@ -378,7 +378,7 @@ do_kernel_checkout() {
 	# checkout and clobber any unimportant files
 	git checkout -f ${machine_branch}
 }
-do_kernel_checkout[dirs] = "${S}"
+do_kernel_checkout[dirs] = "${S} ${WORKDIR}"
 
 addtask kernel_checkout before do_kernel_metadata after do_symlink_kernsrc
 addtask kernel_metadata after do_validate_branches do_unpack before do_patch
@@ -403,11 +403,11 @@ do_kernel_configme() {
 		*alldefconfig)
 			config_flags=""
 			;;
-	    *)
-		if [ -f ${WORKDIR}/defconfig ]; then
-			config_flags="-n"
-		fi
-	    ;;
+		*)
+			if [ -f ${WORKDIR}/defconfig ]; then
+				config_flags="-n"
+			fi
+			;;
 	esac
 
 	cd ${S}

@@ -1,8 +1,8 @@
-Moving to the Yocto Project 2.1 Release
-=======================================
+Moving to the Yocto Project 2.1 Release (krogoth)
+=================================================
 
 This section provides migration information for moving to the Yocto
-Project 2.1 Release from the prior release.
+Project 2.1 Release (codename "krogoth") from the prior release.
 
 .. _migration-2.1-variable-expansion-in-python-functions:
 
@@ -42,8 +42,7 @@ defaulted to False if not specified. Now, however, no default exists so
 one must be specified. You must change any ``getVar()`` calls that do
 not specify the final expand parameter to calls that do specify the
 parameter. You can run the following ``sed`` command at the base of a
-layer to make this change:
-::
+layer to make this change::
 
    sed -e 's:\(\.getVar([^,()]*\)):\1, False):g' -i `grep -ril getVar *`
    sed -e 's:\(\.getVarFlag([^,()]*,[^,()]*\)):\1, False):g' -i `grep -ril getVarFlag *`
@@ -134,7 +133,7 @@ or that mention ``do_rootfs``, you might need to update those changes.
 In particular, if you had added any tasks after ``do_rootfs``, you
 should make edits so that those tasks are after the
 :ref:`ref-tasks-image-complete` task rather than
-after ``do_rootfs`` so that the your added tasks run at the correct
+after ``do_rootfs`` so that your added tasks run at the correct
 time.
 
 A minor part of this restructuring is that the post-processing
@@ -179,9 +178,8 @@ The following recipes have been removed in the 2.1 release:
 
 -  ``python-pygtk``: Recipe became obsolete.
 
--  ``adt-installer``: Recipe became obsolete. See the "`ADT
-   Removed <#adt-removed>`__" section for more
-   information.
+-  ``adt-installer``: Recipe became obsolete. See the
+   ":ref:`ref-manual/migration-2.1:adt removed`" section for more information.
 
 .. _migration-2.1-class-changes:
 
@@ -286,8 +284,7 @@ The following changes have been made for the Poky distribution:
    Any recipe that needs to opt-out of having the "--disable-static"
    option specified on the configure command line either because it is
    not a supported option for the configure script or because static
-   libraries are needed should set the following variable:
-   ::
+   libraries are needed should set the following variable::
 
       DISABLE_STATIC = ""
 
@@ -370,8 +367,7 @@ These additional changes exist:
 -  Previously, the following list of packages were removed if
    package-management was not in
    :term:`IMAGE_FEATURES`, regardless of any
-   dependencies:
-   ::
+   dependencies::
 
       update-rc.d
       base-passwd
