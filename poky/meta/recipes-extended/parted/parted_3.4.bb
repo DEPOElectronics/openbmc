@@ -1,5 +1,6 @@
 SUMMARY = "Disk partition editing/resizing utility"
 HOMEPAGE = "http://www.gnu.org/software/parted/parted.html"
+DESCRIPTION = "GNU Parted manipulates partition tables. This is useful for creating space for new operating systems, reorganizing disk usage, copying data on hard disks and disk imaging."
 LICENSE = "GPLv3+"
 LIC_FILES_CHKSUM = "file://COPYING;md5=2f31b266d3440dd7ee50f92cf67d8e6c"
 SECTION = "console/tools"
@@ -39,6 +40,7 @@ do_install_ptest() {
 	sed -i "s|^abs_srcdir =.*|abs_srcdir = \.|g" $t/tests/Makefile
 	sed -i "s|^abs_top_srcdir =.*|abs_top_srcdir = \.\.|g" $t/tests/Makefile
 	sed -i "s|^Makefile:.*|Makefile:|g" $t/tests/Makefile
+	sed -i "/^BUILDINFO.*$/d" $t/tests/Makefile
 	for i in print-align print-max print-flags dup-clobber duplicate fs-resize; \
 	  do cp ${B}/tests/.libs/$i $t/tests/; \
 	done

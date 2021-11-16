@@ -28,7 +28,9 @@ SRC_URI = "https://download.qemu.org/${BPN}-${PV}.tar.xz \
            file://mingwfix.patch \
            file://mmap.patch \
            file://mmap2.patch \
+           file://determinism.patch \
            file://0001-tests-meson.build-use-relative-path-to-refer-to-file.patch \
+	   file://CVE-2021-20203.patch \
            "
 UPSTREAM_CHECK_REGEX = "qemu-(?P<pver>\d+(\.\d+)+)\.tar"
 
@@ -57,6 +59,9 @@ do_install_ptest() {
         sed -i -e 's,${HOSTTOOLS_DIR}/python3,${bindir}/python3,' \
             ${D}/${PTEST_PATH}/tests/qemu-iotests/common.env 
 	sed -i -e "1s,#!/usr/bin/bash,#!${base_bindir}/bash," ${D}${PTEST_PATH}/tests/data/acpi/disassemle-aml.sh
+
+	# Strip the paths from the QEMU variable, we can use PATH
+	sed -i -e "s#^QEMU=.*/qemu-#QEMU=qemu-#g" ${D}${PTEST_PATH}/tests/tcg/*.mak
 }
 
 # QEMU_TARGETS is overridable variable

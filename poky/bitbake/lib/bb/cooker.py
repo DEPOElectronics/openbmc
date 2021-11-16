@@ -502,22 +502,30 @@ class BBCooker:
 
     def showVersions(self):
 
-        (latest_versions, preferred_versions) = self.findProviders()
+        (latest_versions, preferred_versions, required) = self.findProviders()
 
-        logger.plain("%-35s %25s %25s", "Recipe Name", "Latest Version", "Preferred Version")
-        logger.plain("%-35s %25s %25s\n", "===========", "==============", "=================")
+        logger.plain("%-35s %25s %25s %25s", "Recipe Name", "Latest Version", "Preferred Version", "Required Version")
+        logger.plain("%-35s %25s %25s %25s\n", "===========", "==============", "=================", "================")
 
         for p in sorted(self.recipecaches[''].pkg_pn):
-            pref = preferred_versions[p]
+            preferred = preferred_versions[p]
             latest = latest_versions[p]
+            requiredstr = ""
+            preferredstr = ""
+            if required[p]:
+                if preferred[0] is not None:
+                    requiredstr = preferred[0][0] + ":" + preferred[0][1] + '-' + preferred[0][2]
+                else:
+                    bb.fatal("REQUIRED_VERSION of package %s not available" % p)
+            else:
+                preferredstr = preferred[0][0] + ":" + preferred[0][1] + '-' + preferred[0][2]
 
-            prefstr = pref[0][0] + ":" + pref[0][1] + '-' + pref[0][2]
             lateststr = latest[0][0] + ":" + latest[0][1] + "-" + latest[0][2]
 
-            if pref == latest:
-                prefstr = ""
+            if preferred == latest:
+                preferredstr = ""
 
-            logger.plain("%-35s %25s %25s", p, lateststr, prefstr)
+            logger.plain("%-35s %25s %25s %25s", p, lateststr, preferredstr, requiredstr)
 
     def showEnvironment(self, buildfile=None, pkgs_to_build=None):
         """
@@ -1063,10 +1071,16 @@ class BBCooker:
         if pn in self.recipecaches[mc].providers:
             filenames = self.recipecaches[mc].providers[pn]
             eligible, foundUnique = bb.providers.filterProviders(filenames, pn, self.databuilder.mcdata[mc], self.recipecaches[mc])
-            filename = eligible[0]
+            if eligible is not None:
+                filename = eligible[0]
+            else:
+                filename = None
             return None, None, None, filename
         elif pn in self.recipecaches[mc].pkg_pn:
-            return bb.providers.findBestProvider(pn, self.databuilder.mcdata[mc], self.recipecaches[mc], self.recipecaches[mc].pkg_pn)
+            (latest, latest_f, preferred_ver, preferred_file, required) = bb.providers.findBestProvider(pn, self.databuilder.mcdata[mc], self.recipecaches[mc], self.recipecaches[mc].pkg_pn)
+            if required and preferred_file is None:
+                return None, None, None, None
+            return (latest, latest_f, preferred_ver, preferred_file)
         else:
             return None, None, None, None
 
@@ -2211,18 +2225,18 @@ class CookerParser(object):
         except bb.BBHandledException as exc:
             self.error += 1
             logger.error('Failed to parse recipe: %s' % exc.recipe)
-            self.shutdown(clean=False)
+            self.shutdown(clean=False, force=True)
             return False
         except ParsingFailure as exc:
             self.error += 1
             logger.error('Unable to parse %s: %s' %
                      (exc.recipe, bb.exceptions.to_string(exc.realexception)))
-            self.shutdown(clean=False)
+            self.shutdown(clean=False, force=True)
             return False
         except bb.parse.ParseError as exc:
             self.error += 1
             logger.error(str(exc))
-            self.shutdown(clean=False)
+            self.shutdown(clean=False, force=True)
             return False
         except bb.data_smart.ExpansionError as exc:
             self.error += 1
@@ -2231,7 +2245,7 @@ class CookerParser(object):
             tb = list(itertools.dropwhile(lambda e: e.filename.startswith(bbdir), exc.traceback))
             logger.error('ExpansionError during parsing %s', value.recipe,
                          exc_info=(etype, value, tb))
-            self.shutdown(clean=False)
+            self.shutdown(clean=False, force=True)
             return False
         except Exception as exc:
             self.error += 1
@@ -2243,7 +2257,7 @@ class CookerParser(object):
                 # Most likely, an exception occurred during raising an exception
                 import traceback
                 logger.error('Exception during parse: %s' % traceback.format_exc())
-            self.shutdown(clean=False)
+            self.shutdown(clean=False, force=True)
             return False
 
         self.current += 1
