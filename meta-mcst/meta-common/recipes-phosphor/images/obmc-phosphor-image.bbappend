@@ -65,7 +65,6 @@ OBMC_IMAGE_EXTRA_INSTALL_append = " \
   rawi2ctool \
   net-initial \
   glibc-utils \
-  mc mc-fish mc-helpers mc-helpers-perl mc-locale-ru \
   overheatd \
   autofs \
   htop \
