@@ -28,6 +28,8 @@ DEPENDS += " \
         cli11 \
         "
 
+EXTRA_OEMESON += "-Dtests=disabled"
+
 FILES_${PN} += "${base_libdir}/systemd/system/xyz.openbmc_project.Hwmon@.service"
 RDEPENDS_${PN} += "\
         bash \
@@ -43,7 +45,7 @@ RDEPENDS_max31785-msl = "${VIRTUAL-RUNTIME_base-utils} i2c-tools bash"
 
 SRC_URI += "git://github.com/openbmc/phosphor-hwmon"
 
-SRCREV = "e32ce16bb6cc527b2e46b6e90ef7ac47404da173"
+SRCREV = "04da055198fe03f119e53578ac80a6188461b748"
 
 S = "${WORKDIR}/git"
 

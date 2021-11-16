@@ -65,7 +65,7 @@ class QemuRunner:
         self.boot_patterns = boot_patterns
         self.tmpfsdir = tmpfsdir
 
-        self.runqemutime = 120
+        self.runqemutime = 300
         if not workdir:
             workdir = os.getcwd()
         self.qemu_pidfile = workdir + '/pidfile_' + str(os.getpid())
@@ -73,6 +73,8 @@ class QemuRunner:
         self.monitorpipe = None
 
         self.logger = logger
+        # Whether we're expecting an exit and should show related errors
+        self.canexit = False
 
         # Enable testing other OS's
         # Set commands for target communication, and default to Linux ALWAYS
@@ -190,6 +192,12 @@ class QemuRunner:
         qmp_file = "." + next(tempfile._get_candidate_names())
         qmp_param = ' -S -qmp unix:./%s,server,wait' % (qmp_file)
         qmp_port = self.tmpdir + "/" + qmp_file
+        # Create a second socket connection for debugging use, 
+        # note this will NOT cause qemu to block waiting for the connection
+        qmp_file2 = "." + next(tempfile._get_candidate_names())
+        qmp_param += ' -qmp unix:./%s,server,nowait' % (qmp_file2)
+        qmp_port2 = self.tmpdir + "/" + qmp_file2
+        self.logger.info("QMP Available for connection at %s" % (qmp_port2))
 
         try:
             if self.serial_ports >= 2:
@@ -275,14 +283,33 @@ class QemuRunner:
 
         if self.runqemu_exited:
             self.logger.warning("runqemu after timeout")
-            return False
 
         if self.runqemu.returncode:
             self.logger.warning('runqemu exited with code %d' % self.runqemu.returncode)
-            return False
 
         if not self.is_alive():
-            self.logger.warning('is_alive() failed later')
+            self.logger.error("Qemu pid didn't appear in %s seconds (%s)" %
+                              (self.runqemutime, time.strftime("%D %H:%M:%S")))
+
+            qemu_pid = None
+            if os.path.isfile(self.qemu_pidfile):
+                with open(self.qemu_pidfile, 'r') as f:
+                    qemu_pid = f.read().strip()
+
+            self.logger.error("Status information, poll status: %s, pidfile exists: %s, pidfile contents %s, proc pid exists %s"
+                % (self.runqemu.poll(), os.path.isfile(self.qemu_pidfile), str(qemu_pid), os.path.exists("/proc/" + str(qemu_pid))))
+
+            # Dump all processes to help us to figure out what is going on...
+            ps = subprocess.Popen(['ps', 'axww', '-o', 'pid,ppid,pri,ni,command '], stdout=subprocess.PIPE).communicate()[0]
+            processes = ps.decode("utf-8")
+            self.logger.debug("Running processes:\n%s" % processes)
+            self._dump_host()
+            op = self.getOutput(output)
+            self.stop()
+            if op:
+                self.logger.error("Output from runqemu:\n%s" % op)
+            else:
+                self.logger.error("No output from runqemu.\n")
             return False
 
         # Create the client socket for the QEMU Monitor Control Socket
@@ -321,33 +348,25 @@ class QemuRunner:
         finally:
             os.chdir(origpath)
 
-        # Release the qemu porcess to continue running
+        # We worry that mmap'd libraries may cause page faults which hang the qemu VM for periods
+        # causing failures. Before we "start" qemu, read through it's mapped files to try and 
+        # ensure we don't hit page faults later
+        mapdir = "/proc/" + str(self.qemupid) + "/map_files/"
+        try:
+            for f in os.listdir(mapdir):
+                linktarget = os.readlink(os.path.join(mapdir, f))
+                if not linktarget.startswith("/") or linktarget.startswith("/dev") or "deleted" in linktarget:
+                    continue
+                with open(linktarget, "rb") as readf:
+                    data = True
+                    while data:
+                        data = readf.read(4096)
+        # Centos7 doesn't allow us to read /map_files/
+        except PermissionError:
+            pass
+
+        # Release the qemu process to continue running
         self.run_monitor('cont')
-
-        if not self.is_alive():
-            self.logger.error("Qemu pid didn't appear in %s seconds (%s)" %
-                              (self.runqemutime, time.strftime("%D %H:%M:%S")))
-
-            qemu_pid = None
-            if os.path.isfile(self.qemu_pidfile):
-                with open(self.qemu_pidfile, 'r') as f:
-                    qemu_pid = f.read().strip()
-
-            self.logger.error("Status information, poll status: %s, pidfile exists: %s, pidfile contents %s, proc pid exists %s"
-                % (self.runqemu.poll(), os.path.isfile(self.qemu_pidfile), str(qemu_pid), os.path.exists("/proc/" + str(qemu_pid))))
-
-            # Dump all processes to help us to figure out what is going on...
-            ps = subprocess.Popen(['ps', 'axww', '-o', 'pid,ppid,pri,ni,command '], stdout=subprocess.PIPE).communicate()[0]
-            processes = ps.decode("utf-8")
-            self.logger.debug("Running processes:\n%s" % processes)
-            self._dump_host()
-            op = self.getOutput(output)
-            self.stop()
-            if op:
-                self.logger.error("Output from runqemu:\n%s" % op)
-            else:
-                self.logger.error("No output from runqemu.\n")
-            return False
 
         # We are alive: qemu is running
         out = self.getOutput(output)
@@ -543,6 +562,7 @@ class QemuRunner:
             self.thread.join()
 
     def allowexit(self):
+        self.canexit = True
         if self.thread:
             self.thread.allowexit()
 
@@ -604,7 +624,9 @@ class QemuRunner:
                     if re.search(self.boot_patterns['search_cmd_finished'], data):
                         break
                 else:
-                    raise Exception("No data on serial console socket")
+                    if self.canexit:
+                        return (1, "")
+                    raise Exception("No data on serial console socket, connection closed?")
 
         if data:
             if raw:
@@ -724,7 +746,7 @@ class LoggingThread(threading.Thread):
             data = self.readsock.recv(count)
         except socket.error as e:
             if e.errno == errno.EAGAIN or e.errno == errno.EWOULDBLOCK:
-                return ''
+                return b''
             else:
                 raise
 
@@ -737,7 +759,7 @@ class LoggingThread(threading.Thread):
             # until qemu exits.
             if not self.canexit:
                 raise Exception("Console connection closed unexpectedly")
-            return ''
+            return b''
 
         return data
 

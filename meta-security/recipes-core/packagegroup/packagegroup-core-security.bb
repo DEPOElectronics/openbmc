@@ -37,10 +37,10 @@ RDEPENDS_packagegroup-security-utils = "\
     pinentry \
     python3-privacyidea \
     python3-fail2ban \
-    python3-scapy \
     softhsm \
     libest \
     opendnssec \
+    sshguard \
     ${@bb.utils.contains_any("TUNE_FEATURES", "riscv32 ", "", " libseccomp",d)} \
     ${@bb.utils.contains("DISTRO_FEATURES", "pam", "sssd google-authenticator-libpam", "",d)} \
     ${@bb.utils.contains("DISTRO_FEATURES", "pax", "pax-utils packctl", "",d)} \
@@ -51,9 +51,9 @@ RDEPENDS_packagegroup-security-scanners = "\
     isic \
     nikto \
     checksecurity \
-    ${@bb.utils.contains_any("TUNE_FEATURES", "riscv32 riscv64", "", " clamav clamav-freshclam",d)} \
+    ${@bb.utils.contains_any("TUNE_FEATURES", "riscv32 riscv64", "", " clamav clamav-daemon clamav-freshclam",d)} \
     "
-RDEPENDS_packagegroup-security-scanners_remove_libc-musl = "clamav clamav-freshclam"
+RDEPENDS_packagegroup-security-scanners_remove_libc-musl = "clamav clamav-daemon clamav-freshclam"
 
 SUMMARY_packagegroup-security-audit = "Security Audit tools "
 RDEPENDS_packagegroup-security-audit = " \
@@ -68,10 +68,13 @@ RDEPENDS_packagegroup-security-hardening = " \
 
 SUMMARY_packagegroup-security-ids = "Security Intrusion Detection systems"
 RDEPENDS_packagegroup-security-ids = " \
-    tripwire \
     samhain-standalone \
     ${@bb.utils.contains_any("TUNE_FEATURES", "ppc7400 riscv32 riscv64", "", " suricata",d)} \
+    ossec-hids \
+    aide \
     "
+
+RDEPENDS_packagegroup-security-ids_remove_libc-musl = "ossec-hids"
 
 SUMMARY_packagegroup-security-mac = "Security Mandatory Access Control systems"
 RDEPENDS_packagegroup-security-mac = " \
@@ -80,16 +83,13 @@ RDEPENDS_packagegroup-security-mac = " \
     ${@bb.utils.contains("DISTRO_FEATURES", "smack", "smack", "",d)} \
     "
 
-RDEPENDS_packagegroup-security-mac_remove_mips64 = "apparmor"
-RDEPENDS_packagegroup-security-mac_remove_mips64le = "apparmor"
+RDEPENDS_packagegroup-security-mac_remove_mipsarch = "apparmor"
 
 RDEPENDS_packagegroup-meta-security-ptest-packages = "\
     ptest-runner \
     samhain-standalone-ptest \
     libseccomp-ptest \
-    python3-scapy-ptest \
     suricata-ptest \
-    tripwire-ptest \
     python3-fail2ban-ptest \
     ${@bb.utils.contains("DISTRO_FEATURES", "smack", "smack-ptest", "",d)} \
 "

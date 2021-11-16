@@ -104,7 +104,7 @@ patch, or BSP:
       repository organized under the "Yocto Linux Kernel" heading in the
       :yocto_git:`Yocto Project Source Repositories <>`.
 
-   -  Areas pointed to by ``SRC_URI`` statements found in kernel recipes.
+   -  Areas pointed to by :term:`SRC_URI` statements found in kernel recipes.
 
    For a typical build, the target of the search is a feature
    description in an ``.scc`` file whose name follows this format (e.g.
@@ -175,7 +175,7 @@ Build Strategy
 Once you have cloned a Yocto Linux kernel repository and the cache
 repository (``yocto-kernel-cache``) onto your development system, you
 can consider the compilation phase of kernel development, which is
-building a kernel image. Some prerequisites exist that are validated by
+building a kernel image. Some prerequisites are validated by
 the build process before compilation starts:
 
 -  The :term:`SRC_URI` points to the
@@ -194,7 +194,7 @@ the build process before compilation starts:
       In the previous example, the "yocto-4.12" branch is checked out in
       the ``yocto-kernel-cache`` repository.
 
-The OpenEmbedded build system makes sure these conditions exist before
+The OpenEmbedded build system makes sure these conditions are satisfied before
 attempting compilation. Other means, however, do exist, such as
 bootstrapping a BSP.
 

@@ -7,7 +7,7 @@ Kernel Development FAQ
 Common Questions and Solutions
 ==============================
 
-The following lists some solutions for common questions.
+Here are some solutions for common questions.
 
 How do I use my own Linux kernel ``.config`` file?
 --------------------------------------------------
@@ -68,7 +68,7 @@ How do I change the Linux kernel command line?
 ----------------------------------------------
 
 The Linux kernel command line is
-typically specified in the machine config using the ``APPEND`` variable.
+typically specified in the machine config using the :term:`APPEND` variable.
 For example, you can add some helpful debug information doing the
 following::
 

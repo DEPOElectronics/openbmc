@@ -128,8 +128,17 @@ set_hdd_prsnt() {
   fi
 }
 
-KERNEL_FIU_ID="c0000000.fiu"
+KERNEL_FIU_ID="c0000000.spi"
 KERNEL_SYSFS_FIU="/sys/bus/platform/drivers/NPCM-FIU"
+
+# the node of FIU is spi for kernel 5.10, but
+# for less than or equal kernel 5.4, the node
+# is fiu
+shopt -s nullglob
+for fiu in "$KERNEL_SYSFS_FIU"/*.fiu; do
+  KERNEL_FIU_ID="c0000000.fiu"
+  break
+done
 
 bind_host_mtd() {
   set_gpio_direction 'SPI_SW_SELECT' high
@@ -173,13 +182,6 @@ verify_host_bios() {
   unbind_host_mtd
 }
 
-reset_phy() {
-  ifconfig eth1 down
-  set_gpio_direction 'RST_BMC_PHY_N' low
-  set_gpio_direction 'RST_BMC_PHY_N' high
-  ifconfig eth1 up
-}
-
 parse_pe_fru() {
   pe_fruid=3
   for i in {1..2};
@@ -219,10 +221,18 @@ parse_pe_fru() {
 }
 
 check_power_status() {
-    res0="$(busctl get-property -j xyz.openbmc_project.State.Chassis \
+    res0="$(busctl get-property -j xyz.openbmc_project.State.Chassis0 \
         /xyz/openbmc_project/state/chassis0 xyz.openbmc_project.State.Chassis \
         CurrentPowerState | jq -r '.["data"]')"
     echo $res0
+}
+
+clk_buf_bus_switch="11-0076"
+clk_buf_driver="/sys/bus/i2c/drivers/pca954x/"
+
+bind_clk_buf_switch() {
+  echo "Re-bind i2c bus 11 clk_buf_switch"
+  echo "${clk_buf_bus_switch}" > "${clk_buf_driver}"/bind
 }
 
 main() {
@@ -238,8 +248,6 @@ main() {
 
   check_board_sku
 
-  reset_phy
-
   if [[ $(check_power_status) != \
        'xyz.openbmc_project.State.Chassis.PowerState.On' ]]; then
     verify_host_bios
@@ -252,11 +260,14 @@ main() {
     set_gpio_persistence
 
     echo "Starting host power!" >&2
-    busctl set-property xyz.openbmc_project.State.Host \
+    busctl set-property xyz.openbmc_project.State.Host0 \
         /xyz/openbmc_project/state/host0 \
         xyz.openbmc_project.State.Host \
         RequestedHostTransition s \
         xyz.openbmc_project.State.Host.Transition.On
+
+    sleep 1
+    bind_clk_buf_switch
   else
     echo "Host is already running, doing nothing!" >&2
   fi

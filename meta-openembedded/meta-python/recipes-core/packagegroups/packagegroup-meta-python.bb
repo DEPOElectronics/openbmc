@@ -34,10 +34,12 @@ RDEPENDS_packagegroup-meta-python3 = "\
     python3-arpeggio \
     python3-asciitree \
     python3-asn1crypto \
+    python3-aspectlib \
     python3-astor \
     python3-astroid \
     python3-asttokens \
     python3-async-timeout \
+    python3-asyncio-glib \
     python3-attr \
     python3-autobahn \
     python3-automat \
@@ -113,10 +115,13 @@ RDEPENDS_packagegroup-meta-python3 = "\
     python3-engineio \
     python3-et-xmlfile \
     python3-evdev \
+    python3-execnet \
     python3-fann2 \
     python3-fasteners \
+    python3-fastjsonschema \
     python3-fastnumbers \
     python3-feedformatter \
+    python3-fields \
     python3-flask \
     python3-flask-babel \
     python3-flask-bootstrap \
@@ -140,6 +145,7 @@ RDEPENDS_packagegroup-meta-python3 = "\
     python3-future \
     python3-gast \
     python3-geojson \
+    python3-geomet \
     python3-gevent \
     python3-gmpy2 \
     python3-gmqtt \
@@ -191,6 +197,7 @@ RDEPENDS_packagegroup-meta-python3 = "\
     python3-jdcal \
     python3-jedi \
     python3-jmespath \
+    python3-joblib \
     python3-jsmin \
     python3-jsonpatch \
     python3-jsonpath-rw \
@@ -215,7 +222,6 @@ RDEPENDS_packagegroup-meta-python3 = "\
     python3-lxml \
     python3-lz4 \
     python3-m2crypto \
-    python3-markdown \
     python3-markupsafe \
     python3-matplotlib \
     python3-mccabe \
@@ -274,12 +280,14 @@ RDEPENDS_packagegroup-meta-python3 = "\
     python3-pretend \
     python3-prettytable \
     python3-priority \
+    python3-process-tests \
     python3-progress \
     python3-prompt-toolkit \
     python3-protobuf \
     python3-psutil \
     python3-ptyprocess \
     python3-pulsectl \
+    python3-py-cpuinfo \
     python3-py-ubjson \
     python3-pyalsaaudio \
     python3-pyasn1 \
@@ -290,6 +298,7 @@ RDEPENDS_packagegroup-meta-python3 = "\
     python3-pybind11-json \
     python3-pybluez \
     python3-pychromecast \
+    python3-pycocotools \
     python3-pycodestyle \
     python3-pyconnman \
     python3-pycparser \
@@ -331,6 +340,8 @@ RDEPENDS_packagegroup-meta-python3 = "\
     python3-pystache \
     python3-pystemd \
     python3-pytest-asyncio \
+    python3-pytest-benchmark \
+    python3-pytest-cache \
     python3-pytest-helpers-namespace \
     python3-pytest-html \
     python3-pytest-metadata \
@@ -366,7 +377,6 @@ RDEPENDS_packagegroup-meta-python3 = "\
     python3-robotframework-seriallibrary \
     python3-rsa \
     python3-ruamel-yaml \
-    python3-scapy \
     python3-scrypt \
     python3-sdnotify \
     python3-semver \

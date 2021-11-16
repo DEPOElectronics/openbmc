@@ -11,6 +11,8 @@ SRC_URI = "git://github.com/ossec/ossec-hids;branch=master \
 
 SRCREV = "1303c78e2c67d7acee0508cb00c3bc63baaa27c2"
 
+UPSTREAM_CHECK_COMMITS = "1"
+
 inherit autotools-brokensep  useradd
 
 S = "${WORKDIR}/git"
@@ -159,3 +161,5 @@ USERADD_PARAM_${PN} = "--system --home-dir /var/ossec -g ossec --shell /bin/fals
 GROUPADD_PARAM_${PN} = "--system ossec"
 
 RDEPENDS_${PN} = "openssl bash"
+
+COMPATIBLE_HOST_libc-musl = "null"

@@ -10,6 +10,7 @@ SRC_URI = "http://dovecot.org/releases/2.3/dovecot-${PV}.tar.gz \
            file://dovecot.service \
            file://dovecot.socket \
            file://0001-not-check-pandoc.patch \
+           file://0001-m4-Check-for-libunwind-instead-of-libunwind-generic.patch \
            "
 
 SRC_URI[md5sum] = "2f03532cec3280ae45a101a7a55ccef5"
@@ -71,3 +72,6 @@ FILES_${PN} += "${libdir}/dovecot/*plugin.so \
 FILES_${PN}-staticdev += "${libdir}/dovecot/*/*.a"
 FILES_${PN}-dev += "${libdir}/dovecot/libdovecot*.so"
 FILES_${PN}-dbg += "${libdir}/dovecot/*/.debug"
+
+# CVE-2016-4983 affects only postinstall script on specific distribution
+CVE_CHECK_WHITELIST += "CVE-2016-4983"

@@ -2,15 +2,13 @@
 
 [![Build Status](https://openpower.xyz/buildStatus/icon?job=openbmc-build)](https://openpower.xyz/job/openbmc-build/)
 
-The OpenBMC project can be described as a Linux distribution for embedded
-devices that have a BMC; typically, but not limited to, things like servers,
-top of rack switches or RAID appliances. The OpenBMC stack uses technologies
-such as [Yocto](https://www.yoctoproject.org/),
+OpenBMC is a Linux distribution for management controllers used in devices such
+as servers, top of rack switches or RAID appliances. It uses
+[Yocto](https://www.yoctoproject.org/),
 [OpenEmbedded](https://www.openembedded.org/wiki/Main_Page),
 [systemd](https://www.freedesktop.org/wiki/Software/systemd/), and
 [D-Bus](https://www.freedesktop.org/wiki/Software/dbus/) to allow easy
-customization for your server platform.
-
+customization for your platform.
 
 ## Setting up your OpenBMC project
 
@@ -63,7 +61,7 @@ zaius
 Once you know the target (e.g. romulus), source the `setup` script as follows:
 
 ```
-. setup romulus build
+. setup romulus
 ```
 
 For evb-ast2500, please use the below command to specify the machine config,
