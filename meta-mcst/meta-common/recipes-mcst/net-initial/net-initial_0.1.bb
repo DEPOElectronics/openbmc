@@ -36,4 +36,4 @@ do_install() {
   echo "FRUID_SOURCE=${FRUID_SOURCE}" > ${D}/etc/reimu_fruid.conf
 }
 
-FILES_${PN} = "${CONFDIR} /etc/reimu_fruid.conf /libexec ${systemd_system_unitdir}"
+FILES:${PN} = "${CONFDIR} /etc/reimu_fruid.conf /libexec ${systemd_system_unitdir}"

@@ -32,4 +32,4 @@ do_install() {
   install -m 644 fallback-eth1.conf ${D}/etc/ip-fallback/
 }
 
-FILES_${PN} = "/etc/ip-fallback /libexec ${systemd_system_unitdir}"
+FILES:${PN} = "/etc/ip-fallback /libexec ${systemd_system_unitdir}"

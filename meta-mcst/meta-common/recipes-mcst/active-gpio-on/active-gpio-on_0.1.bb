@@ -27,4 +27,4 @@ do_install() {
   install -m 644 active-gpio-on.service ${D}${systemd_system_unitdir}
 }
 
-FILES_${PN} = "/libexec ${systemd_system_unitdir}"
+FILES:${PN} = "/libexec ${systemd_system_unitdir}"

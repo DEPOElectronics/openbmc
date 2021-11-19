@@ -13,4 +13,4 @@ SRC_URI = " \
 
 S = "${WORKDIR}"
 
-RPROVIDES_${PN} += "kernel-module-tinyspi"
+RPROVIDES:${PN} += "kernel-module-tinyspi"

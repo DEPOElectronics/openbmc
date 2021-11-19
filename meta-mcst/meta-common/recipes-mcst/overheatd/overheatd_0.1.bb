@@ -24,7 +24,7 @@ SRC_URI = " \
 
 S = "${WORKDIR}"
 
-do_install_append() {
+do_install:append() {
   install -d ${D}/usr/bin
   install -d ${D}/usr/sbin
   install -d ${D}${systemd_system_unitdir}
@@ -34,4 +34,4 @@ do_install_append() {
   install -m 644 overheatd.service ${D}${systemd_system_unitdir}
 }
 
-FILES_${PN} = "/usr/bin /usr/sbin ${systemd_system_unitdir}"
+FILES:${PN} = "/usr/bin /usr/sbin ${systemd_system_unitdir}"

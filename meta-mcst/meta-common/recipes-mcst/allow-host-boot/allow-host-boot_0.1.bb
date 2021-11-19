@@ -9,7 +9,7 @@ inherit systemd
 inherit features_check
 
 REQUIRED_DISTRO_FEATURES = "systemd"
-RDEPENDS_${PN} += "systemd bash gpio-funcs buttonscripts kernel-module-tinyspi"
+RDEPENDS:${PN} += "systemd bash gpio-funcs buttonscripts kernel-module-tinyspi"
 SYSTEMD_SERVICE_${PN} = "allow_host_boot.service"
 
 SRC_URI = " \
@@ -30,4 +30,4 @@ do_install() {
   install -m 644 ${S}/auto_power_on ${D}/etc
 }
 
-FILES_${PN} = "/libexec ${systemd_system_unitdir} /etc"
+FILES:${PN} = "/libexec ${systemd_system_unitdir} /etc"

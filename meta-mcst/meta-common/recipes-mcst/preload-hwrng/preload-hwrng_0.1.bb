@@ -10,4 +10,4 @@ do_install() {
   install -d ${D}/etc/modules-load.d
   install -m 644 timeriomem_rng.conf ${D}/etc/modules-load.d
 }
-FILES_${PN} = "/etc"
+FILES:${PN} = "/etc"

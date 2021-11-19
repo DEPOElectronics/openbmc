@@ -42,4 +42,4 @@ do_install() {
   install -m 755 update-host-flash ${D}/usr/sbin/
 }
 
-FILES_${PN} = "/usr/sbin/ /libexec"
+FILES:${PN} = "/usr/sbin/ /libexec"

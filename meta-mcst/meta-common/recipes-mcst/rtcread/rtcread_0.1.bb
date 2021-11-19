@@ -31,4 +31,4 @@ do_install() {
   install -m 755 find_i2c_device-module ${D}/libexec
 }
 
-FILES_${PN} = "/libexec ${systemd_system_unitdir}"
+FILES:${PN} = "/libexec ${systemd_system_unitdir}"

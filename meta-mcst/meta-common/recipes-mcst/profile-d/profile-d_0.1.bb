@@ -18,4 +18,4 @@ do_install() {
   install -m 644 exportvars ${D}${CONFDIR}/etc/profile.d/00-exportvars.sh
 }
 
-FILES_${PN} = "/etc/profile.d"
+FILES:${PN} = "/etc/profile.d"

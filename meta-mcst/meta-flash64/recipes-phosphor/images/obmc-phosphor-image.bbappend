@@ -23,7 +23,7 @@ OBMC_KERNEL_MODULES_64M = " \
   "
 
 
-OBMC_IMAGE_EXTRA_INSTALL_append += " \
+OBMC_IMAGE_EXTRA_INSTALL:append += " \
   ${OBMC_KERNEL_MODULES_64M} \
   perf \
   tcpdump \

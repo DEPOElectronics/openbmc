@@ -17,4 +17,4 @@ do_install() {
   install -m 755 astclkinfo ${D}/usr/bin
 }
 
-FILES_${PN} = "/usr/bin"
+FILES:${PN} = "/usr/bin"

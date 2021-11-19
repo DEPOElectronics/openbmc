@@ -13,4 +13,4 @@ SRC_URI = " \
 
 S = "${WORKDIR}"
 
-RPROVIDES_${PN} += "kernel-module-l-pcs-i2c"
+RPROVIDES:${PN} += "kernel-module-l-pcs-i2c"

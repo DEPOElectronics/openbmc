@@ -22,11 +22,11 @@ SRC_URI = " \
 
 S = "${WORKDIR}"
 
-do_install_append() {
+do_install:append() {
   install -d ${D}/sbin
   install -d ${D}${systemd_system_unitdir}
   install -m 755 hwmon-instantiator ${D}/sbin
   install -m 644 hwmon-instantiator.service ${D}${systemd_system_unitdir}
 }
 
-FILES_${PN} = "/sbin ${systemd_system_unitdir}"
+FILES:${PN} = "/sbin ${systemd_system_unitdir}"

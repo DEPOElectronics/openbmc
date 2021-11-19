@@ -25,4 +25,4 @@ do_install() {
   install -m 644 gpiotab gpiotab.2400 gpiotab.2500 gpiotab.2600 gpiotab.common ${D}/etc
 }
 
-FILES_${PN} = " /libexec /etc "
+FILES:${PN} = " /libexec /etc "

@@ -22,5 +22,5 @@ do_install() {
   install -m 755 rawi2ctool ${bin}/rawi2ctool
 }
 
-FILES_${PN} = "/usr/bin"
+FILES:${PN} = "/usr/bin"
 

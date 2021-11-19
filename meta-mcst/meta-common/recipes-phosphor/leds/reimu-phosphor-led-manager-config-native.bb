@@ -7,7 +7,7 @@ inherit obmc-phosphor-utils
 inherit native
 
 PROVIDES += "virtual/phosphor-led-manager-config-native"
-FILESEXTRAPATHS_prepend := "${THISDIR}:"
+FILESEXTRAPATHS:prepend := "${THISDIR}:"
 SRC_URI += "file://led.yaml"
 S = "${WORKDIR}"
 

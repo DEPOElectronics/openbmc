@@ -43,11 +43,11 @@ ROOTFS_POSTPROCESS_COMMAND += "do_alter_dates; "
 OBMC_KERNEL_MODULES = " \
   kernel-module-rng-core \
   kernel-module-timeriomem-rng \
-  kernel-module-l-pcs-i2c \
+  l-pcs-i2c \
   kernel-module-tinyspi \
   "
 
-OBMC_IMAGE_EXTRA_INSTALL_append = " \
+OBMC_IMAGE_EXTRA_INSTALL:append = " \
   ${OBMC_KERNEL_MODULES} \
   active-gpio-on \
   allow-host-boot \
@@ -75,5 +75,5 @@ OBMC_IMAGE_EXTRA_INSTALL_append = " \
   revert-to-mfg \
   "
 
-IMAGE_FEATURES_remove = "ssh-server-dropbear"
-IMAGE_FEATURES_remove = "phosphor-state-manager-chassis"
+IMAGE_FEATURES:remove = "ssh-server-dropbear"
+IMAGE_FEATURES:remove = "phosphor-state-manager-chassis"

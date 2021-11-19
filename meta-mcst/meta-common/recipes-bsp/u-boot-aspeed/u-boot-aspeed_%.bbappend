@@ -1,2 +1,2 @@
-FILESEXTRAPATHS_prepend := "${THISDIR}:"
+FILESEXTRAPATHS:prepend := "${THISDIR}:"
 SRC_URI += " file://0001-set-required-gpios.patch "

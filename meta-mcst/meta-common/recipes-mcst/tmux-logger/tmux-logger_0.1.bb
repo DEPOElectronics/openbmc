@@ -43,4 +43,4 @@ do_install() {
   ln -s /var/log/sol.log ${D}/usr/log/current
 }
 
-FILES_${PN} = "/etc /libexec /usr/log ${systemd_system_unitdir} ${systemd_unitdir}/journald.conf.d"
+FILES:${PN} = "/etc /libexec /usr/log ${systemd_system_unitdir} ${systemd_unitdir}/journald.conf.d"
