@@ -10,7 +10,7 @@ inherit features_check
 
 DEPENDS = "libreimu"
 REQUIRED_DISTRO_FEATURES = "systemd"
-RDEPENDS_${PN} += "systemd bash phosphor-hwmon"
+RDEPENDS:${PN} += "systemd bash phosphor-hwmon"
 SYSTEMD_SERVICE_${PN} = "hwmon-instantiator.service"
 
 SRC_URI = " \

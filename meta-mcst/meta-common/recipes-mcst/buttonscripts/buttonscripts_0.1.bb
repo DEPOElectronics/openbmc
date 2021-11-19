@@ -40,4 +40,4 @@ do_install() {
 
 FILES:${PN} = "/usr/bin /libexec ${systemd_system_unitdir}"
 
-RDEPENDS_${PN} += "systemd gpio-funcs"
+RDEPENDS:${PN} += "systemd gpio-funcs"

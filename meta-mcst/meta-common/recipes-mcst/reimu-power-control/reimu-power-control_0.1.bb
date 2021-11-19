@@ -10,7 +10,7 @@ inherit features_check
 
 DEPENDS = "pkgconfig-native libgpiod dbus libreimu"
 REQUIRED_DISTRO_FEATURES = "systemd"
-RDEPENDS_${PN} += "systemd gpio-funcs"
+RDEPENDS:${PN} += "systemd gpio-funcs"
 SYSTEMD_SERVICE_${PN} = "reimupwr.service"
 
 SRC_URI = " \

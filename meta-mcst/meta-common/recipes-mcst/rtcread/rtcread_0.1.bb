@@ -10,7 +10,7 @@ inherit features_check
 
 DEPENDS = "libreimu"
 REQUIRED_DISTRO_FEATURES = "systemd"
-RDEPENDS_${PN} += "systemd bash busybox"
+RDEPENDS:${PN} += "systemd bash busybox"
 SYSTEMD_SERVICE_${PN} = "rtcread.service"
 
 SRC_URI = "file://rtcread \

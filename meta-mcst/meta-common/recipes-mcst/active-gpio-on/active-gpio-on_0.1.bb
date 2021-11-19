@@ -9,7 +9,7 @@ inherit systemd
 inherit features_check
 
 REQUIRED_DISTRO_FEATURES = "systemd"
-RDEPENDS_${PN} += "systemd bash gpio-funcs"
+RDEPENDS:${PN} += "systemd bash gpio-funcs"
 SYSTEMD_SERVICE_${PN} = "active-gpio-on.service"
 
 SRC_URI = " \

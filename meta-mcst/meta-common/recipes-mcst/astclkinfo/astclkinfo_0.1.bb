@@ -8,7 +8,7 @@ LIC_FILES_CHKSUM = "file://LICENSE;md5=b234ee4d69f5fce4486a80fdaf4a4263"
 SRC_URI = "git://github.com/makise-homura/astclkinfo.git;protocol=https"
 SRCREV = "${AUTOREV}"
 
-RDEPENDS_${PN} += "bash busybox"
+RDEPENDS:${PN} += "bash busybox"
 
 S = "${WORKDIR}/git"
 
