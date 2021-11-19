@@ -6,7 +6,7 @@ LICENSE = "Apache-2.0"
 LIC_FILES_CHKSUM = "file://LICENSE;md5=e3fc50a88d0a364313df4b21ef20c29e"
 
 SRC_URI = "git://github.com/openbmc/webui-vue.git"
-SRCREV = "c000265df8ad027b36d13c6f9dcbd6f347533bcb"
+SRCREV = "aaff26ef8262df7d6b5bfdd5da52b75a158a4ec5"
 S = "${WORKDIR}/git"
 
 DEPENDS:prepend = "nodejs-native nlf-native "
@@ -30,11 +30,13 @@ export CXXFLAGS = "${BUILD_CXXFLAGS}"
 
 FILES:${PN} += "${datadir}/www/*"
 
+EXTRA_OENPM ?= ""
+
 do_compile () {
     cd ${S}
     rm -rf node_modules
     npm --loglevel info --proxy=${http_proxy} --https-proxy=${https_proxy} install
-    npm run build
+    npm run build ${EXTRA_OENPM}
 }
 
 do_install () {

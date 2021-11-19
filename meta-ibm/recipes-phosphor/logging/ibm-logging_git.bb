@@ -6,7 +6,7 @@ HOMEPAGE = "https://github.com/openbmc/ibm-logging"
 LICENSE = "Apache-2.0"
 LIC_FILES_CHKSUM = "file://${S}/LICENSE;md5=86d3f3a95c324c9479bd8986968f4327"
 SRC_URI += "git://github.com/openbmc/ibm-logging"
-SRCREV = "074d53b723a26a50b628387c635a97c730555bce"
+SRCREV = "1eb63675af793e9c183c89afdb6e0d5a428b727d"
 
 inherit autotools
 inherit pkgconfig
@@ -41,7 +41,7 @@ DBUS_SERVICE:${PN} += "${SERVICE}"
 #The BindsTo in the service will not do the restart, it will only do the
 #original start and a stop.
 LOG_FMT = "../${SERVICE}:xyz.openbmc_project.Logging.service.wants/${SERVICE}"
-SYSTEMD_LINK_${PN} += "${LOG_FMT}"
+SYSTEMD_LINK:${PN} += "${LOG_FMT}"
 
 do_install:append(){
 
