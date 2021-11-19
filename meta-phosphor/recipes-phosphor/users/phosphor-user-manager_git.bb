@@ -31,10 +31,15 @@ FILES:phosphor-ldap += " \
         ${bindir}/phosphor-ldap-conf \
         ${bindir}/phosphor-ldap-mapper \
 "
+FILES:${PN} += " \
+        ${base_libdir}/systemd \
+        ${datadir}/dbus-1 \
+        ${datadir}/phosphor-certificate-manager \
+"
 DBUS_SERVICE:phosphor-ldap = " \
         xyz.openbmc_project.Ldap.Config.service \
         xyz.openbmc_project.LDAP.PrivilegeMapper.service \
 "
 SRC_URI += "git://github.com/openbmc/phosphor-user-manager"
-SRCREV = "a260f187436837aec493baef0a5e7063fe11ee92"
+SRCREV = "c0760c9109a0d847fd77d54c6b7948322a375d1d"
 S = "${WORKDIR}/git"
