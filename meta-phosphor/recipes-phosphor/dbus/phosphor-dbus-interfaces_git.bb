@@ -6,7 +6,7 @@ S = "${WORKDIR}/git"
 LICENSE = "Apache-2.0"
 LIC_FILES_CHKSUM = "file://LICENSE;md5=e3fc50a88d0a364313df4b21ef20c29e"
 
-inherit meson
+inherit pkgconfig meson
 inherit obmc-phosphor-utils
 inherit phosphor-dbus-yaml
 inherit python3native
@@ -18,7 +18,7 @@ DEPENDS += " \
         "
 
 SRC_URI = "git://github.com/openbmc/phosphor-dbus-interfaces"
-SRCREV = "77369cbb575c2867355c482fbc582df266daf2bf"
+SRCREV = "e0764cf41d16b823a519e9d4f508b588e3e84aba"
 
 # Process OBMC_ORG_YAML_SUBDIRS to create Meson config options.
 # ex. xyz/openbmc_project -> -Ddata_xyz_openbmc_project=true

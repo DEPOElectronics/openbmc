@@ -2,7 +2,7 @@ SUMMARY = "dbus-sensors"
 DESCRIPTION = "Dbus Sensor Services Configured from D-Bus"
 
 SRC_URI = "git://github.com/openbmc/dbus-sensors.git"
-SRCREV = "1dc85f51670dea67df5bb80c7328419f2eacec27"
+SRCREV = "cb5af73f5ddf48c5f9455f41a39b44517089352f"
 
 PV = "0.1+git${SRCPV}"
 
@@ -73,7 +73,7 @@ DEPENDS = " \
     phosphor-logging \
     sdbusplus \
     "
-inherit meson systemd
+inherit pkgconfig meson systemd
 
 S = "${WORKDIR}/git"
 
