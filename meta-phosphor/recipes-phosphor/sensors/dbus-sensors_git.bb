@@ -2,7 +2,7 @@ SUMMARY = "dbus-sensors"
 DESCRIPTION = "Dbus Sensor Services Configured from D-Bus"
 
 SRC_URI = "git://github.com/openbmc/dbus-sensors.git"
-SRCREV = "5cf0f99210890d0cd52d5929e919316d238a5701"
+SRCREV = "2932a7bb38e49ee79ec87114927b3d95a82f18cd"
 
 PV = "0.1+git${SRCPV}"
 
@@ -70,3 +70,4 @@ inherit meson systemd
 
 S = "${WORKDIR}/git"
 
+EXTRA_OEMESON:append = " -Dtests=disabled"

@@ -16,12 +16,12 @@ CHIPS:mtjade = " \
 
 ITEMSFMT = "ahb/apb/{0}.conf"
 
-ITEMS = "${@compose_list(d, 'ITEMSFMT', 'CHIPS_${MACHINE}')}"
+ITEMS = "${@compose_list(d, 'ITEMSFMT', 'CHIPS:${MACHINE}')}"
 
 ITEMS += "iio-hwmon.conf iio-hwmon-adc14.conf iio-hwmon-battery.conf"
 
 ENVS = "obmc/${MACHINE}/hwmon/{0}"
-SYSTEMD_ENVIRONMENT_FILE:${PN}:append:mtjade = " ${@compose_list(d, 'ENVS', 'ITEMS')}"
+SYSTEMD_ENVIRONMENT_FILE_${PN}:append:mtjade = " ${@compose_list(d, 'ENVS', 'ITEMS')}"
 
 do_install:append:mtjade() {
   SOURCEDIR="${WORKDIR}/obmc/${MACHINE}/hwmon"

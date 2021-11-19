@@ -12,7 +12,7 @@ DISTROOVERRIDES .= ":openbmc-phosphor"
 
 TCLIBCAPPEND = ""
 
-QEMU_TARGETS ?= "arm aarch64 i386 riscv32 riscv64 x86_64"
+QEMU_TARGETS ?= "arm aarch64 i386 riscv32 riscv64 ppc64le x86_64"
 
 PREMIRRORS ??= "\
 bzr://.*/.*   http://downloads.yoctoproject.org/mirror/sources/ \n \
@@ -99,8 +99,10 @@ DISTRO_FEATURES_DEFAULT = " \
         ipv4 \
         ipv6 \
         pam \
+        security \
         slp \
         systemd \
+        seccomp \
         "
 
 DISTRO_FEATURES += " \
