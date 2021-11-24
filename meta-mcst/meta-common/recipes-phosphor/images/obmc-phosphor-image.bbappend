@@ -41,6 +41,7 @@ do_rootfs[vardepsexclude] += "ISSUE_COMMIT"
 #ROOTFS_POSTPROCESS_COMMAND += "do_alter_dates; "
 
 OBMC_IMAGE_EXTRA_INSTALL:append = " \
+  webui-vue \
   "
 
 
