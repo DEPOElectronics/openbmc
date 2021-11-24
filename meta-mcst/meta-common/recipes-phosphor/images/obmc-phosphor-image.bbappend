@@ -38,43 +38,9 @@ do_alter_dates() {
 
 do_rootfs[vardepsexclude] += "ISSUE_COMMIT"
 
-ROOTFS_POSTPROCESS_COMMAND += "do_alter_dates; "
-
-OBMC_KERNEL_MODULES = " \
-  kernel-module-rng-core \
-  kernel-module-timeriomem-rng \
-  l-pcs-i2c \
-  kernel-module-tinyspi \
-  "
+#ROOTFS_POSTPROCESS_COMMAND += "do_alter_dates; "
 
 OBMC_IMAGE_EXTRA_INSTALL:append = " \
-  ${OBMC_KERNEL_MODULES} \
-  mtd-utils \
-  active-gpio-on \
-  allow-host-boot \
-  profile-d \
-  openssh \
-  buttonscripts \
-  glibc-localedata-en-us \
-  glibc-localedata-ru-ru \
-  glibc-binary-localedata-en-us \
-  glibc-binary-localedata-ru-ru \
-  wget \
-  firmware-updater \
-  i2c-tools \
-  rawi2ctool \
-  net-initial \
-  glibc-utils \
-  overheatd \
-  autofs \
-  mcst-fruid \
-  astclkinfo \
-  nfs-utils-client \
-  nss-pam-ldapd \
-  sysstat \
-  preload-hwrng \
-  revert-to-mfg \
   "
 
-IMAGE_FEATURES:remove = "ssh-server-dropbear"
-IMAGE_FEATURES:remove = "phosphor-state-manager-chassis"
+
