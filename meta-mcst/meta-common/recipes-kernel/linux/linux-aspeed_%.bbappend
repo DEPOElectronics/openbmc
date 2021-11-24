@@ -2,9 +2,7 @@ FILESEXTRAPATHS:prepend := "${THISDIR}/${PN}:"
 
 SRC_URI += " \
              file://reimu.cfg \
-             file://aspeed-bmc-mcst-ast2400.dtsi \
              file://aspeed-bmc-mcst-ast2500.dtsi \
-             file://aspeed-bmc-mcst-ast2600.dtsi \
            "
 
 # Merge source tree by original project with our layer of additional files

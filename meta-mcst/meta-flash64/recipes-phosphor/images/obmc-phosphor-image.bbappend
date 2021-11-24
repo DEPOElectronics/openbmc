@@ -24,17 +24,13 @@ OBMC_KERNEL_MODULES_64M = " \
 
 
 OBMC_IMAGE_EXTRA_INSTALL:append += " \
-  ${OBMC_KERNEL_MODULES_64M} \
   perf \
   tcpdump \
   ethtool \
-  webui-vue \
-  ipmitool \
   iptables \
   obmc-phosphor-buttons-signals \
   obmc-phosphor-buttons-handler \
   reimu-power-control \
-  sudo \
   hwmon-instantiator \
   phosphor-sel-logger \
   rtcread \

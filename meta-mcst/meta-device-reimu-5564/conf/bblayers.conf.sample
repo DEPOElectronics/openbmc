@@ -9,15 +9,13 @@ BBLAYERS ?= " \
   ##OEROOT##/meta \
   ##OEROOT##/meta-openembedded/meta-oe \
   ##OEROOT##/meta-openembedded/meta-networking \
+  ##OEROOT##/meta-openembedded/meta-perl \
   ##OEROOT##/meta-openembedded/meta-python \
-  ##OEROOT##/meta-openembedded/meta-webserver \
+  ##OEROOT##/meta-security \
   ##OEROOT##/meta-phosphor \
   ##OEROOT##/meta-aspeed \
   ##OEROOT##/meta-mcst/meta-common \
   ##OEROOT##/meta-mcst/meta-flash64 \
-  ##OEROOT##/meta-mcst/meta-leds-keys-gpio \
-  ##OEROOT##/meta-mcst/meta-uid-gpio-actlo \
-  ##OEROOT##/meta-mcst/meta-uart5 \
   ##OEROOT##/meta-mcst/meta-reliable-upgrade \
   ##OEROOT##/meta-mcst/meta-device-reimu-5564 \
   "
@@ -25,15 +23,13 @@ BBLAYERS_NON_REMOVABLE ?= " \
   ##OEROOT##/meta \
   ##OEROOT##/meta-openembedded/meta-oe \
   ##OEROOT##/meta-openembedded/meta-networking \
+  ##OEROOT##/meta-openembedded/meta-perl \
   ##OEROOT##/meta-openembedded/meta-python \
-  ##OEROOT##/meta-openembedded/meta-webserver \
+  ##OEROOT##/meta-security \
   ##OEROOT##/meta-phosphor \
   ##OEROOT##/meta-aspeed \
   ##OEROOT##/meta-mcst/meta-common \
   ##OEROOT##/meta-mcst/meta-flash64 \
-  ##OEROOT##/meta-mcst/meta-leds-keys-gpio \
-  ##OEROOT##/meta-mcst/meta-uid-gpio-actlo \
-  ##OEROOT##/meta-mcst/meta-uart5 \
   ##OEROOT##/meta-mcst/meta-reliable-upgrade \
   ##OEROOT##/meta-mcst/meta-device-reimu-5564 \
   "

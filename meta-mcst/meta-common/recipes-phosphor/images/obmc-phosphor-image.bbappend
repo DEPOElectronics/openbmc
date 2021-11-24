@@ -49,6 +49,7 @@ OBMC_KERNEL_MODULES = " \
 
 OBMC_IMAGE_EXTRA_INSTALL:append = " \
   ${OBMC_KERNEL_MODULES} \
+  mtd-utils \
   active-gpio-on \
   allow-host-boot \
   profile-d \

@@ -130,7 +130,7 @@ EXTRA_IMAGE_FEATURES ?= "debug-tweaks"
 # enable extra features. Some available options which can be included in this variable
 # are:
 #   - 'buildstats' collect build statistics
-USER_CLASSES ?= "buildstats"
+USER_CLASSES ?= "buildstats image-prelink"
 
 #
 # Runtime testing of images
