@@ -14,7 +14,7 @@ BBLAYERS ?= " \
   ##OEROOT##/meta-security \
   ##OEROOT##/meta-phosphor \
   ##OEROOT##/meta-aspeed \
-  ##OEROOT##/meta-mcst/meta-device-reimu-5564 \
+  ##OEROOT##/meta-depo/meta-min \
   "
 BBLAYERS_NON_REMOVABLE ?= " \
   ##OEROOT##/meta \
@@ -25,5 +25,5 @@ BBLAYERS_NON_REMOVABLE ?= " \
   ##OEROOT##/meta-security \
   ##OEROOT##/meta-phosphor \
   ##OEROOT##/meta-aspeed \
-  ##OEROOT##/meta-mcst/meta-device-reimu-5564 \
+  ##OEROOT##/meta-depo/meta-min \
   "

@@ -14,7 +14,7 @@
 #
 # Machine Selection
 #
-MACHINE ??= "reimu-5564"
+MACHINE ??= "min"
 
 #
 # Where to place downloads
