@@ -1,8 +1,9 @@
 FILESEXTRAPATHS:prepend := "${THISDIR}/${PN}:"
 
-SRC_URI += " \
+SRC_URI:append:dazn = " \
              file://aspeed-bmc-depo-dazn.dts \
              file://dazn-gpio.dtsi \
+             file://dazn.cfg \
            "
 
 # Merge source tree by original project with our layer of additional files
