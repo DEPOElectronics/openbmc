@@ -14,7 +14,7 @@ BBLAYERS ?= " \
   ##OEROOT##/meta-security \
   ##OEROOT##/meta-phosphor \
   ##OEROOT##/meta-aspeed \
-  ##OEROOT##/meta-sample/meta-min \
+  ##OEROOT##/meta-sample/ast2500-meta-min \
   "
 BBLAYERS_NON_REMOVABLE ?= " \
   ##OEROOT##/meta \
@@ -25,5 +25,5 @@ BBLAYERS_NON_REMOVABLE ?= " \
   ##OEROOT##/meta-security \
   ##OEROOT##/meta-phosphor \
   ##OEROOT##/meta-aspeed \
-  ##OEROOT##/meta-sample/meta-min \
+  ##OEROOT##/meta-sample/ast2500-meta-min \
   "

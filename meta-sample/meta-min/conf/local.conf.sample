@@ -14,7 +14,7 @@
 #
 # Machine Selection
 #
-MACHINE ??= "min"
+MACHINE ??= "ast2500-min"
 
 #
 # Where to place downloads
