@@ -2,6 +2,7 @@
 /dts-v1/;
 
 #include "aspeed-g5.dtsi"
+#include <dt-bindings/gpio/aspeed-gpio.h>
 
 / {
 	model = "AST2500 EVB";
@@ -32,6 +33,7 @@
 			reusable;
 		};
 	};
+	#include "dazn-led.dtsi"
 };
 
 &fmc {
