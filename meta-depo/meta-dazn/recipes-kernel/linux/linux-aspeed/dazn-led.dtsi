@@ -1,16 +1,9 @@
 leds {
 	compatible = "gpio-leds";
-	bmc_boot {
-		label = "platform:red:bmc_boot";
-		gpios = <&gpio ASPEED_GPIO(G, 1) GPIO_ACTIVE_HIGH>;
-		linux,default-trigger = "timer";
-	};
-	
-	uid {
-		label = "platform:blue:uid";
-		gpios = <&gpio ASPEED_GPIO(N, 4) GPIO_ACTIVE_LOW>;
-		linux,default-trigger = "none";
-	};
+
+	identify {
+			gpios = <&gpio ASPEED_GPIO(N, 4) GPIO_ACTIVE_LOW>;
+		};
 	
 	
 };
