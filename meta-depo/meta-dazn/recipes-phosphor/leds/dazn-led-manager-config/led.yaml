@@ -1,0 +1,5 @@
+enclosure_identify:
+    platform_uid_blue:
+        Action: 'Blink'
+        DutyOn: 50
+        Period: 1000
