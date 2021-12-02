@@ -14,7 +14,7 @@
 	/*K0-K7*/	"","","","","","","","",
 	/*L0-L7*/	"","","","","","","","",
 	/*M0-M7*/	"","","","","","","","",
-	/*N0-N7*/	"","","","GPIO_UID_BTN","GPIO_UID_LED","GPIO_PWR_BTN","","",
+	/*N0-N7*/	"","","","GPIO_UID_BTN","led-identify","GPIO_PWR_BTN","","",
 	/*O0-O7*/	"GPIO_SPI_CONNECT","","GPIO_POWER_IN","GPIO_RESET_IN","","","GPIO_ACT_LED","",
 	/*P0-P7*/	"","","","GPIO_RST_BTN","","","","",
 	/*Q0-Q7*/	"","","","","","","GPIO_OH_FF2_LED","",
