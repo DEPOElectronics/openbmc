@@ -1,13 +1,13 @@
 &gpio {
 	status = "okay";
 	gpio-line-names =
-	/*A0-A7*/	"","","GPIO_OH_FF1_LED","GPIO_PWR_FAIL_LED","","","","",
+	/*A0-A7*/	"","","led-fan2-fault","led-power-fault","","","","",
 	/*B0-B7*/	"GPIO_ALERT_1","GPIO_ALERT_6","GPIO_ALERT_4","GPIO_ALERT_5","","GPIO_ALERT_2","GPIO_ALERT_3","GPIO_ALERT_7",
-	/*C0-C7*/	"","","GPIO_SYS_FAIL1_LED","GPIO_OVERHEAT_LED","","","GPIO_FAN_FAIL_LED","GPIO_SYS_FAIL2_LED",
+	/*C0-C7*/	"","","led-sys1-fault","led-verhead-fault","","","led-fan-fault","led-sys2-fault",
 	/*D0-D7*/	"","","","","","","","",
 	/*E0-E7*/	"","","","","","","","",
 	/*F0-F7*/	"","","","GPIO_APMDZ_LED","","","","",
-	/*G0-G7*/	"GPIO_ALARM_LED","GPIO_BOOT_LED","","","","","","",
+	/*G0-G7*/	"led-attention","led-bmc-boot","","","","","","",
 	/*H0-H7*/	"","","","","","","","",
 	/*I0-I7*/	"","","","","","","","",
 	/*J0-J7*/	"","","","","","","","",
@@ -15,9 +15,9 @@
 	/*L0-L7*/	"","","","","","","","",
 	/*M0-M7*/	"","","","","","","","",
 	/*N0-N7*/	"","","","GPIO_UID_BTN","led-identify","GPIO_PWR_BTN","","",
-	/*O0-O7*/	"GPIO_SPI_CONNECT","","GPIO_POWER_IN","GPIO_RESET_IN","","","GPIO_ACT_LED","",
+	/*O0-O7*/	"GPIO_SPI_CONNECT","","GPIO_POWER_IN","GPIO_RESET_IN","","","led-bmc-booted","",
 	/*P0-P7*/	"","","","GPIO_RST_BTN","","","","",
-	/*Q0-Q7*/	"","","","","","","GPIO_OH_FF2_LED","",
+	/*Q0-Q7*/	"","","","","","","led-fan1-fault","",
 	/*R0-R7*/	"GPIO_INTRUSION","","","","","","","",
 	/*S0-S7*/	"","","","","","","","",
 	/*T0-T7*/	"","","","","","","","",
