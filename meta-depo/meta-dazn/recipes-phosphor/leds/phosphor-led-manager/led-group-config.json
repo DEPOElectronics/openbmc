@@ -1,0 +1,15 @@
+{
+    "leds": [
+        {
+            "group": "enclosure_identify",
+            "members": [
+                {
+                    "Name": "identify",
+                    "Action": "Blink",
+                    "DutyOn": 50,
+                    "Period": 1000
+                }
+            ]
+        }
+    ]
+}
