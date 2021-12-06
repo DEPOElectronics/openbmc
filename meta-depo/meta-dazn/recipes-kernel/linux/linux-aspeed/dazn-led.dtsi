@@ -1,10 +1,29 @@
 leds {
 	compatible = "gpio-leds";
 
+	alarm {
+			gpios = <&gpio ASPEED_GPIO(G, 0) GPIO_ACTIVE_LOW>;
+		};
+
+	bmc_boot {
+			gpios = <&gpio ASPEED_GPIO(G, 1) GPIO_ACTIVE_HIGH>;
+		};
+
+	bmc_booted {
+			gpios = <&gpio ASPEED_GPIO(O, 6) GPIO_ACTIVE_LOW>;
+			linux,default-trigger = "timer";
+		};
+
+	fan {
+			gpios = <&gpio ASPEED_GPIO(C, 6) GPIO_ACTIVE_LOW>;
+		};
+	
 	identify {
 			gpios = <&gpio ASPEED_GPIO(N, 4) GPIO_ACTIVE_LOW>;
 		};
-	
-	
+		
+	overheat {
+			gpios = <&gpio ASPEED_GPIO(C, 3) GPIO_ACTIVE_LOW>;
+		};	
 };
 

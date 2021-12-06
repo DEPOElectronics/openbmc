@@ -1,15 +1,55 @@
 {
-    "leds": [
+  "leds": [
+    {
+      "group": "bmc_booted",
+      "members": [
         {
-            "group": "enclosure_identify",
-            "members": [
-                {
-                    "Name": "identify",
-                    "Action": "Blink",
-                    "DutyOn": 50,
-                    "Period": 1000
-                }
-            ]
+          "Name": "bmc_booted",
+          "Action": "On",
+          "DutyOn": 400,
+          "Period": 500,
+          "Priority": "Blink"
         }
-    ]
+      ]
+    },
+    {
+      "group": "enclosure_fault",
+      "members": [
+        {
+          "Name": "alarm",
+          "Action": "On",
+          "DutyOn": 50,
+          "Period": 0,
+          "Priority": "Blink"
+        }
+      ]
+    },
+    {
+      "group": "enclosure_identify",
+      "members": [
+        {
+          "Name": "identify",
+          "Action": "Blink",
+          "DutyOn": 50,
+          "Period": 1000
+        },
+        {
+          "Name": "virtual_enclosure_identify",
+          "Action": "On",
+          "DutyOn": 50,
+          "Period": 0,
+          "Priority": "Blink"
+        }
+      ]
+    },
+    {
+      "group": "fan_fault",
+      "members": [
+        {
+          "Name": "fan",
+          "Action": "On"
+        }
+      ]
+    }
+  ]
 }
