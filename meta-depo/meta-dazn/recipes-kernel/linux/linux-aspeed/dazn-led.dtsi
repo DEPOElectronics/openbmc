@@ -8,7 +8,6 @@ leds {
 	bmc_boot {
 			gpios = <&gpio ASPEED_GPIO(G, 1) GPIO_ACTIVE_HIGH>;
 		};
-
 	bmc_booted {
 			gpios = <&gpio ASPEED_GPIO(O, 6) GPIO_ACTIVE_LOW>;
 			linux,default-trigger = "timer";
