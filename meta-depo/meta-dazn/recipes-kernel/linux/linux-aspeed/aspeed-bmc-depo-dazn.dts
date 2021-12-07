@@ -81,6 +81,10 @@
 	pinctrl-0 = <&pinctrl_rgmii2_default &pinctrl_mdio2_default>;
 };
 
+&i2c2 {
+	status = "okay";
+};
+
 &i2c3 {
 	status = "okay";
 
