@@ -4,6 +4,7 @@ SRC_URI:append:dazn = " \
              file://aspeed-bmc-depo-dazn.dts \
              file://dazn-gpio.dtsi \
              file://dazn-led.dtsi \
+	     file://dazn-keys.dtsi \
              file://dazn.cfg \
            "
 
