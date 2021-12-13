@@ -8,11 +8,11 @@ LIC_FILES_CHKSUM = "file://${S}/LICENSE;md5=e3fc50a88d0a364313df4b21ef20c29e"
 SRC_URI = "git://github.com/openbmc/telemetry"
 
 PV = "1.0+git${SRCPV}"
-SRCREV = "7e098e93ef0974739459d296f99ddfab54722c23"
+SRCREV = "b8cc78ddf9cc87c83176c7bda575ceef2678d00f"
 
 S = "${WORKDIR}/git"
 
-inherit meson
+inherit pkgconfig meson
 inherit systemd
 
 DEPENDS = "boost \
