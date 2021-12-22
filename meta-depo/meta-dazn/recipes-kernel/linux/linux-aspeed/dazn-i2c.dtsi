@@ -1,0 +1,84 @@
+&i2c0 {
+	status = "okay";
+};
+
+&i2c1 {
+	status = "okay";
+};
+
+&i2c2 {
+	status = "okay";
+	/* PSU1 FRU @ 0xA0 */
+	eeprom@50 {
+		compatible = "atmel,24c02";
+		reg = <0x50>;
+	};
+
+	/* PSU2 FRU @ 0xA2 */
+	eeprom@51 {
+		compatible = "atmel,24c02";
+		reg = <0x51>;
+	};
+
+	/* PSU1 @ 0xB0 */
+	psu@58 {
+		compatible = "pmbus";
+		reg = <0x58>;
+	};
+
+	/* PSU2 @ 0xB2 */
+	psu@59 {
+		compatible = "pmbus";
+		reg = <0x59>;
+	};
+
+	/* Also connected to:
+	 * - PCH SMBUS #1
+	 */
+	
+};
+
+&i2c3 {
+	status = "okay";
+};
+
+&i2c4 {
+	status = "okay";
+	
+	lm96163@4c {
+		/* hwmon/lm63.ko (DD86:LM96163CISD) */
+		compatible = "national,lm96163";
+		reg = <0x4c>;
+		label = "CPU0 FAN Control (X33)";
+		status = "disabled"; /* Don't use in BMC */
+		temp1_label = "Internal Temp";
+		temp2_label = "CPU0 Temp";
+	};	
+};
+
+&i2c5 {
+	status = "okay";
+};
+
+&i2c6 {
+	status = "okay";
+};
+
+&i2c7 {
+	status = "okay";
+};
+
+&i2c8 {
+	status = "okay";
+};
+
+&i2c9 {
+	status = "okay";
+};
+
+&i2c13 {
+	status = "okay";
+};
+
+
+

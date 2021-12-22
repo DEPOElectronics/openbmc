@@ -108,28 +108,7 @@
 	pinctrl-0 = <&pinctrl_rgmii1_default &pinctrl_mdio1_default>;
 };
 
-&i2c2 {
-	status = "okay";
-};
-
-&i2c3 {
-	status = "okay";
-
-	eeprom@50 {
-		compatible = "atmel,24c08";
-		reg = <0x50>;
-		pagesize = <16>;
-	};
-};
-
-&i2c7 {
-	status = "okay";
-
-	lm75@4d {
-		compatible = "national,lm75";
-		reg = <0x4d>;
-	};
-};
+#include "dazn-i2c.dtsi"
 
 &sdmmc {
 	status = "okay";

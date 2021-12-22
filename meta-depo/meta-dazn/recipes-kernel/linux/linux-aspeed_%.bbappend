@@ -5,6 +5,7 @@ SRC_URI:append:dazn = " \
              file://dazn-gpio.dtsi \
              file://dazn-led.dtsi \
 	     file://dazn-keys.dtsi \
+	     file://dazn-i2c.dtsi \
              file://dazn.cfg \
            "
 
