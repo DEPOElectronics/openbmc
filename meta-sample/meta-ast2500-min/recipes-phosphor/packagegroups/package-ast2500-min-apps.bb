@@ -21,4 +21,6 @@ RPROVIDES:${PN}-fans += "virtual-obmc-fan-mgmt"
 RPROVIDES:${PN}-flash += "virtual-obmc-flash-mgmt"
 RPROVIDES:${PN}-system += "virtual-obmc-system-mgmt"
 
-
+RDEPENDS:${PN}-system = " \
+        webui-vue \
+	"
