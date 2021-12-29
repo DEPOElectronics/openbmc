@@ -3,7 +3,7 @@
 default_eth0addr=98:A7:B0:00:00:01
 default_eth1addr=98:A7:B0:00:00:02
 
-bmc_addr_base=0x1E
+bmc_addr_base=0x6
 
 # Note: U-Boot uses ethaddr instead of eth0addr variable!
 env_eth0addr=`fw_printenv ethaddr 2>/dev/null | sed 's/^ethaddr=//' | tr '[:lower:]' '[:upper:]'`
@@ -32,7 +32,7 @@ convert_mac()
         fi
     fi
 
-    if echo $fru_ethaddr_base | grep -q '^98A7B0'
+    if echo $fru_ethaddr_base 
     then
         set_eth0addr=`printf %X $((0x$fru_ethaddr_base + $2))`
         set_eth1addr=`printf %X $((0x$fru_ethaddr_base + $2 + 1))`
