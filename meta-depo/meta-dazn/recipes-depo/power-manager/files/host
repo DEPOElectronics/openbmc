@@ -1,0 +1,82 @@
+#!/bin/bash
+POWERSTATUS=host0-ready
+RESETSTATUS=GPIO_RESET_IN
+POWERBTN=GPIO_PWR_BTN
+RESETBTN=GPIO_RST_BTN
+
+
+power_reset() {
+	btn=$(gpiofind $RESETBTN)
+	gpioset $btn=0
+	sleep 0.2
+	gpioset $btn=1
+}
+
+check_reset() {
+	btn=$(gpiofind $POWERBTN)
+	gpioset $btn=1
+}
+
+power_off() {
+	btn=$(gpiofind $POWERBTN)
+	gpioset $btn=0
+	sleep 0.2
+	gpioset $btn=1
+}
+power_on() {
+        check_reset
+        power_off        
+}
+
+power_off_hard() {
+        check_reset
+	btn=$(gpiofind $POWERBTN)
+	gpioset $btn=0
+	sleep 5
+	gpioset $btn=1
+}
+
+power_status() {
+    st=$(gpioget $(gpiofind $POWERSTATUS))
+    if [ "$st" == "1" ]; then
+        echo "on"
+    else
+        echo "off"
+    fi
+}
+
+
+if [ "$1" = "on" ]; then
+  if [ "$(power_status)" == "off" ]; then
+      power_on
+  fi
+elif [ "$1" = "off" ]; then
+  if [ "$(power_status)" == "on" ]; then
+     if [ "$2" = "hard" ]; then
+      power_off_hard
+     else
+      power_off 
+     fi
+  fi
+elif [ "$1" == "cycle" ]; then
+  if [ "$(power_status)" == "on" ]; then
+      power_off_hard
+  else
+    echo "WARNING: Powering on server"
+  fi
+    power_on
+elif [ "$1" == "reset" ]; then
+  if [ "$(power_status)" == "on" ]; then
+      power_reset
+  else
+    echo "ERROR: Server not powered on"
+  fi
+elif [ "$1" == "status" ]; then
+    power_status
+else
+    echo "Invalid parameter=$1"
+    echo "usage: host [on|off|off hard|status|cycle|reset]";
+fi
+
+
+exit 0;
