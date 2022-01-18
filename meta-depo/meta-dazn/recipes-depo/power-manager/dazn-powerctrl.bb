@@ -11,14 +11,15 @@ SRC_URI = "file://host \
            file://host-poweroff.service \
            file://host-poweroff-hard.service \
            file://host-poweron.service \
-           file://host-reset.service \           
+           file://host-reset.service \ 
+           file://host-state.service \          
            "
 
 DEPENDS = "systemd"
 RDEPENDS:${PN} = "bash"
 
 SYSTEMD_PACKAGES = "${PN}"
-SYSTEMD_SERVICE:${PN} = "host-poweroff.service host-poweroff-hard.service host-poweron.service host-reset.service"
+SYSTEMD_SERVICE:${PN} = "host-poweroff.service host-poweroff-hard.service host-poweron.service host-reset.service host-state.service"
 
 do_install() {
     install -d ${D}/${bindir}
