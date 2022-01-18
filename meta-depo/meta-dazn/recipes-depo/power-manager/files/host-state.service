@@ -1,0 +1,11 @@
+[Unit]
+Description=Set host state
+
+[Service]
+Restart=always
+RestartSec=5s
+Type=simple
+ExecStart=/bin/sh -c "while :; do sleep 5; host setstatus; done"
+SyslogIdentifier=buttonscripts
+
+#This is a bad decision. Will have to redo
