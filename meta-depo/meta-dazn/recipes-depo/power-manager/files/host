@@ -1,19 +1,19 @@
 #!/bin/bash
-POWERSTATUS=host0-ready
-RESETSTATUS=GPIO_RESET_IN
+POWERstate=GPIO_POWER_IN
+RESETstate=GPIO_RESET_IN
 POWERBTN=GPIO_PWR_BTN
 RESETBTN=GPIO_RST_BTN
 
-setstatus() {
-  dbusstatus=$(busctl get-property xyz.openbmc_project.State.Host /xyz/openbmc_project/state/host0 xyz.openbmc_project.State.Host CurrentHostState | awk '{print $2}') 
+setstate() {
+  dbusstate=$(busctl get-property xyz.openbmc_project.State.Host /xyz/openbmc_project/state/host0 xyz.openbmc_project.State.Host CurrentHostState | awk '{print $2}') 
   OFF="\"xyz.openbmc_project.State.Host.HostState.Off\""
   ON="\"xyz.openbmc_project.State.Host.HostState.Running\""
-  if [ "$(power_status)" == "on" ]; then
-     if [ "$dbusstatus" != "$ON" ]; then
+  if [ "$(power_state)" == "on" ]; then
+     if [ "$dbusstate" != "$ON" ]; then
         busctl set-property xyz.openbmc_project.State.Host /xyz/openbmc_project/state/host0 xyz.openbmc_project.State.Host CurrentHostState s "xyz.openbmc_project.State.Host.HostState.Running"
      fi
   else
-     if [ $dbusstatus != "$OFF" ]; then
+     if [ $dbusstate != "$OFF" ]; then
         busctl set-property xyz.openbmc_project.State.Host /xyz/openbmc_project/state/host0 xyz.openbmc_project.State.Host CurrentHostState s "xyz.openbmc_project.State.Host.HostState.Off"
      fi
   fi 
@@ -27,8 +27,10 @@ power_reset() {
 }
 
 check_reset() {
-	btn=$(gpiofind $POWERBTN)
-	gpioset $btn=1
+	reset=$(gpioget $(gpiofind $RESETstate))
+	if [ "$reset" == "1" ]; then
+	  power_reset
+	fi
 }
 
 power_off() {
@@ -38,22 +40,20 @@ power_off() {
 	gpioset $btn=1
 }
 power_on() {
-        check_reset
-        power_off     
-        setstatus   
+        power_off
+        reset     
 }
 
 power_off_hard() {
-        check_reset
+        reset
 	btn=$(gpiofind $POWERBTN)
 	gpioset $btn=0
 	sleep 5
 	gpioset $btn=1
-        setstatus   
 }
 
-power_status() {
-    st=$(gpioget $(gpiofind $POWERSTATUS))
+power_state() {
+    st=$(gpioget $(gpiofind $POWERstate))
     if [ "$st" == "1" ]; then
         echo "on"
     else
@@ -63,11 +63,11 @@ power_status() {
 
 
 if [ "$1" = "on" ]; then
-  if [ "$(power_status)" == "off" ]; then
+  if [ "$(power_state)" == "off" ]; then
       power_on
   fi
 elif [ "$1" = "off" ]; then
-  if [ "$(power_status)" == "on" ]; then
+  if [ "$(power_state)" == "on" ]; then
      if [ "$2" = "hard" ]; then
       power_off_hard
      else
@@ -75,25 +75,25 @@ elif [ "$1" = "off" ]; then
      fi
   fi
 elif [ "$1" == "cycle" ]; then
-  if [ "$(power_status)" == "on" ]; then
+  if [ "$(power_state)" == "on" ]; then
       power_off_hard
   else
     echo "WARNING: Powering on server"
   fi
     power_on
 elif [ "$1" == "reset" ]; then
-  if [ "$(power_status)" == "on" ]; then
+  if [ "$(power_state)" == "on" ]; then
       power_reset
   else
     echo "ERROR: Server not powered on"
   fi
-elif [ "$1" == "status" ]; then
-    power_status
-elif [ "$1" == "setstatus" ]; then
-   setstatus 
+elif [ "$1" == "state" ]; then
+    power_state
+elif [ "$1" == "setstate" ]; then
+   setstate 
 else
     echo "Invalid parameter=$1"
-    echo "usage: host [on|off|off hard|status|cycle|reset|setstatus]";
+    echo "usage: host [on|off|off hard|state|cycle|reset|setstate]";
 fi
 
 

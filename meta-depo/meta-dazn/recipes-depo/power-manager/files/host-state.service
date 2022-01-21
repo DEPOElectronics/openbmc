@@ -1,11 +1,12 @@
 [Unit]
 Description=Set host state
+After=xyz.openbmc_project.State.Host.service
+
+[Install]
+WantedBy=multi-user.target
 
 [Service]
 Restart=always
-RestartSec=5s
 Type=simple
-ExecStart=/bin/sh -c "while :; do sleep 5; host setstatus; done"
+ExecStart=/bin/sh -c "while :; do sleep 1; host setstate; done"
 SyslogIdentifier=buttonscripts
-
-#This is a bad decision. Will have to redo
