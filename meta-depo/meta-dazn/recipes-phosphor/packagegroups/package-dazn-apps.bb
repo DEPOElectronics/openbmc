@@ -30,4 +30,5 @@ RPROVIDES:${PN}-system += "virtual-obmc-system-mgmt"
 RDEPENDS:${PN}-system = " \
         webui-vue \
         dazn-powerctrl \
+	id-button \
 	"

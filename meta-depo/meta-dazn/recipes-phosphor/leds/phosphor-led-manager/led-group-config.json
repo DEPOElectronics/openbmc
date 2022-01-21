@@ -5,10 +5,7 @@
       "members": [
         {
           "Name": "bmc_booted",
-          "Action": "On",
-          "DutyOn": 400,
-          "Period": 500,
-          "Priority": "Blink"
+          "Action": "On"
         }
       ]
     },

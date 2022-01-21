@@ -10,7 +10,6 @@ leds {
 		};
 	bmc_booted {
 			gpios = <&gpio ASPEED_GPIO(O, 6) GPIO_ACTIVE_LOW>;
-			linux,default-trigger = "timer";
 		};
 
 	fan {
