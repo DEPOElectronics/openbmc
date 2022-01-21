@@ -15,7 +15,7 @@ PR = "r1"
 PV = "0.1+git${SRCPV}"
 
 SRC_URI = "git://github.com/openbmc/openpower-hw-diags"
-SRCREV = "2923775f8356cc58e93a3e8d5d70958253de3808"
+SRCREV = "e90b85dc659b2a8224fd6a52110460e36277ba6d"
 
 S = "${WORKDIR}/git"
 
@@ -32,4 +32,7 @@ RDEPENDS:${PN} += "openpower-libhei"
 # Conditionally pull in PHAL APIs, if available.
 PACKAGECONFIG ??= "${@bb.utils.filter('MACHINE_FEATURES', 'phal', d)}"
 PACKAGECONFIG[phal] = "-Dphal=enabled, -Dphal=disabled, ipl pdata"
+
+# Don't build CI tests
+EXTRA_OEMESON = "-Dtests=disabled"
 
