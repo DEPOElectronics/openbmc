@@ -41,11 +41,11 @@ power_off() {
 }
 power_on() {
         power_off
-        reset     
+        power_reset
 }
 
 power_off_hard() {
-        reset
+        power_reset
 	btn=$(gpiofind $POWERBTN)
 	gpioset $btn=0
 	sleep 5
