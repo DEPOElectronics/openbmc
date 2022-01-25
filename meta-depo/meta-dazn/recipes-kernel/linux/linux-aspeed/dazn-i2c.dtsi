@@ -45,15 +45,43 @@
 &i2c4 {
 	status = "okay";
 	
-	lm96163@4c {
-		/* hwmon/lm63.ko (DD86:LM96163CISD) */
-		compatible = "national,lm96163";
-		reg = <0x4c>;
-		label = "CPU0 FAN Control (X33)";
-		status = "disabled"; /* Don't use in BMC */
-		temp1_label = "Internal Temp";
-		temp2_label = "CPU0 Temp";
-	};	
+    lm96163@4c {
+        compatible = "national,lm96163";
+        reg = <0x4c>;
+        status = "okay";
+        label = "CPU1 FAN Control";
+        #address-cells = <0x1>;
+        #size-cells = <0x0>;
+
+        fan1: fan@1 {
+            reg = <0x1>;
+            label = "Fan";
+            status = "okay";
+            min_alarm = "200";
+        };
+
+        temp1: temp1@1 {
+            reg = <0x1>;
+            label = "Ambient";
+            status = "okay";
+            min_crit = "-40000";
+            min_alarm = "-10000";
+            max_alarm = "50000";
+            max_crit = "80000";
+        };
+
+        temp@2 {
+            reg = <0x2>;
+            label = "not connected";
+            status = "disabled";
+        };
+        
+	pwm1: pwm@1 {
+		#pwm-cells = <3>;
+		status = "disabled";
+	};
+        
+    };
 };
 
 &i2c5 {
@@ -62,6 +90,37 @@
 
 &i2c6 {
 	status = "okay";
+    lm96163@4c {
+        compatible = "national,lm96163";
+        reg = <0x4c>;
+        status = "okay";
+        label = "CPU0 FAN Control";
+        #address-cells = <0x1>;
+        #size-cells = <0x0>;
+
+        fan@1 {
+            reg = <0x1>;
+            label = "Fan";
+            status = "okay";
+            min_alarm = "200";
+        };
+
+        temp@1 {
+            reg = <0x1>;
+            label = "Ambient";
+            status = "okay";
+            min_crit = "-40000";
+            min_alarm = "-10000";
+            max_alarm = "50000";
+            max_crit = "80000";
+        };
+
+        temp@2 {
+            reg = <0x2>;
+            label = "not connected";
+            status = "disabled";
+        };
+    };	
 };
 
 &i2c7 {
@@ -79,6 +138,3 @@
 &i2c13 {
 	status = "okay";
 };
-
-
-
