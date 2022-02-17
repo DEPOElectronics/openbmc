@@ -4,8 +4,8 @@ DESCRIPTION = "Intel OEM IPMI commands"
 LICENSE = "Apache-2.0"
 LIC_FILES_CHKSUM = "file://LICENSE;md5=a6a4edad4aed50f39a66d098d74b265b"
 
-SRC_URI = "git://github.com/openbmc/intel-ipmi-oem"
-SRCREV = "0fac9bf4a060ab2b25133f329fa7602838b3dd3e"
+SRC_URI = "git://github.com/openbmc/intel-ipmi-oem;branch=master;protocol=https"
+SRCREV = "a165038f0472459ae2ec0ae50b7e0c09969882c7"
 
 S = "${WORKDIR}/git"
 PV = "0.1+git${SRCPV}"

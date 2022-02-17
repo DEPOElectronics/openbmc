@@ -5,10 +5,10 @@ HOMEPAGE = "https://github.com/openbmc/telemetry"
 LICENSE = "Apache-2.0"
 LIC_FILES_CHKSUM = "file://${S}/LICENSE;md5=e3fc50a88d0a364313df4b21ef20c29e"
 
-SRC_URI = "git://github.com/openbmc/telemetry"
+SRC_URI = "git://github.com/openbmc/telemetry;branch=master;protocol=https"
 
 PV = "1.0+git${SRCPV}"
-SRCREV = "a950e42ba579a3498face1654e58c94d9ff1cf9a"
+SRCREV = "fdb06a141c6d9bbf1088fee974b815d1f35d3bcb"
 
 S = "${WORKDIR}/git"
 

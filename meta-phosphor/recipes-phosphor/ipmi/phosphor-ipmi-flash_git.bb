@@ -46,8 +46,8 @@ IPMI_FLASH_BMC_ADDRESS ?= "0"
 EXTRA_OEMESON:append = " -Dmapped-address=${IPMI_FLASH_BMC_ADDRESS}"
 
 S = "${WORKDIR}/git"
-SRC_URI = "git://github.com/openbmc/phosphor-ipmi-flash"
-SRCREV = "a49a3f79e4bea32929d7be8201645c7d83b0f2ae"
+SRC_URI = "git://github.com/openbmc/phosphor-ipmi-flash;branch=master;protocol=https"
+SRCREV = "99d292a383db1806ee4426f5ad2ef9022fc117ab"
 
 SYSTEMD_PACKAGES = "${PN}"
 SYSTEMD_SERVICE:${PN} += " \

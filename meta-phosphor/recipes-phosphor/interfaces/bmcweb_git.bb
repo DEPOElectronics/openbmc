@@ -10,12 +10,14 @@ GROUPADD_PARAM:${PN} = "web; redfish"
 LICENSE = "Apache-2.0"
 LIC_FILES_CHKSUM = "file://LICENSE;md5=175792518e4ac015ab6696d16c4f607e"
 
-SRC_URI = "git://github.com/openbmc/bmcweb.git"
+SRC_URI = "git://github.com/openbmc/bmcweb.git;branch=master;protocol=https;nobranch=1"
 
 PV = "1.0+git${SRCPV}"
-SRCREV = "35fb5311303730c90395d1a7fb34bc710dfa5421"
+SRCREV = "11baefe467d1b6d4c845325276bc46de01d23cdb"
 
 S = "${WORKDIR}/git"
+
+CXXFLAGS:append = " -DNEW_BOOST_URL"
 
 inherit pkgconfig meson ptest
 
