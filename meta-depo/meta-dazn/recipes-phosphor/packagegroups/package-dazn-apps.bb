@@ -31,4 +31,8 @@ RDEPENDS:${PN}-system = " \
         webui-vue \
         dazn-powerctrl \
 	id-button \
+	kernel-module-l-pcs-i2c	\
+	entity-manager \
+        dbus-sensors \
+	phosphor-virtual-sensor \
 	"
