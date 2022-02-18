@@ -7,42 +7,17 @@
 };
 
 &i2c2 {
+	/* i2c_pmbus */
 	status = "okay";
-	/* PSU1 FRU @ 0xA0 */
-	eeprom@50 {
-		compatible = "atmel,24c02";
-		reg = <0x50>;
-	};
-
-	/* PSU2 FRU @ 0xA2 */
-	eeprom@51 {
-		compatible = "atmel,24c02";
-		reg = <0x51>;
-	};
-
-	/* PSU1 @ 0xB0 */
-	psu@58 {
-		compatible = "pmbus";
-		reg = <0x58>;
-	};
-
-	/* PSU2 @ 0xB2 */
-	psu@59 {
-		compatible = "pmbus";
-		reg = <0x59>;
-	};
-
-	/* Also connected to:
-	 * - PCH SMBUS #1
-	 */
-	
 };
 
 &i2c3 {
+	/* i2c_fruid */
 	status = "okay";
 };
 
 &i2c4 {
+	/* i2c_cpu1 */
 	status = "okay";
 	
     lm96163@4c {
@@ -85,45 +60,21 @@
 };
 
 &i2c5 {
+	/* i2c_mntr */
 	status = "okay";
 };
 
 &i2c6 {
+	/* i2c_cpu0 */
 	status = "okay";
     lm96163@4c {
         compatible = "national,lm96163";
         reg = <0x4c>;
-        status = "okay";
-        label = "CPU0 FAN Control";
-        #address-cells = <0x1>;
-        #size-cells = <0x0>;
-
-        fan@1 {
-            reg = <0x1>;
-            label = "Fan";
-            status = "okay";
-            min_alarm = "200";
-        };
-
-        temp@1 {
-            reg = <0x1>;
-            label = "Ambient";
-            status = "okay";
-            min_crit = "-40000";
-            min_alarm = "-10000";
-            max_alarm = "50000";
-            max_crit = "80000";
-        };
-
-        temp@2 {
-            reg = <0x2>;
-            label = "not connected";
-            status = "disabled";
-        };
     };	
 };
 
 &i2c7 {
+	/* i2c_pci */
 	status = "okay";
 };
 
