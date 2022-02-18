@@ -19,7 +19,7 @@ DEPENDS = "systemd"
 RDEPENDS:${PN} = "bash"
 
 SYSTEMD_PACKAGES = "${PN}"
-SYSTEMD_SERVICE:${PN} = "host-poweroff.service host-poweroff-hard.service host-poweron.service host-reset.service host-state.service"
+SYSTEMD_SERVICE:${PN} = "host-poweroff.service host-poweroff-hard.service host-poweron.service host-reset.service"
 
 do_install() {
     install -d ${D}/${bindir}
