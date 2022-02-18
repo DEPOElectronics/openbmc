@@ -1,0 +1,13 @@
+{
+    "Exposes": [],
+    "Name": "DEPO DAZN",
+    "Probe": "TRUE",
+    "Type": "Board", 
+    "xyz.openbmc_project.Inventory.Item.System": {},   
+    "xyz.openbmc_project.Inventory.Decorator.Asset": {
+        "Manufacturer": "DEPO",
+        "Model": "ДАЦН",
+        "PartNumber": "469535.003",
+        "SerialNumber": "XXX"
+    }
+}
