@@ -33,4 +33,5 @@ RDEPENDS:${PN}-system = " \
 	id-button \
 	entity-manager \
         dbus-sensors \
+        phosphor-virtual-sensor \
 	"
