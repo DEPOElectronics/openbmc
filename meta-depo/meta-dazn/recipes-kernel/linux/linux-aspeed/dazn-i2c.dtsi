@@ -9,6 +9,12 @@
 &i2c2 {
 	/* i2c_pmbus */
 	status = "okay";
+
+	rtc@6f {
+		compatible = "microchip,mcp7941x";
+		reg = <0x6f>;
+		interrupts = <110>;
+	};
 };
 
 &i2c3 {
