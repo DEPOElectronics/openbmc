@@ -1,0 +1,12 @@
+diff --git a/src/PSUSensorMain.cpp b/src/PSUSensorMain.cpp
+index 7ca5d3d..94ad480 100644
+--- a/src/PSUSensorMain.cpp
++++ b/src/PSUSensorMain.cpp
+@@ -258,6 +258,7 @@ static void
+                    sdbusplus::asio::object_server& objectServer,
+                    const std::string& psuName)
+ {
++    return;
+     for (const auto& pwmName : pwmTable)
+     {
+         if (pwmName.first != labelHead)

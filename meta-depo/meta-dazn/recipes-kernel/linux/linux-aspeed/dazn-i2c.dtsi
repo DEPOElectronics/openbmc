@@ -9,6 +9,11 @@
 &i2c2 {
 	/* i2c_pmbus */
 	status = "okay";
+	
+	lm96163@4c {
+		compatible = "national,lm96163";
+		reg = <0x4c>;
+	};	
 
 	rtc@6f {
 		compatible = "microchip,mcp7941x";
@@ -73,10 +78,11 @@
 &i2c6 {
 	/* i2c_cpu0 */
 	status = "okay";
-    lm96163@4c {
-        compatible = "national,lm96163";
-        reg = <0x4c>;
-    };	
+
+	lm96163@4c {
+		compatible = "national,lm96163";
+		reg = <0x4c>;
+	};	
 };
 
 &i2c7 {
