@@ -1,0 +1,76 @@
+[
+{
+	"Exposes": [
+		{
+		"Address": "$ADDRESS % 4 + 88",
+		"Bus": "$bus",
+		"Name": "PSU$ADDRESS % 4 + 1",
+		"PowerState": "Always",
+		"Labels": [
+			"pin",
+			"pout1",
+			"vin",
+			"iin",
+			"iout1",
+			"temp1",
+			"fan1",
+			"vout1"
+		],
+		"Thresholds": [			{
+				"Direction": "greater than",
+				"Label": "pin",
+				"Name": "upper non critical",
+				"Severity": 0,
+				"Value": 880
+			},
+			{
+				"Direction": "greater than",
+				"Label": "vin",
+				"Name": "upper non critical",
+				"Severity": 0,
+				"Value": 240
+			},
+			{
+				"Direction": "less than",
+				"Label": "vin",
+				"Name": "lower non critical",
+				"Severity": 0,
+				"Value": 100
+			},	
+			
+			{
+				"Direction": "greater than",
+				"Label": "iout1",
+				"Name": "upper critical",
+				"Severity": 1,
+				"Value": 70.5
+			},
+			{
+				"Direction": "greater than",
+				"Label": "iout1",
+				"Name": "upper non critical",
+				"Severity": 0,
+				"Value": 64.5
+			},
+			{
+				"Direction": "greater than",
+				"Label": "vout1",
+				"Name": "upper non critical",
+				"Severity": 0,
+				"Value": 12.599
+			}			
+		],
+		"Type": "pmbus"
+	}
+	],
+        "Name": "FSP800-20ERM 800W PSU $ADDRESS % 4 + 1",
+        "Probe": "xyz.openbmc_project.FruDevice({'PRODUCT_PRODUCT_NAME': 'FSP800-20ERM'})",
+        "Type": "PowerSupply",
+        "xyz.openbmc_project.Inventory.Decorator.Asset": {
+            "Manufacturer": "$PRODUCT_MANUFACTURER",
+            "Model": "$PRODUCT_PRODUCT_NAME",
+            "PartNumber": "$PRODUCT_PART_NUMBER",
+            "SerialNumber": "$PRODUCT_SERIAL_NUMBER"
+        }
+    }
+]
