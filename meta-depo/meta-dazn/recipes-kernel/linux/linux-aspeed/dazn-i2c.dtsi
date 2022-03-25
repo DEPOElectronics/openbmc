@@ -30,59 +30,45 @@
 &i2c4 {
 	/* i2c_cpu1 */
 	status = "okay";
-	
-    lm96163@4c {
-        compatible = "national,lm96163";
-        reg = <0x4c>;
-        status = "okay";
-        label = "CPU1 FAN Control";
-        #address-cells = <0x1>;
-        #size-cells = <0x0>;
-
-        fan1: fan@1 {
-            reg = <0x1>;
-            label = "Fan";
-            status = "okay";
-            min_alarm = "200";
-        };
-
-        temp1: temp1@1 {
-            reg = <0x1>;
-            label = "Ambient";
-            status = "okay";
-            min_crit = "-40000";
-            min_alarm = "-10000";
-            max_alarm = "50000";
-            max_crit = "80000";
-        };
-
-        temp@2 {
-            reg = <0x2>;
-            label = "not connected";
-            status = "disabled";
-        };
-        
-	pwm1: pwm@1 {
-		#pwm-cells = <3>;
-		status = "disabled";
-	};
-        
-    };
 };
 
 &i2c5 {
 	/* i2c_mntr */
 	status = "okay";
+
+        pcs@20 {
+		compatible = "mcst,l_pcs_i2c";
+		reg = <0x20>;
+	};	
+        pcs@21 {
+		compatible = "mcst,l_pcs_i2c";
+		reg = <0x21>;
+	};	
+        pcs@22 {
+		compatible = "mcst,l_pcs_i2c";
+		reg = <0x22>;
+	};	
+        pcs@23 {
+		compatible = "mcst,l_pcs_i2c";
+		reg = <0x23>;
+	};	
+        pcs@24 {
+		compatible = "mcst,l_pcs_i2c";
+		reg = <0x24>;
+	};	
+        pcs@25 {
+		compatible = "mcst,l_pcs_i2c";
+		reg = <0x25>;
+	};	
+        pcs@26 {
+		compatible = "mcst,l_pcs_i2c";
+		reg = <0x26>;
+	};	
 };
 
 &i2c6 {
 	/* i2c_cpu0 */
 	status = "okay";
-
-	lm96163@4c {
-		compatible = "national,lm96163";
-		reg = <0x4c>;
-	};	
 };
 
 &i2c7 {

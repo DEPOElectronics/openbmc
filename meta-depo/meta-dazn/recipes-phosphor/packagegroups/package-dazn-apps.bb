@@ -34,4 +34,5 @@ RDEPENDS:${PN}-system = " \
 	entity-manager \
         dbus-sensors \
         phosphor-virtual-sensor \
+        kernel-module-l-pcs-i2c \
 	"
