@@ -86,6 +86,94 @@
             ]
         },
         "Expression": "var M:=max(T0,T1,T2,T3,T4,T5,T6); M >= 0 ? M : NULL"
-    }
+    },
+    {
+        "Desc":
+        {
+            "Name": "CPU1_Temperature",
+            "SensorType": "temperature"
+        },
+	"Threshold" :
+	{
+		"CriticalHigh": 100,
+		"WarningHigh": 85
+	},
+        "Associations":
+        [
+            [
+                "chassis",
+                "all_sensors",
+                "/xyz/openbmc_project/inventory/system/board/DEPO_DAZN"
+            ],
+            [
+                "inventory",
+                "sensors",
+                "/xyz/openbmc_project/inventory/system/board/DEPO_DAZN"
+            ]
+        ],
+        "Params":
+        {
+            "DbusParam":
+            [
+                {
+                    "ParamName": "T0",
+                    "Desc":
+                    {
+                        "Name": "cpu1_core0_core1_temp",
+                        "SensorType": "temperature"
+                    }
+                },
+                {
+                    "ParamName": "T1",
+                    "Desc":
+                    {
+                        "Name": "cpu1_core2_core3_temp",
+                        "SensorType": "temperature"
+                    }
+                },
+                {
+                    "ParamName": "T2",
+                    "Desc":
+                    {
+                        "Name": "cpu1_core4_core5_temp",
+                        "SensorType": "temperature"
+                    }
+                },
+                {
+                    "ParamName": "T3",
+                    "Desc":
+                    {
+                        "Name": "cpu1_core6_core7_temp",
+                        "SensorType": "temperature"
+                    }
+                },
+                {
+                    "ParamName": "T4",
+                    "Desc":
+                    {
+                        "Name": "cpu1_mc0_mc1_temp",
+                        "SensorType": "temperature"
+                    }
+                },
+                {
+                    "ParamName": "T5",
+                    "Desc":
+                    {
+                        "Name": "cpu1_mc2_mc3_temp",
+                        "SensorType": "temperature"
+                    }
+                },
+                {
+                    "ParamName": "T6",
+                    "Desc":
+                    {
+                        "Name": "cpu1_sic0_temp",
+                        "SensorType": "temperature"
+                    }
+                }                
+            ]
+        },
+        "Expression": "var M:=max(T0,T1,T2,T3,T4,T5,T6); M >= 0 ? M : NULL"
+    }    
 ]
 

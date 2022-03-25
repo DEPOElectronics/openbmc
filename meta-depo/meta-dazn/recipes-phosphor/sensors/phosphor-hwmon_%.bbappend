@@ -11,6 +11,13 @@ NAMES = " \
         bus@1e78a000/i2c-bus@180/pcs@24 \
         bus@1e78a000/i2c-bus@180/pcs@25 \
         bus@1e78a000/i2c-bus@180/pcs@26 \
+        bus@1e78a000/i2c-bus@180/pcs@30 \
+        bus@1e78a000/i2c-bus@180/pcs@31 \
+        bus@1e78a000/i2c-bus@180/pcs@32 \
+        bus@1e78a000/i2c-bus@180/pcs@33 \
+        bus@1e78a000/i2c-bus@180/pcs@34 \
+        bus@1e78a000/i2c-bus@180/pcs@35 \
+        bus@1e78a000/i2c-bus@180/pcs@36 \
         \
         "
 ITEMSFMT = "ahb/apb/{0}.conf"

@@ -64,6 +64,35 @@
 		compatible = "mcst,l_pcs_i2c";
 		reg = <0x26>;
 	};	
+	
+        pcs@30 {
+		compatible = "mcst,l_pcs_i2c";
+		reg = <0x30>;
+	};	
+        pcs@31 {
+		compatible = "mcst,l_pcs_i2c";
+		reg = <0x31>;
+	};	
+        pcs@32 {
+		compatible = "mcst,l_pcs_i2c";
+		reg = <0x32>;
+	};	
+        pcs@33 {
+		compatible = "mcst,l_pcs_i2c";
+		reg = <0x33>;
+	};	
+        pcs@34 {
+		compatible = "mcst,l_pcs_i2c";
+		reg = <0x34>;
+	};	
+        pcs@35 {
+		compatible = "mcst,l_pcs_i2c";
+		reg = <0x35>;
+	};	
+        pcs@36 {
+		compatible = "mcst,l_pcs_i2c";
+		reg = <0x36>;
+	};	
 };
 
 &i2c6 {
