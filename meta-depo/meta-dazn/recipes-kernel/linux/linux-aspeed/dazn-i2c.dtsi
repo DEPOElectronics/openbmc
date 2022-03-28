@@ -15,16 +15,17 @@
 		reg = <0x4c>;
 	};	
 
-	rtc@6f {
-		compatible = "microchip,mcp7941x";
-		reg = <0x6f>;
-		interrupts = <110>;
-	};
 };
 
 &i2c3 {
 	/* i2c_fruid */
 	status = "okay";
+
+	rtc@6f {
+		compatible = "microchip,mcp7941x";
+		reg = <0x6f>;
+		interrupts = <110>;
+	};
 };
 
 &i2c4 {
