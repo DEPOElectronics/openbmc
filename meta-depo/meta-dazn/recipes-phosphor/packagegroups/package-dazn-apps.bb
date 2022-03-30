@@ -35,4 +35,5 @@ RDEPENDS:${PN}-system = " \
         dbus-sensors \
         phosphor-virtual-sensor \
         kernel-module-l-pcs-i2c \
+        kernel-module-dp_lm63 \
 	"
