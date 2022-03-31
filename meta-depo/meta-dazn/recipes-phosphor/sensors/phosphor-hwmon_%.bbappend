@@ -1,9 +1,6 @@
 FILESEXTRAPATHS:prepend := "${THISDIR}/${PN}:"
 
 NAMES = " \
-        bus@1e78a000/i2c-bus@140/dp_lm96163@4c \
-        bus@1e78a000/i2c-bus@1c0/dp_lm96163@4c \
-        bus@1e78a000/i2c-bus@c0/lm96163@4c \
         bus@1e78a000/i2c-bus@180/pcs@20 \
         bus@1e78a000/i2c-bus@180/pcs@21 \
         bus@1e78a000/i2c-bus@180/pcs@22 \
