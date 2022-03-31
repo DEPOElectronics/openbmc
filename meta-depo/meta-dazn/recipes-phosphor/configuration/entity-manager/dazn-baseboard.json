@@ -1,5 +1,43 @@
 {
-    "Exposes": [],
+    "Exposes": [
+	{
+                "Index": 0,
+		"Address": "0x4c",
+		"Bus": "6",
+		"Name": "CPU1 Fan",
+		"PowerState": "On",
+		"Type": "I2CFan"
+	},
+	{
+                "Index": 0,
+		"Address": "0x4c",
+		"Bus": "4",
+		"Name": "CPU0 Fan",
+		"PowerState": "On",
+		"Type": "I2CFan"
+	},
+        {
+		"Address": "0x4c",
+		"Bus": "4",
+		"Name": "Chassis2 Temperature",
+		"PowerState": "On",
+		"Type": "LM63"
+	},
+	{
+		"Address": "0x4c",
+		"Bus": "6",
+		"Name": "Chassis1 Temperature",
+		"PowerState": "On",
+		"Type": "LM63"
+	},
+	{
+		"Address": "0x4c",
+		"Bus": "2",
+		"Name": "Chipset Temperature",
+		"PowerState": "On",
+		"Type": "LM63"
+	}
+    ],
     "Name": "DEPO DAZN",
     "Probe": "TRUE",
     "Type": "Board", 
