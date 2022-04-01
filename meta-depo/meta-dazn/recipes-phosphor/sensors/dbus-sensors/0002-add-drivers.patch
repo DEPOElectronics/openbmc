@@ -1,13 +1,13 @@
 diff --git a/src/HwmonTempMain.cpp b/src/HwmonTempMain.cpp
-index e5671b1..6b7ab63 100644
+index e5671b1..df6d153 100644
 --- a/src/HwmonTempMain.cpp
 +++ b/src/HwmonTempMain.cpp
-@@ -55,6 +55,7 @@ static auto sensorTypes{
+@@ -54,6 +54,7 @@ static auto sensorTypes{
+                                 "xyz.openbmc_project.Configuration.EMC1413",
                                  "xyz.openbmc_project.Configuration.EMC1414",
                                  "xyz.openbmc_project.Configuration.HDC1080",
++                                "xyz.openbmc_project.Configuration.I2CTemp",
                                  "xyz.openbmc_project.Configuration.JC42",
-+                                "xyz.openbmc_project.Configuration.LM63",
                                  "xyz.openbmc_project.Configuration.LM75A",
                                  "xyz.openbmc_project.Configuration.LM95234",
-                                 "xyz.openbmc_project.Configuration.MAX31725",
 

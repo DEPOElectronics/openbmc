@@ -21,21 +21,21 @@
 		"Bus": "4",
 		"Name": "Chassis2 Temperature",
 		"PowerState": "On",
-		"Type": "LM63"
+		"Type": "I2CTemp"
 	},
 	{
 		"Address": "0x4c",
 		"Bus": "6",
 		"Name": "Chassis1 Temperature",
 		"PowerState": "On",
-		"Type": "LM63"
+		"Type": "I2CTemp"
 	},
 	{
 		"Address": "0x4c",
 		"Bus": "2",
 		"Name": "Chipset Temperature",
 		"PowerState": "On",
-		"Type": "LM63"
+		"Type": "I2CTemp"
 	}
     ],
     "Name": "DEPO DAZN",
