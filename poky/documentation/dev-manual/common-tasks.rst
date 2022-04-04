@@ -564,7 +564,7 @@ Directory`.  Here is the main ``xserver-xf86-config`` recipe, which is named
    SUMMARY = "X.Org X server configuration file"
    HOMEPAGE = "http://www.x.org"
    SECTION = "x11/base"
-   LICENSE = "MIT-X"
+   LICENSE = "MIT"
    LIC_FILES_CHKSUM = "file://${COREBASE}/meta/COPYING.MIT;md5=3da9cfbcb788c80a0384361b4de20420"
    PR = "r33"
 
@@ -1396,19 +1396,14 @@ another example that specifies these types of files, see the
 ":ref:`dev-manual/common-tasks:autotooled package`" section.
 
 Another way of specifying source is from an SCM. For Git repositories,
-you must specify :term:`SRCREV` and
-you should specify :term:`PV` to include
-the revision with :term:`SRCPV`. Here
-is an example from the recipe
-``meta/recipes-kernel/blktrace/blktrace_git.bb``::
+you must specify :term:`SRCREV` and you should specify :term:`PV` to include
+the revision with :term:`SRCPV`. Here is an example from the recipe
+``meta/recipes-core/musl/gcompat_git.bb``::
 
-   SRCREV = "d6918c8832793b4205ed3bfede78c2f915c23385"
+   SRC_URI = "git://git.adelielinux.org/adelie/gcompat.git;protocol=https;branch=current"
 
-   PR = "r6"
-   PV = "1.0.5+git${SRCPV}"
-
-   SRC_URI = "git://git.kernel.dk/blktrace.git \
-              file://ldflags.patch"
+   PV = "1.0.0+1.1+git${SRCPV}"
+   SRCREV = "af5a49e489fdc04b9cf02547650d7aeaccd43793"
 
 If your :term:`SRC_URI` statement includes URLs pointing to individual files
 fetched from a remote server other than a version control system,
@@ -1481,6 +1476,22 @@ compressed suffixes such as ``diff.gz`` and ``patch.bz2``, for example.
 The build system automatically applies patches as described in the
 ":ref:`dev-manual/common-tasks:patching code`" section.
 
+Fetching Code Through Firewalls
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Some users are behind firewalls and need to fetch code through a proxy.
+See the ":doc:`/ref-manual/faq`" chapter for advice.
+
+Limiting the Number of Parallel Connections
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Some users are behind firewalls or use servers where the number of parallel
+connections is limited. In such cases, you can limit the number of fetch
+tasks being run in parallel by adding the following to your ``local.conf``
+file::
+
+   do_fetch[number_threads] = "4"
+
 Unpacking Code
 --------------
 
@@ -1543,7 +1554,7 @@ variables:
    given a piece of software licensed under the GNU General Public
    License version 2, you would set :term:`LICENSE` as follows::
 
-      LICENSE = "GPLv2"
+      LICENSE = "GPL-2.0-only"
 
    The licenses you specify within :term:`LICENSE` can have any name as long
    as you do not use spaces, since spaces are used as separators between
@@ -2114,7 +2125,7 @@ statement that essentially identifies itself as being able to provide
 ``virtual/kernel``. Here is one way through the
 :ref:`kernel <ref-classes-kernel>` class::
 
-   PROVIDES += "${@ "virtual/kernel" if (d.getVar("KERNEL_PACKAGE_NAME") == "kernel") else "" }"
+   PROVIDES += "virtual/kernel"
 
 Any recipe that inherits the :ref:`kernel <ref-classes-kernel>` class is
 going to utilize a :term:`PROVIDES` statement that identifies that recipe as
@@ -2338,7 +2349,7 @@ Following is one example: (``hello_2.3.bb``)
 
    SUMMARY = "GNU Helloworld application"
    SECTION = "examples"
-   LICENSE = "GPLv2+"
+   LICENSE = "GPL-2.0-or-later"
    LIC_FILES_CHKSUM = "file://COPYING;md5=751419260aa954499f7abaabaa882bbe"
 
    SRC_URI = "${GNU_MIRROR}/hello/hello-${PV}.tar.gz"
@@ -2372,41 +2383,39 @@ following example shows this::
 
    CFLAGS:prepend = "-I ${S}/include "
 
-In the following example, ``mtd-utils`` is a makefile-based package::
+In the following example, ``lz4`` is a makefile-based package::
 
-   SUMMARY = "Tools for managing memory technology devices"
-   SECTION = "base"
-   DEPENDS = "zlib lzo e2fsprogs util-linux"
-   HOMEPAGE = "http://www.linux-mtd.infradead.org/"
-   LICENSE = "GPLv2+"
-   LIC_FILES_CHKSUM = "file://COPYING;md5=0636e73ff0215e8d672dc4c32c317bb3 \
-       file://include/common.h;beginline=1;endline=17;md5=ba05b07912a44ea2bf81ce409380049c"
+   SUMMARY = "Extremely Fast Compression algorithm"
+   DESCRIPTION = "LZ4 is a very fast lossless compression algorithm, providing compression speed at 400 MB/s per core, scalable with multi-cores CPU. It also features an extremely fast decoder, with speed in multiple GB/s per core, typically reaching RAM speed limits on multi-core systems."
+   HOMEPAGE = "https://github.com/lz4/lz4"
 
-   # Use the latest version at 26 Oct, 2013
-   SRCREV = "9f107132a6a073cce37434ca9cda6917dd8d866b"
-   SRC_URI = "git://git.infradead.org/mtd-utils.git \
-       file://add-exclusion-to-mkfs-jffs2-git-2.patch \
-       "
+   LICENSE = "BSD-2-Clause | GPL-2.0-only"
+   LIC_FILES_CHKSUM = "file://lib/LICENSE;md5=ebc2ea4814a64de7708f1571904b32cc \
+                       file://programs/COPYING;md5=b234ee4d69f5fce4486a80fdaf4a4263 \
+                       file://LICENSE;md5=d57c0d21cb917fb4e0af2454aa48b956 \
+                       "
 
-   PV = "1.5.1+git${SRCPV}"
+   PE = "1"
+
+   SRCREV = "d44371841a2f1728a3f36839fd4b7e872d0927d3"
+
+   SRC_URI = "git://github.com/lz4/lz4.git;branch=release;protocol=https \
+              file://CVE-2021-3520.patch \
+              "
+   UPSTREAM_CHECK_GITTAGREGEX = "v(?P<pver>.*)"
 
    S = "${WORKDIR}/git"
 
-   EXTRA_OEMAKE = "'CC=${CC}' 'RANLIB=${RANLIB}' 'AR=${AR}' 'CFLAGS=${CFLAGS} -I${S}/include -DWITHOUT_XATTR' 'BUILDDIR=${S}'"
+   # Fixed in r118, which is larger than the current version.
+   CVE_CHECK_IGNORE += "CVE-2014-4715"
 
-   do_install () {
-       oe_runmake install DESTDIR=${D} SBINDIR=${sbindir} MANDIR=${mandir} INCLUDEDIR=${includedir}
+   EXTRA_OEMAKE = "PREFIX=${prefix} CC='${CC}' CFLAGS='${CFLAGS}' DESTDIR=${D} LIBDIR=${libdir} INCLUDEDIR=${includedir} BUILD_STATIC=no"
+
+   do_install() {
+           oe_runmake install
    }
 
-   PACKAGES =+ "mtd-utils-jffs2 mtd-utils-ubifs mtd-utils-misc"
-
-   FILES:mtd-utils-jffs2 = "${sbindir}/mkfs.jffs2 ${sbindir}/jffs2dump ${sbindir}/jffs2reader ${sbindir}/sumtool"
-   FILES:mtd-utils-ubifs = "${sbindir}/mkfs.ubifs ${sbindir}/ubi*"
-   FILES:mtd-utils-misc = "${sbindir}/nftl* ${sbindir}/ftl* ${sbindir}/rfd* ${sbindir}/doc* ${sbindir}/serve_image ${sbindir}/recv_image"
-
-   PARALLEL_MAKE = ""
-
-   BBCLASSEXTEND = "native"
+   BBCLASSEXTEND = "native nativesdk"
 
 Splitting an Application into Multiple Packages
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -2533,13 +2542,6 @@ doing the following:
    point to the files you have installed, which of course depends on
    where you have installed them and whether those files are in
    different locations than the defaults.
-
-.. note::
-
-  If image prelinking is enabled (e.g. :ref:`image-prelink <ref-classes-image-prelink>` is in :term:`USER_CLASSES`
-  which it is by default), prelink will change the binaries in the generated images
-  and this often catches people out. Remove that class to ensure binaries are
-  preserved exactly if that is necessary.
 
 Following Recipe Style Guidelines
 ---------------------------------
@@ -3919,6 +3921,48 @@ Follow these steps to create an initramfs image:
    :term:`INITRAMFS_IMAGE_BUNDLE`
    variable described earlier.
 
+Bundling an Initramfs Image From a Separate Multiconfig
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+There may be a case where we want to build an initramfs image which does not
+inherit the same distro policy as our main image, for example, we may want
+our main image to use ``TCLIBC="glibc"``, but to use ``TCLIBC="musl"`` in our initramfs
+image to keep a smaller footprint. However, by performing the steps mentioned
+above the initramfs image will inherit ``TCLIBC="glibc"`` without allowing us
+to override it.
+
+To achieve this, you need to perform some additional steps:
+
+1. *Create a multiconfig for your initramfs image:* You can perform the steps
+   on ":ref:`dev-manual/common-tasks:building images for multiple targets using multiple configurations`" to create a separate multiconfig.
+   For the sake of simplicity let's assume such multiconfig is called: ``initramfscfg.conf`` and
+   contains the variables::
+
+      TMPDIR="${TOPDIR}/tmp-initramfscfg"
+      TCLIBC="musl"
+
+2. *Set additional initramfs variables on your main configuration:*
+   Additionally, on your main configuration (``local.conf``) you need to set the
+   variables::
+
+     INITRAMFS_MULTICONFIG = "initramfscfg"
+     INITRAMFS_DEPLOY_DIR_IMAGE = "${TOPDIR}/tmp-initramfscfg/deploy/images/${MACHINE}"
+
+   The variables :term:`INITRAMFS_MULTICONFIG` and :term:`INITRAMFS_DEPLOY_DIR_IMAGE`
+   are used to create a multiconfig dependency from the kernel to the :term:`INITRAMFS_IMAGE`
+   to be built coming from the ``initramfscfg`` multiconfig, and to let the
+   buildsystem know where the :term:`INITRAMFS_IMAGE` will be located.
+
+   Building a system with such configuration will build the kernel using the
+   main configuration but the ``do_bundle_initramfs`` task will grab the
+   selected :term:`INITRAMFS_IMAGE` from :term:`INITRAMFS_DEPLOY_DIR_IMAGE`
+   instead, resulting in a musl based initramfs image bundled in the kernel
+   but a glibc based main image.
+
+   The same is applicable to avoid inheriting :term:`DISTRO_FEATURES` on :term:`INITRAMFS_IMAGE`
+   or to build a different :term:`DISTRO` for it such as ``poky-tiny``.
+
+
 Building a Tiny System
 ----------------------
 
@@ -4393,7 +4437,7 @@ This next example shows how to accomplish the same thing by setting
    locally inherit the :ref:`externalsrc <ref-classes-externalsrc>`
    class.
 
-By default, ``externalsrc.bbclass`` builds the source code in a
+By default, :ref:`ref-classes-externalsrc` builds the source code in a
 directory separate from the external source directory as specified by
 :term:`EXTERNALSRC`. If you need
 to have the source built in the same directory in which it resides, or
@@ -4893,6 +4937,213 @@ have a recipe depend on the 1.8 version of the ``clutter`` library, use
 the following in your recipe::
 
    DEPENDS = "clutter-1.8"
+
+Working with Pre-Built Libraries
+================================
+
+Introduction
+-------------
+
+Some library vendors do not release source code for their software but do
+release pre-built binaries. When shared libraries are built, they should
+be versioned (see `this article
+<https://tldp.org/HOWTO/Program-Library-HOWTO/shared-libraries.html>`__
+for some background), but sometimes this is not done.
+
+To summarize, a versioned library must meet two conditions:
+
+#.    The filename must have the version appended, for example: ``libfoo.so.1.2.3``.
+#.    The library must have the ELF tag ``SONAME`` set to the major version
+      of the library, for example: ``libfoo.so.1``. You can check this by
+      running ``readelf -d filename | grep SONAME``.
+
+This section shows how to deal with both versioned and unversioned
+pre-built libraries.
+
+Versioned Libraries
+-------------------
+
+In this example we work with pre-built libraries for the FT4222H USB I/O chip.
+Libraries are built for several target architecture variants and packaged in
+an archive as follows::
+
+   ├── build-arm-hisiv300
+   │   └── libft4222.so.1.4.4.44
+   ├── build-arm-v5-sf
+   │   └── libft4222.so.1.4.4.44
+   ├── build-arm-v6-hf
+   │   └── libft4222.so.1.4.4.44
+   ├── build-arm-v7-hf
+   │   └── libft4222.so.1.4.4.44
+   ├── build-arm-v8
+   │   └── libft4222.so.1.4.4.44
+   ├── build-i386
+   │   └── libft4222.so.1.4.4.44
+   ├── build-i486
+   │   └── libft4222.so.1.4.4.44
+   ├── build-mips-eglibc-hf
+   │   └── libft4222.so.1.4.4.44
+   ├── build-pentium
+   │   └── libft4222.so.1.4.4.44
+   ├── build-x86_64
+   │   └── libft4222.so.1.4.4.44
+   ├── examples
+   │   ├── get-version.c
+   │   ├── i2cm.c
+   │   ├── spim.c
+   │   └── spis.c
+   ├── ftd2xx.h
+   ├── install4222.sh
+   ├── libft4222.h
+   ├── ReadMe.txt
+   └── WinTypes.h
+
+To write a recipe to use such a library in your system:
+
+-  The vendor will probably have a proprietary licence, so set
+   :term:`LICENSE_FLAGS` in your recipe.
+-  The vendor provides a tarball containing libraries so set :term:`SRC_URI`
+   appropriately.
+-  Set :term:`COMPATIBLE_HOST` so that the recipe cannot be used with an
+   unsupported architecture. In the following example, we only support the 32
+   and 64 bit variants of the ``x86`` architecture.
+-  As the vendor provides versioned libraries, we can use ``oe_soinstall``
+   from :ref:`ref-classes-utils` to install the shared library and create
+   symbolic links. If the vendor does not do this, we need to follow the
+   non-versioned library guidelines in the next section.
+-  As the vendor likely used :term:`LDFLAGS` different from those in your Yocto
+   Project build, disable the corresponding checks by adding ``ldflags``
+   to :term:`INSANE_SKIP`.
+-  The vendor will typically ship release builds without debugging symbols.
+   Avoid errors by preventing the packaging task from stripping out the symbols
+   and adding them to a separate debug package. This is done by setting the
+   ``INHIBIT_`` flags shown below.
+
+The complete recipe would look like this::
+
+   SUMMARY = "FTDI FT4222H Library"
+   SECTION = "libs"
+   LICENSE_FLAGS = "ftdi"
+   LICENSE = "CLOSED"
+
+   COMPATIBLE_HOST = "(i.86|x86_64).*-linux"
+
+   # Sources available in a .tgz file in .zip archive
+   # at https://ftdichip.com/wp-content/uploads/2021/01/libft4222-linux-1.4.4.44.zip
+   # Found on https://ftdichip.com/software-examples/ft4222h-software-examples/
+   # Since dealing with this particular type of archive is out of topic here,
+   # we use a local link.
+   SRC_URI = "file://libft4222-linux-${PV}.tgz"
+
+   S = "${WORKDIR}"
+
+   ARCH_DIR:x86-64 = "build-x86_64"
+   ARCH_DIR:i586 = "build-i386"
+   ARCH_DIR:i686 = "build-i386"
+
+   INSANE_SKIP:${PN} = "ldflags"
+   INHIBIT_PACKAGE_STRIP = "1"
+   INHIBIT_SYSROOT_STRIP = "1"
+   INHIBIT_PACKAGE_DEBUG_SPLIT = "1"
+
+   do_install () {
+           install -m 0755 -d ${D}${libdir}
+           oe_soinstall ${S}/${ARCH_DIR}/libft4222.so.${PV} ${D}${libdir}
+           install -d ${D}${includedir}
+           install -m 0755 ${S}/*.h ${D}${includedir}
+   }
+
+If the precompiled binaries are not statically linked and have dependencies on
+other libraries, then by adding those libraries to :term:`DEPENDS`, the linking
+can be examined and the appropriate :term:`RDEPENDS` automatically added.
+
+Non-Versioned Libraries
+-----------------------
+
+Some Background
+~~~~~~~~~~~~~~~
+
+Libraries in Linux systems are generally versioned so that it is possible
+to have multiple versions of the same library installed, which eases upgrades
+and support for older software. For example, suppose that in a versioned
+library, an actual library is called ``libfoo.so.1.2``, a symbolic link named
+``libfoo.so.1`` points to ``libfoo.so.1.2``, and a symbolic link named
+``libfoo.so`` points to ``libfoo.so.1.2``. Given these conditions, when you
+link a binary against a library, you typically provide the unversioned file
+name (i.e. ``-lfoo`` to the linker). However, the linker follows the symbolic
+link and actually links against the versioned filename. The unversioned symbolic
+link is only used at development time. Consequently, the library is packaged
+along with the headers in the development package ``${PN}-dev`` along with the
+actual library and versioned symbolic links in ``${PN}``. Because versioned
+libraries are far more common than unversioned libraries, the default packaging
+rules assume versioned libraries.
+
+Yocto Library Packaging Overview
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+It follows that packaging an unversioned library requires a bit of work in the
+recipe. By default, ``libfoo.so`` gets packaged into ``${PN}-dev``, which
+triggers a QA warning that a non-symlink library is in a ``-dev`` package,
+and binaries in the same recipe link to the library in ``${PN}-dev``,
+which triggers more QA warnings. To solve this problem, you need to package the
+unversioned library into ``${PN}`` where it belongs. The following are the abridged
+default :term:`FILES` variables in ``bitbake.conf``::
+
+   SOLIBS = ".so.*"
+   SOLIBSDEV = ".so"
+   FILES_${PN} = "... ${libdir}/lib*${SOLIBS} ..."
+   FILES_SOLIBSDEV ?= "... ${libdir}/lib*${SOLIBSDEV} ..."
+   FILES_${PN}-dev = "... ${FILES_SOLIBSDEV} ..."
+
+:term:`SOLIBS` defines a pattern that matches real shared object libraries.
+:term:`SOLIBSDEV` matches the development form (unversioned symlink). These two
+variables are then used in ``FILES:${PN}`` and ``FILES:${PN}-dev``, which puts
+the real libraries into ``${PN}`` and the unversioned symbolic link into ``${PN}-dev``.
+To package unversioned libraries, you need to modify the variables in the recipe
+as follows::
+
+   SOLIBS = ".so"
+   FILES_SOLIBSDEV = ""
+
+The modifications cause the ``.so`` file to be the real library
+and unset :term:`FILES_SOLIBSDEV` so that no libraries get packaged into
+``${PN}-dev``. The changes are required because unless :term:`PACKAGES` is changed,
+``${PN}-dev`` collects files before `${PN}`. ``${PN}-dev`` must not collect any of
+the files you want in ``${PN}``.
+
+Finally, loadable modules, essentially unversioned libraries that are linked
+at runtime using ``dlopen()`` instead of at build time, should generally be
+installed in a private directory. However, if they are installed in ``${libdir}``,
+then the modules can be treated as unversioned libraries.
+
+Example
+~~~~~~~
+
+The example below installs an unversioned x86-64 pre-built library named
+``libfoo.so``. The :term:`COMPATIBLE_HOST` variable limits recipes to the
+x86-64 architecture while the :term:`INSANE_SKIP`, :term:`INHIBIT_PACKAGE_STRIP`
+and :term:`INHIBIT_SYSROOT_STRIP` variables are all set as in the above
+versioned library example. The "magic" is setting the :term:`SOLIBS` and
+:term:`FILES_SOLIBSDEV` variables as explained above::
+
+   SUMMARY = "libfoo sample recipe"
+   SECTION = "libs"
+   LICENSE = "CLOSED"
+
+   SRC_URI = "file://libfoo.so"
+
+   COMPATIBLE_HOST = "x86_64.*-linux"
+
+   INSANE_SKIP:${PN} = "ldflags"
+   INHIBIT_PACKAGE_STRIP = "1"
+   INHIBIT_SYSROOT_STRIP = "1"
+   SOLIBS = ".so"
+   FILES_SOLIBSDEV = ""
+
+   do_install () {
+           install -d ${D}${libdir}
+           install -m 0755 ${WORKDIR}/libfoo.so ${D}${libdir}
+   }
 
 Using x32 psABI
 ===============
@@ -6039,8 +6290,7 @@ system to make your images more secure:
    :ref:`extrausers <ref-classes-extrausers>`
    class, which is the preferred method. For an example on how to set up
    both root and user passwords, see the
-   ":ref:`extrausers.bbclass <ref-classes-extrausers>`"
-   section.
+   ":ref:`ref-classes-extrausers`" section.
 
    .. note::
 
@@ -6131,7 +6381,7 @@ layer. The following steps provide some more detail:
       variables that differ as compared to ``defaultsetup.conf``.
       Alternatively, you can create a distribution configuration file
       from scratch using the ``defaultsetup.conf`` file or configuration files
-      from other distributions such as Poky or Angstrom as references.
+      from another distribution such as Poky as a reference.
 
 -  *Provide miscellaneous variables:* Be sure to define any other
    variables for which you want to create a default or enforce as part
@@ -7032,7 +7282,7 @@ variables were set.
 
 The ``opkg`` application uses configuration files to find available
 package databases. Thus, you need to create a configuration file inside
-the ``/etc/opkg/`` direction, which informs ``opkg`` of any repository
+the ``/etc/opkg/`` directory, which informs ``opkg`` of any repository
 you want to use.
 
 As an example, suppose you are serving packages from a ``ipk/``
@@ -7540,7 +7790,7 @@ Setting up Effective Mirrors
 
 A good deal that goes into a Yocto Project build is simply downloading
 all of the source tarballs. Maybe you have been working with another
-build system (OpenEmbedded or Angstrom) for which you have built up a
+build system for which you have built up a
 sizable directory of source tarballs. Or, perhaps someone else has such
 a directory for which you have read access. If so, you can save time by
 adding statements to your configuration file so that the build process
@@ -7659,6 +7909,20 @@ Doing so causes your main image to use the
 image cannot use this package group. However, it can install SysVinit
 and the appropriate packages will have support for both systemd and
 SysVinit.
+
+Using systemd-journald without a traditional syslog daemon
+----------------------------------------------------------
+
+Counter-intuitively, ``systemd-journald`` is not a syslog runtime or provider,
+and the proper way to use systemd-journald as your sole logging mechanism is to
+effectively disable syslog entirely by setting these variables in your distribution
+configuration file::
+
+   VIRTUAL-RUNTIME_syslog = ""
+   VIRTUAL-RUNTIME_base-utils-syslog = ""
+
+Doing so will prevent ``rsyslog`` / ``busybox-syslog`` from being pulled in by
+default, leaving only ``journald``.
 
 Selecting a Device Manager
 ==========================
@@ -8025,26 +8289,39 @@ in a format suitable for use in global configuration (e.g.,
 output from this command::
 
    $ buildhistory-collect-srcrevs -a
-   # i586-poky-linux
-   SRCREV:pn-glibc = "b8079dd0d360648e4e8de48656c5c38972621072"
-   SRCREV:pn-glibc-initial = "b8079dd0d360648e4e8de48656c5c38972621072"
-   SRCREV:pn-opkg-utils = "53274f087565fd45d8452c5367997ba6a682a37a"
-   SRCREV:pn-kmod = "fd56638aed3fe147015bfa10ed4a5f7491303cb4"
-   # x86_64-linux
-   SRCREV:pn-gtk-doc-stub-native = "1dea266593edb766d6d898c79451ef193eb17cfa"
-   SRCREV:pn-dtc-native = "65cc4d2748a2c2e6f27f1cf39e07a5dbabd80ebf"
-   SRCREV:pn-update-rc.d-native = "eca680ddf28d024954895f59a241a622dd575c11"
-   SRCREV_glibc:pn-cross-localedef-native = "b8079dd0d360648e4e8de48656c5c38972621072"
-   SRCREV_localedef:pn-cross-localedef-native = "c833367348d39dad7ba018990bfdaffaec8e9ed3"
-   SRCREV:pn-prelink-native = "faa069deec99bf61418d0bab831c83d7c1b797ca"
-   SRCREV:pn-opkg-utils-native = "53274f087565fd45d8452c5367997ba6a682a37a"
-   SRCREV:pn-kern-tools-native = "23345b8846fe4bd167efdf1bd8a1224b2ba9a5ff"
-   SRCREV:pn-kmod-native = "fd56638aed3fe147015bfa10ed4a5f7491303cb4"
-   # qemux86-poky-linux
-   SRCREV_machine:pn-linux-yocto = "38cd560d5022ed2dbd1ab0dca9642e47c98a0aa1"
-   SRCREV_meta:pn-linux-yocto = "a227f20eff056e511d504b2e490f3774ab260d6f"
    # all-poky-linux
-   SRCREV:pn-update-rc.d = "eca680ddf28d024954895f59a241a622dd575c11"
+   SRCREV:pn-ca-certificates = "07de54fdcc5806bde549e1edf60738c6bccf50e8"
+   SRCREV:pn-update-rc.d = "8636cf478d426b568c1be11dbd9346f67e03adac"
+   # core2-64-poky-linux
+   SRCREV:pn-binutils = "87d4632d36323091e731eb07b8aa65f90293da66"
+   SRCREV:pn-btrfs-tools = "8ad326b2f28c044cb6ed9016d7c3285e23b673c8"
+   SRCREV_bzip2-tests:pn-bzip2 = "f9061c030a25de5b6829e1abf373057309c734c0"
+   SRCREV:pn-e2fsprogs = "02540dedd3ddc52c6ae8aaa8a95ce75c3f8be1c0"
+   SRCREV:pn-file = "504206e53a89fd6eed71aeaf878aa3512418eab1"
+   SRCREV_glibc:pn-glibc = "24962427071fa532c3c48c918e9d64d719cc8a6c"
+   SRCREV:pn-gnome-desktop-testing = "e346cd4ed2e2102c9b195b614f3c642d23f5f6e7"
+   SRCREV:pn-init-system-helpers = "dbd9197569c0935029acd5c9b02b84c68fd937ee"
+   SRCREV:pn-kmod = "b6ecfc916a17eab8f93be5b09f4e4f845aabd3d1"
+   SRCREV:pn-libnsl2 = "82245c0c58add79a8e34ab0917358217a70e5100"
+   SRCREV:pn-libseccomp = "57357d2741a3b3d3e8425889a6b79a130e0fa2f3"
+   SRCREV:pn-libxcrypt = "50cf2b6dd4fdf04309445f2eec8de7051d953abf"
+   SRCREV:pn-ncurses = "51d0fd9cc3edb975f04224f29f777f8f448e8ced"
+   SRCREV:pn-procps = "19a508ea121c0c4ac6d0224575a036de745eaaf8"
+   SRCREV:pn-psmisc = "5fab6b7ab385080f1db725d6803136ec1841a15f"
+   SRCREV:pn-ptest-runner = "bcb82804daa8f725b6add259dcef2067e61a75aa"
+   SRCREV:pn-shared-mime-info = "18e558fa1c8b90b86757ade09a4ba4d6a6cf8f70"
+   SRCREV:pn-zstd = "e47e674cd09583ff0503f0f6defd6d23d8b718d3"
+   # qemux86_64-poky-linux
+   SRCREV_machine:pn-linux-yocto = "20301aeb1a64164b72bc72af58802b315e025c9c"
+   SRCREV_meta:pn-linux-yocto = "2d38a472b21ae343707c8bd64ac68a9eaca066a0"
+   # x86_64-linux
+   SRCREV:pn-binutils-cross-x86_64 = "87d4632d36323091e731eb07b8aa65f90293da66"
+   SRCREV_glibc:pn-cross-localedef-native = "24962427071fa532c3c48c918e9d64d719cc8a6c"
+   SRCREV_localedef:pn-cross-localedef-native = "794da69788cbf9bf57b59a852f9f11307663fa87"
+   SRCREV:pn-debianutils-native = "de14223e5bffe15e374a441302c528ffc1cbed57"
+   SRCREV:pn-libmodulemd-native = "ee80309bc766d781a144e6879419b29f444d94eb"
+   SRCREV:pn-virglrenderer-native = "363915595e05fb252e70d6514be2f0c0b5ca312b"
+   SRCREV:pn-zstd-native = "e47e674cd09583ff0503f0f6defd6d23d8b718d3"
 
 .. note::
 
@@ -8106,21 +8383,18 @@ Here is an example of ``image-info.txt``:
 .. code-block:: none
 
    DISTRO = poky
-   DISTRO_VERSION = 1.7
-   USER_CLASSES = buildstats image-prelink
-   IMAGE_CLASSES = image_types
+   DISTRO_VERSION = 3.4+snapshot-a0245d7be08f3d24ea1875e9f8872aa6bbff93be
+   USER_CLASSES = buildstats
+   IMAGE_CLASSES = qemuboot qemuboot license_image
    IMAGE_FEATURES = debug-tweaks
    IMAGE_LINGUAS =
-   IMAGE_INSTALL = packagegroup-core-boot run-postinsts
+   IMAGE_INSTALL = packagegroup-core-boot speex speexdsp
    BAD_RECOMMENDATIONS =
    NO_RECOMMENDATIONS =
    PACKAGE_EXCLUDE =
-   ROOTFS_POSTPROCESS_COMMAND = write_package_manifest; license_create_manifest; \
-      write_image_manifest ; buildhistory_list_installed_image ; \
-      buildhistory_get_image_installed ; ssh_allow_empty_password;  \
-      postinst_enable_logging; rootfs_update_timestamp ; ssh_disable_dns_lookup ;
-   IMAGE_POSTPROCESS_COMMAND =   buildhistory_get_imageinfo ;
-   IMAGESIZE = 6900
+   ROOTFS_POSTPROCESS_COMMAND = write_package_manifest; license_create_manifest; cve_check_write_rootfs_manifest;   ssh_allow_empty_password;  ssh_allow_root_login;  postinst_enable_logging;  rootfs_update_timestamp;   write_image_test_data;   empty_var_volatile;   sort_passwd; rootfs_reproducible;
+   IMAGE_POSTPROCESS_COMMAND =  buildhistory_get_imageinfo ;
+   IMAGESIZE = 9265
 
 Other than ``IMAGESIZE``,
 which is the total size of the files in the image in Kbytes, the
@@ -9226,7 +9500,7 @@ BitBake has determined by doing the following:
 
    The output of ``bitbake-dumpsig`` also includes the value each
    variable had, a list of dependencies for each variable, and
-   :term:`BB_HASHBASE_WHITELIST`
+   :term:`BB_BASEHASH_IGNORE_VARS`
    information.
 
 There is also a ``bitbake-diffsigs`` command for comparing two
@@ -10793,17 +11067,17 @@ name and version (after variable expansion)::
 In order for a component restricted by a
 :term:`LICENSE_FLAGS` definition to be enabled and included in an image, it
 needs to have a matching entry in the global
-:term:`LICENSE_FLAGS_WHITELIST`
+:term:`LICENSE_FLAGS_ACCEPTED`
 variable, which is a variable typically defined in your ``local.conf``
 file. For example, to enable the
 ``poky/meta/recipes-multimedia/gstreamer/gst-plugins-ugly`` package, you
 could add either the string "commercial_gst-plugins-ugly" or the more
-general string "commercial" to :term:`LICENSE_FLAGS_WHITELIST`. See the
+general string "commercial" to :term:`LICENSE_FLAGS_ACCEPTED`. See the
 ":ref:`dev-manual/common-tasks:license flag matching`" section for a full
 explanation of how :term:`LICENSE_FLAGS` matching works. Here is the
 example::
 
-   LICENSE_FLAGS_WHITELIST = "commercial_gst-plugins-ugly"
+   LICENSE_FLAGS_ACCEPTED = "commercial_gst-plugins-ugly"
 
 Likewise, to additionally enable the package built from the recipe
 containing ``LICENSE_FLAGS = "license_${PN}_${PV}"``, and assuming that
@@ -10811,7 +11085,7 @@ the actual recipe name was ``emgd_1.10.bb``, the following string would
 enable that package as well as the original ``gst-plugins-ugly``
 package::
 
-   LICENSE_FLAGS_WHITELIST = "commercial_gst-plugins-ugly license_emgd_1.10"
+   LICENSE_FLAGS_ACCEPTED = "commercial_gst-plugins-ugly license_emgd_1.10"
 
 As a convenience, you do not need to specify the
 complete license string for every package. You can use
@@ -10824,7 +11098,7 @@ previously mentioned as well as any other packages that have licenses
 starting with "commercial" or "license".
 ::
 
-   LICENSE_FLAGS_WHITELIST = "commercial license"
+   LICENSE_FLAGS_ACCEPTED = "commercial license"
 
 License Flag Matching
 ~~~~~~~~~~~~~~~~~~~~~
@@ -10832,7 +11106,7 @@ License Flag Matching
 License flag matching allows you to control what recipes the
 OpenEmbedded build system includes in the build. Fundamentally, the
 build system attempts to match :term:`LICENSE_FLAGS` strings found in
-recipes against strings found in :term:`LICENSE_FLAGS_WHITELIST`.
+recipes against strings found in :term:`LICENSE_FLAGS_ACCEPTED`.
 A match causes the build system to include a recipe in the
 build, while failure to find a match causes the build system to exclude
 a recipe.
@@ -10841,19 +11115,19 @@ In general, license flag matching is simple. However, understanding some
 concepts will help you correctly and effectively use matching.
 
 Before a flag defined by a particular recipe is tested against the
-entries of :term:`LICENSE_FLAGS_WHITELIST`, the expanded
+entries of :term:`LICENSE_FLAGS_ACCEPTED`, the expanded
 string ``_${PN}`` is appended to the flag. This expansion makes each
 :term:`LICENSE_FLAGS` value recipe-specific. After expansion, the
 string is then matched against the entries. Thus, specifying
 ``LICENSE_FLAGS = "commercial"`` in recipe "foo", for example, results
 in the string ``"commercial_foo"``. And, to create a match, that string
-must appear among the entries of :term:`LICENSE_FLAGS_WHITELIST`.
+must appear among the entries of :term:`LICENSE_FLAGS_ACCEPTED`.
 
 Judicious use of the :term:`LICENSE_FLAGS` strings and the contents of the
-:term:`LICENSE_FLAGS_WHITELIST` variable allows you a lot of flexibility for
+:term:`LICENSE_FLAGS_ACCEPTED` variable allows you a lot of flexibility for
 including or excluding recipes based on licensing. For example, you can
 broaden the matching capabilities by using license flags string subsets
-in :term:`LICENSE_FLAGS_WHITELIST`.
+in :term:`LICENSE_FLAGS_ACCEPTED`.
 
 .. note::
 
@@ -10862,7 +11136,7 @@ in :term:`LICENSE_FLAGS_WHITELIST`.
    ``usethispart_1.3``, ``usethispart_1.4``, and so forth).
 
 For example, simply specifying the string "commercial" in the
-:term:`LICENSE_FLAGS_WHITELIST` variable matches any expanded
+:term:`LICENSE_FLAGS_ACCEPTED` variable matches any expanded
 :term:`LICENSE_FLAGS` definition that starts with the string
 "commercial" such as "commercial_foo" and "commercial_bar", which
 are the strings the build system automatically generates for
@@ -10880,24 +11154,24 @@ This scheme works even if the :term:`LICENSE_FLAGS` string already has
 ``_${PN}`` appended. For example, the build system turns the license
 flag "commercial_1.2_foo" into "commercial_1.2_foo_foo" and would match
 both the general "commercial" and the specific "commercial_1.2_foo"
-strings found in the :term:`LICENSE_FLAGS_WHITELIST` variable, as expected.
+strings found in the :term:`LICENSE_FLAGS_ACCEPTED` variable, as expected.
 
 Here are some other scenarios:
 
 -  You can specify a versioned string in the recipe such as
    "commercial_foo_1.2" in a "foo" recipe. The build system expands this
    string to "commercial_foo_1.2_foo". Combine this license flag with a
-   :term:`LICENSE_FLAGS_WHITELIST` variable that has the string
+   :term:`LICENSE_FLAGS_ACCEPTED` variable that has the string
    "commercial" and you match the flag along with any other flag that
    starts with the string "commercial".
 
 -  Under the same circumstances, you can add "commercial_foo" in the
-   :term:`LICENSE_FLAGS_WHITELIST` variable and the build system not only
+   :term:`LICENSE_FLAGS_ACCEPTED` variable and the build system not only
    matches "commercial_foo_1.2" but also matches any license flag with
    the string "commercial_foo", regardless of the version.
 
 -  You can be very specific and use both the package and version parts
-   in the :term:`LICENSE_FLAGS_WHITELIST` list (e.g.
+   in the :term:`LICENSE_FLAGS_ACCEPTED` list (e.g.
    "commercial_foo_1.2") to specifically match a versioned recipe.
 
 Other Variables Related to Commercial Licenses
@@ -10919,20 +11193,20 @@ file::
        gst-plugins-ugly-mpegaudioparse"
    COMMERCIAL_VIDEO_PLUGINS = "gst-plugins-ugly-mpeg2dec \
        gst-plugins-ugly-mpegstream gst-plugins-bad-mpegvideoparse"
-   LICENSE_FLAGS_WHITELIST = "commercial_gst-plugins-ugly commercial_gst-plugins-bad commercial_qmmp"
+   LICENSE_FLAGS_ACCEPTED = "commercial_gst-plugins-ugly commercial_gst-plugins-bad commercial_qmmp"
 
 
 Of course, you could also create a matching list for those
 components using the more general "commercial" in the
-:term:`LICENSE_FLAGS_WHITELIST` variable, but that would also enable all
+:term:`LICENSE_FLAGS_ACCEPTED` variable, but that would also enable all
 the other packages with :term:`LICENSE_FLAGS`
 containing "commercial", which you may or may not want::
 
-   LICENSE_FLAGS_WHITELIST = "commercial"
+   LICENSE_FLAGS_ACCEPTED = "commercial"
 
 Specifying audio and video plugins as part of the
 ``COMMERCIAL_AUDIO_PLUGINS`` and ``COMMERCIAL_VIDEO_PLUGINS`` statements
-(along with the enabling :term:`LICENSE_FLAGS_WHITELIST`) includes the
+(along with the enabling :term:`LICENSE_FLAGS_ACCEPTED`) includes the
 plugins or components into built images, thus adding support for media
 formats or components.
 
@@ -11296,7 +11570,7 @@ The NIST database knows which versions are vulnerable and which ones
 are not.
 
 Last but not least, you can choose to ignore vulnerabilities through
-the :term:`CVE_CHECK_PN_WHITELIST` and :term:`CVE_CHECK_WHITELIST`
+the :term:`CVE_CHECK_SKIP_RECIPE` and :term:`CVE_CHECK_IGNORE`
 variables.
 
 Implementation details
@@ -11315,9 +11589,9 @@ Then, the code looks up all the CVE IDs in the NIST database for all the
 products defined in :term:`CVE_PRODUCT`. Then, for each found CVE:
 
  - If the package name (:term:`PN`) is part of
-   :term:`CVE_CHECK_PN_WHITELIST`, it is considered as patched.
+   :term:`CVE_CHECK_SKIP_RECIPE`, it is considered as patched.
 
- - If the CVE ID is part of :term:`CVE_CHECK_WHITELIST`, it is
+ - If the CVE ID is part of :term:`CVE_CHECK_IGNORE`, it is
    considered as patched too.
 
  - If the CVE ID is part of the patched CVE for the recipe, it is

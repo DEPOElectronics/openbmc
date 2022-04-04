@@ -79,8 +79,8 @@ directives.
 Prior to parsing configuration files, BitBake looks at certain
 variables, including:
 
--  :term:`BB_ENV_WHITELIST`
--  :term:`BB_ENV_EXTRAWHITE`
+-  :term:`BB_ENV_PASSTHROUGH`
+-  :term:`BB_ENV_PASSTHROUGH_ADDITIONS`
 -  :term:`BB_PRESERVE_ENV`
 -  :term:`BB_ORIGENV`
 -  :term:`BITBAKE_UI`
@@ -228,7 +228,7 @@ and then reload it.
 Where possible, subsequent BitBake commands reuse this cache of recipe
 information. The validity of this cache is determined by first computing
 a checksum of the base configuration data (see
-:term:`BB_HASHCONFIG_WHITELIST`) and
+:term:`BB_HASHCONFIG_IGNORE_VARS`) and
 then checking if the checksum matches. If that checksum matches what is
 in the cache and the recipe and class files have not changed, BitBake is
 able to use the cache. BitBake then reloads the cached information about
@@ -477,7 +477,7 @@ changes because it should not affect the output for target packages. The
 simplistic approach for excluding the working directory is to set it to
 some fixed value and create the checksum for the "run" script. BitBake
 goes one step better and uses the
-:term:`BB_HASHBASE_WHITELIST` variable
+:term:`BB_BASEHASH_IGNORE_VARS` variable
 to define a list of variables that should never be included when
 generating the signatures.
 
@@ -523,7 +523,7 @@ it cannot figure out dependencies.
 Thus far, this section has limited discussion to the direct inputs into
 a task. Information based on direct inputs is referred to as the
 "basehash" in the code. However, there is still the question of a task's
-indirect inputs - the things that were already built and present in the
+indirect inputs --- the things that were already built and present in the
 build directory. The checksum (or signature) for a particular task needs
 to add the hashes of all the tasks on which the particular task depends.
 Choosing which dependencies to add is a policy decision. However, the
@@ -534,11 +534,11 @@ At the code level, there are a variety of ways both the basehash and the
 dependent task hashes can be influenced. Within the BitBake
 configuration file, we can give BitBake some extra information to help
 it construct the basehash. The following statement effectively results
-in a list of global variable dependency excludes - variables never
+in a list of global variable dependency excludes --- variables never
 included in any checksum. This example uses variables from OpenEmbedded
 to help illustrate the concept::
 
-   BB_HASHBASE_WHITELIST ?= "TMPDIR FILE PATH PWD BB_TASKHASH BBPATH DL_DIR \
+   BB_BASEHASH_IGNORE_VARS ?= "TMPDIR FILE PATH PWD BB_TASKHASH BBPATH DL_DIR \
        SSTATE_DIR THISDIR FILESEXTRAPATHS FILE_DIRNAME HOME LOGNAME SHELL \
        USER FILESPATH STAGING_DIR_HOST STAGING_DIR_TARGET COREBASE PRSERV_HOST \
        PRSERV_DUMPDIR PRSERV_DUMPFILE PRSERV_LOCKDOWN PARALLEL_MAKE \

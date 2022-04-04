@@ -88,11 +88,11 @@ universal, the list includes them just in case:
          -  Provide a directory path and specifically name the Build
             Directory. Any intermediate folders in the pathname must exist.
             This next example creates a Build Directory named
-            ``YP-&POKYVERSION;`` within the existing directory ``mybuilds``:
+            ``YP-&DISTRO;`` within the existing directory ``mybuilds``:
 
             .. code-block:: shell
 
-               $ source poky/oe-init-build-env mybuilds/YP-&POKYVERSION;
+               $ source poky/oe-init-build-env mybuilds/YP-&DISTRO;
 
       .. note::
 
@@ -148,7 +148,7 @@ universal, the list includes them just in case:
       and so on.
 
       On the other hand, some container layers (such as
-      `meta-security <https://git.yoctoproject.org/cgit/cgit.cgi/meta-security>`_)
+      :yocto_git:`meta-security </meta-security>`)
       have a top-level directory that is itself an actual layer, as well as
       a variety of sub-layers, both of which could be included in your
       ``bblayers.conf`` file.
@@ -357,13 +357,13 @@ universal, the list includes them just in case:
      repository results in a local Git repository whose top-level folder
      is also named "poky".
 
-     While it is not recommended that you use tarball expansion to set up
+     While it is not recommended that you use tarball extraction to set up
      the Source Directory, if you do, the top-level directory name of the
      Source Directory is derived from the Yocto Project release tarball.
-     For example, downloading and unpacking
-     :yocto_dl:`/releases/yocto/&DISTRO_REL_TAG;/&YOCTO_POKY;.tar.bz2`
-     results in a Source Directory whose root folder is named
-     ``&YOCTO_POKY;``.
+     For example, downloading and unpacking poky tarballs from
+     :yocto_dl:`/releases/yocto/&DISTRO_REL_TAG;/`
+     results in a Source Directory whose root folder is named poky.
+
 
      It is important to understand the differences between the Source
      Directory created by unpacking a released tarball as compared to

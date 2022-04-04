@@ -5,7 +5,7 @@ programs. Less offers many features beyond those that more does."
 HOMEPAGE = "http://www.greenwoodsoftware.com/"
 SECTION = "console/utils"
 
-# (GPLv2+ (<< 418), GPLv3+ (>= 418)) | less
+# (GPL-2.0-or-later (<< 418), GPL-3.0-or-later (>= 418)) | less
 # Including email author giving permissing to use BSD
 #
 # From: Mark Nudelman <markn@greenwoodsoftware.com>
@@ -19,7 +19,7 @@ SECTION = "console/utils"
 # --Mark
 #
 
-LICENSE = "GPLv3+ | BSD-2-Clause"
+LICENSE = "GPL-3.0-or-later | BSD-2-Clause"
 LIC_FILES_CHKSUM = "file://COPYING;md5=1ebbd3e34237af26da5dc08a4e440464 \
                     file://LICENSE;md5=38fc26d78ca8d284a2a5a4bbc263d29b \
                     "

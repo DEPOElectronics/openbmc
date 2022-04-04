@@ -1,11 +1,14 @@
 Release 3.4 (honister)
 ======================
 
+Migration notes for 3.4 (honister)
+----------------------------------
+
 This section provides migration information for moving to the Yocto
 Project 3.4 Release (codename "honister") from the prior release.
 
 Override syntax changes
------------------------
+~~~~~~~~~~~~~~~~~~~~~~~
 
 In this release, the ``:`` character replaces the use of ``_`` to
 refer to an override, most commonly when making a conditional assignment
@@ -86,9 +89,8 @@ BitBake no longer has to guess and maintain large lookup lists just in case
 e.g. ``functionname`` in ``my_functionname`` is an override, and thus should improve
 efficiency.
 
-
 New host dependencies
----------------------
+~~~~~~~~~~~~~~~~~~~~~
 
 The ``lz4c``, ``pzstd`` and ``zstd`` commands are now required to be
 installed on the build host to support LZ4 and Zstandard compression
@@ -98,9 +100,8 @@ as part of ``buildtools-tarball`` if your distribution does not provide
 them. For more information see
 :ref:`ref-manual/system-requirements:required packages for the build host`.
 
-
 Removed recipes
----------------
+~~~~~~~~~~~~~~~
 
 The following recipes have been removed in this release:
 
@@ -119,9 +120,8 @@ The following recipes have been removed in this release:
   any known layer
 - ``packagegroup-core-clutter``: removed along with clutter
 
-
 Removed classes
----------------
+~~~~~~~~~~~~~~~
 
 - ``clutter``: moved to meta-gnome along with clutter itself
 - ``image-mklibs``: not actively tested and upstream mklibs still
@@ -129,9 +129,8 @@ Removed classes
 - ``meta``: no longer useful. Recipes that need to skip installing
   packages should inherit ``nopackages`` instead.
 
-
 Prelinking disabled by default
-------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Recent tests have shown that prelinking works only when PIE is not
 enabled (see `here <https://rlbl.me/prelink-1>`__ and `here <https://rlbl.me/prelink-2>`__),
@@ -140,24 +139,22 @@ configuration provided and tested by the Yocto Project, there is
 simply no sense in continuing to enable prelink.
 
 There's also a concern that no one is maintaining the code, and there
-are open bugs (including `this serious one <https://bugzilla.yoctoproject.org/show_bug.cgi?id=14429>`__).
+are open bugs (including :yocto_bugs:`this serious one </show_bug.cgi?id=14429>`).
 Given that prelink does intricate address arithmetic and rewriting
 of binaries the best option is to disable the feature. It is recommended
 that you consider disabling this feature in your own configuration if
 it is currently enabled.
 
-
 Virtual runtime provides
-------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~
 
 Recipes shouldn't use the ``virtual/`` string in :term:`RPROVIDES` and
 :term:`RDEPENDS` - it is confusing because ``virtual/`` has no special
 meaning in :term:`RPROVIDES` and :term:`RDEPENDS` (unlike in the
 corresponding build-time :term:`PROVIDES` and :term:`DEPENDS`).
 
-
 Tune files moved to architecture-specific directories
------------------------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The tune files found in ``conf/machine/include`` have now been moved
 into their respective architecture name directories under that same
@@ -165,15 +162,14 @@ location; e.g. x86 tune files have moved into an ``x86`` subdirectory,
 MIPS tune files have moved into a ``mips`` subdirectory, etc.
 The ARM tunes have an extra level (``armv8a``, ``armv8m``, etc.) and
 some have been renamed to make them uniform with the rest of the tunes.
-See `this commit <http://git.yoctoproject.org/cgit/cgit.cgi/poky/commit/?id=1d381f21f5f13aa0c4e1a45683ed656ebeedd37d>`__
+See :yocto_git:`this commit </poky/commit/?id=1d381f21f5f13aa0c4e1a45683ed656ebeedd37d>`
 for reference.
 
 If you have any references to tune files (e.g. in custom machine
 configuration files) they will need to be updated.
 
-
 Extensible SDK host extension
------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 For a normal SDK, some layers append to :term:`TOOLCHAIN_HOST_TASK`
 unconditionally which is fine, until the eSDK tries to override the
@@ -186,9 +182,8 @@ To avoid these issues, a new :term:`TOOLCHAIN_HOST_TASK_ESDK` variable has
 been created. If you wish to extend what is installed in the host
 portion of the eSDK then you will now need to set this variable.
 
-
 Package/recipe splitting
-------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~
 
 - ``perl-cross`` has been split out from the main ``perl`` recipe to
   its own ``perlcross`` recipe for maintenance reasons. If you have
@@ -211,9 +206,8 @@ Package/recipe splitting
   ``python3-statistics`` package instead of ``python3-misc`` as
   previously.
 
-
 Image / SDK generation changes
-------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 - Recursive dependencies on the ``do_build`` task are now disabled when
   building SDKs. These are generally not needed; in the unlikely event
@@ -239,9 +233,8 @@ Image / SDK generation changes
   you should instead add the new ``lic-pkgs`` feature to
   :term:`IMAGE_FEATURES`.
 
-
 Miscellaneous
--------------
+~~~~~~~~~~~~~
 
 - Certificates are now properly checked when bitbake fetches sources
   over HTTPS. If you receive errors as a result for your custom recipes,
@@ -262,7 +255,8 @@ Miscellaneous
 
 - The previously deprecated ``COMPRESS_CMD`` and
   ``CVE_CHECK_CVE_WHITELIST`` variables have been removed. Use
-  ``CONVERSION_CMD`` and :term:`CVE_CHECK_WHITELIST` respectively
+  ``CONVERSION_CMD`` and ``CVE_CHECK_WHITELIST`` (replaced by
+  :term:`CVE_CHECK_IGNORE` in version 3.5) respectively
   instead.
 
 - The obsolete ``oe_machinstall`` function previously provided in the
@@ -270,3 +264,7 @@ Miscellaneous
   machine-specific installation it is recommended that you use the
   built-in override support in the fetcher or overrides in general
   instead.
+
+.. include:: release-notes-3.4.rst
+.. include:: release-notes-3.4.1.rst
+.. include:: release-notes-3.4.2.rst

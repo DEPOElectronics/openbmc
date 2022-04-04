@@ -223,6 +223,7 @@ RDEPENDS:packagegroup-meta-oe-dbs ="\
     soci \
     sqlite \
 "
+RDEPENDS:packagegroup-meta-oe-dbs:remove:libc-musl:powerpc = "rocksdb"
 
 RDEPENDS:packagegroup-meta-oe-dbs-python2 ="\
     ${@bb.utils.contains("BBFILE_COLLECTIONS", "meta-python2", bb.utils.contains('I_SWEAR_TO_MIGRATE_TO_PYTHON3', 'yes', 'mysql-python', '', d), "", d)} \
@@ -303,6 +304,7 @@ RDEPENDS:packagegroup-meta-oe-devtools ="\
     squashfs-tools-ng \
     uftrace \
     unifex \
+    valijson \
     libxerces-c \
     xerces-c-samples \
     xmlrpc-c \
@@ -327,11 +329,13 @@ RDEPENDS:packagegroup-meta-oe-devtools:remove:powerpc64 = "android-tools breakpa
 RDEPENDS:packagegroup-meta-oe-devtools:remove:powerpc64le = "android-tools breakpad lshw luajit ply uftrace"
 RDEPENDS:packagegroup-meta-oe-devtools:remove:riscv64 = "breakpad concurrencykit heaptrack lshw ltrace luajit nodejs ply uftrace"
 RDEPENDS:packagegroup-meta-oe-devtools:remove:riscv32 = "breakpad concurrencykit heaptrack lshw ltrace luajit nodejs ply uftrace"
+RDEPENDS:packagegroup-meta-oe-devtools:remove:libc-musl:riscv32 = "php"
 RDEPENDS:packagegroup-meta-oe-devtools:remove:aarch64 = "concurrencykit"
 RDEPENDS:packagegroup-meta-oe-devtools:remove:x86 = "ply"
 
 RDEPENDS:packagegroup-meta-oe-extended ="\
     bitwise \
+    ${@bb.utils.contains("DISTRO_FEATURES", "x11 wayland opengl", "boinc-client", "", d)} \
     brotli \
     byacc \
     cmatrix \
@@ -407,7 +411,6 @@ RDEPENDS:packagegroup-meta-oe-extended ="\
     libstatgrab \
     lockfile-progs \
     logwatch \
-    mailx \
     mraa \
     ostree \
     ${@bb.utils.contains("DISTRO_FEATURES", "pam", "pam-plugin-ccreds pam-plugin-ldapdb pam-ssh-agent-auth", "", d)} \
@@ -419,6 +422,7 @@ RDEPENDS:packagegroup-meta-oe-extended ="\
     sedutil \
     libsigrok \
     libsigrokdecode \
+    s-nail \
     sigrok-cli \
     snappy \
     tipcutils \
@@ -444,7 +448,7 @@ RDEPENDS:packagegroup-meta-oe-extended:remove:mipsarch = "upm mraa minifi-cpp ti
 RDEPENDS:packagegroup-meta-oe-extended:remove:mips = "sysdig"
 RDEPENDS:packagegroup-meta-oe-extended:remove:powerpc = "upm mraa minifi-cpp"
 RDEPENDS:packagegroup-meta-oe-extended:remove:powerpc64 = "upm mraa minifi-cpp"
-RDEPENDS:packagegroup-meta-oe-extended:remove:powerpc64le = "upm mraa"
+RDEPENDS:packagegroup-meta-oe-extended:remove:powerpc64le = "upm mraa sysdig"
 RDEPENDS:packagegroup-meta-oe-extended:remove:riscv64 = "upm libleak libyang mraa sysdig tiptop"
 RDEPENDS:packagegroup-meta-oe-extended:remove:riscv32 = "upm libleak libyang mraa sysdig tiptop"
 
@@ -655,7 +659,7 @@ RDEPENDS:packagegroup-meta-oe-kernel:remove:riscv32 = "crash makedumpfile oprofi
 
 RDEPENDS:packagegroup-meta-oe-multimedia ="\
     alsa-oss \
-    ${@bb.utils.contains("LICENSE_FLAGS_WHITELIST", "commercial", "faad2", "", d)} \
+    ${@bb.utils.contains("LICENSE_FLAGS_ACCEPTED", "commercial", "faad2", "", d)} \
     dirsplit \
     genisoimage \
     icedax \
@@ -669,7 +673,7 @@ RDEPENDS:packagegroup-meta-oe-multimedia ="\
     libburn \
     libcdio-paranoia \
     libcdio \
-    ${@bb.utils.contains("LICENSE_FLAGS_WHITELIST", "commercial", "libmad", "", d)} \
+    ${@bb.utils.contains("LICENSE_FLAGS_ACCEPTED", "commercial", "libmad", "", d)} \
     libmms \
     libdvdread \
     libopus \
@@ -683,7 +687,7 @@ RDEPENDS:packagegroup-meta-oe-multimedia ="\
     wavpack \
     libvpx \
     ${@bb.utils.contains("DISTRO_FEATURES", "x11", "xsp", "", d)} \
-    ${@bb.utils.contains("LICENSE_FLAGS_WHITELIST", "commercial", "mpv", "", d)} \
+    ${@bb.utils.contains("LICENSE_FLAGS_ACCEPTED", "commercial", "mpv", "", d)} \
     ${@bb.utils.contains("DISTRO_FEATURES", "x11", "pavucontrol", "", d)} \
     libopusenc \
 "
@@ -757,12 +761,14 @@ RDEPENDS:packagegroup-meta-oe-support ="\
     gpm \
     gsoap \
     hdf5 \
+    hstr \
     htop \
     hunspell-dictionaries \
     hunspell \
     hwdata \
     iksemel \
     gengetopt \
+    googlebenchmark \
     imagemagick \
     iniparser \
     inotify-tools \
@@ -821,7 +827,6 @@ RDEPENDS:packagegroup-meta-oe-support ="\
     libusbgx \
     lockdev \
     logwarn \
-    libjs-jquery \
     libjs-sizzle \
     liblinebreak \
     mailcap \
@@ -946,6 +951,7 @@ RDEPENDS:packagegroup-meta-oe-support:remove:riscv32 = "gperftools uim"
 RDEPENDS:packagegroup-meta-oe-support:remove:powerpc = "ssiapi tbb"
 RDEPENDS:packagegroup-meta-oe-support:remove:powerpc64le = "ssiapi"
 RDEPENDS:packagegroup-meta-oe-support:remove:libc-musl = "pcp"
+RDEPENDS:packagegroup-meta-oe-support:remove:libc-musl:powerpc = "gsl"
 
 RDEPENDS:packagegroup-meta-oe-test ="\
     bats \

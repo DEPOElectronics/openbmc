@@ -221,12 +221,12 @@ def packages_filter_out_system(d):
     PN-dbg PN-doc PN-locale-eb-gb removed.
     """
     pn = d.getVar('PN')
-    blacklist = [pn + suffix for suffix in ('', '-dbg', '-dev', '-doc', '-locale', '-staticdev', '-src')]
+    pkgfilter = [pn + suffix for suffix in ('', '-dbg', '-dev', '-doc', '-locale', '-staticdev', '-src')]
     localepkg = pn + "-locale-"
     pkgs = []
 
     for pkg in d.getVar('PACKAGES').split():
-        if pkg not in blacklist and localepkg not in pkg:
+        if pkg not in pkgfilter and localepkg not in pkg:
             pkgs.append(pkg)
     return pkgs
 
@@ -536,17 +536,6 @@ class ThreadedPool:
         self.tasks.join()
         for worker in self.workers:
             worker.join()
-
-def write_ld_so_conf(d):
-    # Some utils like prelink may not have the correct target library paths
-    # so write an ld.so.conf to help them
-    ldsoconf = d.expand("${STAGING_DIR_TARGET}${sysconfdir}/ld.so.conf")
-    if os.path.exists(ldsoconf):
-        bb.utils.remove(ldsoconf)
-    bb.utils.mkdirhier(os.path.dirname(ldsoconf))
-    with open(ldsoconf, "w") as f:
-        f.write(d.getVar("base_libdir") + '\n')
-        f.write(d.getVar("libdir") + '\n')
 
 class ImageQAFailed(Exception):
     def __init__(self, description, name=None, logfile=None):

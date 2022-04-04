@@ -27,7 +27,7 @@ WARN_QA ?= " libdir xorg-driver-abi \
             mime mime-xdg unlisted-pkg-lics unhandled-features-check \
             missing-update-alternatives native-last missing-ptest \
             license-exists license-no-generic license-syntax license-format \
-            license-incompatible license-file-missing \
+            license-incompatible license-file-missing obsolete-license \
             "
 ERROR_QA ?= "dev-so debug-deps dev-deps debug-files arch pkgconfig la \
             perms dep-cmp pkgvarcheck perm-config perm-line perm-link \
@@ -48,7 +48,7 @@ enabled tests are listed here, the do_package_qa task will run under fakeroot."
 
 ALL_QA = "${WARN_QA} ${ERROR_QA}"
 
-UNKNOWN_CONFIGURE_WHITELIST ?= "--enable-nls --disable-nls --disable-silent-rules --disable-dependency-tracking --with-libtool-sysroot --disable-static"
+UNKNOWN_CONFIGURE_OPT_IGNORE ?= "--enable-nls --disable-nls --disable-silent-rules --disable-dependency-tracking --with-libtool-sysroot --disable-static"
 
 # This is a list of directories that are expected to be empty.
 QA_EMPTY_DIRS ?= " \
@@ -325,8 +325,8 @@ def package_qa_check_arch(path,name,d, elf, messages):
     if not elf:
         return
 
-    target_os   = d.getVar('TARGET_OS')
-    target_arch = d.getVar('TARGET_ARCH')
+    target_os   = d.getVar('HOST_OS')
+    target_arch = d.getVar('HOST_ARCH')
     provides = d.getVar('PROVIDES')
     bpn = d.getVar('BPN')
 
@@ -429,7 +429,7 @@ def package_qa_hash_style(path, name, d, elf, messages):
     for line in phdrs.split("\n"):
         if "SYMTAB" in line:
             has_syms = True
-        if "GNU_HASH" in line or "DT_MIPS_XHASH" in line:
+        if "GNU_HASH" in line or "MIPS_XHASH" in line:
             sane = True
         if ("[mips32]" in line or "[mips64]" in line) and d.getVar('TCLIBC') == "musl":
             sane = True
@@ -441,7 +441,8 @@ def package_qa_hash_style(path, name, d, elf, messages):
 QAPATHTEST[buildpaths] = "package_qa_check_buildpaths"
 def package_qa_check_buildpaths(path, name, d, elf, messages):
     """
-    Check for build paths inside target files and error if not found in the whitelist
+    Check for build paths inside target files and error if paths are not
+    explicitly ignored.
     """
     # Ignore .debug files, not interesting
     if path.find(".debug") != -1:
@@ -549,7 +550,7 @@ python populate_lic_qa_checksum() {
                 import hashlib
                 lineno = 0
                 license = []
-                m = hashlib.md5()
+                m = hashlib.new('MD5', usedforsecurity=False)
                 for line in f:
                     lineno += 1
                     if (lineno >= beginline):
@@ -684,26 +685,44 @@ def package_qa_recipe(warnfuncs, errorfuncs, pn, d):
 
     return len(errors) == 0
 
+def prepopulate_objdump_p(elf, d):
+    output = elf.run_objdump("-p", d)
+    return (elf.name, output)
+
 # Walk over all files in a directory and call func
 def package_qa_walk(warnfuncs, errorfuncs, package, d):
     #if this will throw an exception, then fix the dict above
-    target_os   = d.getVar('TARGET_OS')
-    target_arch = d.getVar('TARGET_ARCH')
+    target_os   = d.getVar('HOST_OS')
+    target_arch = d.getVar('HOST_ARCH')
 
     warnings = {}
     errors = {}
+    elves = {}
     for path in pkgfiles[package]:
             elf = None
             if os.path.isfile(path):
                 elf = oe.qa.ELFFile(path)
                 try:
                     elf.open()
+                    elf.close()
                 except oe.qa.NotELFFileError:
                     elf = None
+            if elf:
+                elves[path] = elf
+
+    results = oe.utils.multiprocess_launch(prepopulate_objdump_p, elves.values(), d, extraargs=(d,))
+    for item in results:
+        elves[item[0]].set_objdump("-p", item[1])
+
+    for path in pkgfiles[package]:
+            if path in elves:
+                elves[path].open()
             for func in warnfuncs:
-                func(path, package, d, elf, warnings)
+                func(path, package, d, elves.get(path), warnings)
             for func in errorfuncs:
-                func(path, package, d, elf, errors)
+                func(path, package, d, elves.get(path), errors)
+            if path in elves:
+                elves[path].close()
 
     for w in warnings:
         oe.qa.handle_error(w, warnings[w], d)
@@ -891,14 +910,19 @@ def package_qa_check_unlisted_pkg_lics(package, d, messages):
         return True
 
     recipe_lics_set = oe.license.list_licenses(d.getVar('LICENSE'))
-    unlisted = oe.license.list_licenses(pkg_lics) - recipe_lics_set
-    if not unlisted:
-        return True
-
-    oe.qa.add_message(messages, "unlisted-pkg-lics",
-                           "LICENSE:%s includes licenses (%s) that are not "
-                           "listed in LICENSE" % (package, ' '.join(unlisted)))
-    return False
+    package_lics = oe.license.list_licenses(pkg_lics)
+    unlisted = package_lics - recipe_lics_set
+    if unlisted:
+        oe.qa.add_message(messages, "unlisted-pkg-lics",
+                               "LICENSE:%s includes licenses (%s) that are not "
+                               "listed in LICENSE" % (package, ' '.join(unlisted)))
+        return False
+    obsolete = set(oe.license.obsolete_license_list()) & package_lics - recipe_lics_set
+    if obsolete:
+        oe.qa.add_message(messages, "obsolete-license",
+                               "LICENSE:%s includes obsolete licenses %s" % (package, ' '.join(obsolete)))
+        return False
+    return True
 
 QAPKGTEST[empty-dirs] = "package_qa_check_empty_dirs"
 def package_qa_check_empty_dirs(pkg, d, messages):
@@ -974,7 +998,7 @@ def package_qa_check_unhandled_features_check(pn, d, messages):
         var_set = False
         for kind in ['DISTRO', 'MACHINE', 'COMBINED']:
             for var in ['ANY_OF_' + kind + '_FEATURES', 'REQUIRED_' + kind + '_FEATURES', 'CONFLICT_' + kind + '_FEATURES']:
-                if d.getVar(var) is not None or d.overridedata.get(var) is not None:
+                if d.getVar(var) is not None or d.hasOverrides(var):
                     var_set = True
         if var_set:
             oe.qa.handle_error("unhandled-features-check", "%s: recipe doesn't inherit features_check" % pn, d)
@@ -993,6 +1017,14 @@ python do_package_qa () {
     import oe.packagedata
 
     bb.note("DO PACKAGE QA")
+
+    main_lic = d.getVar('LICENSE')
+
+    # Check for obsolete license references in main LICENSE (packages are checked below for any changes)
+    main_licenses = oe.license.list_licenses(d.getVar('LICENSE'))
+    obsolete = set(oe.license.obsolete_license_list()) & main_licenses
+    if obsolete:
+        oe.qa.handle_error("obsolete-license", "Recipe LICENSE includes obsolete licenses %s" % ' '.join(obsolete), d)
 
     bb.build.exec_func("read_subpackage_metadata", d)
 
@@ -1252,8 +1284,8 @@ Rerun configure task after fixing this."""
             options = set()
             for line in output.splitlines():
                 options |= set(line.partition(flag)[2].split())
-            whitelist = set(d.getVar("UNKNOWN_CONFIGURE_WHITELIST").split())
-            options -= whitelist
+            ignore_opts = set(d.getVar("UNKNOWN_CONFIGURE_OPT_IGNORE").split())
+            options -= ignore_opts
             if options:
                 pn = d.getVar('PN')
                 error_msg = pn + ": configure was passed unrecognised options: " + " ".join(options)

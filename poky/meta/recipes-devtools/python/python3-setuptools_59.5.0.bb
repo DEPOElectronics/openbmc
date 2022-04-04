@@ -4,7 +4,7 @@ SECTION = "devel/python"
 LICENSE = "MIT"
 LIC_FILES_CHKSUM = "file://LICENSE;beginline=1;endline=19;md5=7a7126e068206290f3fe9f8d6c713ea6"
 
-inherit pypi setuptools3
+inherit pypi python_setuptools_build_meta
 
 SRC_URI:append:class-native = " file://0001-conditionally-do-not-fetch-code-by-easy_install.patch"
 
@@ -38,10 +38,6 @@ RDEPENDS:${PN} = "\
     ${PYTHON_PN}-xml \
 "
 
-do_install:prepend() {
-    install -d ${D}${PYTHON_SITEPACKAGES_DIR}
-}
-
 BBCLASSEXTEND = "native nativesdk"
 
 # The pkg-resources module can be used by itself, without the package downloader
@@ -55,3 +51,7 @@ RDEPENDS:${PYTHON_PN}-pkg-resources = "\
     ${PYTHON_PN}-plistlib \
     ${PYTHON_PN}-pprint \
 "
+
+# This used to use the bootstrap install which didn't compile. Until we bump the
+# tmpdir version we can't compile the native otherwise the sysroot unpack fails
+INSTALL_WHEEL_COMPILE_BYTECODE:class-native = "--no-compile-bytecode"

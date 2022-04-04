@@ -17,12 +17,12 @@ for better management of and seamless user interactions with guests.\
 "
 SECTION = "vmware-tools"
 
-LICENSE = "LGPL-2.0 & GPL-2.0 & BSD & CDDL-1.0"
+LICENSE = "LGPL-2.0-only & GPL-2.0-only & BSD & CDDL-1.0"
 LIC_FILES_CHKSUM = "file://LICENSE;md5=559317809c5444fb39ceaf6ac45c43ac"
 LICENSE:modules/freebsd/vmblock = "BSD"
-LICENSE:modules/freebsd/vmmemctl = "GPL-2.0"
-LICENSE:modules/freebsd/vmxnet = "GPL-2.0"
-LICENSE:modules/linux = "GPL-2.0"
+LICENSE:modules/freebsd/vmmemctl = "GPL-2.0-only"
+LICENSE:modules/freebsd/vmxnet = "GPL-2.0-only"
+LICENSE:modules/linux = "GPL-2.0-only"
 LICENSE:modules/solaris = "CDDL-1.0"
 
 SRC_URI = "git://github.com/vmware/open-vm-tools.git;protocol=https;branch=master \
@@ -43,6 +43,7 @@ SRC_URI = "git://github.com/vmware/open-vm-tools.git;protocol=https;branch=maste
            file://0013-misc-Do-not-print-NULL-string-into-logs.patch;patchdir=.. \
            file://0001-Make-HgfsConvertFromNtTimeNsec-aware-of-64-bit-time_.patch;patchdir=.. \
            file://0002-hgfsServerLinux-Consider-64bit-time_t-possibility.patch;patchdir=.. \
+           file://0001-open-vm-tools-Correct-include-path-for-poll.h.patch;patchdir=.. \
            "
 
 UPSTREAM_CHECK_GITTAGREGEX = "stable-(?P<pver>\d+(\.\d+)+)"

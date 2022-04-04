@@ -88,8 +88,8 @@ EOF
 
 	if [ "${SDKMACHINE}" = "i686" ]; then
 		echo 'export NO32LIBS="0"' >>$script
-		echo 'echo "$BB_ENV_EXTRAWHITE" | grep -q "NO32LIBS"' >>$script
-		echo '[ $? != 0 ] && export BB_ENV_EXTRAWHITE="NO32LIBS $BB_ENV_EXTRAWHITE"' >>$script
+		echo 'echo "$BB_ENV_PASSTHROUGH_ADDITIONS" | grep -q "NO32LIBS"' >>$script
+		echo '[ $? != 0 ] && export BB_ENV_PASSTHROUGH_ADDITIONS="NO32LIBS $BB_ENV_PASSTHROUGH_ADDITIONS"' >>$script
 	fi
 }
 
@@ -99,15 +99,19 @@ TOOLCHAIN_NEED_CONFIGSITE_CACHE = ""
 # The recipe doesn't need any default deps
 INHIBIT_DEFAULT_DEPS = "1"
 
+# Directory in testsdk that contains testcases
+TESTSDK_CASES = "buildtools-cases"
+
 python do_testsdk() {
     import oeqa.sdk.testsdk
     testsdk = oeqa.sdk.testsdk.TestSDK()
 
-    cases_path = os.path.join(os.path.abspath(os.path.dirname(oeqa.sdk.testsdk.__file__)), "buildtools-cases")
+    cases_path = os.path.join(os.path.abspath(os.path.dirname(oeqa.sdk.testsdk.__file__)), d.getVar("TESTSDK_CASES"))
     testsdk.context_executor_class.default_cases = cases_path
 
     testsdk.run(d)
 }
 addtask testsdk
 do_testsdk[nostamp] = "1"
+do_testsdk[network] = "1"
 do_testsdk[depends] += "xz-native:do_populate_sysroot"

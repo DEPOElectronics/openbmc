@@ -3,17 +3,18 @@ HOMEPAGE = "https://tukaani.org/xz/"
 DESCRIPTION = "XZ Utils is free general-purpose data compression software with a high compression ratio. XZ Utils were written for POSIX-like systems, but also work on some not-so-POSIX systems. XZ Utils are the successor to LZMA Utils."
 SECTION = "base"
 
-# The source includes bits of PD, GPLv2, GPLv3, LGPLv2.1+, but the only file
-# which is GPLv3 is an m4 macro which isn't shipped in any of our packages,
-# and the LGPL bits are under lib/, which appears to be used for libgnu, which
-# appears to be used for DOS builds. So we're left with GPLv2+ and PD.
-LICENSE = "GPLv2+ & GPL-3.0-with-autoconf-exception & LGPLv2.1+ & PD"
-LICENSE:${PN} = "GPLv2+"
-LICENSE:${PN}-dev = "GPLv2+"
-LICENSE:${PN}-staticdev = "GPLv2+"
-LICENSE:${PN}-doc = "GPLv2+"
-LICENSE:${PN}-dbg = "GPLv2+"
-LICENSE:${PN}-locale = "GPLv2+"
+# The source includes bits of PD, GPL-2.0, GPL-3.0, LGPL-2.1-or-later, but the
+# only file which is GPL-3.0 is an m4 macro which isn't shipped in any of our
+# packages, and the LGPL bits are under lib/, which appears to be used for
+# libgnu, which appears to be used for DOS builds. So we're left with
+# GPL-2.0-or-later and PD.
+LICENSE = "GPL-2.0-or-later & GPL-3.0-with-autoconf-exception & LGPL-2.1-or-later & PD"
+LICENSE:${PN} = "GPL-2.0-or-later"
+LICENSE:${PN}-dev = "GPL-2.0-or-later"
+LICENSE:${PN}-staticdev = "GPL-2.0-or-later"
+LICENSE:${PN}-doc = "GPL-2.0-or-later"
+LICENSE:${PN}-dbg = "GPL-2.0-or-later"
+LICENSE:${PN}-locale = "GPL-2.0-or-later"
 LICENSE:liblzma = "PD"
 
 LIC_FILES_CHKSUM = "file://COPYING;md5=97d554a32881fee0aa283d96e47cb24a \

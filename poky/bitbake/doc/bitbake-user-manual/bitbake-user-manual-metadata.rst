@@ -510,8 +510,8 @@ variable.
 
 .. note::
 
-   Overrides can only use lower-case characters. Additionally,
-   underscores are not permitted in override names as they are used to
+   Overrides can only use lower-case characters, digits and dashes.
+   In particular, colons are not permitted in override names as they are used to
    separate overrides from each other and from the variable name.
 
 -  *Selecting a Variable:* The :term:`OVERRIDES` variable is a
@@ -523,14 +523,14 @@ variable.
 
       OVERRIDES = "architecture:os:machine"
       TEST = "default"
-      TEST_os = "osspecific"
-      TEST_nooverride = "othercondvalue"
+      TEST:os = "osspecific"
+      TEST:nooverride = "othercondvalue"
 
    In this example, the :term:`OVERRIDES`
    variable lists three overrides: "architecture", "os", and "machine".
    The variable ``TEST`` by itself has a default value of "default". You
    select the os-specific version of the ``TEST`` variable by appending
-   the "os" override to the variable (i.e. ``TEST_os``).
+   the "os" override to the variable (i.e. ``TEST:os``).
 
    To better understand this, consider a practical example that assumes
    an OpenEmbedded metadata-based Linux kernel recipe file. The
@@ -567,7 +567,7 @@ variable.
 -  *Setting a Variable for a Single Task:* BitBake supports setting a
    variable just for the duration of a single task. Here is an example::
 
-      FOO_task-configure = "val 1"
+      FOO:task-configure = "val 1"
       FOO:task-compile = "val 2"
 
    In the
@@ -584,6 +584,16 @@ variable.
    "``:prepend``") as shown in the following example::
 
       EXTRA_OEMAKE:prepend:task-compile = "${PARALLEL_MAKE} "
+
+.. note::
+
+   Before BitBake 1.52 (Honister 3.4), the syntax for :term:`OVERRIDES`
+   used ``_`` instead of ``:``, so you will still find a lot of documentation
+   using ``_append``, ``_prepend``, and ``_remove``, for example.
+
+   For details, see the
+   :yocto_docs:`Overrides Syntax Changes </migration-guides/migration-3.4.html#override-syntax-changes>`
+   section in the Yocto Project manual migration notes.
 
 Key Expansion
 -------------
@@ -1343,8 +1353,8 @@ the build machine cannot influence the build.
 .. note::
 
    By default, BitBake cleans the environment to include only those
-   things exported or listed in its whitelist to ensure that the build
-   environment is reproducible and consistent. You can prevent this
+   things exported or listed in its passthrough list to ensure that the
+   build environment is reproducible and consistent. You can prevent this
    "cleaning" by setting the :term:`BB_PRESERVE_ENV` variable.
 
 Consequently, if you do want something to get passed into the build task
@@ -1352,14 +1362,14 @@ environment, you must take these two steps:
 
 #. Tell BitBake to load what you want from the environment into the
    datastore. You can do so through the
-   :term:`BB_ENV_WHITELIST` and
-   :term:`BB_ENV_EXTRAWHITE` variables. For
+   :term:`BB_ENV_PASSTHROUGH` and
+   :term:`BB_ENV_PASSTHROUGH_ADDITIONS` variables. For
    example, assume you want to prevent the build system from accessing
-   your ``$HOME/.ccache`` directory. The following command "whitelists"
-   the environment variable ``CCACHE_DIR`` causing BitBake to allow that
-   variable into the datastore::
+   your ``$HOME/.ccache`` directory. The following command adds the
+   the environment variable ``CCACHE_DIR`` to BitBake's passthrough
+   list to allow that variable into the datastore::
 
-      export BB_ENV_EXTRAWHITE="$BB_ENV_EXTRAWHITE CCACHE_DIR"
+      export BB_ENV_PASSTHROUGH_ADDITIONS="$BB_ENV_PASSTHROUGH_ADDITIONS CCACHE_DIR"
 
 #. Tell BitBake to export what you have loaded into the datastore to the
    task environment of every running task. Loading something from the
@@ -1376,7 +1386,7 @@ environment, you must take these two steps:
       A side effect of the previous steps is that BitBake records the
       variable as a dependency of the build process in things like the
       setscene checksums. If doing so results in unnecessary rebuilds of
-      tasks, you can whitelist the variable so that the setscene code
+      tasks, you can also flag the variable so that the setscene code
       ignores the dependency when it creates checksums.
 
 Sometimes, it is useful to be able to obtain information from the
@@ -1648,8 +1658,8 @@ user interfaces:
 
 .. _variants-class-extension-mechanism:
 
-Variants - Class Extension Mechanism
-====================================
+Variants --- Class Extension Mechanism
+======================================
 
 BitBake supports multiple incarnations of a recipe file via the
 :term:`BBCLASSEXTEND` variable.
