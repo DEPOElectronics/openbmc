@@ -8,7 +8,7 @@ inherit module
 SRC_URI += "git://github.com/gluhow/l-pcs-i2c.git;branch=master;protocol=https"
 SRCREV = "6cb84a68a99f5d312f1b851413720b600b2a5115"
 
-S = "${WORKDIR}"
+S = "${WORKDIR}/git"
 
 RPROVIDES:${PN} += "kernel-module-l-pcs-i2c"
 
