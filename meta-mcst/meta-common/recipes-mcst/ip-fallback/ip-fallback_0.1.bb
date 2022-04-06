@@ -16,7 +16,6 @@ SYSTEMD_SERVICE_${PN} = "ip-fallback.service"
 SRC_URI = "file://ip-fallback \
            file://ip-fallback.service \
            file://fallback-eth0.conf \
-           file://fallback-eth1.conf \
            file://LICENSE \
           "
 
@@ -29,7 +28,6 @@ do_install() {
   install -m 755 ip-fallback ${D}/libexec
   install -m 644 ip-fallback.service ${D}${systemd_system_unitdir}
   install -m 644 fallback-eth0.conf ${D}/etc/ip-fallback/
-  install -m 644 fallback-eth1.conf ${D}/etc/ip-fallback/
 }
 
 FILES_${PN} = "/etc/ip-fallback /libexec ${systemd_system_unitdir}"

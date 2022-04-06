@@ -15,7 +15,6 @@ REQUIRED_DISTRO_FEATURES = "systemd"
 SYSTEMD_SERVICE_${PN} = "set_mac.service"
 
 SRC_URI = "file://00-bmc-eth0.network \
-           file://00-bmc-eth1.network \
            file://set_mac \
            file://set_mac.service \
            file://LICENSE \
@@ -31,7 +30,6 @@ do_install() {
   install -d ${D}${systemd_system_unitdir}
   install -m 755 set_mac ${D}/libexec
   install -m 644 00-bmc-eth0.network ${D}${CONFDIR}/00-bmc-eth0.network
-  install -m 644 00-bmc-eth1.network ${D}${CONFDIR}/00-bmc-eth1.network
   install -m 644 set_mac.service ${D}${systemd_system_unitdir}
   echo "FRUID_SOURCE=${FRUID_SOURCE}" > ${D}/etc/reimu_fruid.conf
 }

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-INTERFACES="eth0 eth1"
+INTERFACES="eth0"
 CONFIGFILES="/etc/ip-fallback/fallback"
 
 N=0
