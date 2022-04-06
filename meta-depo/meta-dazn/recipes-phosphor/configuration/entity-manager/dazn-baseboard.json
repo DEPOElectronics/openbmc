@@ -4,7 +4,7 @@
                 "Index": 0,
 		"Address": "0x4c",
 		"Bus": "6",
-		"Name": "CPU1 Fan",
+		"Name": "CPU0 Fan",
 		"PowerState": "On",
 		"Type": "I2CFan"
 	},
@@ -12,7 +12,7 @@
                 "Index": 0,
 		"Address": "0x4c",
 		"Bus": "4",
-		"Name": "CPU0 Fan",
+		"Name": "CPU1 Fan",
 		"PowerState": "On",
 		"Type": "I2CFan"
 	},
