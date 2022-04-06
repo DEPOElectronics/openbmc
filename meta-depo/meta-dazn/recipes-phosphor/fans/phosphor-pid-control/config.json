@@ -1,0 +1,104 @@
+{
+    "version": "R01",
+    "sensors": [
+        {
+            "name": "CPU0_Fan",
+            "type": "fan",
+            "readPath": "/xyz/openbmc_project/sensors/fan_tach/CPU0_Fan",
+            "writePath": "/sys/bus/i2c/devices/6-004c/hwmon/hwmon2/pwm1",
+            "min": 0,
+            "max": 255
+        },
+        {
+            "name": "CPU0_Temperature",
+            "type": "temp",
+            "readPath": "/xyz/openbmc_project/sensors/temperature/CPU0_Temperature",
+            "writePath": "",
+            "min": 0,
+            "max": 50000,
+            "ignoreDbusMinMax": true,
+            "unavailableAsFailed": true,
+            "timeout": 0
+        }
+    ],
+    "zones": [
+        {
+            "id": 1,
+            "minThermalOutput": 0.0,
+            "failsafePercent": 30.0,
+            "pids": [
+                {
+                    "name": "fan_tachs",
+                    "type": "fan",
+                    "inputs": [
+                        "CPU0_Fan"
+                    ],
+                    "setpoint": 0.0,
+                    "pid": {
+                        "samplePeriod": 0.1,
+                        "proportionalCoeff": 0.0,
+                        "integralCoeff": 0.0,
+                        "feedFwdOffsetCoeff": 0.0,
+                        "feedFwdGainCoeff": 0.0056,
+                        "integralLimit_min": 0.0,
+                        "integralLimit_max": 0.0,
+                        "outLim_min": 15.0,
+                        "outLim_max": 100.0,
+                        "slewNeg": 0.0,
+                        "slewPos": 0.0
+                    }
+                },
+                {
+                    "name": "inlet_Temp",
+                    "type": "stepwise",
+                    "inputs": [
+                        "CPU0_Temperature"
+                    ],
+                    "setpoint": 10.0,
+                    "pid": {
+                        "samplePeriod": 1.0,
+                        "positiveHysteresis": 1.0,
+                        "negativeHysteresis": 3.0,
+                        "isCeiling": false,
+                        "reading": {
+                            "0": 10.0,
+                            "1": 15.0,
+                            "2": 17.0,
+                            "3": 18.0,
+                            "4": 20.0,
+                            "5": 21.0,
+                            "6": 23.0,
+                            "7": 25.0,
+                            "8": 26.0,
+                            "9": 28.0,
+                            "10": 30.0,
+                            "11": 31.0,
+                            "12": 33.0,
+                            "13": 35.0,
+                            "14": 37.0,
+                            "15": 40.0
+                        },
+                        "output": {
+                            "0": 15.0,
+                            "1": 15.0,
+                            "2": 15.0,
+                            "3": 15.0,
+                            "4": 15.0,
+                            "5": 15.0,
+                            "6": 15.0,
+                            "7": 20.0,
+                            "8": 20.0,
+                            "9": 20.0,
+                            "10": 25.0,
+                            "11": 25.0,
+                            "12": 25.0,
+                            "13": 30.0,
+                            "14": 30.0,
+                            "15": 30.0
+                        }
+                    }
+                }
+            ]
+        }
+    ]
+}

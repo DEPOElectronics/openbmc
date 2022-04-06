@@ -17,7 +17,6 @@ PROVIDES += "virtual/obmc-flash-mgmt"
 PROVIDES += "virtual/obmc-system-mgmt"
 
 RDEPENDS:${PN}-chassis = " \
-    dazn-powerctrl \
     "
 
 RPROVIDES:${PN}-chassis += " \
@@ -36,4 +35,5 @@ RDEPENDS:${PN}-system = " \
         phosphor-virtual-sensor \
         kernel-module-l-pcs-i2c \
         kernel-module-dp_lm63 \
+        phosphor-pid-control \
 	"
