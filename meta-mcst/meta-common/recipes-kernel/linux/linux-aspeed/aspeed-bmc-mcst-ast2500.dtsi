@@ -64,10 +64,6 @@
 	status = "okay";
 };
 
-&mac1 {
-	status = "okay";
-};
-
 &uart5 {
 	status = "okay";
 };
