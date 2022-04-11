@@ -21,8 +21,11 @@ ExecStart=M_SCRIPT_INSTALL_DIR/usb_network.sh \
     --dev-type "M_BMC_USB_TYPE" \
     HOST_MAC_ARG(M_BMC_USB_HOST_MAC) \
     DEV_MAC_ARG(M_BMC_USB_DEV_MAC) \
+    --iface-name "M_BMC_USB_IFACE" \
     --bind-device "M_BMC_USB_BIND_DEV"
-ExecStop=M_SCRIPT_INSTALL_DIR/usb_network.sh stop
+ExecStop=M_SCRIPT_INSTALL_DIR/usb_network.sh stop \
+    --dev-type "M_BMC_USB_TYPE" \
+    --iface-name "M_BMC_USB_IFACE"
 
 [Install]
 WantedBy=multi-user.target

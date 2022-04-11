@@ -46,13 +46,12 @@ gbmc_upgrade_fetch() (
     local st=(0)
     wget -q -O - "$bootfile_url" | tar -xC "$tmpdir" || st=("${PIPESTATUS[@]}")
     (( st[0] != 0 )) || break
-    shopt -s nullglob
-    rm -rf -- "${tmpdir:?}"/* "${tmpdir:?}"/.*
+    (shopt -s nullglob dotglob; rm -rf -- "${tmpdir:?}"/*)
     sleep 5
   done
 
   local sig
-  sig="$(find "$tmpdir" -name 'image-*.sig')" || return
+  sig="$(find "$tmpdir" -name 'image-*.sig' | head -n 1)" || return
   local img="${sig%.sig}"
   mv "$sig" "$GBMC_UPGRADE_SIG" || return
   mv "$img" "$GBMC_UPGRADE_IMG" || return
@@ -61,13 +60,17 @@ gbmc_upgrade_fetch() (
   local imgdir="${sig%/*}"
   if [ -f "$imgdir/VERSION" ]; then
     cat "$imgdir/VERSION" || return
+    return 0
   fi
 
   # Staging packages have a directory named after the version
   local vdir="${imgdir##*/}"
   if [[ "$vdir" =~ ([0-9]+[.]){3}[0-9]+ ]]; then
     echo "$vdir"
+    return 0
   fi
+
+  return 1
 )
 
 GBMC_BR_DHCP_HOOKS+=(gbmc_upgrade_hook)

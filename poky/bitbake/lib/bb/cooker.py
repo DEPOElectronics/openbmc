@@ -159,6 +159,9 @@ class BBCooker:
             for f in featureSet:
                 self.featureset.setFeature(f)
 
+        self.orig_syspath = sys.path.copy()
+        self.orig_sysmodules = [*sys.modules]
+
         self.configuration = bb.cookerdata.CookerConfiguration()
 
         self.idleCallBackRegister = idleCallBackRegister
@@ -166,27 +169,15 @@ class BBCooker:
         bb.debug(1, "BBCooker starting %s" % time.time())
         sys.stdout.flush()
 
-        self.configwatcher = pyinotify.WatchManager()
-        bb.debug(1, "BBCooker pyinotify1 %s" % time.time())
-        sys.stdout.flush()
+        self.configwatcher = None
+        self.confignotifier = None
 
-        self.configwatcher.bbseen = set()
-        self.configwatcher.bbwatchedfiles = set()
-        self.confignotifier = pyinotify.Notifier(self.configwatcher, self.config_notifications)
-        bb.debug(1, "BBCooker pyinotify2 %s" % time.time())
-        sys.stdout.flush()
         self.watchmask = pyinotify.IN_CLOSE_WRITE | pyinotify.IN_CREATE | pyinotify.IN_DELETE | \
                          pyinotify.IN_DELETE_SELF | pyinotify.IN_MODIFY | pyinotify.IN_MOVE_SELF | \
                          pyinotify.IN_MOVED_FROM | pyinotify.IN_MOVED_TO
-        self.watcher = pyinotify.WatchManager()
-        bb.debug(1, "BBCooker pyinotify3 %s" % time.time())
-        sys.stdout.flush()
-        self.watcher.bbseen = set()
-        self.watcher.bbwatchedfiles = set()
-        self.notifier = pyinotify.Notifier(self.watcher, self.notifications)
 
-        bb.debug(1, "BBCooker pyinotify complete %s" % time.time())
-        sys.stdout.flush()
+        self.watcher = None
+        self.notifier = None
 
         # If being called by something like tinfoil, we need to clean cached data
         # which may now be invalid
@@ -237,9 +228,29 @@ class BBCooker:
             sys.stdout.flush()
             self.handlePRServ()
 
+    def setupConfigWatcher(self):
+        if self.configwatcher:
+            self.configwatcher.close()
+            self.confignotifier = None
+            self.configwatcher = None
+        self.configwatcher = pyinotify.WatchManager()
+        self.configwatcher.bbseen = set()
+        self.configwatcher.bbwatchedfiles = set()
+        self.confignotifier = pyinotify.Notifier(self.configwatcher, self.config_notifications)
+
+    def setupParserWatcher(self):
+        if self.watcher:
+            self.watcher.close()
+            self.notifier = None
+            self.watcher = None
+        self.watcher = pyinotify.WatchManager()
+        self.watcher.bbseen = set()
+        self.watcher.bbwatchedfiles = set()
+        self.notifier = pyinotify.Notifier(self.watcher, self.notifications)
+
     def process_inotify_updates(self):
         for n in [self.confignotifier, self.notifier]:
-            if n.check_events(timeout=0):
+            if n and n.check_events(timeout=0):
                 # read notified events and enqeue them
                 n.read_events()
                 n.process_events()
@@ -254,10 +265,11 @@ class BBCooker:
         if not event.pathname in self.configwatcher.bbwatchedfiles:
             return
         if "IN_ISDIR" in event.maskname:
-            if "IN_CREATE" in event.maskname:
-                self.add_filewatch([[event.pathname]], watcher=self.configwatcher, dirs=True)
-            elif "IN_DELETE" in event.maskname and event.pathname in self.watcher.bbseen:
-                self.configwatcher.bbseen.remove(event.pathname)
+            if "IN_CREATE" in event.maskname or "IN_DELETE" in event.maskname:
+                if event.pathname in self.configwatcher.bbseen:
+                    self.configwatcher.bbseen.remove(event.pathname)
+                # Could remove all entries starting with the directory but for now...
+                bb.parse.clear_cache()
         if not event.pathname in self.inotify_modified_files:
             self.inotify_modified_files.append(event.pathname)
         self.baseconfig_valid = False
@@ -272,10 +284,11 @@ class BBCooker:
                 or event.pathname.endswith("bitbake.lock"):
             return
         if "IN_ISDIR" in event.maskname:
-            if "IN_CREATE" in event.maskname:
-                self.add_filewatch([[event.pathname]], dirs=True)
-            elif "IN_DELETE" in event.maskname and event.pathname in self.watcher.bbseen:
-                self.watcher.bbseen.remove(event.pathname)
+            if "IN_CREATE" in event.maskname or "IN_DELETE" in event.maskname:
+                if event.pathname in self.watcher.bbseen:
+                    self.watcher.bbseen.remove(event.pathname)
+                # Could remove all entries starting with the directory but for now...
+                bb.parse.clear_cache()
         if not event.pathname in self.inotify_modified_files:
             self.inotify_modified_files.append(event.pathname)
         self.parsecache_valid = False
@@ -339,6 +352,13 @@ class BBCooker:
 
         self.state = state.initial
         self.caches_array = []
+
+        sys.path = self.orig_syspath.copy()
+        for mod in [*sys.modules]:
+            if mod not in self.orig_sysmodules:
+                del sys.modules[mod]
+
+        self.setupConfigWatcher()
 
         # Need to preserve BB_CONSOLELOG over resets
         consolelog = None
@@ -1621,6 +1641,8 @@ class BBCooker:
             self.updateCacheSync()
 
         if self.state != state.parsing and not self.parsecache_valid:
+            self.setupParserWatcher()
+
             bb.parse.siggen.reset(self.data)
             self.parseConfiguration ()
             if CookerFeatures.SEND_SANITYEVENTS in self.featureset:
@@ -1727,7 +1749,8 @@ class BBCooker:
     def post_serve(self):
         self.shutdown(force=True)
         prserv.serv.auto_shutdown()
-        bb.parse.siggen.exit()
+        if hasattr(bb.parse, "siggen"):
+            bb.parse.siggen.exit()
         if self.hashserv:
             self.hashserv.process.terminate()
             self.hashserv.process.join()
@@ -1748,6 +1771,8 @@ class BBCooker:
         self.state = state.initial
 
     def reset(self):
+        if hasattr(bb.parse, "siggen"):
+            bb.parse.siggen.exit()
         self.initConfigurationData()
         self.handlePRServ()
 
