@@ -8,5 +8,5 @@ WantedBy=multi-user.target
 [Service]
 Restart=always
 Type=simple
-ExecStart=/bin/sh -c "while :; do sleep 1; host setstate; done"
+ExecStart=setpowerstate
 SyslogIdentifier=buttonscripts

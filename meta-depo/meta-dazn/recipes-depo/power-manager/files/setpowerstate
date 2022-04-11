@@ -1,0 +1,29 @@
+#!/bin/bash
+POWERstate=GPIO_POWER_IN
+PON="on"
+POFF="off"
+
+power_state() {
+    st=$(gpioget $(gpiofind $POWERstate))
+    if [ "$st" == "1" ]; then
+        echo $PON
+    else
+        echo $POFF
+    fi
+}
+
+OLDSTATE="NONE";
+while :
+do
+  NEWSTATE=$(power_state)
+  if [ $NEWSTATE != $OLDSTATE ]; then
+    host setstate
+    host reset
+    OLDSTATE=$NEWSTATE
+    if [ $NEWSTATE == $PON ]; then
+      shutup
+    fi
+  fi  
+  sleep 0.1
+done
+
