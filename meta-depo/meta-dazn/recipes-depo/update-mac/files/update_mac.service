@@ -1,0 +1,12 @@
+[Unit]
+Description=Init BMC MAC address for eth0
+Before=systemd-networkd.service
+ConditionPathExists=!/var/lib/first-boot-set-mac/eth0
+
+[Service]
+ExecStart=/usr/bin/update_mac.sh
+Type=oneshot
+RemainAfterExit=Yes
+
+[Install]
+WantedBy=multi-user.target

@@ -36,4 +36,5 @@ RDEPENDS:${PN}-system = " \
         kernel-module-l-pcs-i2c \
         kernel-module-dp_lm63 \
         phosphor-pid-control \
+        update-mac \
 	"
