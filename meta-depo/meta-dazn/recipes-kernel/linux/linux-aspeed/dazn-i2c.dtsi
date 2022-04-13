@@ -20,6 +20,11 @@
 &i2c3 {
 	/* i2c_fruid */
 	status = "okay";
+	
+	eeprom@57 {
+		compatible = "atmel,24c128";
+		reg = <0x57>;	     
+	};
 
 	rtc@6f {
 		compatible = "microchip,mcp7941x";
