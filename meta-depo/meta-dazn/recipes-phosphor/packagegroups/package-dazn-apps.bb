@@ -16,10 +16,8 @@ PROVIDES += "virtual/obmc-fan-mgmt"
 PROVIDES += "virtual/obmc-flash-mgmt"
 PROVIDES += "virtual/obmc-system-mgmt"
 
+RPROVIDES:${PN}-chassis += ""
 RDEPENDS:${PN}-chassis = " \
-    "
-
-RPROVIDES:${PN}-chassis += " \
     dazn-powerctrl \
     "
 RPROVIDES:${PN}-fans += "virtual-obmc-fan-mgmt"
@@ -37,4 +35,5 @@ RDEPENDS:${PN}-system = " \
         kernel-module-dp_lm63 \
         phosphor-pid-control \
         update-mac \
+        ipmitool \        
 	"
