@@ -4,7 +4,7 @@ inherit useradd
 USERADD_PACKAGES = "${PN}"
 
 # add a user called httpd for the server to assume
-USERADD_PARAM:${PN} = "-r -s /usr/sbin/nologin bmcweb"
+USERADD_PARAM:${PN} = "-r -s /sbin/nologin bmcweb"
 GROUPADD_PARAM:${PN} = "web; redfish"
 
 LICENSE = "Apache-2.0"
@@ -13,7 +13,7 @@ LIC_FILES_CHKSUM = "file://LICENSE;md5=175792518e4ac015ab6696d16c4f607e"
 SRC_URI = "git://github.com/openbmc/bmcweb.git;branch=master;protocol=https;nobranch=1"
 
 PV = "1.0+git${SRCPV}"
-SRCREV = "54417b02efbfe896d6ef442cfc6a721314aac3f8"
+SRCREV = "82695a5b3b9ef7d5130e9607866c1bbfe5982172"
 
 S = "${WORKDIR}/git"
 
