@@ -35,5 +35,6 @@ RDEPENDS:${PN}-system = " \
         kernel-module-dp_lm63 \
         phosphor-pid-control \
         update-mac \
-        ipmitool \        
+        ipmitool \  
+        phosphor-gpio-monitor \      
 	"
