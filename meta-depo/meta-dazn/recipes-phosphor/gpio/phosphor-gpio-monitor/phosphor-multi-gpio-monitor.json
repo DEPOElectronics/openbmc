@@ -1,0 +1,9 @@
+[
+	{
+		"Name": "IDButton",
+		"LineName": "GPIO_UID_BTN",
+		"EventMon": "FALLING",
+		"Target": "id-button-pressed.service",
+		"Continue": true
+	}
+]

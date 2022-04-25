@@ -1,11 +1,6 @@
 	gpio-keys {
 		compatible = "gpio-keys";
 
-		id-button {
-			label = "id-button";
-			gpios = <&gpio ASPEED_GPIO(N, 3) GPIO_ACTIVE_HIGH>;
-			linux,code = <ASPEED_GPIO(N, 3)>;
-		};
-
+	
 	};
 
