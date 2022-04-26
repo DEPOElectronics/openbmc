@@ -1,6 +1,6 @@
 [Unit]
 Description=Start Host
-Conflicts=host-poweroff-hard.service host-poweroff.service host-reset.service
+Conflicts=obmc-chassis-poweroff@0.target.requires host-poweroff-hard.service host-poweroff.service host-reset.service
 
 [Service]
 Type=oneshot

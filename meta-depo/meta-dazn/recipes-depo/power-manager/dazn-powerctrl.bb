@@ -49,7 +49,7 @@ pkg_postinst:${PN}() {
     ln -s $TARGET $LINK
 
     TARGET="../host-reset.service"
-    srvreq=obmc-host-reset@0.target.requires
+    srvreq=obmc-host-force-warm-reboot\@0.target.requires
     mkdir -p $D$systemd_system_unitdir/$srvreq
     LINK="$D$systemd_system_unitdir/$srvreq/"
     ln -s $TARGET $LINK
