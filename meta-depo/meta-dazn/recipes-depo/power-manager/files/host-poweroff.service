@@ -1,6 +1,6 @@
 [Unit]
 Description=Stop Host
-Conflicts=host-poweroff-hard.service host-poweron.service host-reset.service
+Conflicts=obmc-host-startmin@0.target
 
 [Service]
 Type=oneshot

@@ -11,6 +11,7 @@ setstate() {
   if [ "$(power_state)" == "on" ]; then
      if [ "$dbusstate" != "$ON" ]; then
         busctl set-property xyz.openbmc_project.State.Host /xyz/openbmc_project/state/host0 xyz.openbmc_project.State.Host CurrentHostState s "xyz.openbmc_project.State.Host.HostState.Running"
+        busctl set-property xyz.openbmc_project.Watchdog /xyz/openbmc_project/watchdog/host0 xyz.openbmc_project.State.Watchdog ExpireAction s xyz.openbmc_project.State.Watchdog.Action.None
      fi
   else
      if [ $dbusstate != "$OFF" ]; then
@@ -20,31 +21,35 @@ setstate() {
 }
 
 power_reset() {
+	echo "Host reset"
+	#busctl set-property xyz.openbmc_project.Watchdog /xyz/openbmc_project/watchdog/host0 xyz.openbmc_project.State.Watchdog ExpireAction s xyz.openbmc_project.State.Watchdog.Action.None
 	btn=$(gpiofind $RESETBTN)
 	gpioset $btn=0
 	sleep 0.2
 	gpioset $btn=1
-}
-
-check_reset() {
-	reset=$(gpioget $(gpiofind $RESETstate))
-	if [ "$reset" == "1" ]; then
-	  power_reset
-	fi
+        setstate
 }
 
 power_off() {
+	echo "Host power off"
+        #busctl set-property xyz.openbmc_project.Watchdog /xyz/openbmc_project/watchdog/host0 xyz.openbmc_project.State.Watchdog ExpireAction s xyz.openbmc_project.State.Watchdog.Action.None
+        #busctl set-property xyz.openbmc_project.State.Chassis /xyz/openbmc_project/state/chassis0 xyz.openbmc_project.State.Chassis RequestedPowerTransition s xyz.openbmc_project.State.Chassis.Transition.Off	
 	btn=$(gpiofind $POWERBTN)
 	gpioset $btn=0
 	sleep 0.2
 	gpioset $btn=1
 }
+
 power_on() {
-        power_off
-        power_reset
+	echo "Host power on"
+	btn=$(gpiofind $POWERBTN)
+	gpioset $btn=0
+	sleep 0.2
+	gpioset $btn=1
 }
 
 power_off_hard() {
+	echo "Host power off hard"
         power_reset
 	btn=$(gpiofind $POWERBTN)
 	gpioset $btn=0
@@ -77,6 +82,7 @@ elif [ "$1" = "off" ]; then
 elif [ "$1" == "cycle" ]; then
   if [ "$(power_state)" == "on" ]; then
       power_off_hard
+      sleep 1
   else
     echo "WARNING: Powering on server"
   fi
@@ -87,14 +93,13 @@ elif [ "$1" == "reset" ]; then
   else
     echo "ERROR: Server not powered on"
   fi
-elif [ "$1" == "state" ]; then
+elif [ "$1" == "getstate" ]; then
     power_state
 elif [ "$1" == "setstate" ]; then
    setstate 
 else
     echo "Invalid parameter=$1"
-    echo "usage: host [on|off|off hard|state|cycle|reset|setstate]";
+    echo "usage: host [on|off|off hard|getstate|cycle|reset|setstate]";
 fi
-
 
 exit 0;

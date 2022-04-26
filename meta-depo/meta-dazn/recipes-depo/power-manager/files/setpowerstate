@@ -2,9 +2,10 @@
 POWERstate=GPIO_POWER_IN
 PON="on"
 POFF="off"
+ps=$(gpiofind $POWERstate)
 
 power_state() {
-    st=$(gpioget $(gpiofind $POWERstate))
+    st=$(gpioget $ps)
     if [ "$st" == "1" ]; then
         echo $PON
     else
@@ -18,10 +19,12 @@ do
   NEWSTATE=$(power_state)
   if [ $NEWSTATE != $OLDSTATE ]; then
     host setstate
-    host reset
     OLDSTATE=$NEWSTATE
     if [ $NEWSTATE == $PON ]; then
-      shutup
+      echo "powerOn reset"
+      sleep 0.2
+      host reset
+      shutup      
     fi
   fi  
   sleep 0.1
