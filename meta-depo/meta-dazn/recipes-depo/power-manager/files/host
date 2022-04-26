@@ -27,7 +27,6 @@ power_reset() {
 	gpioset $btn=0
 	sleep 0.2
 	gpioset $btn=1
-        busctl set-property xyz.openbmc_project.State.Host /xyz/openbmc_project/state/host0 xyz.openbmc_project.State.Host CurrentHostState s "xyz.openbmc_project.State.Host.HostState.Off"
         setstate
 }
 
