@@ -6,14 +6,12 @@
 # shellcheck disable=SC2086
 source /usr/libexec/kudo-fw/kudo-lib.sh
 
-devpath="/sys/bus/i2c/devices/13-0077/driver"
-
 function fwbios() {
   KERNEL_FIU_ID="c0000000.spi"
   KERNEL_SYSFS_FIU="/sys/bus/platform/drivers/NPCM-FIU"
 
   # switch the SPI mux from Host to BMC
-  i2cset -y -f -a 13 0x76 0x10 0x01
+  i2cset -y -f -a ${I2C_BMC_CPLD[0]} 0x${I2C_BMC_CPLD[1]} 0x10 0x01
 
   # rescan the spi bus
   if [ -d "${KERNEL_SYSFS_FIU}/${KERNEL_FIU_ID}" ]; then
@@ -41,7 +39,7 @@ function fwbios() {
   if [ -d "${KERNEL_SYSFS_FIU}/${KERNEL_FIU_ID}" ]; then
     echo "${KERNEL_FIU_ID}" > "${KERNEL_SYSFS_FIU}"/unbind
   fi
-  i2cset -y -f -a 13 0x76 0x10 0x00
+  i2cset -y -f -a ${I2C_BMC_CPLD[0]} 0x${I2C_BMC_CPLD[1]} 0x10 0x00
 
   # Disable LPI mode NV_SI_CPU_LPI_FREQ_DISABLE for SCP 1.06 and older.
   if [ "$(nvparm -s 0x1 -o 0x114090)" -ne  0 ]; then
@@ -74,23 +72,23 @@ function fwbios() {
 }
 
 function fwbmccpld() {
-  # BMC_JTAG_MUX_1 #218 0:BMC 1:MB
-  set_gpio_ctrl 218 out 0
+  # BMC_JTAG_MUX_1 0:BMC 1:MB
+  set_gpio_ctrl MB_JTAG_MUX_SEL 0
   if [ "$(loadsvf -d /dev/jtag0 -s $1 -m 0)" -ne  0 ]; then
     echo "BMC CPLD update failed" >&2
     return 1
   fi
   wait
-  set_gpio_ctrl 218 out 1
+  set_gpio_ctrl MB_JTAG_MUX_SEL 1
 
   return 0
 }
 
 function fwmbcpld() {
-  # BMC_JTAG_MUX_1 #218 0:BMC 1:MB
-  # BMC_JTAG_SEL #164 0:BMC 1:CPU
-  set_gpio_ctrl 218 out 1
-  set_gpio_ctrl 164 out 1
+  # BMC_JTAG_MUX_1 0:BMC 1:MB
+  # BMC_JTAG_SEL 0:BMC 1:CPU
+  set_gpio_ctrl MB_JTAG_MUX_SEL 1
+  set_gpio_ctrl BMC_JTAG_MUX_SEL  1
   if [ "$(loadsvf -d /dev/jtag0 -s $1 -m 0)" -ne  0 ]; then
     echo "Mobo CPLD update failed" >&2
     return 1
@@ -101,39 +99,35 @@ function fwmbcpld() {
 }
 
 function fwscp() {
-  # BMC_I2C_BACKUP_SEL #168 0:failover, 1:main
-  # BMC_CPU_EEPROM_I2C_SEL #85 0:BMC, 1:CPU
-  scp_eeprom_sel=$(get_gpio_ctrl 168)
-  set_gpio_ctrl 168 out 1
-  set_gpio_ctrl 85 out 0
-  #shellcheck disable=SC2010
-  I2C_BUS_DEV=$(ls -l $devpath/"13-0077/" | grep channel-0 | awk '{ print $11}' | cut -c 8-)
-  if [ "$(ampere_eeprom_prog -b $I2C_BUS_DEV -s 0x50 -p -f $1)" -ne  0 ]; then
+  # BMC_I2C_BACKUP_SEL 0:failover, 1:main
+  # BMC_CPU_EEPROM_I2C_SEL 0:BMC, 1:CPU
+  scp_eeprom_sel=$(get_gpio_ctrl BACKUP_SCP_SEL)
+  set_gpio_ctrl BACKUP_SCP_SEL 1
+  set_gpio_ctrl CPU_EEPROM_SEL 0
+  if [ "$(ampere_eeprom_prog -b ${I2C_CPU_EEPROM[0]} -s 0x${I2C_CPU_EEPROM[1]} -p -f $1)" -ne  0 ]; then
     echo "SCP eeprom update failed" >&2
     return 1
   fi
   wait
-  set_gpio_ctrl 85 out 1
-  set_gpio_ctrl 168 out "$scp_eeprom_sel"
+  set_gpio_ctrl CPU_EEPROM_SEL 1
+  set_gpio_ctrl BACKUP_SCP_SEL "$scp_eeprom_sel"
 
   return 0
 }
 
 function fwscpback() {
-  # BMC_I2C_BACKUP_SEL #168 0:failover, 1:main
-  # BMC_CPU_EEPROM_I2C_SEL #85 0:BMC, 1:CPU
-  scp_eeprom_sel=$(get_gpio_ctrl 168)
-  set_gpio_ctrl 168 out 0
-  set_gpio_ctrl 85 out 0
-  #shellcheck disable=SC2010
-  I2C_BUS_DEV=$(ls -l $devpath/"13-0077/" | grep channel-0 | awk '{ print $11}' | cut -c 8-)
-  if [ "$(ampere_eeprom_prog -b $I2C_BUS_DEV -s 0x50 -p -f $1)" -ne  0 ]; then
+  # BMC_I2C_BACKUP_SEL 0:failover, 1:main
+  # BMC_CPU_EEPROM_I2C_SEL 0:BMC, 1:CPU
+  scp_eeprom_sel=$(get_gpio_ctrl BACKUP_SCP_SEL)
+  set_gpio_ctrl BACKUP_SCP_SEL 0
+  set_gpio_ctrl CPU_EEPROM_SEL 0
+  if [ "$(ampere_eeprom_prog -b ${I2C_CPU_EEPROM[0]} -s 0x${I2C_CPU_EEPROM[1]} -p -f $1)" -ne  0 ]; then
     echo "SCP BACKUP eeprom update failed" >&2
     return 1
   fi
   wait
-  set_gpio_ctrl 85 out 1
-  set_gpio_ctrl 168 out "$scp_eeprom_sel"
+  set_gpio_ctrl CPU_EEPROM_SEL 1
+  set_gpio_ctrl BACKUP_SCP_SEL "$scp_eeprom_sel"
 
   return 0
 }
@@ -149,14 +143,14 @@ function fwmb_pwr_seq(){
     echo "The file $2 file does not exist"
     return 1
   fi
-  echo 32-0040 > /sys/bus/i2c/drivers/adm1266/unbind
-  echo 32-0041 > /sys/bus/i2c/drivers/adm1266/unbind
+  echo ${I2C_MB_PWRSEQ1[0]}-00${I2C_MB_PWRSEQ1[1]} > /sys/bus/i2c/drivers/adm1266/unbind
+  echo ${I2C_MB_PWRSEQ2[0]}-00${I2C_MB_PWRSEQ2[1]} > /sys/bus/i2c/drivers/adm1266/unbind
   if [ "$(adm1266_fw_fx $1 $2)" -ne  0 ]; then
     echo "The power seq flash failed" >&2
     return 1
   fi
-  echo 32-0040 > /sys/bus/i2c/drivers/adm1266/bind
-  echo 32-0041 > /sys/bus/i2c/drivers/adm1266/bind
+  echo ${I2C_MB_PWRSEQ1[0]}-00${I2C_MB_PWRSEQ1[1]} > /sys/bus/i2c/drivers/adm1266/bind
+  echo ${I2C_MB_PWRSEQ2[0]}-00${I2C_MB_PWRSEQ2[1]} > /sys/bus/i2c/drivers/adm1266/bind
 
   return 0
 }

@@ -6,7 +6,7 @@ source /usr/libexec/kudo-fw/kudo-lib.sh
 
 # Usage of this utility
 function usage() {
-  echo "usage: power-util mb [on|off|graceful_shutdown|host_reset|host_cycle|shutdown_ack|hotswap|power_button]";
+  echo "usage: power-util mb [on|off|graceful_shutdown|host_reset|host_cycle|shutdown_ack|hotswap]";
 }
 
 hotswap() {
@@ -16,9 +16,9 @@ hotswap() {
 force_off() {
   echo "Powering down Server"
 
-  set_gpio_ctrl 203 out 1
+  set_gpio_ctrl POWER_OUT 1
   sleep 6
-  set_gpio_ctrl 203 out 0
+  set_gpio_ctrl POWER_OUT 0
 }
 
 power_off() {
@@ -29,9 +29,9 @@ power_off() {
 power_on() {
   echo "Powering on Server"
 
-  set_gpio_ctrl 203 out 1
+  set_gpio_ctrl POWER_OUT 1
   sleep 1
-  set_gpio_ctrl 203 out 0
+  set_gpio_ctrl POWER_OUT 0
   busctl set-property xyz.openbmc_project.State.Chassis /xyz/openbmc_project/state/chassis0 xyz.openbmc_project.State.Chassis RequestedPowerTransition s xyz.openbmc_project.State.Chassis.Transition.On
 }
 
@@ -45,8 +45,8 @@ power_status() {
 }
 
 host_status() {
-  BOOT_OK=$(get_gpio_ctrl 194)
-  S5_N=$(get_gpio_ctrl 204)
+  BOOT_OK=$(get_gpio_ctrl S0_FW_BOOT_OK)
+  S5_N=$(get_gpio_ctrl S0_SLPS5_N)
   if [ "$S5_N" == 1 ] || [ "$BOOT_OK" == 1 ]; then
     echo "on"
   else
@@ -66,9 +66,9 @@ graceful_shutdown() {
     echo "Triggering graceful shutdown"
     mkdir /run/openbmc
     timestamp > "/run/openbmc/host@0-shutdown-req-time"
-    set_gpio_ctrl 70 out 0
+    set_gpio_ctrl S0_SHD_REQ 0
     sleep 3
-    set_gpio_ctrl 70 out 1
+    set_gpio_ctrl S0_SHD_REQ 1
   fi
 }
 
@@ -76,9 +76,9 @@ host_reset() {
   if [ "$(host_status)" == "on" ]; then
     echo "Triggering sysreset pin"
     busctl set-property xyz.openbmc_project.Watchdog /xyz/openbmc_project/watchdog/host0 xyz.openbmc_project.State.Watchdog ExpireAction s xyz.openbmc_project.State.Watchdog.Action.None
-    set_gpio_ctrl 65 out 0
+    set_gpio_ctrl S0_SYSRESET 0
     sleep 1
-    set_gpio_ctrl 65 out 1
+    set_gpio_ctrl S0_SYSRESET 1
   else
     echo "Host is off, cannot reset."
   fi
@@ -97,26 +97,6 @@ shutdown_ack() {
 
   if [ -f "/run/openbmc/host@0-shutdown-req-time" ]; then
     rm -rf "/run/openbmc/host@0-shutdown-req-time"
-  fi
-}
-
-power_button() {
-  echo "Power button trigger event."
-  current_time="$(timestamp)"
-  if [ -f "/run/openbmc/power-button" ]; then
-    echo "Power button released"
-    press_time="$(cat /run/openbmc/power-button)"
-    if [[ "$current_time" -le "(($press_time + 1))" ]]; then
-      power_on
-    elif [[ "$current_time" -ge "(($press_time + 5))" ]]; then
-      power_off
-    else
-      echo "Button press did not match interval."
-    fi
-    rm "/run/openbmc/power-button"
-  else
-    echo "Power button pressed"
-    timestamp > "/run/openbmc/power-button"
   fi
 }
 
@@ -156,8 +136,6 @@ elif [ "$2" == "host_cycle" ]; then
   host_cycle
 elif [ "$2" == "shutdown_ack" ]; then
   shutdown_ack
-elif [ "$2" == "power_button" ]; then
-  power_button
 else
   echo "Invalid parameter2=$2"
   usage;
