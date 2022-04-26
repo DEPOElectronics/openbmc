@@ -36,5 +36,6 @@ RDEPENDS:${PN}-system = " \
         phosphor-pid-control \
         update-mac \
         ipmitool \  
-        phosphor-gpio-monitor \      
+        phosphor-gpio-monitor \  
+        phosphor-sel-logger \    
 	"
