@@ -1,9 +1,9 @@
 &i2c0 {
-	status = "okay";
+	status = "disable";
 };
 
 &i2c1 {
-	status = "okay";
+	status = "disable";
 };
 
 &i2c2 {
@@ -124,13 +124,14 @@
 };
 
 &i2c8 {
-	status = "okay";
+	status = "disable";
 };
 
 &i2c9 {
+	/* i2c_BMC (HEADER) */
 	status = "okay";
 };
 
 &i2c13 {
-	status = "okay";
+	status = "disable";
 };
