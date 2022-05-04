@@ -5,8 +5,8 @@
 #include <dt-bindings/gpio/aspeed-gpio.h>
 
 / {
-	model = "AST2500 EVB";
-	compatible = "aspeed,ast2500";
+	model = "DEPO DAZN";
+	compatible = "depo,dazn","aspeed,ast2500";
 
 	aliases {
 		serial0 = &uart1;
@@ -30,18 +30,6 @@
 		vga_memory: framebuffer@9f000000 {
 			no-map;
 			reg = <0x9f000000 0x01000000>; /* 16M */
-		};
-
-		flash_memory: region@98000000 {
-			no-map;
-			reg = <0x98000000 0x04000000>; /* 64M */
-		};
-
-		gfx_memory: framebuffer {
-			size = <0x01000000>;
-			alignment = <0x01000000>;
-			compatible = "shared-dma-pool";
-			reusable;
 		};
 
 		video_engine_memory: jpegbuffer {
@@ -69,17 +57,11 @@
 };
 
 &spi1 {
-	status = "okay";
-	flash@0 {
-		status = "okay";
-		m25p,fast-read;
-		label = "pnor";
-		spi-max-frequency = <100000000>;
-	};
+	status = "disable";
 };
 
 &spi2 {
-	status = "okay";
+	status = "disable";
 };
 
 #include "dazn-gpio.dtsi"
@@ -138,11 +120,6 @@
 
 &uhci {
 	status = "okay";
-};
-
-&gfx {
-     status = "okay";
-     memory-region = <&gfx_memory>;
 };
 
 &rtc {
