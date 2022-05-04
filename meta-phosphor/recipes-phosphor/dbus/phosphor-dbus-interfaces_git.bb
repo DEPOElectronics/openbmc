@@ -18,7 +18,7 @@ DEPENDS += " \
         "
 
 SRC_URI = "git://github.com/openbmc/phosphor-dbus-interfaces;branch=master;protocol=https"
-SRCREV = "1bf1b7bfcf639a4e0eed39320181f9b155d787e7"
+SRCREV = "56936f52f25667f233f981e5aacc52981b003b39"
 
 # Process OBMC_ORG_YAML_SUBDIRS to create Meson config options.
 # ex. xyz/openbmc_project -> -Ddata_xyz_openbmc_project=true

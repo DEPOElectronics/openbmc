@@ -9,9 +9,7 @@ BBLAYERS ?= " \
   ##OEROOT##/meta \
   ##OEROOT##/meta-openembedded/meta-oe \
   ##OEROOT##/meta-openembedded/meta-networking \
-  ##OEROOT##/meta-openembedded/meta-perl \
   ##OEROOT##/meta-openembedded/meta-python \
-  ##OEROOT##/meta-openembedded/meta-webserver \
   ##OEROOT##/meta-phosphor \
   ##OEROOT##/meta-hpe/meta-gxp \
   ##OEROOT##/meta-hpe \

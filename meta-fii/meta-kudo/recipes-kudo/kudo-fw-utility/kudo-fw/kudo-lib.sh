@@ -40,6 +40,18 @@ function get_gpio_ctrl() {
     echo "$GPIO_NUM" > /sys/class/gpio/unexport
 }
 
+function get_scp_eeprom() {
+    scp_eeprom_sel=$(get_gpio_ctrl 168)
+    case $scp_eeprom_sel in
+    0)
+        echo " Using Secondary SCP EEPROM"
+        ;;
+    1)
+        echo " Using Primary SCP EEPROM"
+        ;;
+    esac
+}
+
 # I2C Definitions
 # The array is (<bus> <address>), where address is in hexadecimal.
 I2C_BMC_CPLD=(13 76)
@@ -54,3 +66,7 @@ I2C_CPU_EEPROM=(40 50)
 I2C_S1_CLKGEN=(37 68)
 I2C_S1_PCIE_CLKGEN1=(16 6a)
 I2C_S1_PCIE_CLKGEN2=(17 67)
+
+# Board Version Definitions
+BOARDVER_EVT_LAST=64
+BOARDVER_DVT_LAST=127
