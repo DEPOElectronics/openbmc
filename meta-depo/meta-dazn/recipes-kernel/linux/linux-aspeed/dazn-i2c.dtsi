@@ -26,11 +26,11 @@
 		reg = <0x57>;	     
 	};
 
-	rtc@6f {
-		compatible = "microchip,mcp7941x";
-		reg = <0x6f>;
-		interrupts = <110>;
-	};
+	mcp7940@6f {
+        	compatible = "microchip,mcp7940x";
+        	reg = <0x6f>;
+        	label = "platform";
+    	};
 };
 
 &i2c4 {
