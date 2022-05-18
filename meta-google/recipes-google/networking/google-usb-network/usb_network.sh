@@ -94,14 +94,20 @@ EOF
 
     ln -s "${func_dir}" "${config_dir}" || return
 
+    # This only works on kernel 5.12+, we have to ignore failures for now
+    echo "$IFACE_NAME" >"${func_dir}"/ifname || true
+
     echo "${BIND_DEVICE}" >${gadget_dir}/UDC || return
-    local ifname
-    ifname="$(<"${func_dir}"/ifname)" || return
-    if [ "${IFACE_NAME}" != "$ifname" ]; then
-        # We don't care if downing the interface fails, only the rename
-        ip link set dev "$ifname" down || true
-        ip link set dev "$ifname" name "${IFACE_NAME}" || return
-    fi
+    # Try to reconfigure a few times in case we race with systemd-networkd
+    local start=$SECONDS
+    while (( SECONDS - start < 5 )); do
+        local ifname
+        ifname="$(<"${func_dir}"/ifname)" || return
+        [ "${IFACE_NAME}" = "$ifname" ] && break
+        ip link set dev "$ifname" down && \
+            ip link set dev "$ifname" name "${IFACE_NAME}" && break
+        sleep 1
+    done
     ip link set dev "$IFACE_NAME" up || return
 }
 
