@@ -33,6 +33,7 @@ RDEPENDS:${PN}-system = " \
         phosphor-virtual-sensor \
         kernel-module-l-pcs-i2c \
         kernel-module-dp_lm63 \
+	kernel-module-emc2305 \
         phosphor-pid-control \
         update-mac \
         ipmitool \  
