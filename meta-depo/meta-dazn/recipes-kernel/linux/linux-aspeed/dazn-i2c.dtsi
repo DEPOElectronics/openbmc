@@ -13,6 +13,15 @@
 	lm96163@4c {
 		compatible = "national,lm96163";
 		reg = <0x4c>;
+	};
+	
+	emc2305@2c {
+		compatible = "smsc,emc2305";
+		reg = <0x2c>;	
+	};	
+	emc2305@2e {
+		compatible = "smsc,emc2305";
+		reg = <0x2e>;	
 	};	
 
 };
