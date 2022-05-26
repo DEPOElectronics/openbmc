@@ -32,6 +32,70 @@
             "writePath": "",
             "ignoreDbusMinMax": true,
             "timeout": 0
+        },
+        {
+            "name": "Chassis1_Fan",
+            "type": "fan",
+            "readPath": "/sys/bus/i2c/devices/2-002e/hwmon/hwmon4/fan1_input",
+            "writePath": "/sys/bus/i2c/devices/2-002e/hwmon/hwmon4/pwm1",
+            "min": 0,
+            "max": 255
+        },
+        {
+            "name": "Chassis2_Fan",
+            "type": "fan",
+            "readPath": "/sys/bus/i2c/devices/2-002e/hwmon/hwmon4/fan2_input",
+            "writePath": "/sys/bus/i2c/devices/2-002e/hwmon/hwmon4/pwm2",
+            "min": 0,
+            "max": 255
+        },
+        {
+            "name": "Chassis3_Fan",
+            "type": "fan",
+            "readPath": "/sys/bus/i2c/devices/2-002e/hwmon/hwmon4/fan3_input",
+            "writePath": "/sys/bus/i2c/devices/2-002e/hwmon/hwmon4/pwm3",
+            "min": 0,
+            "max": 255
+        },
+        {
+            "name": "Chassis4_Fan",
+            "type": "fan",
+            "readPath": "/sys/bus/i2c/devices/2-002e/hwmon/hwmon4/fan4_input",
+            "writePath": "/sys/bus/i2c/devices/2-002e/hwmon/hwmon4/pwm4",
+            "min": 0,
+            "max": 255
+        },
+        {
+            "name": "Chassis5_Fan",
+            "type": "fan",
+            "readPath": "/sys/bus/i2c/devices/2-002e/hwmon/hwmon4/fan5_input",
+            "writePath": "/sys/bus/i2c/devices/2-002e/hwmon/hwmon4/pwm5",
+            "min": 0,
+            "max": 255
+        },
+        {
+            "name": "Chassis1_Temperature",
+            "type": "temp",
+            "readPath": "/xyz/openbmc_project/sensors/temperature/Chassis1_Temperature",
+            "writePath": "",
+            "ignoreDbusMinMax": true,
+            "timeout": 0
+        },
+        {
+            "name": "Chassis2_Temperature",
+            "type": "temp",
+            "readPath": "/xyz/openbmc_project/sensors/temperature/Chassis2_Temperature",
+            "writePath": "",
+            "ignoreDbusMinMax": true,
+            "timeout": 0
+        },
+        {
+            "name": "Chipset_Temperature",
+            "type": "temp",
+            "readPath": "/xyz/openbmc_project/sensors/temperature/Chipset_Temperature",
+            "writePath": "",
+            "ignoreDbusMinMax": true,
+            "timeout": 0
         }        
     ],
     "zones": [
@@ -190,6 +254,68 @@
                     }
                 }                
             ]
-        }        
+        },
+        {
+            "id": 3,
+            "minThermalOutput": 1500.0,
+            "failsafePercent": 90.0,
+            "pids": [
+                {
+                    "name": "fan_tachs",
+                    "type": "fan",
+                    "inputs": [
+                        "Chassis1_Fan",
+                        "Chassis2_Fan",
+                        "Chassis3_Fan",
+                        "Chassis4_Fan",
+                        "Chassis5_Fan"
+                    ],
+                    "setpoint": 100.0,
+                    "pid": {
+                        "samplePeriod": 0.1,
+                        "proportionalCoeff": 0.0135,
+                        "integralCoeff": 0.00135,
+                        "feedFwdOffsetCoeff": 0.0,
+                        "feedFwdGainCoeff": 0.0135,
+                        "integralLimit_min": 0.0,
+                        "integralLimit_max": 0.0,
+                        "outLim_min": 20.0,
+                        "outLim_max": 100.0,
+                        "slewNeg": -10.0,
+                        "slewPos": 10.0
+                    }
+                },
+                {
+                    "name": "inlet_Temp",
+                    "type": "stepwise",
+                    "inputs": [
+                        "Chassis1_Temperature",
+                        "Chassis2_Temperature",
+                        "Chipset_Temperature"
+                    ],
+                    "setpoint": 10.0,
+                    "pid": {
+                        "samplePeriod": 1.0,
+                        "positiveHysteresis": 1.0,
+                        "negativeHysteresis": 3.0,
+                        "isCeiling": false,
+                        "reading": {
+                            "0": 30.0,
+                            "1": 40.0,
+                            "2": 50.0,
+                            "3": 60.0,
+                            "4": 70.0
+                        },
+                        "output": {
+                            "0": 2000.0,
+                            "1": 2500.0,
+                            "2": 4500.0,
+                            "3": 6000.0,
+                            "4": 7400.0
+                        }
+                    }
+                }                
+            ]
+        }
     ]
 }
