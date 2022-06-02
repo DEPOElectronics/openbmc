@@ -1,0 +1,17 @@
+{
+    "Exposes": [],
+    "Name": "$PRODUCT_PRODUCT_NAME",
+    "Probe": "xyz.openbmc_project.FruDevice({'PRODUCT_PRODUCT_NAME': 'Storm 3450E3RU'})",
+    "Type": "System",
+    "BoardName": "$BOARD_PRODUCT_NAME",
+    "xyz.openbmc_project.Inventory.Decorator.Asset": {
+        "Manufacturer": "$PRODUCT_MANUFACTURER",
+        "Model": "$PRODUCT_PRODUCT_NAME",
+        "PartNumber": "NA",
+        "SerialNumber": "$PRODUCT_SERIAL_NUMBER"
+    },
+    "xyz.openbmc_project.Inventory.Decorator.AssetTag": {
+        "AssetTag": "$PRODUCT_ASSET_TAG"
+    },
+    "xyz.openbmc_project.Inventory.Item.System": {}
+}

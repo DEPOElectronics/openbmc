@@ -6,7 +6,8 @@
 		"Bus": "6",
 		"Name": "CPU0 Fan",
 		"PowerState": "On",
-		"Type": "I2CFan"
+		"Type": "I2CFan",
+		"Labels": "fan1"
 	},
 	{
                 "Index": 0,
@@ -19,7 +20,7 @@
 	{
 		"Address": "0x2e",
 		"Bus": "2",
-                "Index": 1,
+                "Index": 0,
 		"Name": "Chassis1 Fan",
 		"PowerState": "On",
 		"Type": "I2CFan",
@@ -40,7 +41,7 @@
 	{
 		"Address": "0x2e",
 		"Bus": "2",
-                "Index": 2,
+                "Index": 1,
 		"Name": "Chassis2 Fan",
 		"PowerState": "On",
 		"Type": "I2CFan",
@@ -61,7 +62,7 @@
 	{
 		"Address": "0x2e",
 		"Bus": "2",
-                "Index": 3,
+                "Index": 2,
 		"Name": "Chassis3 Fan",
 		"PowerState": "On",
 		"Type": "I2CFan",
@@ -101,14 +102,17 @@
 		"Type": "I2CTemp"
 	}
     ],
-    "Name": "DEPO DAZN",
-    "Probe": "TRUE",
-    "Type": "Board", 
+    "Probe": "xyz.openbmc_project.FruDevice({'BOARD_PRODUCT_NAME': 'DAZN.469535.003 v.2'})",
+    "Name": "2U",
+    "Type": "Chassis", 
     "xyz.openbmc_project.Inventory.Item.System": {},   
     "xyz.openbmc_project.Inventory.Decorator.Asset": {
-        "Manufacturer": "DEPO",
-        "Model": "ДАЦН",
-        "PartNumber": "469535.003",
-        "SerialNumber": "XXX"
-    }
+        "Manufacturer": "$PRODUCT_MANUFACTURER",
+        "Model": "E3RU",
+        "PartNumber": "$CHASSIS_PART_NUMBER",
+        "SerialNumber": "$CHASSIS_SERIAL_NUMBER"
+    },
+    "xyz.openbmc_project.Inventory.Decorator.AssetTag": {
+        "AssetTag": ""
+    }    
 }
