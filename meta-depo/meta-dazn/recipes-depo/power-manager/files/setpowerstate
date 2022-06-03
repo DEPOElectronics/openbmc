@@ -24,7 +24,6 @@ do
       echo "powerOn reset"
       sleep 0.2
       host reset
-      shutup      
     fi
   fi  
   sleep 0.1
