@@ -18,12 +18,18 @@ while :
 do
   NEWSTATE=$(power_state)
   if [ $NEWSTATE != $OLDSTATE ]; then
-    host setstate
     OLDSTATE=$NEWSTATE
+    host setstate    
     if [ $NEWSTATE == $PON ]; then
-      echo "powerOn reset"
-      sleep 0.2
-      host reset
+	host block
+	systemctl stop xyz.openbmc_project.FruDevice.service
+	echo -n "1e78a140.i2c-bus" > /sys/bus/platform/drivers/aspeed-i2c-bus/unbind
+	echo -n "1e78a1c0.i2c-bus" > /sys/bus/platform/drivers/aspeed-i2c-bus/unbind
+	host unblock
+	sleep 120
+	echo -n "1e78a140.i2c-bus" > /sys/bus/platform/drivers/aspeed-i2c-bus/bind
+	echo -n "1e78a1c0.i2c-bus" > /sys/bus/platform/drivers/aspeed-i2c-bus/bind
+	systemctl start xyz.openbmc_project.FruDevice.service    
     fi
   fi  
   sleep 0.1

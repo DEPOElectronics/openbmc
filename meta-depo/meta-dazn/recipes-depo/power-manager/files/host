@@ -20,41 +20,45 @@ setstate() {
   fi 
 }
 
+setgpio() {
+	GPIOLINE=$1
+	GPIOSET1=$2
+	GPIOTIME=$3
+	GPIOSET2=$4
+	btn=$(gpiofind $GPIOLINE)
+	gpioset $btn=$GPIOSET1
+	if [ "$GPIOTIME" ]; then
+		sleep $GPIOTIME
+		gpioset $btn=$GPIOSET2
+	fi
+	return 0
+}
+
+unblock() {
+  setgpio $RESETBTN 1
+}
+
+
 power_reset() {
 	echo "Host reset"
-	#busctl set-property xyz.openbmc_project.Watchdog /xyz/openbmc_project/watchdog/host0 xyz.openbmc_project.State.Watchdog ExpireAction s xyz.openbmc_project.State.Watchdog.Action.None
-	btn=$(gpiofind $RESETBTN)
-	gpioset $btn=0
-	sleep 0.2
-	gpioset $btn=1
-        setstate
+	setgpio $RESETBTN 0 0.2 1
 }
+
 
 power_off() {
 	echo "Host power off"
-        #busctl set-property xyz.openbmc_project.Watchdog /xyz/openbmc_project/watchdog/host0 xyz.openbmc_project.State.Watchdog ExpireAction s xyz.openbmc_project.State.Watchdog.Action.None
-        #busctl set-property xyz.openbmc_project.State.Chassis /xyz/openbmc_project/state/chassis0 xyz.openbmc_project.State.Chassis RequestedPowerTransition s xyz.openbmc_project.State.Chassis.Transition.Off	
-	btn=$(gpiofind $POWERBTN)
-	gpioset $btn=0
-	sleep 0.2
-	gpioset $btn=1
+	setgpio $POWERBTN 0 0.2 1
 }
 
 power_on() {
 	echo "Host power on"
-	btn=$(gpiofind $POWERBTN)
-	gpioset $btn=0
-	sleep 0.2
-	gpioset $btn=1
+	setgpio $POWERBTN 0 0.2 1
 }
 
 power_off_hard() {
 	echo "Host power off hard"
-        power_reset
-	btn=$(gpiofind $POWERBTN)
-	gpioset $btn=0
-	sleep 5
-	gpioset $btn=1
+	reset
+	setgpio $POWERBTN 0 5 1
 }
 
 power_state() {
@@ -79,6 +83,10 @@ elif [ "$1" = "off" ]; then
       power_off 
      fi
   fi
+elif [ "$1" = "block" ]; then
+  setgpio $RESETBTN 0
+elif [ "$1" = "unblock" ]; then
+  setgpio $RESETBTN 1
 elif [ "$1" == "cycle" ]; then
   if [ "$(power_state)" == "on" ]; then
       power_off_hard
