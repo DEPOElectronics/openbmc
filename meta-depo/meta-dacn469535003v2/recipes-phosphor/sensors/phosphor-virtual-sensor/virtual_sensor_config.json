@@ -15,12 +15,12 @@
             [
                 "chassis",
                 "all_sensors",
-                "/xyz/openbmc_project/inventory/system/board/DEPO_DAZN"
+                "/xyz/openbmc_project/inventory/system/board/DEPO_dacn469535003v2"
             ],
             [
                 "inventory",
                 "sensors",
-                "/xyz/openbmc_project/inventory/system/board/DEPO_DAZN"
+                "/xyz/openbmc_project/inventory/system/board/DEPO_dacn469535003v2"
             ]
         ],
         "Params":
@@ -103,12 +103,12 @@
             [
                 "chassis",
                 "all_sensors",
-                "/xyz/openbmc_project/inventory/system/board/DEPO_DAZN"
+                "/xyz/openbmc_project/inventory/system/board/DEPO_dacn469535003v2"
             ],
             [
                 "inventory",
                 "sensors",
-                "/xyz/openbmc_project/inventory/system/board/DEPO_DAZN"
+                "/xyz/openbmc_project/inventory/system/board/DEPO_dacn469535003v2"
             ]
         ],
         "Params":

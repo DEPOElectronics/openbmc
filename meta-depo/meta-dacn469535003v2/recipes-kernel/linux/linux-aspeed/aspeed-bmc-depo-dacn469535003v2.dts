@@ -5,8 +5,8 @@
 #include <dt-bindings/gpio/aspeed-gpio.h>
 
 / {
-	model = "DEPO DAZN";
-	compatible = "depo,dazn","aspeed,ast2500";
+	model = "DEPO dacn469535003v2";
+	compatible = "depo,dacn469535003v2","aspeed,ast2500";
 
 	aliases {
 		serial0 = &uart1;
@@ -41,8 +41,8 @@
 	};
 	
 	
-	#include "dazn-led.dtsi"
-	#include "dazn-keys.dtsi"
+	#include "dacn469535003v2-led.dtsi"
+	#include "dacn469535003v2-keys.dtsi"
 };
 
 &fmc {
@@ -64,7 +64,7 @@
 	status = "disable";
 };
 
-#include "dazn-gpio.dtsi"
+#include "dacn469535003v2-gpio.dtsi"
 
 &uart1 {
 	//Host Console
@@ -85,7 +85,7 @@
 	pinctrl-0 = <&pinctrl_rgmii1_default &pinctrl_mdio1_default>;
 };
 
-#include "dazn-i2c.dtsi"
+#include "dacn469535003v2-i2c.dtsi"
 
 &sdmmc {
 	status = "okay";

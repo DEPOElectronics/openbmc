@@ -1,6 +1,6 @@
 FILESEXTRAPATHS:append := ":${THISDIR}/${PN}"
-SRC_URI:append = " file://dazn-chassis.json \
-		   file://dazn-system.json \
+SRC_URI:append = " file://dacn469535003v2-chassis.json \
+		   file://dacn469535003v2-system.json \
 		   file://GOSPOWER_G1136_1300WNA_PSU.json \
 		   file://FSP800_20FM_PSU.json \
 		   file://FSP800_20ERM.json \

@@ -128,7 +128,7 @@
 		"Type": "I2CTemp"
 	}
     ],
-    "Probe": "xyz.openbmc_project.FruDevice({'BOARD_PRODUCT_NAME': 'DAZN.469535.003 v.2'})",
+    "Probe": "xyz.openbmc_project.FruDevice({'BOARD_PRODUCT_NAME': 'dacn469535003v2.469535.003 v.2'})",
     "Name": "2U",
     "Type": "Chassis", 
     "xyz.openbmc_project.Inventory.Item.System": {},   

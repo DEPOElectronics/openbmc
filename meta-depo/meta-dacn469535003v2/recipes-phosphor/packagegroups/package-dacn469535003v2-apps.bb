@@ -1,4 +1,4 @@
-SUMMARY = "DAZN Elbrus for DEPO"
+SUMMARY = "dacn469535003v2 Elbrus for DEPO"
 PR = "r1"
 
 inherit packagegroup
@@ -18,7 +18,7 @@ PROVIDES += "virtual/obmc-system-mgmt"
 
 RPROVIDES:${PN}-chassis += ""
 RDEPENDS:${PN}-chassis = " \
-    dazn-powerctrl \
+    dacn469535003v2-powerctrl \
     "
 RPROVIDES:${PN}-fans += "virtual-obmc-fan-mgmt"
 RPROVIDES:${PN}-flash += "virtual-obmc-flash-mgmt"
@@ -26,7 +26,7 @@ RPROVIDES:${PN}-system += "virtual-obmc-system-mgmt"
 
 RDEPENDS:${PN}-system = " \
         webui-vue \
-        dazn-powerctrl \
+        dacn469535003v2-powerctrl \
 	id-button \
 	entity-manager \
         dbus-sensors \
