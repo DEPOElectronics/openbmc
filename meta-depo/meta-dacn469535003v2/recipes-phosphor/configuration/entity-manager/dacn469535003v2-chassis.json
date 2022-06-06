@@ -1,132 +1,131 @@
 {
     "Exposes": [
-	{
-                "Index": 0,
-		"Address": "0x4c",
-		"Bus": "6",
-		"Name": "CPU0 Fan",
-		"PowerState": "On",
-		"Type": "I2CFan",
-		"Labels": "fan1",
-		"Thresholds": [			{
-				"Direction": "less than",
-				"Name": "lower non critical",
-				"Severity": 0,
-				"Value": 1000
-			},
-			{
-				"Direction": "greater than",
-				"Name": "upper non critical",
-				"Severity": 0,
-				"Value": 10000
-			}			
-			]		
-	},
-	{
-                "Index": 0,
-		"Address": "0x4c",
-		"Bus": "4",
-		"Name": "CPU1 Fan",
-		"PowerState": "On",
-		"Type": "I2CFan",
-		"Thresholds": [			{
-				"Direction": "less than",
-				"Name": "lower non critical",
-				"Severity": 0,
-				"Value": 1000
-			},
-			{
-				"Direction": "greater than",
-				"Name": "upper non critical",
-				"Severity": 0,
-				"Value": 10000
-			}			
-			]
-	},
-	{
-		"Address": "0x2e",
-		"Bus": "2",
-                "Index": 0,
-		"Name": "Chassis1 Fan",
-		"PowerState": "On",
-		"Type": "I2CFan",
-		"Thresholds": [			{
-				"Direction": "less than",
-				"Name": "lower non critical",
-				"Severity": 0,
-				"Value": 1000
-			},
-			{
-				"Direction": "greater than",
-				"Name": "upper non critical",
-				"Severity": 0,
-				"Value": 10000
-			}			
-			]
-	},	
-	{
-		"Address": "0x2e",
-		"Bus": "2",
-                "Index": 1,
-		"Name": "Chassis2 Fan",
-		"PowerState": "On",
-		"Type": "I2CFan",
-		"Thresholds": [			{
-				"Direction": "less than",
-				"Name": "lower non critical",
-				"Severity": 0,
-				"Value": 1000
-			},
-			{
-				"Direction": "greater than",
-				"Name": "upper non critical",
-				"Severity": 0,
-				"Value": 10000
-			}			
-			]		
-	},	
-	{
-		"Address": "0x2e",
-		"Bus": "2",
-                "Index": 2,
-		"Name": "Chassis3 Fan",
-		"PowerState": "On",
-		"Type": "I2CFan",
-		"Thresholds": [			{
-				"Direction": "less than",
-				"Name": "lower non critical",
-				"Severity": 0,
-				"Value": 1000
-			},
-			{
-				"Direction": "greater than",
-				"Name": "upper non critical",
-				"Severity": 0,
-				"Value": 10000
-			}			
-			]		
-	},		
         {
-		"Address": "0x4c",
-		"Bus": "4",
-		"Name": "Chassis2 Temperature",
-		"PowerState": "On",
-		"Type": "I2CTemp"
-	},
-	{
-		"Address": "0x4c",
-		"Bus": "6",
-		"Name": "Chassis1 Temperature",
-		"PowerState": "On",
-		"Type": "I2CTemp"
-	},
-	{
-		"Address": "0x4c",
-		"Bus": "2",
-		"Name": "Chipset Temperature",
-		"PowerState": "On",
-		"Type": "I2CTemp"
-	}
+                "Address": "0x4c",
+                "Bus": "6",
+                "Index": 0,
+                "Name": "CPU0 Fan",
+                "PowerState": "On",
+                "Type": "I2CFan",
+                "Thresholds": [                        {
+                                "Direction": "less than",
+                                "Name": "lower non critical",
+                                "Severity": 0,
+                                "Value": 1000
+                        },
+                        {
+                                "Direction": "greater than",
+                                "Name": "upper non critical",
+                                "Severity": 0,
+                                "Value": 10000
+                        }                        
+                        ]                
+        },
+        {
+                "Address": "0x4c",
+                "Bus": "4",
+                "Index": 0,
+                "Name": "CPU1 Fan",
+                "PowerState": "On",
+                "Type": "I2CFan",
+                "Thresholds": [                        {
+                                "Direction": "less than",
+                                "Name": "lower non critical",
+                                "Severity": 0,
+                                "Value": 1000
+                        },
+                        {
+                                "Direction": "greater than",
+                                "Name": "upper non critical",
+                                "Severity": 0,
+                                "Value": 10000
+                        }                        
+                        ]
+        },
+        {
+                "Address": "0x2e",
+                "Bus": "2",
+                "Index": 0,
+                "Name": "Chassis1 Fan",
+                "PowerState": "On",
+                "Type": "I2CFan",
+                "Thresholds": [                        {
+                                "Direction": "less than",
+                                "Name": "lower non critical",
+                                "Severity": 0,
+                                "Value": 1000
+                        },
+                        {
+                                "Direction": "greater than",
+                                "Name": "upper non critical",
+                                "Severity": 0,
+                                "Value": 10000
+                        }                        
+                        ]
+        },        
+        {
+                "Address": "0x2e",
+                "Bus": "2",
+                "Index": 1,
+                "Name": "Chassis2 Fan",
+                "PowerState": "On",
+                "Type": "I2CFan",
+                "Thresholds": [                        {
+                                "Direction": "less than",
+                                "Name": "lower non critical",
+                                "Severity": 0,
+                                "Value": 1000
+                        },
+                        {
+                                "Direction": "greater than",
+                                "Name": "upper non critical",
+                                "Severity": 0,
+                                "Value": 10000
+                        }                        
+                        ]                
+        },        
+        {
+                "Address": "0x2e",
+                "Bus": "2",
+                "Index": 2,
+                "Name": "Chassis3 Fan",
+                "PowerState": "On",
+                "Type": "I2CFan",
+                "Thresholds": [                        {
+                                "Direction": "less than",
+                                "Name": "lower non critical",
+                                "Severity": 0,
+                                "Value": 1000
+                        },
+                        {
+                                "Direction": "greater than",
+                                "Name": "upper non critical",
+                                "Severity": 0,
+                                "Value": 10000
+                        }                        
+                        ]                
+        },                
+        {
+                "Address": "0x4c",
+                "Bus": "4",
+                "Name": "Chassis2 Temperature",
+                "PowerState": "On",
+                "Type": "I2CTemp"
+        },
+        {
+                "Address": "0x4c",
+                "Bus": "6",
+                "Name": "Chassis1 Temperature",
+                "PowerState": "On",
+                "Type": "I2CTemp"
+        },
+        {
+                "Address": "0x4c",
+                "Bus": "2",
+                "Name": "Chipset Temperature",
+                "PowerState": "On",
+                "Type": "I2CTemp"
+        }
     ],
     "Probe": "xyz.openbmc_project.FruDevice({'BOARD_PRODUCT_NAME': 'DACN.469535.003 v.2'})",
     "Name": "2U",
