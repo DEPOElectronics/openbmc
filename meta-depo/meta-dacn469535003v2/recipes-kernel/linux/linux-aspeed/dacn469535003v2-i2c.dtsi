@@ -1,0 +1,146 @@
+&i2c0 {
+	status = "disable";
+};
+
+&i2c1 {
+	status = "disable";
+};
+
+&i2c2 {
+	/* i2c_pmbus */
+	status = "okay";
+	
+	lm96163@4c {
+		compatible = "national,lm96163";
+		reg = <0x4c>;
+	};
+	
+	emc2305@2c {
+		compatible = "smsc,emc2305";
+		reg = <0x2c>;	
+	};	
+	emc2305@2e {
+		compatible = "smsc,emc2305";
+		reg = <0x2e>;	
+	};	
+
+};
+
+&i2c3 {
+	/* i2c_fruid */
+	status = "okay";
+	
+	eeprom@57 {
+		compatible = "atmel,24c128";
+		reg = <0x57>;	     
+	};
+
+	mcp7940@6f {
+        	compatible = "microchip,mcp7940x";
+        	reg = <0x6f>;
+        	label = "platform";
+    	};
+};
+
+&i2c4 {
+	/* i2c_cpu1 */
+	status = "okay";
+	
+	dp_lm96163@4c {
+		compatible = "national,dp_lm96163";
+		reg = <0x4c>;
+	};	
+	
+};
+
+&i2c5 {
+	/* i2c_mntr */
+	status = "okay";
+
+        pcs@20 {
+		compatible = "mcst,l_pcs_i2c";
+		reg = <0x20>;
+	};	
+        pcs@21 {
+		compatible = "mcst,l_pcs_i2c";
+		reg = <0x21>;
+	};	
+        pcs@22 {
+		compatible = "mcst,l_pcs_i2c";
+		reg = <0x22>;
+	};	
+        pcs@23 {
+		compatible = "mcst,l_pcs_i2c";
+		reg = <0x23>;
+	};	
+        pcs@24 {
+		compatible = "mcst,l_pcs_i2c";
+		reg = <0x24>;
+	};	
+        pcs@25 {
+		compatible = "mcst,l_pcs_i2c";
+		reg = <0x25>;
+	};	
+        pcs@26 {
+		compatible = "mcst,l_pcs_i2c";
+		reg = <0x26>;
+	};	
+	
+        pcs@30 {
+		compatible = "mcst,l_pcs_i2c";
+		reg = <0x30>;
+	};	
+        pcs@31 {
+		compatible = "mcst,l_pcs_i2c";
+		reg = <0x31>;
+	};	
+        pcs@32 {
+		compatible = "mcst,l_pcs_i2c";
+		reg = <0x32>;
+	};	
+        pcs@33 {
+		compatible = "mcst,l_pcs_i2c";
+		reg = <0x33>;
+	};	
+        pcs@34 {
+		compatible = "mcst,l_pcs_i2c";
+		reg = <0x34>;
+	};	
+        pcs@35 {
+		compatible = "mcst,l_pcs_i2c";
+		reg = <0x35>;
+	};	
+        pcs@36 {
+		compatible = "mcst,l_pcs_i2c";
+		reg = <0x36>;
+	};	
+};
+
+&i2c6 {
+	/* i2c_cpu0 */
+	status = "okay";
+	
+	dp_lm96163@4c {
+		compatible = "national,dp_lm96163";
+		reg = <0x4c>;
+	};	
+	
+};
+
+&i2c7 {
+	/* i2c_pci */
+	status = "okay";
+};
+
+&i2c8 {
+	status = "disable";
+};
+
+&i2c9 {
+	/* i2c_BMC (HEADER) */
+	status = "okay";
+};
+
+&i2c13 {
+	status = "disable";
+};
