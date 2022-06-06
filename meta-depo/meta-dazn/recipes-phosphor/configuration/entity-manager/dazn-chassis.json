@@ -7,7 +7,20 @@
 		"Name": "CPU0 Fan",
 		"PowerState": "On",
 		"Type": "I2CFan",
-		"Labels": "fan1"
+		"Labels": "fan1",
+		"Thresholds": [			{
+				"Direction": "less than",
+				"Name": "lower non critical",
+				"Severity": 0,
+				"Value": 1000
+			},
+			{
+				"Direction": "greater than",
+				"Name": "upper non critical",
+				"Severity": 0,
+				"Value": 10000
+			}			
+			]		
 	},
 	{
                 "Index": 0,
@@ -15,7 +28,20 @@
 		"Bus": "4",
 		"Name": "CPU1 Fan",
 		"PowerState": "On",
-		"Type": "I2CFan"
+		"Type": "I2CFan",
+		"Thresholds": [			{
+				"Direction": "less than",
+				"Name": "lower non critical",
+				"Severity": 0,
+				"Value": 1000
+			},
+			{
+				"Direction": "greater than",
+				"Name": "upper non critical",
+				"Severity": 0,
+				"Value": 10000
+			}			
+			]
 	},
 	{
 		"Address": "0x2e",
