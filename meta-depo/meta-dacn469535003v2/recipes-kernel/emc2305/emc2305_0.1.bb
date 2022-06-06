@@ -16,7 +16,7 @@ inherit module
 SRC_URI += "git://github.com/DEPOElectronics/emc2305.git;branch=master;protocol=https"
 SRCREV = "e2a5e390c3b169c86c0723e7480a33dfd3f36d82"
 
-S = "${WORKDIR}"
+S = "${WORKDIR}/git"
 
 RPROVIDES:${PN} += "kernel-module-emc2305"
 KERNEL_MODULE_AUTOLOAD += "emc2305"
