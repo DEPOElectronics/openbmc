@@ -138,7 +138,7 @@
 
 &i2c9 {
 	/* i2c_BMC (HEADER) */
-	status = "okay";
+	status = "disable";
 };
 
 &i2c13 {
