@@ -7,12 +7,7 @@
                 "Name": "CPU0 Fan",
                 "PowerState": "On",
                 "Type": "I2CFan",
-                "Thresholds": [                        {
-                                "Direction": "less than",
-                                "Name": "lower non critical",
-                                "Severity": 0,
-                                "Value": 1000
-                        },
+                "Thresholds": [
                         {
                                 "Direction": "greater than",
                                 "Name": "upper non critical",
@@ -28,12 +23,7 @@
                 "Name": "CPU1 Fan",
                 "PowerState": "On",
                 "Type": "I2CFan",
-                "Thresholds": [                        {
-                                "Direction": "less than",
-                                "Name": "lower non critical",
-                                "Severity": 0,
-                                "Value": 1000
-                        },
+                "Thresholds": [
                         {
                                 "Direction": "greater than",
                                 "Name": "upper non critical",
