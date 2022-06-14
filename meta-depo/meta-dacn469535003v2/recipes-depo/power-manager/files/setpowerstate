@@ -1,8 +1,15 @@
 #!/bin/bash
 POWERstate=GPIO_POWER_IN
+
+GPIOPOWERMON=114
+GPIORESETMON=115
+
 PON="on"
 POFF="off"
+
 ps=$(gpiofind $POWERstate)
+chon=/run/openbmc/chassis@0-on
+
 
 power_state() {
     st=$(gpioget $ps)
@@ -13,25 +20,50 @@ power_state() {
     fi
 }
 
+power_monitor() {
+  Res=""
+    MONSTATE=$(gpiomon -n 1 -F "%o %e" 0 $GPIOPOWERMON $GPIORESETMON)
+    stringarray=($MONSTATE)
+    GPIOLine=${stringarray[0]}
+    GPIOState=${stringarray[1]}
+
+    if [ $GPIOLine == $GPIOPOWERMON ]; then
+      if [ $GPIOState == "0" ]; then
+        Res=$POFF
+      else
+        Res=$PON
+      fi
+    else 
+        Res=$PON
+    fi
+  echo $Res
+}
+
 OLDSTATE="NONE";
+NEWSTATE=$(power_state)
+OLDTIME=0
+
+
 while :
 do
-  NEWSTATE=$(power_state)
-  if [ $NEWSTATE != $OLDSTATE ]; then
+  NEWTIME=$(date +%s)
+  let dT=$NEWTIME-$OLDTIME
+  if [ $NEWSTATE != $OLDSTATE ] || [ "$dT" -gt "5" ] ; then
     OLDSTATE=$NEWSTATE
-    host setstate    
-    if [ $NEWSTATE == $PON ]; then
-	host block
-	systemctl stop xyz.openbmc_project.FruDevice.service
-	echo -n "1e78a140.i2c-bus" > /sys/bus/platform/drivers/aspeed-i2c-bus/unbind
-	echo -n "1e78a1c0.i2c-bus" > /sys/bus/platform/drivers/aspeed-i2c-bus/unbind
-	host unblock
-	sleep 30
-	echo -n "1e78a140.i2c-bus" > /sys/bus/platform/drivers/aspeed-i2c-bus/bind
-	echo -n "1e78a1c0.i2c-bus" > /sys/bus/platform/drivers/aspeed-i2c-bus/bind
-	systemctl start xyz.openbmc_project.FruDevice.service    
+    OLDTIME=$NEWTIME
+  
+    if [ $NEWSTATE == $PON ] ; then
+      host block
+      systemctl restart host-plug_i2c.timer
+      host unblock
+      mkdir -p /run/openbmc
+      touch $chon
+    else
+      rm -f $chon
     fi
-  fi  
-  sleep 0.1
+    host setstate
+  fi
+  NEWSTATE=$(power_monitor)
+  echo "Server" $NEWSTATE
 done
 
