@@ -4,5 +4,5 @@ Conflicts=obmc-chassis-poweroff@0.target.requires host-poweroff-hard.service hos
 
 [Service]
 Type=oneshot
-ExecStart=/usr/bin/env host on
+ExecStart=/usr/bin/host on
 SyslogIdentifier=buttonscripts

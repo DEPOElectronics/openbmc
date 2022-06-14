@@ -4,5 +4,5 @@ Conflicts=obmc-host-startmin@0.target
 
 [Service]
 Type=oneshot
-ExecStart=/usr/bin/env host off
+ExecStart=/usr/bin/host off
 SyslogIdentifier=buttonscripts
