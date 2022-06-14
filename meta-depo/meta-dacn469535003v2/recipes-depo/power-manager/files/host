@@ -34,14 +34,19 @@ setgpio() {
 	return 0
 }
 
-unblock() {
-  setgpio $RESETBTN 1
-}
-
 
 power_reset() {
 	echo "Host reset"
 	setgpio $RESETBTN 0 0.2 1
+}
+
+block() {
+  setgpio $RESETBTN 0
+  
+}
+unblock() {
+  setgpio $RESETBTN 1
+  power_reset
 }
 
 
@@ -57,13 +62,18 @@ power_on() {
 
 power_off_hard() {
 	echo "Host power off hard"
-	reset
+	power_reset
 	setgpio $POWERBTN 0 5 1
 }
 
 power_state() {
-    st=$(gpioget $(gpiofind $POWERstate))
-    if [ "$st" == "1" ]; then
+    #st=$(gpioget $(gpiofind $POWERstate))
+    #if [ "$st" == "1" ]; then
+    #    echo "on"
+    #else
+    #    echo "off"
+    #fi
+    if [ -f "/run/openbmc/chassis@0-on" ]; then
         echo "on"
     else
         echo "off"
@@ -84,9 +94,9 @@ elif [ "$1" = "off" ]; then
      fi
   fi
 elif [ "$1" = "block" ]; then
-  setgpio $RESETBTN 0
+  block
 elif [ "$1" = "unblock" ]; then
-  setgpio $RESETBTN 1
+  unblock
 elif [ "$1" == "cycle" ]; then
   if [ "$(power_state)" == "on" ]; then
       power_off_hard
