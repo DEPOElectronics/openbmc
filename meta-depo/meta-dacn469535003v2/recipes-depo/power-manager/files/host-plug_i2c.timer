@@ -1,0 +1,8 @@
+[Unit]
+Description=replug i2c bus after host start
+Wants=host-unplug_i2c.service
+After=host-unplug_i2c.service
+[Timer]
+OnActiveSec=30sec
+[Install]
+WantedBy=timers.target

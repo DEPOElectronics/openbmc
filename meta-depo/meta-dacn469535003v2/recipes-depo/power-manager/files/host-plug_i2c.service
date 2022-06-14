@@ -1,0 +1,11 @@
+[Unit]
+Description=Reset Host
+Requires=xyz.openbmc_project.FruDevice.service
+Before=xyz.openbmc_project.FruDevice.service
+Conflicts=host-unplug_i2c.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/plug_i2c.sh
+SyslogIdentifier=startsripts
+RemainAfterExit=yes
