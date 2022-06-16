@@ -1,6 +1,7 @@
 [Unit]
 Description=Set host state
 After=xyz.openbmc_project.State.Host@0.service
+Before=phosphor-pid-control.service
 
 [Install]
 WantedBy=multi-user.target
