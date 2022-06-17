@@ -10,7 +10,7 @@
             type: double
   multiplierM: 96
   mutability: Mutability::Read
-  path: /xyz/openbmc_project/sensors/fan_tach/Chassis_Fan_1
+  path: /xyz/openbmc_project/sensors/fan_tach/Chassis1_Fan
   offsetB: 0
   rExp: 0
   readingType: readingData
@@ -33,7 +33,7 @@
             type: double
   multiplierM: 96
   mutability: Mutability::Read
-  path: /xyz/openbmc_project/sensors/fan_tach/Chassis_Fan_2
+  path: /xyz/openbmc_project/sensors/fan_tach/Chassis2_Fan
   offsetB: 0
   rExp: 0
   readingType: readingData
@@ -56,7 +56,7 @@
             type: double
   multiplierM: 96
   mutability: Mutability::Read
-  path: /xyz/openbmc_project/sensors/fan_tach/Chassis_Fan_3
+  path: /xyz/openbmc_project/sensors/fan_tach/Chassis3_Fan
   offsetB: 0
   rExp: 0
   readingType: readingData
