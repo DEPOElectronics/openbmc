@@ -48,7 +48,8 @@ while :
 do
   NEWTIME=$(date +%s)
   let dT=$NEWTIME-$OLDTIME
-  if [ $NEWSTATE != $OLDSTATE ] || [ "$dT" -gt "5" ] ; then
+  if [ $NEWSTATE != $OLDSTATE ] && [ "$dT" -gt "5" ] ; then
+    echo $NEWTIME "NewState="$NEWSTATE
     OLDSTATE=$NEWSTATE
     OLDTIME=$NEWTIME
   

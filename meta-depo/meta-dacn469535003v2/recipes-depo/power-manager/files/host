@@ -38,6 +38,7 @@ setgpio() {
 power_reset() {
 	echo "Host reset"
 	setgpio $RESETBTN 0 0.2 1
+	setstate
 }
 
 block() {
@@ -53,17 +54,20 @@ unblock() {
 power_off() {
 	echo "Host power off"
 	setgpio $POWERBTN 0 0.2 1
+	setstate
 }
 
 power_on() {
 	echo "Host power on"
 	setgpio $POWERBTN 0 0.2 1
+	setstate
 }
 
 power_off_hard() {
 	echo "Host power off hard"
 	power_reset
 	setgpio $POWERBTN 0 5 1
+	setstate
 }
 
 power_state() {
