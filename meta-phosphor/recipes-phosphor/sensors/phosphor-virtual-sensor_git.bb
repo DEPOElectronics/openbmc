@@ -8,15 +8,16 @@ LIC_FILES_CHKSUM = "file://LICENSE;md5=9e69ba356fa59848ffd865152a3ccc13"
 inherit meson pkgconfig
 inherit systemd
 
-DEPENDS += "sdbusplus"
-DEPENDS += "phosphor-dbus-interfaces"
-DEPENDS += "sdeventplus"
-DEPENDS += "phosphor-logging"
-DEPENDS += "nlohmann-json"
-DEPENDS += "exprtk"
+DEPENDS:append = "\
+    exprtk \
+    nlohmann-json \
+    phosphor-dbus-interfaces \
+    phosphor-logging \
+    sdbusplus \
+"
 
-SRC_URI = "git://github.com/openbmc/phosphor-virtual-sensor.git;protocol=https"
-SRCREV = "190e4bf8a434a04c7426d7ea30a8ba2171a61741"
+SRC_URI = "git://github.com/openbmc/phosphor-virtual-sensor.git;protocol=https;branch=master"
+SRCREV = "dc7770153b8fdfca26f1e7fd038033dff6b20456"
 S = "${WORKDIR}/git"
 
 SYSTEMD_SERVICE:${PN} = "phosphor-virtual-sensor.service"

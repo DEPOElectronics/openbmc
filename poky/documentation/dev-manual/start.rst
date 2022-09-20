@@ -311,7 +311,7 @@ Project Build Host:
 
 3. *Meet Minimal Version Requirements:* The OpenEmbedded build system
    should be able to run on any modern distribution that has the
-   following versions for Git, tar, Python and gcc.
+   following versions for Git, tar, Python, gcc and make.
 
    -  Git &MIN_GIT_VERSION; or greater
 
@@ -321,10 +321,12 @@ Project Build Host:
 
    -  gcc &MIN_GCC_VERSION; or greater.
 
+   -  GNU make &MIN_MAKE_VERSION; or greater
+
    If your build host does not meet any of these listed version
    requirements, you can take steps to prepare the system so that you
    can still use the Yocto Project. See the
-   ":ref:`ref-manual/system-requirements:required git, tar, python and gcc versions`"
+   ":ref:`ref-manual/system-requirements:required git, tar, python, make and gcc versions`"
    section in the Yocto Project Reference Manual for information.
 
 4. *Install Development Host Packages:* Required development host
@@ -496,15 +498,16 @@ your Yocto Project build host:
 
 6. *Optimize your WSLv2 storage often:* Due to the way storage is
    handled on WSLv2, the storage space used by the undelying Linux
-   distribution is not reflected immedately, and since bitbake heavily
+   distribution is not reflected immedately, and since BitBake heavily
    uses storage, after several builds, you may be unaware you are
    running out of space. WSLv2 uses a VHDX file for storage, this issue
    can be easily avoided by manually optimizing this file often, this
    can be done in the following way:
 
-   1. *Find the location of your VHDX file:* First you need to find the
-      distro app package directory, to achieve this open a Windows
-      Powershell as Administrator and run::
+   1. *Find the location of your VHDX file:*
+
+      First you need to find the distro app package directory, to achieve this
+      open a Windows Powershell as Administrator and run::
 
          C:\WINDOWS\system32> Get-AppxPackage -Name "*Ubuntu*" | Select PackageFamilyName
          PackageFamilyName
@@ -516,22 +519,40 @@ your Yocto Project build host:
       replace the PackageFamilyName and your user on the following path
       to find your VHDX file::
 
-          ls C:\Users\myuser\AppData\Local\Packages\CanonicalGroupLimited.UbuntuonWindows_79abcdefgh\LocalState\
-          Mode                 LastWriteTime         Length Name
-          -a----         3/14/2020   9:52 PM    57418973184 ext4.vhdx
+         ls C:\Users\myuser\AppData\Local\Packages\CanonicalGroupLimited.UbuntuonWindows_79abcdefgh\LocalState\
+         Mode                 LastWriteTime         Length Name
+         -a----         3/14/2020   9:52 PM    57418973184 ext4.vhdx
 
       Your VHDX file path is:
       ``C:\Users\myuser\AppData\Local\Packages\CanonicalGroupLimited.UbuntuonWindows_79abcdefgh\LocalState\ext4.vhdx``
 
-   2. *Optimize your VHDX file:* Open a Windows Powershell as
-      Administrator to optimize your VHDX file, shutting down WSL first::
+   2a. *Optimize your VHDX file using Windows Powershell:*
+
+       To use the ``optimize-vhd`` cmdlet below, first install the Hyper-V
+       option on Windows. Then, open a Windows Powershell as Administrator to
+       optimize your VHDX file, shutting down WSL first::
 
          C:\WINDOWS\system32> wsl --shutdown
          C:\WINDOWS\system32> optimize-vhd -Path C:\Users\myuser\AppData\Local\Packages\CanonicalGroupLimited.UbuntuonWindows_79abcdefgh\LocalState\ext4.vhdx -Mode full
 
-      A progress bar should be shown while optimizing the
-      VHDX file, and storage should now be reflected correctly on the
-      Windows Explorer.
+       A progress bar should be shown while optimizing the
+       VHDX file, and storage should now be reflected correctly on the
+       Windows Explorer.
+
+   2b. *Optimize your VHDX file using DiskPart:*
+
+       The ``optimize-vhd`` cmdlet noted in step 2a above is provided by
+       Hyper-V. Not all SKUs of Windows can install Hyper-V. As an alternative,
+       use the DiskPart tool. To start, open a Windows command prompt as
+       Administrator to optimize your VHDX file, shutting down WSL first::
+
+         C:\WINDOWS\system32> wsl --shutdown
+         C:\WINDOWS\system32> diskpart
+
+         DISKPART> select vdisk file="<path_to_VHDX_file>"
+         DISKPART> attach vdisk readonly
+         DISKPART> compact vdisk
+         DISKPART> exit
 
 .. note::
 
@@ -628,9 +649,7 @@ Follow these steps to locate and download a particular tarball:
 
 3. *Find the Tarball:* Drill down to find the associated tarball. For
    example, click on ``yocto-&DISTRO;`` to view files associated with the
-   Yocto Project &DISTRO; release (e.g.
-   ``&YOCTO_POKY;.tar.bz2``, which is the
-   released Poky tarball).
+   Yocto Project &DISTRO; release.
 
 4. *Download the Tarball:* Click the tarball to download and save a
    snapshot of the given component.
@@ -665,32 +684,6 @@ described in the ":ref:`dev-manual/start:accessing index of releases`" section.
 4. *Download Tools or Board Support Packages (BSPs):* From the
    "DOWNLOADS" page, you can download tools or BSPs as well. Just scroll
    down the page and look for what you need.
-
-Accessing Nightly Builds
-------------------------
-
-Yocto Project maintains an area for nightly builds that contains tarball
-releases at https://autobuilder.yocto.io//pub/nightly/. These builds include Yocto
-Project releases ("poky"), toolchains, and builds for supported
-machines.
-
-Should you ever want to access a nightly build of a particular Yocto
-Project component, use the following procedure:
-
-1. *Locate the Index of Nightly Builds:* Open a browser and go to
-   https://autobuilder.yocto.io//pub/nightly/ to access the Nightly Builds.
-
-2. *Select a Date:* Click on the date in which you are interested. If
-   you want the latest builds, use "CURRENT".
-
-3. *Select a Build:* Choose the area in which you are interested. For
-   example, if you are looking for the most recent toolchains, select
-   the "toolchain" link.
-
-4. *Find the Tarball:* Drill down to find the associated tarball.
-
-5. *Download the Tarball:* Click the tarball to download and save a
-   snapshot of the given component.
 
 Cloning and Checking Out Branches
 =================================

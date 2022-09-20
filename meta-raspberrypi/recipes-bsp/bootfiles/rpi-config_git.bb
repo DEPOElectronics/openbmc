@@ -8,7 +8,7 @@ LIC_FILES_CHKSUM = "file://${COMMON_LICENSE_DIR}/MIT;md5=0835ade698e0bcf8506ecda
 COMPATIBLE_MACHINE = "^rpi$"
 
 SRCREV = "648ffc470824c43eb0d16c485f4c24816b32cd6f"
-SRC_URI = "git://github.com/Evilpaul/RPi-config.git;protocol=git;branch=master \
+SRC_URI = "git://github.com/Evilpaul/RPi-config.git;protocol=https;branch=master \
           "
 
 S = "${WORKDIR}/git"
@@ -30,7 +30,11 @@ GPIO_IR_TX ?= "17"
 
 CAN_OSCILLATOR ?= "16000000"
 
+ENABLE_UART ??= ""
+
 WM8960="${@bb.utils.contains("MACHINE_FEATURES", "wm8960", "1", "0", d)}"
+
+GPIO_SHUTDOWN_PIN ??= ""
 
 inherit deploy nopackages
 
@@ -174,9 +178,11 @@ do_deploy() {
     fi
 
     # UART support
-    if [ "${ENABLE_UART}" = "1" ]; then
+    if [ "${ENABLE_UART}" = "1" ] || [ "${ENABLE_UART}" = "0" ] ; then
         echo "# Enable UART" >>$CONFIG
-        echo "enable_uart=1" >>$CONFIG
+        echo "enable_uart=${ENABLE_UART}" >>$CONFIG
+    elif [ -n "${ENABLE_UART}" ]; then
+        bbfatal "Invalid value for ENABLE_UART [${ENABLE_UART}]. The value for ENABLE_UART can be 0 or 1."
     fi
 
     # Infrared support
@@ -249,6 +255,22 @@ do_deploy() {
         echo "dtoverlay=mcp2515-can0,oscillator=${CAN_OSCILLATOR},interrupt=25" >>$CONFIG
     fi
 
+
+    if [ "${ENABLE_GPIO_SHUTDOWN}" = "1" ]; then
+        if ([ "${ENABLE_I2C}" = "1" ] || [ "${PITFT}" = "1" ]) && [ -z "${GPIO_SHUTDOWN_PIN}" ]; then
+            # By default GPIO shutdown uses the same pin as the (master) I2C SCL.
+            # If I2C is configured and an alternative pin is not configured for
+            # gpio-shutdown, there is a configuration conflict.
+            bbfatal "I2C and gpio-shutdown are both enabled and using the same pins!"
+        fi
+        echo "# Enable gpio-shutdown" >> $CONFIG
+        if [ -z "${GPIO_SHUTDOWN_PIN}" ]; then
+            echo "dtoverlay=gpio-shutdown" >> $CONFIG
+        else
+            echo "dtoverlay=gpio-shutdown,gpio_pin=${GPIO_SHUTDOWN_PIN}" >> $CONFIG
+        fi
+    fi
+
     # Append extra config if the user has provided any
     printf "${RPI_EXTRA_CONFIG}\n" >> $CONFIG
 
@@ -268,6 +290,12 @@ do_deploy() {
         echo "# Enable WM8960" >> $CONFIG
         echo "dtoverlay=wm8960-soundcard" >> $CONFIG
     fi
+
+    # W1-GPIO - One-Wire Interface
+    if [ "${ENABLE_W1}" = "1" ]; then
+        echo "# Enable One-Wire Interface" >> $CONFIG
+        echo "dtoverlay=w1-gpio" >> $CONFIG
+    fi
 }
 
 do_deploy:append:raspberrypi3-64() {
@@ -276,6 +304,12 @@ do_deploy:append:raspberrypi3-64() {
 
     echo "# Enable audio (loads snd_bcm2835)" >> $CONFIG
     echo "dtparam=audio=on" >> $CONFIG
+}
+
+do_deploy:append() {
+    if grep -q -E '^.{80}.$' ${DEPLOYDIR}/${BOOTFILES_DIR_NAME}/config.txt; then
+        bbwarn "config.txt contains lines longer than 80 characters, this is not supported"
+    fi
 }
 
 addtask deploy before do_build after do_install

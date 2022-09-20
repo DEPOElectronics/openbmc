@@ -2,7 +2,7 @@ SUMMARY = "A GNU tool that produce shell scripts to automatically configure soft
 DESCRIPTION = "Autoconf is an extensible package of M4 macros that produce shell scripts to automatically \ 
 configure software source code packages. Autoconf creates a configuration script for a package from a template \
 file that lists the operating system features that the package can use, in the form of M4 macro calls."
-LICENSE = "GPLv3+"
+LICENSE = "GPL-3.0-or-later"
 HOMEPAGE = "http://www.gnu.org/software/autoconf/"
 SECTION = "devel"
 DEPENDS = "m4-native autoconf-native automake-native gnu-config-native help2man-native"
@@ -18,6 +18,7 @@ SRC_URI = "${GNU_MIRROR}/autoconf/${BP}.tar.gz \
            file://preferbash.patch \
            file://autotest-automake-result-format.patch \
            file://man-host-perl.patch \
+           file://0001-specify-void-prototype-for-functions-with-no-paramet.patch \
            "
 SRC_URI:append:class-native = " file://no-man.patch"
 

@@ -1,4 +1,6 @@
 #
+# Copyright OpenEmbedded Contributors
+#
 # SPDX-License-Identifier: MIT
 #
 
@@ -25,6 +27,6 @@ class BuildTests(OESDKTestCase):
                 self._run('. %s/oe-init-build-env %s && bitbake virtual/libc' % (corebase, testdir))
             finally:
                 delay = 10
-                while delay and os.path.exists(testdir + "/bitbake.lock"):
+                while delay and (os.path.exists(testdir + "/bitbake.lock") or os.path.exists(testdir + "/cache/hashserv.db-wal")):
                     time.sleep(1)
                     delay = delay - 1

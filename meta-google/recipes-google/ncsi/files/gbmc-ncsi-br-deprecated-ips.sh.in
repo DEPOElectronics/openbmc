@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-[ -z "${gbmc_ncsi_br_deprecated_ips_lib-}" ] || return
+[ -n "${gbmc_ncsi_br_deprecated_ips_lib-}" ] && return
 
 source /usr/share/network/lib.sh || exit
 
@@ -25,7 +25,7 @@ gbmc_ncsi_br_deprecated_ips_update() {
   [ "$gbmc_ncsi_br_deprecated_ips_confip" != "$gbmc_ncsi_br_deprecated_ips_lastip" ] || return
   gbmc_ncsi_br_deprecated_ips_confip="$gbmc_ncsi_br_deprecated_ips_lastip"
 
-  printf 'gBMC Bridge NCSI Deprecated Addrs: %s\n' \
+  printf 'gBMC NCSI Deprecated Addrs: %s\n' \
     "${gbmc_ncsi_br_deprecated_ips_lastip:-(deleted)}" >&2
 
   local contents=
@@ -37,24 +37,29 @@ gbmc_ncsi_br_deprecated_ips_update() {
     local pfx="$(ip_bytes_to_str pfx_bytes)"
     (( pfx_bytes[9] &= 0xf0 ))
     local stateless_pfx="$(ip_bytes_to_str pfx_bytes)"
+    local stateless_ip=
+    if [ -e /sys/class/net/gbmcbr ]; then
+      local gbmcbr_mac="$(ip link show gbmcbr | tail -n 1 | awk '{print $2}')"
+      local gbmcbr_eui48="$(mac_to_eui48 "$gbmcbr_mac")"
+      stateless_ip="$(ip_pfx_concat "$stateless_pfx/80" "$gbmcbr_eui48")"
+      stateless_ip="${stateless_ip%/*}"
+    fi
     pfx_bytes[8]=0
     pfx_bytes[9]=0
     local host_pfx="$(ip_bytes_to_str pfx_bytes)"
     read -r -d '' contents <<EOF
-[Address]
-Address=$pfx/128
-PreferredLifetime=0
-[Address]
-Address=$stateless_pfx/128
-PreferredLifetime=0
-[Address]
-Address=$host_pfx/128
-PreferredLifetime=0
+[Network]
+IPv6ProxyNDP=yes
+IPv6ProxyNDPAddress=$pfx
+IPv6ProxyNDPAddress=$stateless_pfx
+IPv6ProxyNDPAddress=$host_pfx
+${stateless_ip:+IPv6ProxyNDPAddress=}$stateless_ip
 EOF
     read -r -d '' nfcontents <<EOF
 table inet filter {
   chain ncsi_input {
     ip6 saddr != $pfx/76 ip6 daddr $pfx/76 goto ncsi_gbmc_br_pub_input
+    ip6 daddr $host_pfx/64 goto ncsi_legacy_input
   }
   chain ncsi_forward {
     ip6 saddr != $pfx/76 ip6 daddr $pfx/76 accept
@@ -97,8 +102,9 @@ gbmc_ncsi_br_deprecated_ips_hook() {
     gbmc_ip_monitor_defer
   elif [ "$change" = 'defer' ]; then
     gbmc_ncsi_br_deprecated_ips_update
-  elif [ "$change" = 'addr' -a "$intf" = 'gbmcbr' ] &&
-     [ "$scope" = 'global' -a "$fam" = 'inet6' ]; then
+  elif [ "$change" = 'addr' -a "$scope" = 'global' -a "$fam" = 'inet6' ] &&
+      [ "$intf" = 'gbmcbr' -o "$intf" = '@NCSI_IF@' ] &&
+      [[ "$flags" != *deprecated* ]]; then
     local pfx_bytes=()
     ip_to_bytes pfx_bytes "$ip" || return
     # No ULA Addresses

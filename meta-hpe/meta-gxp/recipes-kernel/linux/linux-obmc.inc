@@ -1,12 +1,12 @@
 DESCRIPTION = "Linux kernel for GXP"
 SECTION = "kernel"
-LICENSE = "GPLv2"
+LICENSE = "GPL-2.0-only"
 
 PROVIDES += "virtual/kernel"
 
 KCONFIG_MODE="--alldefconfig"
 
-KSRC ?= "git://github.com/HewlettPackard/gxp-linux.git;branch=${KBRANCH}"
+KSRC ?= "git://github.com/HewlettPackard/gxp-linux.git;branch=${KBRANCH};protocol=https"
 SRC_URI = "${KSRC}"
 SRC_URI += " file://defconfig"
 

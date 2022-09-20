@@ -78,7 +78,8 @@ about the variable flags (varflags) that help control archive creation.
 ``autotools*.bbclass``
 ======================
 
-The ``autotools*`` classes support Autotooled packages.
+The ``autotools*`` classes support packages built with the
+`GNU Autotools <https://en.wikipedia.org/wiki/GNU_Autotools>`__.
 
 The ``autoconf``, ``automake``, and ``libtool`` packages bring
 standardization. This class defines a set of tasks (e.g. ``configure``,
@@ -107,18 +108,18 @@ support is either not present or is broken.
 It's useful to have some idea of how the tasks defined by the
 ``autotools*`` classes work and what they do behind the scenes.
 
--  :ref:`ref-tasks-configure` - Regenerates the
+-  :ref:`ref-tasks-configure` --- regenerates the
    configure script (using ``autoreconf``) and then launches it with a
    standard set of arguments used during cross-compilation. You can pass
    additional parameters to ``configure`` through the :term:`EXTRA_OECONF`
    or :term:`PACKAGECONFIG_CONFARGS`
    variables.
 
--  :ref:`ref-tasks-compile` - Runs ``make`` with
+-  :ref:`ref-tasks-compile` --- runs ``make`` with
    arguments that specify the compiler and linker. You can pass
    additional arguments through the :term:`EXTRA_OEMAKE` variable.
 
--  :ref:`ref-tasks-install` - Runs ``make install`` and
+-  :ref:`ref-tasks-install` --- runs ``make install`` and
    passes in ``${``\ :term:`D`\ ``}`` as ``DESTDIR``.
 
 .. _ref-classes-base:
@@ -170,8 +171,7 @@ example use for this class.
    are extracted into the subdirectory expected by the default value of
    :term:`S`::
 
-           SRC_URI = "git://example.com/downloads/somepackage.rpm;subpath=${BP}"
-
+      SRC_URI = "git://example.com/downloads/somepackage.rpm;branch=main;subpath=${BP}"
 
    See the ":ref:`bitbake-user-manual/bitbake-user-manual-fetching:fetchers`" section in the BitBake User Manual for
    more information on supported BitBake Fetchers.
@@ -207,23 +207,6 @@ an error in favor of using ``pkg-config`` to query the information. The
 scripts to be disabled should be specified using the
 :term:`BINCONFIG` variable within the recipe inheriting
 the class.
-
-.. _ref-classes-blacklist:
-
-``blacklist.bbclass``
-=====================
-
-The ``blacklist`` class prevents the OpenEmbedded build system from
-building specific recipes (blacklists them). To use this class, inherit
-the class globally and set :term:`PNBLACKLIST` for
-each recipe you wish to blacklist. Specify the :term:`PN`
-value as a variable flag (varflag) and provide a reason, which is
-reported, if the package is requested to be built as the value. For
-example, if you want to blacklist a recipe called "exoticware", you add
-the following to your ``local.conf`` or distribution configuration::
-
-   INHERIT += "blacklist"
-   PNBLACKLIST[exoticware] = "Not supported by our organization."
 
 .. _ref-classes-buildhistory:
 
@@ -274,10 +257,15 @@ sstate re-use. In order to function, this class requires the
 
 The ``ccache`` class enables the C/C++ Compiler Cache for the build.
 This class is used to give a minor performance boost during the build.
-However, using the class can lead to unexpected side-effects. Thus, it
-is recommended that you do not use this class. See
-https://ccache.samba.org/ for information on the C/C++ Compiler
-Cache.
+
+See https://ccache.samba.org/ for information on the C/C++ Compiler
+Cache, and the :oe_git:`ccache.bbclass </openembedded-core/tree/meta/classes/ccache.bbclass>`
+file for details about how to enable this mechanism in your configuration
+file, how to disable it for specific recipes, and how to share ``ccache``
+files between builds.
+
+However, using the class can lead to unexpected side-effects. Thus, using
+this class is not recommended.
 
 .. _ref-classes-chrpath:
 
@@ -472,7 +460,7 @@ recipe that fetches from an alternative URI (e.g. Git) instead of a
 tarball. Following is an example::
 
    BBCLASSEXTEND = "devupstream:target"
-   SRC_URI:class-devupstream = "git://git.example.com/example"
+   SRC_URI:class-devupstream = "git://git.example.com/example;branch=main"
    SRCREV:class-devupstream = "abcd1234"
 
 Adding the above statements to your recipe creates a variant that has
@@ -497,27 +485,6 @@ functionality can be added in a future release.
 Support for other version control systems such as Subversion is limited
 due to BitBake's automatic fetch dependencies (e.g.
 ``subversion-native``).
-
-.. _ref-classes-distutils3:
-
-``distutils3*.bbclass``
-=======================
-
-The ``distutils3*`` classes support recipes for Python version 3.x
-extensions, which are simple. These recipes usually only need to point
-to the source's archive and then inherit the proper class. Building is
-split into three methods depending on which method the module authors
-used.
-
--  Extensions that use an Autotools-based build system require Autotools
-   and ``distutils``-based classes in their recipes.
-
--  Extensions that use ``distutils``-based build systems require the
-   ``distutils`` class in their recipes.
-
--  Extensions that use build systems based on ``setuptools3`` require
-   the :ref:`setuptools3 <ref-classes-setuptools3>` class in their
-   recipes.
 
 .. _ref-classes-externalsrc:
 
@@ -570,11 +537,11 @@ be performed using the
 .. note::
 
    The user and group operations added using the
-   extrausers
+   :ref:`extrausers <ref-classes-extrausers>`
    class are not tied to a specific recipe outside of the recipe for the
    image. Thus, the operations can be performed across the image as a
    whole. Use the
-   useradd
+   :ref:`useradd <ref-classes-useradd>`
    class to add user and group configuration to a specific recipe.
 
 Here is an example that uses this class in an image recipe::
@@ -590,20 +557,33 @@ Here is an example that uses this class in an image recipe::
        "
 
 Here is an example that adds two users named "tester-jim" and "tester-sue" and assigns
-passwords::
+passwords. First on host, create the (escaped) password hash::
+
+   printf "%q" $(mkpasswd -m sha256crypt tester01)
+
+The resulting hash is set to a variable and used in ``useradd`` command parameters::
+
+   inherit extrausers
+   PASSWD = "\$X\$ABC123\$A-Long-Hash"
+   EXTRA_USERS_PARAMS = "\
+       useradd -p '${PASSWD}' tester-jim; \
+       useradd -p '${PASSWD}' tester-sue; \
+       "
+
+Finally, here is an example that sets the root password::
 
    inherit extrausers
    EXTRA_USERS_PARAMS = "\
-       useradd -P tester01 tester-jim; \
-       useradd -P tester01 tester-sue; \
+       usermod -p '${PASSWD}' root; \
        "
 
-Finally, here is an example that sets the root password to "1876*18"::
+.. note::
 
-   inherit extrausers
-   EXTRA_USERS_PARAMS = "\
-       usermod -P 1876*18 root; \
-       "
+   From a security perspective, hardcoding a default password is not
+   generally a good idea or even legal in some jurisdictions. It is 
+   recommended that you do not do this if you are building a production 
+   image.
+
 
 .. _ref-classes-features_check:
 
@@ -839,15 +819,15 @@ provided by the recipe ``icecc-create-env-native.bb``.
    icecc.
 
 If you do not want the Icecream distributed compile support to apply to
-specific recipes or classes, you can effectively "blacklist" them by
-listing the recipes and classes using the
-:term:`ICECC_USER_PACKAGE_BL` and
-:term:`ICECC_USER_CLASS_BL`, variables,
+specific recipes or classes, you can ask them to be ignored by Icecream
+by listing the recipes and classes using the
+:term:`ICECC_RECIPE_DISABLE` and
+:term:`ICECC_CLASS_DISABLE` variables,
 respectively, in your ``local.conf`` file. Doing so causes the
 OpenEmbedded build system to handle these compilations locally.
 
 Additionally, you can list recipes using the
-:term:`ICECC_USER_PACKAGE_WL` variable in
+:term:`ICECC_RECIPE_ENABLE` variable in
 your ``local.conf`` file to force ``icecc`` to be enabled for recipes
 using an empty :term:`PARALLEL_MAKE` variable.
 
@@ -947,21 +927,6 @@ specified by :term:`EFI_PROVIDER` if
 
 Normally, you do not use this class directly. Instead, you add "live" to
 :term:`IMAGE_FSTYPES`.
-
-.. _ref-classes-image-prelink:
-
-``image-prelink.bbclass``
-=========================
-
-The ``image-prelink`` class enables the use of the ``prelink`` utility
-during the :ref:`ref-tasks-rootfs` task, which optimizes
-the dynamic linking of shared libraries to reduce executable startup
-time.
-
-By default, the class is enabled in the ``local.conf.template`` using
-the :term:`USER_CLASSES` variable as follows::
-
-   USER_CLASSES ?= "buildstats image-prelink"
 
 .. _ref-classes-insane:
 
@@ -1075,6 +1040,11 @@ Here are the tests you can list with the :term:`WARN_QA` and
    ``-dev`` package is the correct location for them. In very rare
    cases, such as dynamically loaded modules, these symlinks
    are needed instead in the main package.
+
+-  ``empty-dirs:`` Checks that packages are not installing files to
+   directories that are normally expected to be empty (such as ``/tmp``)
+   The list of directories that are checked is specified by the
+   :term:`QA_EMPTY_DIRS` variable.
 
 -  ``file-rdeps:`` Checks that file-level dependencies identified by
    the OpenEmbedded build system at packaging time are satisfied. For
@@ -1356,9 +1326,9 @@ is set to 0.
 
 Only a single Initramfs bundle can be added to the FIT image created by
 ``kernel-fitimage`` and the Initramfs bundle in FIT is optional.
-In case of Initramfs, the kernel is configured to be bundled with the rootfs
+In case of Initramfs, the kernel is configured to be bundled with the root filesystem
 in the same binary (example: zImage-initramfs-:term:`MACHINE`.bin).
-When the kernel is copied to RAM and executed, it unpacks the Initramfs rootfs.
+When the kernel is copied to RAM and executed, it unpacks the Initramfs root filesystem.
 The Initramfs bundle can be enabled when :term:`INITRAMFS_IMAGE`
 is specified and that :term:`INITRAMFS_IMAGE_BUNDLE` is set to 1.
 The address where the Initramfs bundle is to be loaded by U-boot is specified
@@ -1494,15 +1464,6 @@ messages for various BitBake severity levels (i.e. ``bbplain``,
 This class is enabled by default since it is inherited by the ``base``
 class.
 
-.. _ref-classes-meta:
-
-``meta.bbclass``
-================
-
-The ``meta`` class is inherited by recipes that do not build any output
-packages themselves, but act as a "meta" target for building other
-recipes.
-
 .. _ref-classes-metadata_scm:
 
 ``metadata_scm.bbclass``
@@ -1600,7 +1561,7 @@ or other tools from the build host).
 You can create a recipe that builds tools that run natively on the host
 a couple different ways:
 
--  Create a myrecipe\ ``-native.bb`` recipe that inherits the ``native``
+-  Create a ``myrecipe-native.bb`` recipe that inherits the ``native``
    class. If you use this method, you must order the inherit statement
    in the recipe after all other inherit statements so that the
    ``native`` class is inherited last.
@@ -1642,7 +1603,7 @@ wish to build tools to run as part of an SDK (i.e. tools that run on
 You can create a recipe that builds tools that run on the SDK machine a
 couple different ways:
 
--  Create a ``nativesdk-``\ myrecipe\ ``.bb`` recipe that inherits the
+-  Create a ``nativesdk-myrecipe.bb`` recipe that inherits the
    ``nativesdk`` class. If you use this method, you must order the
    inherit statement in the recipe after all other inherit statements so
    that the ``nativesdk`` class is inherited last.
@@ -1715,13 +1676,13 @@ layers.
 ``overlayfs.bbclass``
 =======================
 
-It's often desired in Embedded System design to have a read-only rootfs.
+It's often desired in Embedded System design to have a read-only root filesystem.
 But a lot of different applications might want to have read-write access to
 some parts of a filesystem. It can be especially useful when your update mechanism
-overwrites the whole rootfs, but you may want your application data to be preserved
+overwrites the whole root filesystem, but you may want your application data to be preserved
 between updates. The :ref:`overlayfs <ref-classes-overlayfs>` class provides a way
 to achieve that by means of ``overlayfs`` and at the same time keeping the base
-rootfs read-only.
+root filesystem read-only.
 
 To use this class, set a mount point for a partition ``overlayfs`` is going to use as upper
 layer in your machine configuration. The underlying file system can be anything that
@@ -1745,7 +1706,8 @@ Then you can specify writable directories on a recipe basis (e.g. in my-applicat
 
 To support several mount points you can use a different variable flag. Assuming we
 want to have a writable location on the file system, but do not need that the data
-survives a reboot, then we could have a ``mnt-overlay.mount`` unit for a ``tmpfs`` file system.
+survives a reboot, then we could have a ``mnt-overlay.mount`` unit for a ``tmpfs``
+file system.
 
 In your machine configuration::
 
@@ -1755,9 +1717,68 @@ and then in your recipe::
 
   OVERLAYFS_WRITABLE_PATHS[mnt-overlay] = "/usr/share/another-application"
 
+On a practical note, your application recipe might require multiple
+overlays to be mounted before running to avoid writing to the underlying
+file system (which can be forbidden in case of read-only file system)
+To achieve that :ref:`overlayfs <ref-classes-overlayfs>` provides a ``systemd``
+helper service for mounting overlays. This helper service is named
+``${PN}-overlays.service`` and can be depended on in your application recipe
+(named ``application`` in the following example) ``systemd`` unit by adding
+to the unit the following::
+
+  [Unit]
+  After=application-overlays.service
+  Requires=application-overlays.service
+
 .. note::
 
    The class does not support the ``/etc`` directory itself, because ``systemd`` depends on it.
+   In order to get ``/etc`` in overlayfs, see :ref:`overlayfs-etc <ref-classes-overlayfs-etc>`.
+
+.. _ref-classes-overlayfs-etc:
+
+``overlayfs-etc.bbclass``
+=========================
+
+In order to have the ``/etc`` directory in overlayfs a special handling at early
+boot stage is required. The idea is to supply a custom init script that mounts
+``/etc`` before launching the actual init program, because the latter already
+requires ``/etc`` to be mounted.
+
+Example usage in image recipe::
+
+   IMAGE_FEATURES += "overlayfs-etc"
+
+.. note::
+
+   This class must not be inherited directly. Use :term:`IMAGE_FEATURES` or :term:`EXTRA_IMAGE_FEATURES`
+
+Your machine configuration should define at least the device, mount point, and file system type
+you are going to use for ``overlayfs``::
+
+  OVERLAYFS_ETC_MOUNT_POINT = "/data"
+  OVERLAYFS_ETC_DEVICE = "/dev/mmcblk0p2"
+  OVERLAYFS_ETC_FSTYPE ?= "ext4"
+
+To control more mount options you should consider setting mount options
+(``defaults`` is used by default)::
+
+  OVERLAYFS_ETC_MOUNT_OPTIONS = "wsync"
+
+The class provides two options for ``/sbin/init`` generation:
+
+- The default option is to rename the original ``/sbin/init`` to ``/sbin/init.orig``
+  and place the generated init under original name, i.e. ``/sbin/init``. It has an advantage
+  that you won't need to change any kernel parameters in order to make it work,
+  but it poses a restriction that package-management can't be used, because updating
+  the init manager would remove the generated script.
+
+- If you wish to keep original init as is, you can set::
+
+   OVERLAYFS_ETC_USE_ORIG_INIT_NAME = "0"
+
+  Then the generated init will be named ``/sbin/preinit`` and you would need to extend your
+  kernel parameters manually in your bootloader configuration.
 
 .. _ref-classes-own-mirrors:
 
@@ -1954,6 +1975,47 @@ This class is enabled by default because it is inherited by the
 When inherited by a recipe, the ``perlnative`` class supports using the
 native version of Perl built by the build system rather than using the
 version provided by the build host.
+
+.. _ref-classes-python_flit_core:
+
+``python_flit_core.bbclass``
+============================
+
+The ``python_flit_core`` class enables building Python modules which declare
+the  `PEP-517 <https://www.python.org/dev/peps/pep-0517/>`__ compliant
+``flit_core.buildapi`` ``build-backend`` in the ``[build-system]``
+section of ``pyproject.toml`` (See `PEP-518 <https://www.python.org/dev/peps/pep-0518/>`__).
+
+Python modules built with ``flit_core.buildapi`` are pure Python (no
+``C`` or ``Rust`` extensions).
+
+Internally this uses the :ref:`python_pep517 <ref-classes-python_pep517>` class.
+
+.. _ref-classes-python_pep517:
+
+``python_pep517.bbclass``
+=========================
+
+The ``python_pep517`` class builds and installs a Python ``wheel`` binary
+archive (see `PEP-517 <https://peps.python.org/pep-0517/>`__).
+
+Recipes wouldn't inherit this directly, instead typically another class will
+inherit this and add the relevant native dependencies.
+
+Examples of classes which do this are :ref:`python_flit_core
+<ref-classes-python_flit_core>`, :ref:`python_setuptools_build_meta
+<ref-classes-python_setuptools_build_meta>`, and :ref:`python_poetry_core
+<ref-classes-python_poetry_core>`.
+
+.. _ref-classes-python_poetry_core:
+
+``python_poetry_core.bbclass``
+==============================
+
+The ``python_poetry_core`` class enables building Python modules which use the
+`Poetry Core <https://python-poetry.org>`__ build system.
+
+Internally this uses the :ref:`python_pep517 <ref-classes-python_pep517>` class.
 
 .. _ref-classes-pixbufcache:
 
@@ -2310,14 +2372,75 @@ additional configuration options you want to pass SCons command line.
 The ``sdl`` class supports recipes that need to build software that uses
 the Simple DirectMedia Layer (SDL) library.
 
+.. _ref-classes-python_setuptools_build_meta:
+
+``python_setuptools_build_meta.bbclass``
+========================================
+
+The ``python_setuptools_build_meta`` class enables building Python modules which
+declare the
+`PEP-517 <https://www.python.org/dev/peps/pep-0517/>`__ compliant
+``setuptools.build_meta`` ``build-backend`` in the ``[build-system]``
+section of ``pyproject.toml`` (See `PEP-518 <https://www.python.org/dev/peps/pep-0518/>`__).
+
+Python modules built with ``setuptools.build_meta`` can be pure Python or
+include ``C`` or ``Rust`` extensions).
+
+Internally this uses the :ref:`python_pep517 <ref-classes-python_pep517>` class.
+
 .. _ref-classes-setuptools3:
 
 ``setuptools3.bbclass``
 =======================
 
 The ``setuptools3`` class supports Python version 3.x extensions that
-use build systems based on ``setuptools``. If your recipe uses these
-build systems, the recipe needs to inherit the ``setuptools3`` class.
+use build systems based on ``setuptools`` (e.g. only have a ``setup.py`` and
+have not migrated to the official ``pyproject.toml`` format). If your recipe
+uses these build systems, the recipe needs to inherit the ``setuptools3`` class.
+
+   .. note::
+
+      The ``setuptools3`` class ``do_compile()`` task now calls
+      ``setup.py bdist_wheel`` to build the ``wheel`` binary archive format
+      (See `PEP-427 <https://www.python.org/dev/peps/pep-0427/>`__).
+
+      A consequence of this is that legacy software still using deprecated
+      ``distutils`` from the Python standard library cannot be packaged as
+      ``wheels``. A common solution is the replace
+      ``from distutils.core import setup`` with ``from setuptools import setup``.
+
+   .. note::
+
+     The ``setuptools3`` class ``do_install()`` task now installs the ``wheel``
+     binary archive. In current versions of ``setuptools`` the legacy ``setup.py
+     install`` method is deprecated. If the ``setup.py`` cannot be used with
+     wheels, for example it creates files outside of the Python module or
+     standard entry points, then :ref:`setuptools3_legacy
+     <ref-classes-setuptools3_legacy>` should be used.
+
+.. _ref-classes-setuptools3_legacy:
+
+``setuptools3_legacy.bbclass``
+==============================
+
+The ``setuptools3_legacy`` class supports Python version 3.x extensions that use
+build systems based on ``setuptools`` (e.g. only have a ``setup.py`` and have
+not migrated to the official ``pyproject.toml`` format). Unlike
+``setuptools3.bbclass``, this uses the traditional ``setup.py`` ``build`` and
+``install`` commands and not wheels. This use of ``setuptools`` like this is
+`deprecated <https://github.com/pypa/setuptools/blob/main/CHANGES.rst#v5830>`_
+but still relatively common.
+
+.. _ref-classes-setuptools3-base:
+
+``setuptools3-base.bbclass``
+============================
+
+The ``setuptools3-base`` class provides a reusable base for other classes
+that support building Python version 3.x extensions. If you need
+functionality that is not provided by the :ref:`setuptools3 <ref-classes-setuptools3>` class, you may
+want to ``inherit setuptools3-base``. Some recipes do not need the tasks
+in the :ref:`setuptools3 <ref-classes-setuptools3>` class and inherit this class instead.
 
 .. _ref-classes-sign_rpm:
 
@@ -2408,7 +2531,7 @@ stages:
    subset of files is controlled by the
    :term:`SYSROOT_DIRS`,
    :term:`SYSROOT_DIRS_NATIVE`, and
-   :term:`SYSROOT_DIRS_BLACKLIST`
+   :term:`SYSROOT_DIRS_IGNORE`
    variables.
 
    .. note::
@@ -2799,11 +2922,10 @@ The ``useradd*`` classes support the addition of users or groups for
 usage by the package on the target. For example, if you have packages
 that contain system services that should be run under their own user or
 group, you can use these classes to enable creation of the user or
-group. The ``meta-skeleton/recipes-skeleton/useradd/useradd-example.bb``
+group. The :oe_git:`meta-skeleton/recipes-skeleton/useradd/useradd-example.bb
+</openembedded-core/tree/meta-skeleton/recipes-skeleton/useradd/useradd-example.bb>`
 recipe in the :term:`Source Directory` provides a simple
 example that shows how to add three users and groups to two packages.
-See the ``useradd-example.bb`` recipe for more information on how to use
-these classes.
 
 The ``useradd_base`` class provides basic functionality for user or
 groups settings.

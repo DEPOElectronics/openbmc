@@ -12,7 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-[ -z "${gbmc_ncsi_br_pub_addr_lib-}" ] || return
+[ -n "${gbmc_ncsi_br_pub_addr_lib-}" ] && return
+
+[ ! -e /usr/share/gbmc-br-lib.sh ] && return
+
+source /usr/share/network/lib.sh || exit
+source /usr/share/gbmc-br-lib.sh || exit
 
 gbmc_ncsi_br_pub_addr_init=
 gbmc_ncsi_br_pub_addr_lastip=
@@ -29,61 +34,31 @@ gbmc_ncsi_br_pub_addr_update() {
   local pfx_bytes=()
   if [ -n "$gbmc_ncsi_br_pub_addr_lastip" ]; then
     ip_to_bytes pfx_bytes "$gbmc_ncsi_br_pub_addr_lastip"
-    # Ensure we don't have more than a /64 address
-    local i
-    for (( i = 8; i < 16; ++i )); do
-      if (( pfx_bytes[$i] != 0 )); then
-        pfx_bytes=()
-        break
-      fi
-    done
+    # Ensure we have a /64 or an fdxx address
+    if (( pfx_bytes[8] != 0xfd || pfx_bytes[9] == 0 )); then
+      local i
+      for (( i = 8; i < 16; ++i )); do
+        if (( pfx_bytes[$i] != 0 )); then
+          pfx_bytes=()
+          break
+        fi
+      done
+    fi
   fi
 
   local contents=
   if (( ${#pfx_bytes[@]} != 0 )); then
     pfx_bytes[8]=0xfd
-    local stateless_pfx="$(ip_bytes_to_str pfx_bytes)"
-    pfx_bytes[9]=0x01
-    local ncsi_pfx="$(ip_bytes_to_str pfx_bytes)"
-    read -r -d '' contents <<EOF
-[Network]
-Address=$ncsi_pfx/128
-IPv6PrefixDelegation=yes
-[IPv6PrefixDelegation]
-RouterLifetimeSec=60
-[IPv6Prefix]
-Prefix=$stateless_pfx/80
-PreferredLifetimeSec=60
-ValidLifetimeSec=60
-[IPv6RoutePrefix]
-Route=$ncsi_pfx/80
-LifetimeSec=60
-[Route]
-Destination=$stateless_pfx/76
-Type=unreachable
-Metric=1024
-EOF
-    # Delete DHCP configured addresses if we have a host published address
-    rm -f /etc/systemd/network/{00,}-bmc-gbmcbr.network.d/50-public.conf
-  fi
-
-  local file
-  for file in /run/systemd/network/{00,}-bmc-gbmcbr.network.d/50-public.conf; do
-    mkdir -p -m 755 "$(dirname "$file")"
-    if [ -z "$contents" ]; then
-      rm -f "$file"
-    else
-      printf '%s' "$contents" >"$file"
+    # We never want to use the stateless pfx
+    if (( pfx_bytes[9] == 0 )); then
+      pfx_bytes[9]=0x01
     fi
-  done
-
-  # Ensure that systemd-networkd performs a reconfiguration as it doesn't
-  # currently check the mtime of drop-in files.
-  touch -c /lib/systemd/network/*-bmc-gbmcbr.network
-
-  if [ "$(systemctl is-active systemd-networkd)" != 'inactive' ]; then
-    networkctl reload
-    networkctl reconfigure gbmcbr
+    # Remove any existing persisted IP
+    gbmc_br_set_ip
+    # Load the IP to the bridge non-persistently
+    gbmc_br_reload_ip "$(ip_bytes_to_str pfx_bytes)"
+  else
+    gbmc_br_reload_ip
   fi
 }
 

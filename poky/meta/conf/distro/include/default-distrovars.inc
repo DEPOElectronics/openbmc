@@ -16,11 +16,12 @@ DISTRO_FEATURES_DEFAULT:remove:riscv32 = "seccomp"
 # seccomp is not yet ported to ARC
 DISTRO_FEATURES_DEFAULT:remove:arc = "seccomp"
 
-DISTRO_FEATURES_DEFAULT ?= "acl alsa argp bluetooth debuginfod ext2 ipv4 ipv6 largefile pcmcia usbgadget usbhost wifi xattr nfs zeroconf pci 3g nfc x11 vfat seccomp"
+# seccomp is not yet ported to microblaze
+DISTRO_FEATURES_DEFAULT:remove:microblaze = "seccomp"
+
+DISTRO_FEATURES_DEFAULT ?= "acl alsa bluetooth debuginfod ext2 ipv4 ipv6 pcmcia usbgadget usbhost wifi xattr nfs zeroconf pci 3g nfc x11 vfat seccomp"
 DISTRO_FEATURES ?= "${DISTRO_FEATURES_DEFAULT}"
 IMAGE_FEATURES ?= ""
-
-WHITELIST_GPL-3.0 ?= ""
 
 COMMERCIAL_AUDIO_PLUGINS ?= ""
 # COMMERCIAL_AUDIO_PLUGINS ?= "gst-plugins-ugly-mad gst-plugins-ugly-mpegaudioparse"
@@ -53,5 +54,5 @@ KERNEL_IMAGETYPES ??= "${KERNEL_IMAGETYPE}"
 # The CONNECTIVITY_CHECK_URIS are used to test whether we can succesfully
 # fetch from the network (and warn you if not). To disable the test set
 # the variable to be empty.
-# Git example url: git://git.yoctoproject.org/yocto-firewall-test;protocol=git;rev=master
-CONNECTIVITY_CHECK_URIS ?= "https://www.example.com/"
+# Git example url: git://git.yoctoproject.org/yocto-firewall-test;protocol=git;rev=master;branch=master
+CONNECTIVITY_CHECK_URIS ?= "https://yoctoproject.org/connectivity.html"

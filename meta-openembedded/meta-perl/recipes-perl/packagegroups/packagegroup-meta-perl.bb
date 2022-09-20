@@ -11,6 +11,9 @@ PACKAGES = "\
 
 RDEPENDS:packagegroup-meta-perl = "\
     adduser \
+    compress-raw-bzip2-perl \
+    compress-raw-lzma-perl \
+    compress-raw-zlib-perl \
     libalgorithm-diff-perl \
     libauthen-sasl-perl \
     libauthen-radius-perl \
@@ -28,6 +31,8 @@ RDEPENDS:packagegroup-meta-perl = "\
     libhtml-tree-perl \
     libhtml-tagset-perl \
     libimport-into-perl \
+    libio-compress-perl \
+    libio-compress-lzma-perl \
     libio-socket-ssl-perl \
     libio-stringy-perl \
     libipc-signal-perl \

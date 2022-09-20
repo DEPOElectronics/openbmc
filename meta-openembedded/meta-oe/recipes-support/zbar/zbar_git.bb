@@ -6,10 +6,10 @@ intensity sensors. It supports EAN-13/UPC-A, UPC-E, EAN-8, Code 128, \
 Code 93, Code 39, Codabar, Interleaved 2 of 5, QR Code and SQ Code"
 SECTION = "graphics"
 
-LICENSE = "LGPL-2.1"
+LICENSE = "LGPL-2.1-only"
 LIC_FILES_CHKSUM = "file://LICENSE.md;md5=5e9ee833a2118adc7d8b5ea38e5b1cef"
 
-SRC_URI = "git://github.com/mchehab/zbar.git;branch=master \
+SRC_URI = "git://github.com/mchehab/zbar.git;branch=master;protocol=https \
     file://0001-qt-Create-subdir-in-Makefile.patch \
     file://0002-zbarcam-Create-subdir-in-Makefile.patch \
 "

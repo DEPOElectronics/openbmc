@@ -23,6 +23,7 @@ ARGUMENT_LIST=(
     "host-mac:"
     "bind-device:"
     "dev-mac:"
+    "dev-type:"
     "gadget-dir-name:"
     "iface-name:"
 )
@@ -35,54 +36,92 @@ $0 [OPTIONS] [stop|start]
         --product-name Product name string (en) for the gadget.
         --host-mac MAC address of the host part of the connection. Optional.
         --dev-mac MAC address of the device (gadget) part of the connection. Optional.
+        --dev-type Type of gadget to instantiate. Default: "eem"
         --bind-device Name of the device to bind, as listed in /sys/class/udc/
-        --gadget-dir-name Optional base name for gadget directory. Default: "g1"
-        --iface-name Optional name of the network interface. Default: "usb0"
+        --gadget-dir-name Optional base name for gadget directory. Default: iface-name
+        --iface-name name of the network interface.
         --help  Print this help and exit.
 HELP
 }
 
 gadget_start() {
+    # Always provide a basic network configuration
+    mkdir -p /run/systemd/network || return
+    cat >/run/systemd/network/+-bmc-"${IFACE_NAME}".network <<EOF
+[Match]
+Name=${IFACE_NAME}
+EOF
+
+    # Add the gbmcbr configuration if this is a relevant device
+    if (( ID_VENDOR == 0x18d1 && ID_PRODUCT == 0x22b )); then
+        cat >>/run/systemd/network/+-bmc-"${IFACE_NAME}".network <<EOF
+[Network]
+Bridge=gbmcbr
+[Bridge]
+Cost=85
+EOF
+    fi
+
+    # Ignore any failures due to systemd being unavailable at boot
+    networkctl reload || true
+
     local gadget_dir="${CONFIGFS_HOME}/usb_gadget/${GADGET_DIR_NAME}"
-    mkdir -p "${gadget_dir}"
-    echo ${ID_VENDOR} > "${gadget_dir}/idVendor"
-    echo ${ID_PRODUCT} > "${gadget_dir}/idProduct"
+    mkdir -p "${gadget_dir}" || return
+    echo ${ID_VENDOR} > "${gadget_dir}/idVendor" || return
+    echo ${ID_PRODUCT} > "${gadget_dir}/idProduct" || return
 
     local str_en_dir="${gadget_dir}/strings/0x409"
-    mkdir -p "${str_en_dir}"
-    echo ${STR_EN_VENDOR} > "${str_en_dir}/manufacturer"
-    echo ${STR_EN_PRODUCT} > "${str_en_dir}/product"
+    mkdir -p "${str_en_dir}" || return
+    echo ${STR_EN_VENDOR} > "${str_en_dir}/manufacturer" || return
+    echo ${STR_EN_PRODUCT} > "${str_en_dir}/product" || return
 
     local config_dir="${gadget_dir}/configs/c.1"
-    mkdir -p "${config_dir}"
-    echo 100 > "${config_dir}/MaxPower"
-    mkdir -p "${config_dir}/strings/0x409"
-    echo "ECM" > "${config_dir}/strings/0x409/configuration"
+    mkdir -p "${config_dir}" || return
+    echo 100 > "${config_dir}/MaxPower" || return
+    mkdir -p "${config_dir}/strings/0x409" || return
+    echo "${DEV_TYPE^^}" > "${config_dir}/strings/0x409/configuration" || return
 
-    local func_dir="${gadget_dir}/functions/ecm.${IFACE_NAME}"
-    mkdir -p "${func_dir}"
+    local func_dir="${gadget_dir}/functions/${DEV_TYPE}.${IFACE_NAME}"
+    mkdir -p "${func_dir}" || return
 
     if [[ -n $HOST_MAC_ADDR ]]; then
-        echo ${HOST_MAC_ADDR} > ${func_dir}/host_addr
+        echo ${HOST_MAC_ADDR} >${func_dir}/host_addr || return
     fi
 
     if [[ -n $DEV_MAC_ADDR ]]; then
-        echo ${DEV_MAC_ADDR} > ${func_dir}/dev_addr
+        echo ${DEV_MAC_ADDR} >${func_dir}/dev_addr || return
     fi
 
-    ln -s "${func_dir}" "${config_dir}"
+    ln -s "${func_dir}" "${config_dir}" || return
 
-    echo "${BIND_DEVICE}" > ${gadget_dir}/UDC
+    # This only works on kernel 5.12+, we have to ignore failures for now
+    echo "$IFACE_NAME" >"${func_dir}"/ifname || true
+
+    echo "${BIND_DEVICE}" >${gadget_dir}/UDC || return
+    # Try to reconfigure a few times in case we race with systemd-networkd
+    local start=$SECONDS
+    while (( SECONDS - start < 5 )); do
+        local ifname
+        ifname="$(<"${func_dir}"/ifname)" || return
+        [ "${IFACE_NAME}" = "$ifname" ] && break
+        ip link set dev "$ifname" down && \
+            ip link set dev "$ifname" name "${IFACE_NAME}" && break
+        sleep 1
+    done
+    ip link set dev "$IFACE_NAME" up || return
 }
 
 gadget_stop() {
     local gadget_dir="${CONFIGFS_HOME}/usb_gadget/${GADGET_DIR_NAME}"
-    rm -f ${gadget_dir}/configs/c.1/ecm.${IFACE_NAME}
-    rm -rf ${gadget_dir}/configs/c.1/strings/0x409
-    rm -rf ${gadget_dir}/configs/c.1
-    rm -rf ${gadget_dir}/strings/0x409
-    rm -rf ${gadget_dir}/functions/ecm.${IFACE_NAME}
-    rm -rf ${gadget_dir}
+    rm -f ${gadget_dir}/configs/c.1/${DEV_TYPE}.${IFACE_NAME}
+    rmdir ${gadget_dir}/functions/${DEV_TYPE}.${IFACE_NAME} \
+      ${gadget_dir}/configs/c.1/strings/0x409 \
+      ${gadget_dir}/configs/c.1 \
+      ${gadget_dir}/strings/0x409 \
+      ${gadget_dir} || true
+
+    rm -f /run/systemd/network/+-bmc-"${IFACE_NAME}".network
+    networkctl reload || true
 }
 
 opts=$(getopt \
@@ -100,11 +139,12 @@ ID_PRODUCT=""
 STR_EN_VENDOR="Google"
 STR_EN_PRODUCT=""
 DEV_MAC_ADDR=""
+DEV_TYPE="eem"
 HOST_MAC_ADDR=""
 BIND_DEVICE=""
 ACTION="start"
-GADGET_DIR_NAME="g1"
-IFACE_NAME="usb0"
+GADGET_DIR_NAME=""
+IFACE_NAME=""
 while [[ $# -gt 0 ]]; do
     case "$1" in
         --product-id)
@@ -121,6 +161,10 @@ while [[ $# -gt 0 ]]; do
             ;;
         --dev-mac)
             DEV_MAC_ADDR=$2
+            shift 2
+            ;;
+        --dev-type)
+            DEV_TYPE=$2
             shift 2
             ;;
         --bind-device)
@@ -158,8 +202,30 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
+if [ -z "$GADGET_DIR_NAME" ]; then
+    GADGET_DIR_NAME="$IFACE_NAME"
+fi
+
 if [[ $ACTION == "stop" ]]; then
     gadget_stop
 else
-    gadget_start
+    if [ -z "$ID_PRODUCT" ]; then
+        echo "Product ID is missing" >&2
+        exit 1
+    fi
+
+    if [ -z "$IFACE_NAME" ]; then
+        echo "Interface name is missing" >&2
+        exit 1
+    fi
+
+    if [ -z "$BIND_DEVICE" ]; then
+        echo "Bind device is missing" >&2
+        exit 1
+    fi
+
+    rc=0
+    gadget_start || rc=$?
+    (( rc == 0 )) || gadget_stop || true
+    exit $rc
 fi

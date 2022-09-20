@@ -1,4 +1,6 @@
 #
+# Copyright OpenEmbedded Contributors
+#
 # SPDX-License-Identifier: GPL-2.0-only
 #
 
@@ -28,7 +30,11 @@ def get_image_spdxid(img):
     return "SPDXRef-Image-%s" % img
 
 
-def write_doc(d, spdx_doc, subdir, spdx_deploy=None):
+def get_sdk_spdxid(sdk):
+    return "SPDXRef-SDK-%s" % sdk
+
+
+def write_doc(d, spdx_doc, subdir, spdx_deploy=None, indent=None):
     from pathlib import Path
 
     if spdx_deploy is None:
@@ -37,7 +43,7 @@ def write_doc(d, spdx_doc, subdir, spdx_deploy=None):
     dest = spdx_deploy / subdir / (spdx_doc.name + ".spdx.json")
     dest.parent.mkdir(exist_ok=True, parents=True)
     with dest.open("wb") as f:
-        doc_sha1 = spdx_doc.to_json(f, sort_keys=True)
+        doc_sha1 = spdx_doc.to_json(f, sort_keys=True, indent=indent)
 
     l = spdx_deploy / "by-namespace" / spdx_doc.documentNamespace.replace("/", "_")
     l.parent.mkdir(exist_ok=True, parents=True)

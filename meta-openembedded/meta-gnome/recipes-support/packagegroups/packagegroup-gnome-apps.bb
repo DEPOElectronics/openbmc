@@ -10,13 +10,17 @@ RDEPENDS:${PN} = " \
     evolution-data-server \
     evince \
     file-roller \
+    geary \
     gedit \
     ghex \
     gnome-calculator \
     gnome-calendar \
+    gnome-commander \
     gnome-font-viewer \
     gnome-photos \
+    gnome-screenshot \
     gnome-terminal \
+    gnome-text-editor \
     gthumb \
     libwnck3 \
     nautilus \

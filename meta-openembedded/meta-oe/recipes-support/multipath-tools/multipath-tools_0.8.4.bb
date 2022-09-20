@@ -27,9 +27,9 @@ DEPENDS = "libdevmapper \
            json-c \
           "
 
-LICENSE = "GPLv2"
+LICENSE = "GPL-2.0-only"
 
-SRC_URI = "git://git.opensvc.com/multipath-tools/.git;protocol=http \
+SRC_URI = "git://github.com/opensvc/multipath-tools.git;protocol=http;branch=master \
            file://multipathd.oe \
            file://multipath.conf.example \
            file://0021-RH-fixup-udev-rules-for-redhat.patch \

@@ -1,5 +1,5 @@
 SUMMARY = "USB Gadget neXt Configfs Library"
-LICENSE = "GPLv2 & LGPLv2.1"
+LICENSE = "GPL-2.0-only & LGPL-2.1-only"
 LIC_FILES_CHKSUM = "file://COPYING;md5=b234ee4d69f5fce4486a80fdaf4a4263 \
                     file://COPYING.LGPL;md5=4fbd65380cdd255951079008b364516c"
 
@@ -11,7 +11,7 @@ PV = "0.2.0+git${SRCPV}"
 SRCREV = "45c14ef4d5d7ced0fbf984208de44ced6d5ed898"
 SRCBRANCH = "master"
 SRC_URI = " \
-    git://github.com/libusbgx/libusbgx.git;branch=${SRCBRANCH} \
+    git://github.com/libusbgx/libusbgx.git;branch=${SRCBRANCH};protocol=https \
     file://gadget-start \
     file://usbgx.initd \
     file://usbgx.service \

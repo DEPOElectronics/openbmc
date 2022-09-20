@@ -5,14 +5,6 @@ DISABLE_STATIC:pn-qemu = ""
 DISABLE_STATIC:pn-qemu-native = ""
 DISABLE_STATIC:pn-nativesdk-qemu = ""
 DISABLE_STATIC:pn-qemu-system-native = ""
-# pciutils fails build
-DISABLE_STATIC:pn-pciutils = ""
-# libcap aborts on unrecognised option
-DISABLE_STATIC:pn-libcap = ""
-DISABLE_STATIC:pn-libcap-native = ""
-DISABLE_STATIC:pn-nativesdk-libcap = ""
-# libpcap aborts on unrecognised option
-DISABLE_STATIC:pn-libpcap = ""
 # needed by gdb
 DISABLE_STATIC:pn-readline = ""
 # openjade/sgml-common have build issues without static libs
@@ -26,11 +18,14 @@ DISABLE_STATIC:pn-nativesdk-openssl = ""
 DISABLE_STATIC:pn-gcc-runtime = ""
 # libusb1-native is used to build static dfu-util-native
 DISABLE_STATIC:pn-libusb1-native = ""
+# needed by rust
+DISABLE_STATIC:pn-musl = ""
 
 EXTRA_OECONF:append = "${DISABLE_STATIC}"
 
 EXTRA_OECMAKE:append:pn-libical = " -DSHARED_ONLY=True"
 EXTRA_OECMAKE:append:pn-libjpeg-turbo = " -DENABLE_STATIC=False"
+EXTRA_OECMAKE:append:pn-libjpeg-turbo-native = " -DENABLE_STATIC=False"
 
 EXCONFIG_ARGS:append:pn-ncurses = " --without-normal"
 EXCONFIG_ARGS:append:pn-ncurses-native = " --without-normal"

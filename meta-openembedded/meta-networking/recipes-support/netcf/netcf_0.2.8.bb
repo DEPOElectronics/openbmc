@@ -2,14 +2,14 @@ SUMMARY = "netcf"
 DESCRIPTION = "netcf is a cross-platform network configuration library."
 HOMEPAGE = "https://pagure.io/netcf"
 SECTION = "libs"
-LICENSE = "LGPLv2.1"
+LICENSE = "LGPL-2.1-only"
 
 LIC_FILES_CHKSUM = "file://COPYING;md5=fb919cc88dbe06ec0b0bd50e001ccf1f"
 
 SRCREV = "2c5d4255857531bc09d91dcd02e86545f29004d4"
 PV .= "+git${SRCPV}"
 
-SRC_URI = "git://pagure.io/netcf.git;protocol=https \
+SRC_URI = "git://pagure.io/netcf.git;protocol=https;branch=master \
 "
 
 UPSTREAM_CHECK_GITTAGREGEX = "release-(?P<pver>(\d+(\.\d+)+))"

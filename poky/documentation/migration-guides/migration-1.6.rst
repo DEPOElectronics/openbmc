@@ -222,8 +222,7 @@ Package Tests (ptest) are built but not installed by default. For
 information on using Package Tests, see the
 ":ref:`dev-manual/common-tasks:testing packages with ptest`"
 section in the Yocto Project Development Tasks Manual. For information on the
-``ptest`` class, see the ":ref:`ptest.bbclass <ref-classes-ptest>`"
-section.
+``ptest`` class, see the ":ref:`ref-classes-ptest`" section.
 
 .. _migration-1.6-build-changes:
 
@@ -231,7 +230,7 @@ Build Changes
 -------------
 
 Separate build and source directories have been enabled by default for
-selected recipes where it is known to work (a whitelist) and for all
+selected recipes where it is known to work and for all
 recipes that inherit the :ref:`cmake <ref-classes-cmake>` class. In
 future releases the :ref:`autotools <ref-classes-autotools>` class
 will enable a separate build directory by default as well. Recipes
@@ -342,39 +341,39 @@ Removed and Renamed Recipes
 
 The following recipes have been removed:
 
--  ``packagegroup-toolset-native`` - This recipe is largely unused.
+-  ``packagegroup-toolset-native`` --- this recipe is largely unused.
 
--  ``linux-yocto-3.8`` - Support for the Linux yocto 3.8 kernel has been
+-  ``linux-yocto-3.8`` --- support for the Linux yocto 3.8 kernel has been
    dropped. Support for the 3.10 and 3.14 kernels have been added with
    the ``linux-yocto-3.10`` and ``linux-yocto-3.14`` recipes.
 
--  ``ocf-linux`` - This recipe has been functionally replaced using
+-  ``ocf-linux`` --- this recipe has been functionally replaced using
    ``cryptodev-linux``.
 
--  ``genext2fs`` - ``genext2fs`` is no longer used by the build system
+-  ``genext2fs`` --- ``genext2fs`` is no longer used by the build system
    and is unmaintained upstream.
 
--  ``js`` - This provided an ancient version of Mozilla's javascript
+-  ``js`` --- this provided an ancient version of Mozilla's javascript
    engine that is no longer needed.
 
--  ``zaurusd`` - The recipe has been moved to the ``meta-handheld``
+-  ``zaurusd`` --- the recipe has been moved to the ``meta-handheld``
    layer.
 
--  ``eglibc 2.17`` - Replaced by the ``eglibc 2.19`` recipe.
+-  ``eglibc 2.17`` --- replaced by the ``eglibc 2.19`` recipe.
 
--  ``gcc 4.7.2`` - Replaced by the now stable ``gcc 4.8.2``.
+-  ``gcc 4.7.2`` --- replaced by the now stable ``gcc 4.8.2``.
 
--  ``external-sourcery-toolchain`` - this recipe is now maintained in
+-  ``external-sourcery-toolchain`` --- this recipe is now maintained in
    the ``meta-sourcery`` layer.
 
--  ``linux-libc-headers-yocto 3.4+git`` - Now using version 3.10 of the
+-  ``linux-libc-headers-yocto 3.4+git`` --- now using version 3.10 of the
    ``linux-libc-headers`` by default.
 
--  ``meta-toolchain-gmae`` - This recipe is obsolete.
+-  ``meta-toolchain-gmae`` --- this recipe is obsolete.
 
--  ``packagegroup-core-sdk-gmae`` - This recipe is obsolete.
+-  ``packagegroup-core-sdk-gmae`` --- this recipe is obsolete.
 
--  ``packagegroup-core-standalone-gmae-sdk-target`` - This recipe is
+-  ``packagegroup-core-standalone-gmae-sdk-target`` --- this recipe is
    obsolete.
 
 .. _migration-1.6-removed-classes:

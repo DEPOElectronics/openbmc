@@ -1,5 +1,5 @@
 HOMEPAGE = "https://github.com/openbmc/phosphor-fan-presence"
 LICENSE = "Apache-2.0"
 LIC_FILES_CHKSUM = "file://${S}/LICENSE;md5=e3fc50a88d0a364313df4b21ef20c29e"
-SRC_URI += "git://github.com/openbmc/phosphor-fan-presence"
-SRCREV = "075fcd858f1bfb4ba8ca5cc41526495bf3df166a"
+SRC_URI += "git://github.com/openbmc/phosphor-fan-presence;branch=master;protocol=https"
+SRCREV = "3fc3161f66040f8216c0935e223bc3ee598cd7e8"

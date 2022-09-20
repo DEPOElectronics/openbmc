@@ -1,7 +1,7 @@
 SUMMARY = "USB CEC Adaptor communication Library"
 HOMEPAGE = "http://libcec.pulse-eight.com/"
 
-LICENSE = "GPLv2+"
+LICENSE = "GPL-2.0-or-later"
 LIC_FILES_CHKSUM = "file://COPYING;md5=b3a719e97f49e4841e90573f9b1a98ac"
 
 DEPENDS = "p8platform udev ncurses swig-native python3"
@@ -10,10 +10,11 @@ DEPENDS += "${@bb.utils.contains('DISTRO_FEATURES', 'x11', 'libx11 libxrandr', '
 DEPENDS:append:rpi = "${@bb.utils.contains('MACHINE_FEATURES', 'vc4graphics', '', ' userland', d)}"
 
 SRCREV = "29d82c80bcc62be2878a9ac080de7eb286c4beb9"
-SRC_URI = "git://github.com/Pulse-Eight/libcec.git;branch=release \
+SRC_URI = "git://github.com/Pulse-Eight/libcec.git;branch=release;protocol=https \
            file://0001-CheckPlatformSupport.cmake-Do-not-hardcode-lib-path.patch \
            file://0001-Enhance-reproducibility.patch \
            file://0001-Remove-buggy-test-confusing-host-and-target.patch \
+           file://0001-cecloader-Match-return-type-of-function-LibCecBootlo.patch \
           "
 
 S = "${WORKDIR}/git"

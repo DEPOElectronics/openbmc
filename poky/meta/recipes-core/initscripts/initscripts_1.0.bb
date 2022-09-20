@@ -2,8 +2,8 @@ SUMMARY = "SysV init scripts"
 HOMEPAGE = "https://github.com/fedora-sysv/initscripts"
 DESCRIPTION = "Initscripts provide the basic system startup initialization scripts for the system.  These scripts include actions such as filesystem mounting, fsck, RTC manipulation and other actions routinely performed at system startup.  In addition, the scripts are also used during system shutdown to reverse the actions performed at startup."
 SECTION = "base"
-LICENSE = "GPLv2"
-LIC_FILES_CHKSUM = "file://COPYING;md5=751419260aa954499f7abaabaa882bbe"
+LICENSE = "GPL-2.0-only"
+LIC_FILES_CHKSUM = "file://functions;beginline=7;endline=7;md5=829e563511c9a1d6d41f17a7a4989d6a"
 PR = "r155"
 
 INHIBIT_DEFAULT_DEPS = "1"
@@ -31,7 +31,6 @@ SRC_URI = "file://functions \
            file://read-only-rootfs-hook.sh \
            file://volatiles \
            file://save-rtc.sh \
-           file://GPLv2.patch \
            file://dmesg.sh \
            file://logrotate-dmesg.conf \
            ${@bb.utils.contains('DISTRO_FEATURES','selinux','file://sushell','',d)} \
@@ -131,7 +130,7 @@ do_install () {
 	update-rc.d -r ${D} rmnologin.sh start 99 2 3 4 5 .
 	update-rc.d -r ${D} sendsigs start 20 0 6 .
 	update-rc.d -r ${D} urandom start 38 S 0 6 .
-	update-rc.d -r ${D} umountnfs.sh start 31 0 1 6 .
+	update-rc.d -r ${D} umountnfs.sh stop 31 0 1 6 .
 	update-rc.d -r ${D} umountfs start 40 0 6 .
 	update-rc.d -r ${D} reboot start 90 6 .
 	update-rc.d -r ${D} halt start 90 0 .

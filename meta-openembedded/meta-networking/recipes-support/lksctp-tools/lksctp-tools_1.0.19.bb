@@ -1,7 +1,7 @@
 SUMMARY = "The Linux Kernel Stream Control Transmission Protocol (lksctp) project"
 HOMEPAGE = "http://lksctp.org"
 SECTION = "net"
-LICENSE = "LGPLv2.1 & GPLv2"
+LICENSE = "LGPL-2.1-only & GPL-2.0-only"
 
 LIC_FILES_CHKSUM = " \
     file://COPYING.lib;md5=0a1b79af951c42a9c8573533fbba9a92 \
@@ -14,7 +14,7 @@ PV .= "+git${SRCPV}"
 LK_REL = "1.0.19"
 
 SRC_URI = " \
-    git://github.com/sctp/lksctp-tools.git \
+    git://github.com/sctp/lksctp-tools.git;branch=master;protocol=https \
     file://run-ptest \
     file://v4test.sh \
     file://v6test.sh \

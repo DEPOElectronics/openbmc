@@ -7,13 +7,14 @@ LIC_FILES_CHKSUM = "file://COPYING;md5=e661ab33a2a71ad6652c178dedf8aaa2"
 
 PV = "2.7.0+git${SRCPV}"
 
-SRC_URI = "git://github.com/HewlettPackard/netperf.git \
+SRC_URI = "git://github.com/HewlettPackard/netperf.git;branch=master;protocol=https \
            file://cpu_set.patch \
            file://vfork.patch \
            file://init \
            file://netserver.service \
            file://0001-netlib.c-Move-including-sched.h-out-og-function.patch \
            file://0001-nettest_omni-Remove-duplicate-variable-definitions.patch \
+           file://netserver_permissions.patch \
            "
 
 SRCREV = "3bc455b23f901dae377ca0a558e1e32aa56b31c4"
@@ -27,8 +28,7 @@ CFLAGS:append = " -DDO_UNIX -DDO_IPV6 -D_GNU_SOURCE"
 
 # set the "_FILE_OFFSET_BITS" preprocessor symbol to 64 to support files
 # larger than 2GB
-CFLAGS:append = "${@bb.utils.contains('DISTRO_FEATURES', 'largefile', \
-    ' -D_FILE_OFFSET_BITS=64', '', d)}"
+CFLAGS:append = " -D_FILE_OFFSET_BITS=64"
 
 PACKAGECONFIG ??= ""
 PACKAGECONFIG[sctp] = "--enable-sctp,--disable-sctp,lksctp-tools,"

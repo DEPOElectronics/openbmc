@@ -13,10 +13,9 @@ Minimum system requirements
 You will now need at least Python 3.6 installed on your build host. Most recent
 distributions provide this, but should you be building on a distribution that
 does not have it, you can use the ``buildtools-tarball`` (easily installable
-using ``scripts/install-buildtools``) - see
-:ref:`ref-manual/system-requirements:required git, tar, python and gcc versions`
+using ``scripts/install-buildtools``) --- see
+:ref:`ref-manual/system-requirements:required git, tar, python, make and gcc versions`
 for details.
-
 
 .. _migration-3.3-removed-recipes:
 
@@ -64,7 +63,7 @@ New ``python3targetconfig`` class
 
 A new :ref:`python3targetconfig <ref-classes-python3targetconfig>` class has been
 created for situations where you would previously have inherited the
-``python3native`` class but need access to target configuration data (such as
+:ref:`python3native <ref-classes-python3native>` class but need access to target configuration data (such as
 correct installation directories). Recipes where this situation applies should
 be changed to inherit ``python3targetconfig`` instead of ``python3native``. This
 also adds a dependency on target ``python3``, so it should only be used where
@@ -76,7 +75,7 @@ Some example recipes where this change has been made: ``gpgme``, ``libcap-ng``,
 
 .. _migration-3.3-distutils-path:
 
-``setup.py`` path for python modules
+``setup.py`` path for Python modules
 ------------------------------------
 
 In a Python module, sometimes ``setup.py`` can be buried deep in the
@@ -89,18 +88,18 @@ example::
    S = "${WORKDIR}/git/python/pythonmodule"
 
 then in ``setup.py`` it works with source code in a relative fashion, such
-as ``../../src``. This causes pseudo to abort as it isn't able to track
-the paths properly. This release introduces a new :term:`DISTUTILS_SETUP_PATH`
+as ``../../src``. This causes pseudo to fail as it isn't able to track
+the paths properly. This release introduces a new ``DISTUTILS_SETUP_PATH``
 variable so that recipes can specify it explicitly, for example::
 
    S = "${WORKDIR}/git"
    DISTUTILS_SETUP_PATH = "${S}/python/pythonmodule"
 
-Recipes that inherit from :ref:`distutils3 <ref-classes-distutils3>` (or
+Recipes that inherit from ``distutils3`` (or
 :ref:`setuptools3 <ref-classes-setuptools3>` which itself inherits
-:ref:`distutils3 <ref-classes-distutils3>`) that also set :term:`S` to
+``distutils3``) that also set :term:`S` to
 point to a Python module within a subdirectory in the aforementioned
-manner should be changed to set :term:`DISTUTILS_SETUP_PATH` instead.
+manner should be changed to set ``DISTUTILS_SETUP_PATH`` instead.
 
 
 .. _migration-3.3-bitbake:
@@ -133,7 +132,7 @@ unless you want to take advantage of the improved granularity:
 - ``procps``: split ``ps`` and ``sysctl`` into their own packages
 - ``rpm``: split build and extra functionality into separate packages
 - ``sudo``: split ``sudo`` binary into ``sudo-sudo`` and libs into ``sudo-lib``
-- ``systemtap``: examples, python scripts and runtime material split out
+- ``systemtap``: examples, Python scripts and runtime material split out
 - ``util-linux``: ``libuuid`` has been split out to its own
   ``util-linux-libuuid`` recipe (and corresponding packages) to avoid circular
   dependencies if ``libgcrypt`` support is enabled in ``util-linux``.

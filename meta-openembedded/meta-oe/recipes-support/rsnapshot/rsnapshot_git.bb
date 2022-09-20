@@ -3,7 +3,7 @@ HOMEPAGE = "http://www.rsnapshot.org"
 BUGTRACKER = "https://sourceforge.net/projects/rsnapshot/"
 SECTION = "console/network"
 
-LICENSE = "GPLv2"
+LICENSE = "GPL-2.0-only"
 LIC_FILES_CHKSUM = "file://COPYING;md5=892f569a555ba9c07a568a7c0c4fa63a"
 
 RDEPENDS:${PN} = "rsync \
@@ -25,7 +25,7 @@ RDEPENDS:${PN} = "rsync \
 SRCREV = "4dc82bfe6be3f83fcfa94946dcf6accfd6a18031"
 PV = "1.4.4+git${SRCPV}"
 
-SRC_URI = "git://github.com/DrHyde/${BPN};branch=master;protocol=git \
+SRC_URI = "git://github.com/DrHyde/${BPN};branch=master;protocol=https \
            file://configure-fix-cmd_rsync.patch \
           "
 

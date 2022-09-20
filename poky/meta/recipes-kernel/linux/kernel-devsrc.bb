@@ -5,7 +5,7 @@ development or external module builds"
 
 SECTION = "kernel"
 
-LICENSE = "GPLv2"
+LICENSE = "GPL-2.0-only"
 
 inherit linux-kernel-base
 
@@ -48,7 +48,7 @@ do_install() {
     mkdir -p ${D}/usr/src
     (
 	cd ${D}/usr/src
-	lnr ${D}${KERNEL_BUILD_ROOT}${KERNEL_VERSION}/source kernel
+	ln -rs ${D}${KERNEL_BUILD_ROOT}${KERNEL_VERSION}/source kernel
     )
 
     # for on target purposes, we unify build and source
@@ -72,7 +72,9 @@ do_install() {
     (
 	cd ${B}
 
-	cp Module.symvers $kerneldir/build
+	if [ -s Module.symvers ]; then
+	    cp Module.symvers $kerneldir/build
+	fi
 	cp System.map* $kerneldir/build
 	if [ -s Module.markers ]; then
 	    cp Module.markers $kerneldir/build
@@ -109,12 +111,16 @@ do_install() {
 	    fi
 	fi
 
-	if [ "${ARCH}" = "arm64" ]; then
-	    cp -a --parents arch/arm64/kernel/vdso/vdso.lds $kerneldir/build/
+	if [ "${ARCH}" = "arm64" -o "${ARCH}" = "riscv" ]; then
+            if [ -e arch/${ARCH}/kernel/vdso/vdso.lds ]; then
+	        cp -a --parents arch/${ARCH}/kernel/vdso/vdso.lds $kerneldir/build/
+            fi
 	fi
 	if [ "${ARCH}" = "powerpc" ]; then
 	    cp -a --parents arch/powerpc/kernel/vdso32/vdso32.lds $kerneldir/build 2>/dev/null || :
 	    cp -a --parents arch/powerpc/kernel/vdso64/vdso64.lds $kerneldir/build 2>/dev/null || :
+	    # v5.19+
+	    cp -a --parents arch/powerpc/kernel/vdso/vdso*.lds $kerneldir/build 2>/dev/null || :
 	fi
 
 	cp -a include $kerneldir/build/include
@@ -124,8 +130,12 @@ do_install() {
 	# breaks workflows.
 	cp -a --parents include/generated/autoconf.h $kerneldir/build 2>/dev/null || :
 
-	if [ -e $kerneldir/include/generated/.vdso-offsets.h.cmd ]; then
-	    rm $kerneldir/include/generated/.vdso-offsets.h.cmd
+	if [ -e $kerneldir/include/generated/.vdso-offsets.h.cmd ] ||
+	     [ -e $kerneldir/build/include/generated/.vdso-offsets.h.cmd ] ||
+	     [ -e $kerneldir/build/include/generated/.vdso32-offsets.h.cmd ] ; then
+	    rm -f $kerneldir/include/generated/.vdso-offsets.h.cmd
+	    rm -f $kerneldir/build/include/generated/.vdso-offsets.h.cmd
+	    rm -f $kerneldir/build/include/generated/.vdso32-offsets.h.cmd
 	fi
     )
 
@@ -172,8 +182,15 @@ do_install() {
             cp -a --parents arch/arm64/tools/gen-cpucaps.awk $kerneldir/build/ 2>/dev/null || :
             cp -a --parents arch/arm64/tools/cpucaps $kerneldir/build/ 2>/dev/null || :
 
+            # 5.19+
+            cp -a --parents arch/arm64/tools/gen-sysreg.awk $kerneldir/build/   2>/dev/null || :
+            cp -a --parents arch/arm64/tools/sysreg $kerneldir/build/   2>/dev/null || :
+
             if [ -e $kerneldir/build/arch/arm64/tools/gen-cpucaps.awk ]; then
                  sed -i -e "s,#!.*awk.*,#!${USRBINPATH}/env awk," $kerneldir/build/arch/arm64/tools/gen-cpucaps.awk
+            fi
+            if [ -e $kerneldir/build/arch/arm64/tools/gen-sysreg.awk ]; then
+                 sed -i -e "s,#!.*awk.*,#!${USRBINPATH}/env awk," $kerneldir/build/arch/arm64/tools/gen-sysreg.awk
             fi
 	fi
 
@@ -184,6 +201,19 @@ do_install() {
 	    cp -a --parents arch/${ARCH}/kernel/syscalls/syscallhdr.sh $kerneldir/build/ 2>/dev/null || :
 	    cp -a --parents arch/${ARCH}/kernel/vdso32/* $kerneldir/build/ 2>/dev/null || :
 	    cp -a --parents arch/${ARCH}/kernel/vdso64/* $kerneldir/build/ 2>/dev/null || :
+
+	    # v5.19+
+	    cp -a --parents arch/powerpc/kernel/vdso/*.S $kerneldir/build 2>/dev/null || :
+	    cp -a --parents arch/powerpc/kernel/vdso/*gettimeofday.* $kerneldir/build 2>/dev/null || :
+	    cp -a --parents arch/powerpc/kernel/vdso/gen_vdso*_offsets.sh $kerneldir/build/ 2>/dev/null || :
+	fi
+	if [ "${ARCH}" = "riscv" ]; then
+            cp -a --parents arch/riscv/kernel/vdso/*gettimeofday.* $kerneldir/build/
+            cp -a --parents arch/riscv/kernel/vdso/note.S $kerneldir/build/
+            if [ -e arch/riscv/kernel/vdso/gen_vdso_offsets.sh ]; then
+                    cp -a --parents arch/riscv/kernel/vdso/gen_vdso_offsets.sh $kerneldir/build/
+            fi
+	    cp -a --parents arch/riscv/kernel/vdso/* $kerneldir/build/ 2>/dev/null || :
 	fi
 
 	# include the machine specific headers for ARM variants, if available.
@@ -193,6 +223,9 @@ do_install() {
 	    # include a few files for 'make prepare'
 	    cp -a --parents arch/arm/tools/gen-mach-types $kerneldir/build/
 	    cp -a --parents arch/arm/tools/mach-types $kerneldir/build/
+
+	    # 5.19+
+	    cp -a --parents arch/arm/tools/gen-sysreg.awk $kerneldir/build/	2>/dev/null || :
 
 	    # ARM syscall table tools only exist for kernels v4.10 or later
             SYSCALL_TOOLS=$(find arch/arm/tools -name "syscall*")
@@ -274,9 +307,6 @@ do_install() {
     # Make sure the Makefile and version.h have a matching timestamp so that
     # external modules can be built
     touch -r $kerneldir/build/Makefile $kerneldir/build/include/generated/uapi/linux/version.h
-
-    # Copy .config to include/config/auto.conf so "make prepare" is unnecessary.
-    cp $kerneldir/build/.config $kerneldir/build/include/config/auto.conf
 
     # make sure these are at least as old as the .config, or rebuilds will trigger
     touch -r $kerneldir/build/.config $kerneldir/build/include/generated/autoconf.h 2>/dev/null || :

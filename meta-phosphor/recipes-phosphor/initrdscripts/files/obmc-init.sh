@@ -411,8 +411,24 @@ HERE
 	debug_takeover "$msg"
 fi
 
-rm -rf $work
+# Empty workdir; do not remove workdir itself for it will fail to recreate it if
+# RWFS is full
+if [ -d $work ]
+then
+    find $work -maxdepth 1 -mindepth 1 -exec rm -rf '{}' +
+fi
+
 mkdir -p $upper $work
+
+# Opportunisticly set a sane BMC date based on a file that gets
+# written right before rebooting or powercycling. If none exists,
+# use the image build date.
+files="$upper/var/lib/systemd/random-seed $rodir/etc/os-release"
+time=$(find $files -exec stat -c %Y {} \; | sort -n | tail -n 1)
+# Allow RTC coordinated time to supersede this setting
+if [ "$(date +%s)" -lt "$time" ]; then
+  date -s @$((time + 5)) || true
+fi
 
 mount -t overlay -o lowerdir=$rodir,upperdir=$upper,workdir=$work cow /root
 
@@ -433,6 +449,4 @@ do
 	mount --move $f root/$f
 done
 
-# switch_root /root $init
-exec chroot /root $init
-
+exec switch_root /root $init

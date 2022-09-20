@@ -4,8 +4,7 @@ SRC_URI:append:rpi = " \
     file://fw_env.config \
 "
 
-# special fix for raspberrypi-cm3
-SRC_URI:append:raspberrypi-cm3 = " file://0001-dm-core-Move-ofdata_to_platdata-call-earlier.patch"
+SRC_URI:append:rpi = " file://0001-rpi-always-set-fdt_addr-with-firmware-provided-FDT-address.patch"
 
 DEPENDS:append:rpi = " u-boot-default-script"
 

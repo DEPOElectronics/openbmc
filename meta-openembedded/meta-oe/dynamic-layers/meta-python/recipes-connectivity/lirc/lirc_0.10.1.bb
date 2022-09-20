@@ -5,7 +5,7 @@ DESCRIPTION:append:lirc-remotes = " This package contains some config files for 
 DESCRIPTION:append:lirc-nslu2example = " This package contains a working config for RC5 remotes and a modified NSLU2."
 HOMEPAGE = "http://www.lirc.org"
 SECTION = "console/network"
-LICENSE = "GPLv2"
+LICENSE = "GPL-2.0-only"
 DEPENDS = "libxslt-native alsa-lib libftdi libusb1 libusb-compat jack portaudio-v19 python3-pyyaml python3-setuptools-native"
 
 LIC_FILES_CHKSUM = "file://COPYING;md5=b234ee4d69f5fce4486a80fdaf4a4263"
@@ -13,6 +13,7 @@ LIC_FILES_CHKSUM = "file://COPYING;md5=b234ee4d69f5fce4486a80fdaf4a4263"
 SRC_URI = "http://prdownloads.sourceforge.net/lirc/lirc-${PV}.tar.bz2 \
     file://0001-Fix-build-on-32bit-arches-with-64bit-time_t.patch \
     file://fix_build_errors.patch \
+    file://0001-mplay-Fix-build-with-musl.patch \
     file://lircd.service \
     file://lircd.init \
     file://lircexec.init \
@@ -29,7 +30,7 @@ SYSTEMD_SERVICE:${PN}-exec = "irexec.service"
 SYSTEMD_AUTO_ENABLE:lirc = "enable"
 SYSTEMD_AUTO_ENABLE:lirc-exec = "enable"
 
-inherit autotools pkgconfig systemd python3native distutils-common-base
+inherit autotools pkgconfig systemd python3native setuptools3-base
 
 PACKAGECONFIG[systemd] = "--with-systemdsystemunitdir=${systemd_unitdir}/system/,--without-systemdsystemunitdir,systemd"
 PACKAGECONFIG[x11] = "--with-x,--with-x=no,libx11,"
@@ -68,13 +69,16 @@ do_install:append() {
 
     install -m 0755 -d ${D}${sysconfdir}
     install -m 0755 -d ${D}${sysconfdir}/lirc
-    install -m 0755 -d ${D}${systemd_unitdir}/system
-    install -m 0755 -d ${D}${libdir}/tmpfiles.d
     install -m 0644 ${WORKDIR}/lircd.conf ${D}${sysconfdir}/lirc/
     install -m 0644 ${WORKDIR}/lirc_options.conf ${D}${sysconfdir}/lirc/
-    install -m 0644 ${WORKDIR}/lircd.service ${D}${systemd_unitdir}/system/
-    install -m 0755 ${WORKDIR}/lircexec.init ${D}${systemd_unitdir}/system/
-    install -m 0644 ${WORKDIR}/lirc.tmpfiles ${D}${libdir}/tmpfiles.d/lirc.conf
+    if ${@bb.utils.contains('DISTRO_FEATURES', 'systemd', 'true', 'false', d)}; then
+        install -m 0755 -d ${D}${systemd_unitdir}/system ${D}${libdir}/tmpfiles.d
+        install -m 0644 ${WORKDIR}/lircd.service ${D}${systemd_unitdir}/system/
+        install -m 0755 ${WORKDIR}/lircexec.init ${D}${systemd_unitdir}/system/
+        install -m 0644 ${WORKDIR}/lirc.tmpfiles ${D}${libdir}/tmpfiles.d/lirc.conf
+    else
+        rm -rf ${D}/lib
+    fi
     rm -rf ${D}${libdir}/lirc/plugins/*.la
     rmdir ${D}/var/run/lirc ${D}/var/run
     chown -R root:root ${D}${datadir}/lirc/contrib

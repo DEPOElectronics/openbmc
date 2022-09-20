@@ -10,7 +10,7 @@ environment - not only on its computer-server machine, but also from \
 anywhere on the Internet and using a wide variety of machine \
 architectures."
 
-LICENSE = "BSD & LGPLv2.1+"
+LICENSE = "LGPL-2.1-or-later"
 LIC_FILES_CHKSUM = "file://COPYING;md5=4fbd65380cdd255951079008b364516c"
 
 PV = "0.14.2+git${SRCPV}"
@@ -21,14 +21,20 @@ SRCREV_spice-common = "4fc4c2db36c7f07b906e9a326a9d3dc0ae6a2671"
 SRCREV_FORMAT = "spice_spice-common"
 
 SRC_URI = " \
-    git://anongit.freedesktop.org/spice/spice;name=spice \
-    git://anongit.freedesktop.org/spice/spice-common;destsuffix=git/subprojects/spice-common;name=spice-common \
+    git://anongit.freedesktop.org/spice/spice;name=spice;branch=master \
+    git://anongit.freedesktop.org/spice/spice-common;destsuffix=git/subprojects/spice-common;name=spice-common;branch=master \
     file://0001-Convert-pthread_t-to-be-numeric.patch \
     file://0001-Fix-compile-errors-on-Linux-32bit-system.patch \
     file://0001-configure.ac-explicitly-link-to-jpeg-lib.patch \
 "
 
 S = "${WORKDIR}/git"
+
+CVE_CHECK_IGNORE += "\
+    CVE-2016-0749 \
+    CVE-2016-2150 \
+    CVE-2018-10893 \
+"
 
 inherit autotools gettext python3native python3-dir pkgconfig
 

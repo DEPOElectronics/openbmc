@@ -183,7 +183,7 @@ class QemuRunner:
         # then add in the site-packages path components and add that
         # to the python sys.path so qmp.py can be found.
         python_path = os.path.dirname(os.path.dirname(self.logfile))
-        python_path += "/recipe-sysroot-native/usr/lib/python3.9/site-packages"
+        python_path += "/recipe-sysroot-native/usr/lib/qemu-python"
         sys.path.append(python_path)
         importlib.invalidate_caches()
         try:
@@ -407,7 +407,7 @@ class QemuRunner:
                 self.logger.debug("qemu cmdline used:\n{}".format(cmdline))
             except (IndexError, ValueError):
                 # Try to get network configuration from runqemu output
-                match = re.match(r'.*Network configuration: (?:ip=)*([0-9.]+)::([0-9.]+):([0-9.]+)$.*',
+                match = re.match(r'.*Network configuration: (?:ip=)*([0-9.]+)::([0-9.]+):([0-9.]+).*',
                                  out, re.MULTILINE|re.DOTALL)
                 if match:
                     self.ip, self.server_ip, self.netmask = match.groups()
@@ -618,6 +618,8 @@ class QemuRunner:
                 return self.qmp.cmd(command)
 
     def run_serial(self, command, raw=False, timeout=60):
+        # Returns (status, output) where status is 1 on success and 0 on error
+
         # We assume target system have echo to get command status
         if not raw:
             command = "%s; echo $?\n" % command

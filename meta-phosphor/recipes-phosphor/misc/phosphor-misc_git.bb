@@ -5,8 +5,8 @@ LIC_FILES_CHKSUM = "file://LICENSE;md5=e3fc50a88d0a364313df4b21ef20c29e"
 PR = "r1"
 PV = "1.0+git${SRCPV}"
 
-SRC_URI = "git://github.com/openbmc/phosphor-misc"
-SRCREV = "669bb350cd2722f0d2bfd6cb4a22142e7e6c1488"
+SRC_URI = "git://github.com/openbmc/phosphor-misc;branch=master;protocol=https"
+SRCREV = "8ae2fcd1cad309c607671dd83a94aa13cc2fbdc6"
 
 S = "${WORKDIR}/git"
 
@@ -23,9 +23,7 @@ PHOSPHOR_MISC_PACKAGES = " \
     ${@bb.utils.contains('PACKAGECONFIG', 'usb-ctrl', '${PN}-usb-ctrl', '', d)} \
     "
 
-PACKAGES:remove = "${PN}"
-RDEPENDS:${PN}-dev = ""
-
+PACKAGES = "${PHOSPHOR_MISC_PACKAGES}"
 PACKAGE_BEFORE_PN += "${PHOSPHOR_MISC_PACKAGES}"
 SYSTEMD_PACKAGES = "${PHOSPHOR_MISC_PACKAGES}"
 

@@ -22,7 +22,7 @@ Can I still use the Yocto Project?
 **A:** You can get the required tools on your host development system a
 couple different ways (i.e. building a tarball or downloading a
 tarball). See the
-":ref:`ref-manual/system-requirements:required git, tar, python and gcc versions`"
+":ref:`ref-manual/system-requirements:required git, tar, python, make and gcc versions`"
 section for steps on how to update your build tools.
 
 **Q:** How can you claim Poky / OpenEmbedded-Core is stable?
@@ -143,7 +143,7 @@ various proxy types and configuring proxy servers, see the
 ":yocto_wiki:`Working Behind a Network Proxy </Working_Behind_a_Network_Proxy>`"
 Wiki page.
 
-**Q:** What's the difference between target and target\ ``-native``?
+**Q:** What's the difference between ``target`` and ``target-native``?
 
 **A:** The ``*-native`` targets are designed to run on the system being
 used for the build. These are usually tools that are needed to assist
@@ -302,10 +302,10 @@ attempt before any others by adding something like the following to the
 ``local.conf`` configuration file::
 
    PREMIRRORS:prepend = "\
-       git://.*/.* http://www.yoctoproject.org/sources/ \n \
-       ftp://.*/.* http://www.yoctoproject.org/sources/ \n \
-       http://.*/.* http://www.yoctoproject.org/sources/ \n \
-       https://.*/.* http://www.yoctoproject.org/sources/ \n"
+       git://.*/.* &YOCTO_DL_URL;/mirror/sources/ \
+       ftp://.*/.* &YOCTO_DL_URL;/mirror/sources/ \
+       http://.*/.* &YOCTO_DL_URL;/mirror/sources/ \
+       https://.*/.* &YOCTO_DL_URL;/mirror/sources/"
 
 These changes cause the build system to intercept Git, FTP, HTTP, and
 HTTPS requests and direct them to the ``http://`` sources mirror. You
@@ -342,9 +342,10 @@ You could make the following changes to the ``local.conf`` configuration
 file as long as the :term:`PREMIRRORS` server is current::
 
    PREMIRRORS:prepend = "\
-       ftp://.*/.* http://www.yoctoproject.org/sources/ \n \
-       http://.*/.* http://www.yoctoproject.org/sources/ \n \
-       https://.*/.* http://www.yoctoproject.org/sources/ \n"
+       git://.*/.* &YOCTO_DL_URL;/mirror/sources/ \
+       ftp://.*/.* &YOCTO_DL_URL;/mirror/sources/ \
+       http://.*/.* &YOCTO_DL_URL;/mirror/sources/ \
+       https://.*/.* &YOCTO_DL_URL;/mirror/sources/"
    BB_FETCH_PREMIRRORONLY = "1"
 
 These changes would cause the build system to successfully fetch source
@@ -363,7 +364,7 @@ redirect requests through proxy servers.
 
 **Q:** Can I get rid of build output so I can start over?
 
-**A:** Yes - you can easily do this. When you use BitBake to build an
+**A:** Yes --- you can easily do this. When you use BitBake to build an
 image, all the build output goes into the directory created when you run
 the build environment setup script (i.e.
 :ref:`structure-core-script`). By default, this :term:`Build Directory`
@@ -427,7 +428,7 @@ relatively normal and the second is not:
       build/tmp/sysroots/x86_64-linux/usr/bin
 
 Even if the paths look unusual,
-they both are correct - the first for a target and the second for a
+they both are correct --- the first for a target and the second for a
 native recipe. These paths are a consequence of the ``DESTDIR``
 mechanism and while they appear strange, they are correct and in
 practice very effective.
@@ -454,7 +455,4 @@ changing it?
 **A:** The first most obvious change is the system stripping debug symbols from
 it. Setting :term:`INHIBIT_PACKAGE_STRIP` to stop debug symbols being stripped and/or
 :term:`INHIBIT_PACKAGE_DEBUG_SPLIT` to stop debug symbols being split into a separate
-file will ensure the binary is unchanged. The other less obvious thing that can
-happen is prelinking of the image. This is set by default in local.conf via
-:term:`USER_CLASSES` which can contain 'image-prelink'. If you remove that, the
-image will not be prelinked meaning the binaries would be unchanged.
+file will ensure the binary is unchanged.

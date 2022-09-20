@@ -1,4 +1,6 @@
 #
+# Copyright OpenEmbedded Contributors
+#
 # SPDX-License-Identifier: GPL-2.0-only
 #
 
@@ -25,25 +27,62 @@ SPDX_ARCHIVE_PACKAGED ??= "0"
 
 SPDX_UUID_NAMESPACE ??= "sbom.openembedded.org"
 SPDX_NAMESPACE_PREFIX ??= "http://spdx.org/spdxdoc"
+SPDX_PRETTY ??= "0"
 
 SPDX_LICENSES ??= "${COREBASE}/meta/files/spdx-licenses.json"
 
-do_image_complete[depends] = "virtual/kernel:do_create_spdx"
+SPDX_ORG ??= "OpenEmbedded ()"
+SPDX_SUPPLIER ??= "Organization: ${SPDX_ORG}"
+SPDX_SUPPLIER[doc] = "The SPDX PackageSupplier field for SPDX packages created from \
+    this recipe. For SPDX documents create using this class during the build, this \
+    is the contact information for the person or organization who is doing the \
+    build."
+
+def extract_licenses(filename):
+    import re
+
+    lic_regex = re.compile(rb'^\W*SPDX-License-Identifier:\s*([ \w\d.()+-]+?)(?:\s+\W*)?$', re.MULTILINE)
+
+    try:
+        with open(filename, 'rb') as f:
+            size = min(15000, os.stat(filename).st_size)
+            txt = f.read(size)
+            licenses = re.findall(lic_regex, txt)
+            if licenses:
+                ascii_licenses = [lic.decode('ascii') for lic in licenses]
+                return ascii_licenses
+    except Exception as e:
+        bb.warn(f"Exception reading {filename}: {e}")
+    return None
 
 def get_doc_namespace(d, doc):
     import uuid
     namespace_uuid = uuid.uuid5(uuid.NAMESPACE_DNS, d.getVar("SPDX_UUID_NAMESPACE"))
     return "%s/%s-%s" % (d.getVar("SPDX_NAMESPACE_PREFIX"), doc.name, str(uuid.uuid5(namespace_uuid, doc.name)))
 
+def create_annotation(d, comment):
+    from datetime import datetime, timezone
+
+    creation_time = datetime.now(tz=timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+    annotation = oe.spdx.SPDXAnnotation()
+    annotation.annotationDate = creation_time
+    annotation.annotationType = "OTHER"
+    annotation.annotator = "Tool: %s - %s" % (d.getVar("SPDX_TOOL_NAME"), d.getVar("SPDX_TOOL_VERSION"))
+    annotation.comment = comment
+    return annotation
+
 def recipe_spdx_is_native(d, recipe):
     return any(a.annotationType == "OTHER" and
       a.annotator == "Tool: %s - %s" % (d.getVar("SPDX_TOOL_NAME"), d.getVar("SPDX_TOOL_VERSION")) and
       a.comment == "isNative" for a in recipe.annotations)
 
-def is_work_shared(d):
-    pn = d.getVar('PN')
-    return bb.data.inherits_class('kernel', d) or pn.startswith('gcc-source')
+def is_work_shared_spdx(d):
+    return bb.data.inherits_class('kernel', d) or ('work-shared' in d.getVar('WORKDIR'))
 
+def get_json_indent(d):
+    if d.getVar("SPDX_PRETTY") == "1":
+        return 2
+    return None
 
 python() {
     import json
@@ -61,7 +100,6 @@ def convert_license_to_spdx(lic, document, d, existing={}):
     from pathlib import Path
     import oe.spdx
 
-    available_licenses = d.getVar("AVAILABLE_LICENSES").split()
     license_data = d.getVar("SPDX_LICENSE_DATA")
     extracted = {}
 
@@ -79,9 +117,9 @@ def convert_license_to_spdx(lic, document, d, existing={}):
         if name == "PD":
             # Special-case this.
             extracted_info.extractedText = "Software released to the public domain"
-        elif name in available_licenses:
-            # This license can be found in COMMON_LICENSE_DIR or LICENSE_PATH
-            for directory in [d.getVar('COMMON_LICENSE_DIR')] + d.getVar('LICENSE_PATH').split():
+        else:
+            # Seach for the license in COMMON_LICENSE_DIR and LICENSE_PATH
+            for directory in [d.getVar('COMMON_LICENSE_DIR')] + (d.getVar('LICENSE_PATH') or '').split():
                 try:
                     with (Path(directory) / name).open(errors="replace") as f:
                         extracted_info.extractedText = f.read()
@@ -89,18 +127,14 @@ def convert_license_to_spdx(lic, document, d, existing={}):
                 except FileNotFoundError:
                     pass
             if extracted_info.extractedText is None:
-                # Error out, as the license was in available_licenses so should
-                # be on disk somewhere.
-                bb.error("Cannot find text for license %s" % name)
-        else:
-            # If it's not SPDX, or PD, or in available licenses, then NO_GENERIC_LICENSE must be set
-            filename = d.getVarFlag('NO_GENERIC_LICENSE', name)
-            if filename:
-                filename = d.expand("${S}/" + filename)
-                with open(filename, errors="replace") as f:
-                    extracted_info.extractedText = f.read()
-            else:
-                bb.error("Cannot find any text for license %s" % name)
+                # If it's not SPDX or PD, then NO_GENERIC_LICENSE must be set
+                filename = d.getVarFlag('NO_GENERIC_LICENSE', name)
+                if filename:
+                    filename = d.expand("${S}/" + filename)
+                    with open(filename, errors="replace") as f:
+                        extracted_info.extractedText = f.read()
+                else:
+                    bb.error("Cannot find any text for license %s" % name)
 
         extracted[name] = extracted_info
         document.hasExtractedLicensingInfos.append(extracted_info)
@@ -133,7 +167,6 @@ def convert_license_to_spdx(lic, document, d, existing={}):
     lic_split = lic.replace("(", " ( ").replace(")", " ) ").split()
 
     return ' '.join(convert(l) for l in lic_split)
-
 
 def process_sources(d):
     pn = d.getVar('PN')
@@ -185,7 +218,7 @@ def add_package_files(d, doc, spdx_pkg, topdir, get_spdxid, get_types, *, archiv
             filepath = Path(subdir) / file
             filename = str(filepath.relative_to(topdir))
 
-            if filepath.is_file() and not filepath.is_symlink():
+            if not filepath.is_symlink() and filepath.is_file():
                 spdx_file = oe.spdx.SPDXFile()
                 spdx_file.SPDXID = get_spdxid(file_counter)
                 for t in get_types(filepath):
@@ -217,6 +250,11 @@ def add_package_files(d, doc, spdx_pkg, topdir, get_spdxid, get_types, *, archiv
                         checksumValue=bb.utils.sha256_file(filepath),
                     ))
 
+                if "SOURCE" in spdx_file.fileTypes:
+                    extracted_lics = extract_licenses(filepath)
+                    if extracted_lics:
+                        spdx_file.licenseInfoInFiles = extracted_lics
+
                 doc.files.append(spdx_file)
                 doc.add_relationship(spdx_pkg, "CONTAINS", spdx_file)
                 spdx_pkg.hasFiles.append(spdx_file.SPDXID)
@@ -244,6 +282,7 @@ def add_package_sources_from_debug(d, package_doc, spdx_package, package, packag
         Path(d.getVar('PKGD')),
         Path(d.getVar('STAGING_DIR_TARGET')),
         Path(d.getVar('STAGING_DIR_NATIVE')),
+        Path(d.getVar('STAGING_KERNEL_DIR')),
     ]
 
     pkg_data = oe.packagedata.read_subpkgdata_extended(package, d)
@@ -265,7 +304,10 @@ def add_package_sources_from_debug(d, package_doc, spdx_package, package, packag
         for debugsrc in file_data["debugsrc"]:
             ref_id = "NOASSERTION"
             for search in debug_search_paths:
-                debugsrc_path = search / debugsrc.lstrip("/")
+                if debugsrc.startswith("/usr/src/kernel"):
+                    debugsrc_path = search / debugsrc.replace('/usr/src/kernel/', '')
+                else:
+                    debugsrc_path = search / debugsrc.lstrip("/")
                 if not debugsrc_path.exists():
                     continue
 
@@ -404,20 +446,16 @@ python do_create_spdx() {
     doc.creationInfo.comment = "This document was created by analyzing recipe files during the build."
     doc.creationInfo.licenseListVersion = d.getVar("SPDX_LICENSE_DATA")["licenseListVersion"]
     doc.creationInfo.creators.append("Tool: OpenEmbedded Core create-spdx.bbclass")
-    doc.creationInfo.creators.append("Organization: OpenEmbedded ()")
+    doc.creationInfo.creators.append("Organization: %s" % d.getVar("SPDX_ORG"))
     doc.creationInfo.creators.append("Person: N/A ()")
 
     recipe = oe.spdx.SPDXPackage()
     recipe.name = d.getVar("PN")
     recipe.versionInfo = d.getVar("PV")
     recipe.SPDXID = oe.sbom.get_recipe_spdxid(d)
-    if bb.data.inherits_class("native", d):
-        annotation = oe.spdx.SPDXAnnotation()
-        annotation.annotationDate = creation_time
-        annotation.annotationType = "OTHER"
-        annotation.annotator = "Tool: %s - %s" % (d.getVar("SPDX_TOOL_NAME"), d.getVar("SPDX_TOOL_VERSION"))
-        annotation.comment = "isNative"
-        recipe.annotations.append(annotation)
+    recipe.supplier = d.getVar("SPDX_SUPPLIER")
+    if bb.data.inherits_class("native", d) or bb.data.inherits_class("cross", d):
+        recipe.annotations.append(create_annotation(d, "isNative"))
 
     for s in d.getVar('SRC_URI').split():
         if not s.startswith("file://"):
@@ -485,7 +523,7 @@ python do_create_spdx() {
 
     dep_recipes = collect_dep_recipes(d, doc, recipe)
 
-    doc_sha1 = oe.sbom.write_doc(d, doc, "recipes")
+    doc_sha1 = oe.sbom.write_doc(d, doc, "recipes", indent=get_json_indent(d))
     dep_recipes.append(oe.sbom.DepRecipe(doc, doc_sha1, recipe))
 
     recipe_ref = oe.spdx.SPDXExternalDocumentRef()
@@ -513,7 +551,7 @@ python do_create_spdx() {
             package_doc.creationInfo.comment = "This document was created by analyzing packages created during the build."
             package_doc.creationInfo.licenseListVersion = d.getVar("SPDX_LICENSE_DATA")["licenseListVersion"]
             package_doc.creationInfo.creators.append("Tool: OpenEmbedded Core create-spdx.bbclass")
-            package_doc.creationInfo.creators.append("Organization: OpenEmbedded ()")
+            package_doc.creationInfo.creators.append("Organization: %s" % d.getVar("SPDX_ORG"))
             package_doc.creationInfo.creators.append("Person: N/A ()")
             package_doc.externalDocumentRefs.append(recipe_ref)
 
@@ -525,6 +563,7 @@ python do_create_spdx() {
             spdx_package.name = pkg_name
             spdx_package.versionInfo = d.getVar("PV")
             spdx_package.licenseDeclared = convert_license_to_spdx(package_license, package_doc, d, found_licenses)
+            spdx_package.supplier = d.getVar("SPDX_SUPPLIER")
 
             package_doc.packages.append(spdx_package)
 
@@ -540,6 +579,7 @@ python do_create_spdx() {
                     pkgdest / package,
                     lambda file_counter: oe.sbom.get_packaged_file_spdxid(pkg_name, file_counter),
                     lambda filepath: ["BINARY"],
+                    ignore_top_level_dirs=['CONTROL', 'DEBIAN'],
                     archive=archive,
                 )
 
@@ -548,10 +588,10 @@ python do_create_spdx() {
 
             add_package_sources_from_debug(d, package_doc, spdx_package, package, package_files, sources)
 
-            oe.sbom.write_doc(d, package_doc, "packages")
+            oe.sbom.write_doc(d, package_doc, "packages", indent=get_json_indent(d))
 }
 # NOTE: depending on do_unpack is a hack that is necessary to get it's dependencies for archive the source
-addtask do_create_spdx after do_package do_packagedata do_unpack before do_build do_rm_work
+addtask do_create_spdx after do_package do_packagedata do_unpack before do_populate_sdk do_build do_rm_work
 
 SSTATETASKS += "do_create_spdx"
 do_create_spdx[sstate-inputdirs] = "${SPDXDEPLOY}"
@@ -562,7 +602,7 @@ python do_create_spdx_setscene () {
 }
 addtask do_create_spdx_setscene
 
-do_create_spdx[dirs] = "${SPDXDEPLOY} ${SPDXWORK}"
+do_create_spdx[dirs] = "${SPDXWORK}"
 do_create_spdx[cleandirs] = "${SPDXDEPLOY} ${SPDXWORK}"
 do_create_spdx[depends] += "${PATCHDEPENDENCY}"
 do_create_spdx[deptask] = "do_create_spdx"
@@ -608,7 +648,7 @@ python do_create_runtime_spdx() {
 
     deploy_dir_spdx = Path(d.getVar("DEPLOY_DIR_SPDX"))
     spdx_deploy = Path(d.getVar("SPDXRUNTIMEDEPLOY"))
-    is_native = bb.data.inherits_class("native", d)
+    is_native = bb.data.inherits_class("native", d) or bb.data.inherits_class("cross", d)
 
     creation_time = datetime.now(tz=timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
 
@@ -647,7 +687,7 @@ python do_create_runtime_spdx() {
             runtime_doc.creationInfo.comment = "This document was created by analyzing package runtime dependencies."
             runtime_doc.creationInfo.licenseListVersion = d.getVar("SPDX_LICENSE_DATA")["licenseListVersion"]
             runtime_doc.creationInfo.creators.append("Tool: OpenEmbedded Core create-spdx.bbclass")
-            runtime_doc.creationInfo.creators.append("Organization: OpenEmbedded ()")
+            runtime_doc.creationInfo.creators.append("Organization: %s" % d.getVar("SPDX_ORG"))
             runtime_doc.creationInfo.creators.append("Person: N/A ()")
 
             package_ref = oe.spdx.SPDXExternalDocumentRef()
@@ -668,6 +708,9 @@ python do_create_runtime_spdx() {
             seen_deps = set()
             for dep, _ in deps.items():
                 if dep in seen_deps:
+                    continue
+
+                if dep not in providers:
                     continue
 
                 dep = providers[dep]
@@ -709,7 +752,7 @@ python do_create_runtime_spdx() {
                 )
                 seen_deps.add(dep)
 
-            oe.sbom.write_doc(d, runtime_doc, "runtime", spdx_deploy)
+            oe.sbom.write_doc(d, runtime_doc, "runtime", spdx_deploy, indent=get_json_indent(d))
 }
 
 addtask do_create_runtime_spdx after do_create_spdx before do_build do_rm_work
@@ -739,7 +782,7 @@ def spdx_get_src(d):
 
     try:
         # The kernel class functions require it to be on work-shared, so we dont change WORKDIR
-        if not is_work_shared(d):
+        if not is_work_shared_spdx(d):
             # Change the WORKDIR to make do_unpack do_patch run in another dir.
             d.setVar('WORKDIR', spdx_workdir)
             # Restore the original path to recipe's native sysroot (it's relative to WORKDIR).
@@ -752,7 +795,7 @@ def spdx_get_src(d):
 
             bb.build.exec_func('do_unpack', d)
         # Copy source of kernel to spdx_workdir
-        if is_work_shared(d):
+        if is_work_shared_spdx(d):
             d.setVar('WORKDIR', spdx_workdir)
             d.setVar('STAGING_DIR_NATIVE', spdx_sysroot_native)
             src_dir = spdx_workdir + "/" + d.getVar('PN')+ "-" + d.getVar('PV') + "-" + d.getVar('PR')
@@ -768,7 +811,7 @@ def spdx_get_src(d):
                 shutils.rmtree(git_path)
 
         # Make sure gcc and kernel sources are patched only once
-        if not (d.getVar('SRC_URI') == "" or is_work_shared(d)):
+        if not (d.getVar('SRC_URI') == "" or is_work_shared_spdx(d)):
             bb.build.exec_func('do_patch', d)
 
         # Some userland has no source.
@@ -780,46 +823,90 @@ def spdx_get_src(d):
 do_rootfs[recrdeptask] += "do_create_spdx do_create_runtime_spdx"
 
 ROOTFS_POSTUNINSTALL_COMMAND =+ "image_combine_spdx ; "
+
+do_populate_sdk[recrdeptask] += "do_create_spdx do_create_runtime_spdx"
+POPULATE_SDK_POST_HOST_COMMAND:append:task-populate-sdk = " sdk_host_combine_spdx; "
+POPULATE_SDK_POST_TARGET_COMMAND:append:task-populate-sdk = " sdk_target_combine_spdx; "
+
 python image_combine_spdx() {
+    import os
+    import oe.sbom
+    from pathlib import Path
+    from oe.rootfs import image_list_installed_packages
+
+    image_name = d.getVar("IMAGE_NAME")
+    image_link_name = d.getVar("IMAGE_LINK_NAME")
+    imgdeploydir = Path(d.getVar("IMGDEPLOYDIR"))
+    img_spdxid = oe.sbom.get_image_spdxid(image_name)
+    packages = image_list_installed_packages(d)
+
+    combine_spdx(d, image_name, imgdeploydir, img_spdxid, packages)
+
+    def make_image_link(target_path, suffix):
+        if image_link_name:
+            link = imgdeploydir / (image_link_name + suffix)
+            if link != target_path:
+                link.symlink_to(os.path.relpath(target_path, link.parent))
+
+    image_spdx_path = imgdeploydir / (image_name + ".spdx.json")
+    make_image_link(image_spdx_path, ".spdx.json")
+    spdx_tar_path = imgdeploydir / (image_name + ".spdx.tar.zst")
+    make_image_link(spdx_tar_path, ".spdx.tar.zst")
+    spdx_index_path = imgdeploydir / (image_name + ".spdx.index.json")
+    make_image_link(spdx_index_path, ".spdx.index.json")
+}
+
+python sdk_host_combine_spdx() {
+    sdk_combine_spdx(d, "host")
+}
+
+python sdk_target_combine_spdx() {
+    sdk_combine_spdx(d, "target")
+}
+
+def sdk_combine_spdx(d, sdk_type):
+    import oe.sbom
+    from pathlib import Path
+    from oe.sdk import sdk_list_installed_packages
+
+    sdk_name = d.getVar("SDK_NAME") + "-" + sdk_type
+    sdk_deploydir = Path(d.getVar("SDKDEPLOYDIR"))
+    sdk_spdxid = oe.sbom.get_sdk_spdxid(sdk_name)
+    sdk_packages = sdk_list_installed_packages(d, sdk_type == "target")
+    combine_spdx(d, sdk_name, sdk_deploydir, sdk_spdxid, sdk_packages)
+
+def combine_spdx(d, rootfs_name, rootfs_deploydir, rootfs_spdxid, packages):
     import os
     import oe.spdx
     import oe.sbom
     import io
     import json
-    from oe.rootfs import image_list_installed_packages
     from datetime import timezone, datetime
     from pathlib import Path
     import tarfile
     import bb.compress.zstd
 
     creation_time = datetime.now(tz=timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
-    image_name = d.getVar("IMAGE_NAME")
-    image_link_name = d.getVar("IMAGE_LINK_NAME")
-
     deploy_dir_spdx = Path(d.getVar("DEPLOY_DIR_SPDX"))
-    imgdeploydir = Path(d.getVar("IMGDEPLOYDIR"))
     source_date_epoch = d.getVar("SOURCE_DATE_EPOCH")
 
     doc = oe.spdx.SPDXDocument()
-    doc.name = image_name
+    doc.name = rootfs_name
     doc.documentNamespace = get_doc_namespace(d, doc)
     doc.creationInfo.created = creation_time
     doc.creationInfo.comment = "This document was created by analyzing the source of the Yocto recipe during the build."
     doc.creationInfo.licenseListVersion = d.getVar("SPDX_LICENSE_DATA")["licenseListVersion"]
     doc.creationInfo.creators.append("Tool: OpenEmbedded Core create-spdx.bbclass")
-    doc.creationInfo.creators.append("Organization: OpenEmbedded ()")
+    doc.creationInfo.creators.append("Organization: %s" % d.getVar("SPDX_ORG"))
     doc.creationInfo.creators.append("Person: N/A ()")
 
     image = oe.spdx.SPDXPackage()
     image.name = d.getVar("PN")
     image.versionInfo = d.getVar("PV")
-    image.SPDXID = oe.sbom.get_image_spdxid(image_name)
+    image.SPDXID = rootfs_spdxid
+    image.supplier = d.getVar("SPDX_SUPPLIER")
 
     doc.packages.append(image)
-
-    spdx_package = oe.spdx.SPDXPackage()
-
-    packages = image_list_installed_packages(d)
 
     for name in sorted(packages.keys()):
         pkg_spdx_path = deploy_dir_spdx / "packages" / (name + ".spdx.json")
@@ -857,13 +944,10 @@ python image_combine_spdx() {
             comment="Runtime dependencies for %s" % name
         )
 
-    image_spdx_path = imgdeploydir / (image_name + ".spdx.json")
+    image_spdx_path = rootfs_deploydir / (rootfs_name + ".spdx.json")
 
     with image_spdx_path.open("wb") as f:
-        doc.to_json(f, sort_keys=True)
-
-    image_spdx_link = imgdeploydir / (image_link_name + ".spdx.json")
-    image_spdx_link.symlink_to(os.path.relpath(image_spdx_path, image_spdx_link.parent))
+        doc.to_json(f, sort_keys=True, indent=get_json_indent(d))
 
     num_threads = int(d.getVar("BB_NUMBER_THREADS"))
 
@@ -871,7 +955,7 @@ python image_combine_spdx() {
 
     index = {"documents": []}
 
-    spdx_tar_path = imgdeploydir / (image_name + ".spdx.tar.zst")
+    spdx_tar_path = rootfs_deploydir / (rootfs_name + ".spdx.tar.zst")
     with bb.compress.zstd.open(spdx_tar_path, "w", num_threads=num_threads) as f:
         with tarfile.open(fileobj=f, mode="w|") as tar:
             def collect_spdx_document(path):
@@ -921,7 +1005,11 @@ python image_combine_spdx() {
 
             index["documents"].sort(key=lambda x: x["filename"])
 
-            index_str = io.BytesIO(json.dumps(index, sort_keys=True).encode("utf-8"))
+            index_str = io.BytesIO(json.dumps(
+                index,
+                sort_keys=True,
+                indent=get_json_indent(d),
+            ).encode("utf-8"))
 
             info = tarfile.TarInfo()
             info.name = "index.json"
@@ -933,16 +1021,6 @@ python image_combine_spdx() {
 
             tar.addfile(info, fileobj=index_str)
 
-    def make_image_link(target_path, suffix):
-        link = imgdeploydir / (image_link_name + suffix)
-        link.symlink_to(os.path.relpath(target_path, link.parent))
-
-    make_image_link(spdx_tar_path, ".spdx.tar.zst")
-
-    spdx_index_path = imgdeploydir / (image_name + ".spdx.index.json")
+    spdx_index_path = rootfs_deploydir / (rootfs_name + ".spdx.index.json")
     with spdx_index_path.open("w") as f:
-        json.dump(index, f, sort_keys=True)
-
-    make_image_link(spdx_index_path, ".spdx.index.json")
-}
-
+        json.dump(index, f, sort_keys=True, indent=get_json_indent(d))

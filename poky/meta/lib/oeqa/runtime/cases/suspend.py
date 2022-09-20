@@ -1,3 +1,8 @@
+#
+# Copyright OpenEmbedded Contributors
+#
+# SPDX-License-Identifier: MIT
+#
 from oeqa.runtime.case import OERuntimeTestCase
 from oeqa.core.decorator.depends import OETestDepends
 from oeqa.core.decorator.data import skipIfQemu
@@ -23,7 +28,7 @@ class Suspend_Test(OERuntimeTestCase):
         (status, output) = self.target.run('sudo rtcwake -m mem -s 10')
         self.assertEqual(status, 0,  msg = 'Failed to suspends your system to RAM, output : %s' % output)
     
-    @skipIfQemu('qemuall', 'Test only runs on real hardware')
+    @skipIfQemu()
     @OETestDepends(['ssh.SSHTest.test_ssh'])
     def test_suspend(self):
         self.test_date()

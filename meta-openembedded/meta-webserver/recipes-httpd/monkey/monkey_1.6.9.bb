@@ -8,6 +8,7 @@ LIC_FILES_CHKSUM = "file://LICENSE;md5=2ee41112a44fe7014dce33e26468ba93"
 SECTION = "net"
 
 SRC_URI = "http://monkey-project.com/releases/1.6/monkey-${PV}.tar.gz \
+           file://0001-fastcgi-Use-value-instead-of-address-of-sin6_port.patch \
            file://monkey.service \
            file://monkey.init"
 
@@ -17,7 +18,7 @@ UPSTREAM_CHECK_URI = "https://github.com/monkey/monkey/releases"
 UPSTREAM_CHECK_REGEX = "v(?P<pver>\d+(\.\d+)+).tar.gz"
 
 EXTRA_OECMAKE = "-DINSTALL_LOGDIR=${localstatedir}/log/monkey/ \
-                 -DPID_FILE=${localstatedir}/run/monkey.pid \
+                 -DPID_FILE=/run/monkey.pid \
                  -DINSTALL_SYSCONFDIR=${sysconfdir}/monkey/ \
                  -DWITH_PLUGINS=* \
                  -DWITHOUT_PLUGINS=mbedtls \
@@ -38,10 +39,18 @@ inherit cmake pkgconfig update-rc.d systemd
 OECMAKE_GENERATOR = "Unix Makefiles"
 
 do_install:append() {
-    rm -rf ${D}/run
-    rm -rf ${D}${localstatedir}/run
+    rmdir ${D}${localstatedir}/log/${BPN} ${D}${localstatedir}/run ${D}${localstatedir}/log
+    rmdir --ignore-fail-on-non-empty ${D}${localstatedir}
     install -Dm 0755 ${WORKDIR}/monkey.init ${D}${sysconfdir}/init.d/monkey
-
+    # Create /var/log/monkey in runtime.
+    if [ "${@bb.utils.filter('DISTRO_FEATURES', 'systemd', d)}" ]; then
+        install -d ${D}${nonarch_libdir}/tmpfiles.d
+        echo "d ${localstatedir}/log/${BPN} 0755 ${BPN} ${BPN} -" > ${D}${nonarch_libdir}/tmpfiles.d/${BPN}.conf
+    fi
+    if [ "${@bb.utils.filter('DISTRO_FEATURES', 'sysvinit', d)}" ]; then
+        install -d ${D}${sysconfdir}/default/volatiles
+        echo "d ${BPN} ${BPN} 0755 ${localstatedir}/log/${BPN} none" > ${D}${sysconfdir}/default/volatiles/99_${BPN}
+    fi
     if ${@bb.utils.contains('DISTRO_FEATURES','systemd','true','false',d)}; then
         install -Dm 644 ${WORKDIR}/monkey.service ${D}/${systemd_unitdir}/system/monkey.service
     fi
@@ -56,8 +65,7 @@ PACKAGES += "${PN}-plugins"
 
 FILES:${PN}-plugins = "${libdir}/monkey-*.so"
 
-FILES:${PN} += "${localstatedir}/www/monkey/ /run"
-
+FILES:${PN} += "${nonarch_libdir}/tmpfiles.d"
 
 CONFFILES:${PN} = "${sysconfdir}/monkey/monkey.conf \
                    ${sysconfdir}/monkey/sites/default \

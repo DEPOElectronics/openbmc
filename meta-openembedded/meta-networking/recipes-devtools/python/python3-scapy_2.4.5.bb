@@ -9,7 +9,7 @@ well at a lot of other specific tasks that most other tools can't handle, like \
 sending invalid frames, injecting your own 802.11 frames, combining technics \
 (VLAN hopping+ARP cache poisoning, VOIP decoding on WEP encrypted channel, ...), etc."
 SECTION = "security"
-LICENSE = "GPLv2"
+LICENSE = "GPL-2.0-only"
 
 LIC_FILES_CHKSUM = "file://LICENSE;md5=b234ee4d69f5fce4486a80fdaf4a4263"
 
@@ -17,7 +17,7 @@ LIC_FILES_CHKSUM = "file://LICENSE;md5=b234ee4d69f5fce4486a80fdaf4a4263"
 # UTscapy does not exist in the pypi pkg
 #
 SRCREV = "32cd7eb0f620d9adf171c48d55514e8326a538d7"
-SRC_URI = "git://github.com/secdev/scapy.git \
+SRC_URI = "git://github.com/secdev/scapy.git;branch=master;protocol=https \
            file://run-ptest"
 
 S = "${WORKDIR}/git"
@@ -38,4 +38,4 @@ do_install_ptest() {
 
 RDEPENDS:${PN} = "tcpdump ${PYTHON_PN}-compression ${PYTHON_PN}-cryptography ${PYTHON_PN}-netclient  \
                   ${PYTHON_PN}-netserver ${PYTHON_PN}-pydoc ${PYTHON_PN}-pkgutil ${PYTHON_PN}-shell \
-                  ${PYTHON_PN}-threading ${PYTHON_PN}-numbers ${PYTHON_PN}-pycrypto"
+                  ${PYTHON_PN}-threading ${PYTHON_PN}-numbers"

@@ -37,30 +37,21 @@ Supported Linux Distributions
 Currently, the Yocto Project is supported on the following
 distributions:
 
--  Ubuntu 16.04 (LTS)
-
 -  Ubuntu 18.04 (LTS)
 
 -  Ubuntu 20.04 (LTS)
 
--  Fedora 30
+-  Fedora 34
 
--  Fedora 31
+-  Fedora 35
 
--  Fedora 32
-
--  CentOS 7.x
-
--  CentOS 8.x
-
--  Debian GNU/Linux 8.x (Jessie)
-
--  Debian GNU/Linux 9.x (Stretch)
+-  AlmaLinux 8.5
 
 -  Debian GNU/Linux 10.x (Buster)
 
--  openSUSE Leap 15.1
+-  Debian GNU/Linux 11.x (Bullseye)
 
+-  OpenSUSE Leap 15.3
 
 .. note::
 
@@ -120,30 +111,18 @@ supported Ubuntu or Debian Linux distribution:
       its own custom ``/usr/include/linux/soundcard.h`` on the Debian
       system. If you run into this situation, try either of these solutions::
 
-         $ sudo apt-get build-dep qemu
-         $ sudo apt-get remove oss4-dev
-
-   -  For Debian-8, ``python3-git`` and ``pylint3`` are no longer
-      available via ``apt-get``.
-      ::
-
-         $ sudo pip3 install GitPython pylint==1.9.5
+         $ sudo apt build-dep qemu
+         $ sudo apt remove oss4-dev
 
 -  *Essentials:* Packages needed to build an image on a headless system::
 
-      $ sudo apt-get install &UBUNTU_HOST_PACKAGES_ESSENTIAL;
+      $ sudo apt install &UBUNTU_HOST_PACKAGES_ESSENTIAL;
 
 -  *Documentation:* Packages needed if you are going to build out the
    Yocto Project documentation manuals::
 
-      $ sudo apt-get install make python3-pip
+      $ sudo apt install make python3-pip inkscape texlive-latex-extra
       &PIP3_HOST_PACKAGES_DOC;
-
-   .. note::
-
-      It is currently not possible to build out documentation from Debian 8
-      (Jessie) because of outdated ``pip3`` and ``python3``. ``python3-sphinx``
-      is too outdated.
 
 Fedora Packages
 ---------------
@@ -159,7 +138,7 @@ supported Fedora Linux distribution:
 -  *Documentation:* Packages needed if you are going to build out the
    Yocto Project documentation manuals::
 
-      $ sudo dnf install make python3-pip which
+      $ sudo dnf install make python3-pip which inkscape texlive-fncychap
       &PIP3_HOST_PACKAGES_DOC;
 
 openSUSE Packages
@@ -176,42 +155,15 @@ supported openSUSE Linux distribution:
 -  *Documentation:* Packages needed if you are going to build out the
    Yocto Project documentation manuals::
 
-      $ sudo zypper install make python3-pip which
+      $ sudo zypper install make python3-pip which inkscape texlive-fncychap
       &PIP3_HOST_PACKAGES_DOC;
 
 
-CentOS-7 Packages
------------------
+AlmaLinux-8 Packages
+--------------------
 
 Here are the required packages by function given a
-supported CentOS-7 Linux distribution:
-
--  *Essentials:* Packages needed to build an image for a headless
-   system::
-
-      $ sudo yum install &CENTOS7_HOST_PACKAGES_ESSENTIAL;
-
-   .. note::
-
-      -  Extra Packages for Enterprise Linux (i.e. ``epel-release``) is
-         a collection of packages from Fedora built on RHEL/CentOS for
-         easy installation of packages not included in enterprise Linux
-         by default. You need to install these packages separately.
-
-      -  The ``makecache`` command consumes additional Metadata from
-         ``epel-release``.
-
--  *Documentation:* Packages needed if you are going to build out the
-   Yocto Project documentation manuals::
-
-      $ sudo yum install make python3-pip which
-      &PIP3_HOST_PACKAGES_DOC;
-
-CentOS-8 Packages
------------------
-
-Here are the required packages by function given a
-supported CentOS-8 Linux distribution:
+supported AlmaLinux-8 Linux distribution:
 
 -  *Essentials:* Packages needed to build an image for a headless
    system::
@@ -234,11 +186,11 @@ supported CentOS-8 Linux distribution:
 -  *Documentation:* Packages needed if you are going to build out the
    Yocto Project documentation manuals::
 
-      $ sudo dnf install make python3-pip which
+      $ sudo dnf install make python3-pip which inkscape texlive-fncychap
       &PIP3_HOST_PACKAGES_DOC;
 
-Required Git, tar, Python and gcc Versions
-==========================================
+Required Git, tar, Python, make and gcc Versions
+================================================
 
 In order to use the build system, your host development system must meet
 the following version requirements for Git, tar, and Python:
@@ -248,6 +200,8 @@ the following version requirements for Git, tar, and Python:
 -  tar &MIN_TAR_VERSION; or greater
 
 -  Python &MIN_PYTHON_VERSION; or greater
+
+-  GNU make &MIN_MAKE_VERSION; or greater
 
 If your host development system does not meet all these requirements,
 you can resolve this by installing a ``buildtools`` tarball that
@@ -323,7 +277,7 @@ If you would prefer not to use the ``install-buildtools`` script, you can instea
 download and run a pre-built buildtools installer yourself with the following
 steps:
 
-1. Locate and download the ``*.sh`` at &YOCTO_RELEASE_DL_URL;/buildtools/
+1. Locate and download the ``*.sh`` at :yocto_dl:`/releases/yocto/yocto-&DISTRO;/buildtools/`
 
 2. Execute the installation script. Here is an example for the
    traditional installer::

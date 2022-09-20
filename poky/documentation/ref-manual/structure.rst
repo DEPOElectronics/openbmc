@@ -213,8 +213,8 @@ These files are standard top-level files.
 
 .. _structure-build:
 
-The Build Directory - ``build/``
-================================
+The Build Directory --- ``build/``
+==================================
 
 The OpenEmbedded build system creates the :term:`Build Directory`
 when you run the build environment setup
@@ -231,7 +231,7 @@ is available via the :term:`TOPDIR` variable.
 -----------------------
 
 The OpenEmbedded build system creates this directory when you enable
-build history via the ``buildhistory`` class file. The directory
+build history via the :ref:`buildhistory <ref-classes-buildhistory>` class file. The directory
 organizes build information into image, packages, and SDK
 subdirectories. For information on the build history feature, see the
 ":ref:`dev-manual/common-tasks:maintaining build output quality`"
@@ -261,7 +261,7 @@ OpenEmbedded build system creates it from ``local.conf.sample`` when you
 :ref:`structure-core-script`.
 
 The source ``local.conf.sample`` file used depends on the
-``$TEMPLATECONF`` script variable, which defaults to ``meta-poky/conf/``
+:term:`TEMPLATECONF` script variable, which defaults to ``meta-poky/conf/``
 when you are building from the Yocto Project development environment,
 and to ``meta/conf/`` when you are building from the OpenEmbedded-Core
 environment. Because the script variable points to the source of the
@@ -278,7 +278,7 @@ file, it uses ``sed`` to substitute final
 
 .. note::
 
-   You can see how the ``TEMPLATECONF`` variable is used by looking at the
+   You can see how the :term:`TEMPLATECONF` variable is used by looking at the
    ``scripts/oe-setup-builddir`` script in the :term:`Source Directory`.
    You can find the Yocto Project version of the ``local.conf.sample`` file in
    the ``meta-poky/conf`` directory.
@@ -300,7 +300,7 @@ you ``source`` the top-level build environment setup script (i.e.
 :ref:`structure-core-script`).
 
 As with the ``local.conf`` file, the source ``bblayers.conf.sample``
-file used depends on the ``$TEMPLATECONF`` script variable, which
+file used depends on the :term:`TEMPLATECONF` script variable, which
 defaults to ``meta-poky/conf/`` when you are building from the Yocto
 Project development environment, and to ``meta/conf/`` when you are
 building from the OpenEmbedded-Core environment. Because the script
@@ -315,7 +315,7 @@ Once the build process gets the sample file, it uses ``sed`` to substitute final
 
 .. note::
 
-   You can see how the ``TEMPLATECONF`` variable ``scripts/oe-setup-builddir``
+   You can see how the :term:`TEMPLATECONF` variable is defined by the ``scripts/oe-setup-builddir``
    script in the :term:`Source Directory`. You can find the Yocto Project
    version of the ``bblayers.conf.sample`` file in the ``meta-poky/conf/``
    directory.
@@ -589,7 +589,7 @@ install" places its output that is then split into sub-packages within
 ``build/tmp/work/tunearch/recipename/version/``
 -----------------------------------------------
 
-The recipe work directory - ``${WORKDIR}``.
+The recipe work directory --- ``${WORKDIR}``.
 
 As described earlier in the
 ":ref:`structure-build-tmp-sysroots`" section,
@@ -654,8 +654,8 @@ recipes. In practice, this is only used for ``gcc`` and its variants
 
 .. _structure-meta:
 
-The Metadata - ``meta/``
-========================
+The Metadata --- ``meta/``
+==========================
 
 As mentioned previously, :term:`Metadata` is the core of the
 Yocto Project. Metadata has several important subdivisions:
@@ -667,16 +667,17 @@ Yocto Project. Metadata has several important subdivisions:
 
 This directory contains the ``*.bbclass`` files. Class files are used to
 abstract common code so it can be reused by multiple packages. Every
-package inherits the ``base.bbclass`` file. Examples of other important
-classes are ``autotools.bbclass``, which in theory allows any
+package inherits the :ref:`ref-classes-base` file. Examples of other important
+classes are :ref:`ref-classes-autotools`, which in theory allows any
 Autotool-enabled package to work with the Yocto Project with minimal
-effort. Another example is ``kernel.bbclass`` that contains common code
+effort. Another example is :ref:`ref-classes-kernel` that contains common code
 and functions for working with the Linux kernel. Functions like image
 generation or packaging also have their specific class files such as
-``image.bbclass``, ``rootfs_*.bbclass`` and ``package*.bbclass``.
+:ref:`ref-classes-image`, :ref:`ref-classes-rootfs*` and
+:ref:`package*.bbclass <ref-classes-package>`.
 
 For reference information on classes, see the
-":ref:`ref-manual/classes:Classes`" chapter.
+":doc:`/ref-manual/classes`" chapter.
 
 .. _structure-meta-conf:
 

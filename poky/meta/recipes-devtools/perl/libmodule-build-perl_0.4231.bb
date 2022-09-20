@@ -10,7 +10,7 @@ SECTION = "libs"
 
 HOMEPAGE = "https://metacpan.org/release/Module-Build"
 
-LICENSE = "Artistic-1.0 | GPL-1.0+"
+LICENSE = "Artistic-1.0 | GPL-1.0-or-later"
 LIC_FILES_CHKSUM = "file://README;beginline=949;endline=954;md5=624c06db56a2af4d70cf9edc29fcae1b"
 
 SRC_URI = "${CPAN_MIRROR}/authors/id/L/LE/LEONT/Module-Build-${PV}.tar.gz \
@@ -37,6 +37,7 @@ EXTRA_CPAN_BUILD_FLAGS = "--create_packlist=0"
 
 do_install:append () {
         rm -rf ${D}${docdir}/perl/html
+        sed -i "s:^#!.*:#!/usr/bin/env perl:" ${D}${bindir}/config_data
 }
 
 do_install_ptest() {

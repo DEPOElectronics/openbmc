@@ -20,6 +20,7 @@ import itertools
 import time
 import re
 import stat
+import datetime
 import bb
 import bb.msg
 import bb.process
@@ -569,7 +570,6 @@ exit $ret
 def _task_data(fn, task, d):
     localdata = bb.data.createCopy(d)
     localdata.setVar('BB_FILENAME', fn)
-    localdata.setVar('BB_CURRENTTASK', task[3:])
     localdata.setVar('OVERRIDES', 'task-%s:%s' %
                      (task[3:].replace('_', '-'), d.getVar('OVERRIDES', False)))
     localdata.finalize()
@@ -583,7 +583,7 @@ def _exec_task(fn, task, d, quieterr):
     running it with its own local metadata, and with some useful variables set.
     """
     if not d.getVarFlag(task, 'task', False):
-        event.fire(TaskInvalid(task, d), d)
+        event.fire(TaskInvalid(task, fn, d), d)
         logger.error("No such task: %s" % task)
         return 1
 
@@ -619,7 +619,8 @@ def _exec_task(fn, task, d, quieterr):
     logorder = os.path.join(tempdir, 'log.task_order')
     try:
         with open(logorder, 'a') as logorderfile:
-            logorderfile.write('{0} ({1}): {2}\n'.format(task, os.getpid(), logbase))
+            timestamp = datetime.datetime.now().strftime("%Y%m%d-%H%M%S.%f")
+            logorderfile.write('{0} {1} ({2}): {3}\n'.format(timestamp, task, os.getpid(), logbase))
     except OSError:
         logger.exception("Opening log file '%s'", logorder)
         pass
@@ -715,19 +716,23 @@ def _exec_task(fn, task, d, quieterr):
                 logger.debug2("Zero size logfn %s, removing", logfn)
                 bb.utils.remove(logfn)
                 bb.utils.remove(loglink)
-    except bb.BBHandledException:
-        event.fire(TaskFailed(task, fn, logfn, localdata, True), localdata)
-        return 1
     except (Exception, SystemExit) as exc:
+        handled = False
+        if isinstance(exc, bb.BBHandledException):
+            handled = True
+
         if quieterr:
+            if not handled:
+                logger.warning(repr(exc))
             event.fire(TaskFailedSilent(task, fn, logfn, localdata), localdata)
         else:
             errprinted = errchk.triggered
             # If the output is already on stdout, we've printed the information in the
             # logs once already so don't duplicate
-            if verboseStdoutLogging:
+            if verboseStdoutLogging or handled:
                 errprinted = True
-            logger.error(repr(exc))
+            if not handled:
+                logger.error(repr(exc))
             event.fire(TaskFailed(task, fn, logfn, localdata, errprinted), localdata)
         return 1
 
@@ -832,11 +837,7 @@ def stamp_cleanmask_internal(taskname, d, file_name):
 
     return [cleanmask, cleanmask.replace(taskflagname, taskflagname + "_setscene")]
 
-def make_stamp(task, d, file_name = None):
-    """
-    Creates/updates a stamp for a given task
-    (d can be a data dict or dataCache)
-    """
+def clean_stamp(task, d, file_name = None):
     cleanmask = stamp_cleanmask_internal(task, d, file_name)
     for mask in cleanmask:
         for name in glob.glob(mask):
@@ -847,6 +848,14 @@ def make_stamp(task, d, file_name = None):
             if name.endswith('.taint'):
                 continue
             os.unlink(name)
+    return
+
+def make_stamp(task, d, file_name = None):
+    """
+    Creates/updates a stamp for a given task
+    (d can be a data dict or dataCache)
+    """
+    clean_stamp(task, d, file_name)
 
     stamp = stamp_internal(task, d, file_name)
     # Remove the file and recreate to force timestamp

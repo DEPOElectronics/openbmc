@@ -4,14 +4,14 @@ Raspberry PI implementation and is quite handy to use standalone"
 HOMEPAGE = "https://github.com/popcornmix/omxplayer"
 SECTION = "console/utils"
 
-LICENSE = "GPLv2"
+LICENSE = "GPL-2.0-only"
 LIC_FILES_CHKSUM = "file://COPYING;md5=00a27da7ac0f9bcd17320ec29ef4bbf6"
 
-DEPENDS = "libpcre libav virtual/egl boost freetype dbus openssl libssh virtual/libomxil coreutils-native curl-native userland"
+DEPENDS = "alsa-lib libpcre virtual/egl boost freetype dbus openssl libssh virtual/libomxil coreutils-native curl-native userland"
 
-PR = "r5"
+PR = "r6"
 
-SRCREV_default = "f543a0d0e707ab56415f17b0ca6d397394ee8b63"
+SRCREV_default = "1f1d0ccd65d3a1caa86dc79d2863a8f067c8e3f8"
 
 # omxplayer builds its own copy of ffmpeg from source instead of using the
 # system's ffmpeg library. This isn't ideal but it's ok for now. We do however
@@ -22,8 +22,8 @@ SRCREV_default = "f543a0d0e707ab56415f17b0ca6d397394ee8b63"
 # This SRCREV corresponds to the v4.0.3 release of ffmpeg.
 SRCREV_ffmpeg = "fcbd117df3077bad495e99e20f01cf93737bce76"
 
-SRC_URI = "git://github.com/popcornmix/omxplayer.git;protocol=git;branch=master \
-           git://github.com/FFmpeg/FFmpeg;branch=release/4.0;protocol=git;depth=1;name=ffmpeg;destsuffix=git/ffmpeg \
+SRC_URI = "git://github.com/popcornmix/omxplayer.git;protocol=https;branch=master \
+           git://github.com/FFmpeg/FFmpeg;branch=release/4.0;protocol=https;depth=1;name=ffmpeg;destsuffix=git/ffmpeg \
            file://0002-Libraries-and-headers-from-ffmpeg-are-installed-in-u.patch \
            file://0003-Remove-strip-step-in-Makefile.patch \
            file://0004-Add-FFMPEG_EXTRA_CFLAGS-and-FFMPEG_EXTRA_LDFLAGS.patch \
@@ -83,6 +83,8 @@ export INCLUDES = "${@bb.utils.contains("MACHINE_FEATURES", "vc4graphics", " -D_
 export DIST = "${D}"
 
 do_compile() {
+    bbwarn "omxplayer is being deprecated and resources are directed at improving vlc."
+
     # Needed for compiler test in ffmpeg's configure
     mkdir -p tmp
 

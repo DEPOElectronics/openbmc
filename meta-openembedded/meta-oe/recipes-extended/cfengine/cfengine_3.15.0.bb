@@ -10,7 +10,9 @@ its lifecycle. CFEngine takes systems from Build to Deploy, Manage and Audit."
 
 HOMEPAGE = "http://cfengine.com"
 
-LICENSE = "GPLv3"
+SKIP_RECIPE[cfengine] ?= "Needs porting to openssl 3.x"
+
+LICENSE = "GPL-3.0-only"
 LIC_FILES_CHKSUM = "file://LICENSE;md5=233aa25e53983237cf0bd4c238af255f"
 
 DEPENDS = "attr tokyocabinet bison-native"

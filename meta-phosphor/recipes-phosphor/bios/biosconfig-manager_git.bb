@@ -12,8 +12,8 @@ PV = "1.0+git${SRCPV}"
 LICENSE = "Apache-2.0"
 LIC_FILES_CHKSUM = "file://LICENSE;md5=bcd9ada3a943f58551867d72893cc9ab"
 
-SRC_URI = "git://github.com/openbmc/bios-settings-mgr"
-SRCREV = "47453d77c728c297a665866c570c2d5fb356abb2"
+SRC_URI = "git://github.com/openbmc/bios-settings-mgr;branch=master;protocol=https"
+SRCREV = "36cd3238d75c5f3479a944a2f1a9a3abc316120a"
 
 inherit meson pkgconfig systemd
 
@@ -22,6 +22,7 @@ SYSTEMD_SERVICE:${PN} = "xyz.openbmc_project.biosconfig_manager.service \
                          xyz.openbmc_project.biosconfig_password.service"
 
 DEPENDS = " boost \
+            openssl \
             phosphor-dbus-interfaces \
             phosphor-logging \
             sdbusplus \

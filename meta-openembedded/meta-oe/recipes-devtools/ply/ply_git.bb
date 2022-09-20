@@ -1,14 +1,14 @@
 SUMMARY = "Ply: A light-weight dynamic tracer for eBPF"
 HOMEPAGE = "https://github.com/iovisor/ply"
-LICENSE = "GPLv2"
+LICENSE = "GPL-2.0-only"
 LIC_FILES_CHKSUM = "file://COPYING;md5=b234ee4d69f5fce4486a80fdaf4a4263"
 
 DEPENDS += "bison-native"
 
-PV = "2.1.1+git${SRCPV}"
+PV = "2.2.0"
 
-SRC_URI = "git://github.com/iovisor/ply"
-SRCREV = "e25c9134b856cc7ffe9f562ff95caf9487d16b59"
+SRC_URI = "git://github.com/iovisor/ply;branch=master;protocol=https"
+SRCREV = "771c32b299355fb31fc296110e90ae0166409b95"
 
 S = "${WORKDIR}/git"
 

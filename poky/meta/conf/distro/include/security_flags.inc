@@ -1,6 +1,6 @@
 # Setup extra CFLAGS and LDFLAGS which have 'security' benefits. These
 # don't work universally, there are recipes which can't use one, the other
-# or both so a blacklist is maintained here. The idea would be over
+# or both so an override is maintained here. The idea would be over
 # time to reduce this list to nothing.
 # From a Yocto Project perspective, this file is included and tested
 # in the DISTRO="poky" configuration.
@@ -61,6 +61,7 @@ TARGET_LDFLAGS:append:class-cross-canadian = " ${SECURITY_LDFLAGS}"
 SECURITY_STACK_PROTECTOR:pn-gcc-runtime = ""
 SECURITY_STACK_PROTECTOR:pn-glibc = ""
 SECURITY_STACK_PROTECTOR:pn-glibc-testsuite = ""
+SECURITY_STACK_PROTECTOR:pn-ltp = ""
 # All xorg module drivers need to be linked this way as well and are
 # handled in recipes-graphics/xorg-driver/xorg-driver-common.inc
 SECURITY_LDFLAGS:pn-xserver-xorg = "${SECURITY_X_LDFLAGS}"

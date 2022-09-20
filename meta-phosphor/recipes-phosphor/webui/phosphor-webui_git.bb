@@ -5,8 +5,8 @@ PV = "1.0+git${SRCPV}"
 LICENSE = "Apache-2.0"
 LIC_FILES_CHKSUM = "file://LICENSE;md5=e3fc50a88d0a364313df4b21ef20c29e"
 
-SRC_URI = "git://github.com/openbmc/phosphor-webui.git"
-SRCREV = "f59274e8ec337e7f4b135726d6b846fb813d60cb"
+SRC_URI = "git://github.com/openbmc/phosphor-webui.git;branch=master;protocol=https"
+SRCREV = "e16bb5c35893591eab048ae4ef646a9e5e2f7e94"
 S = "${WORKDIR}/git"
 
 DEPENDS:prepend = "nodejs-native "
@@ -16,6 +16,7 @@ inherit allarch
 FILES:${PN} += "${datadir}/www/*"
 
 do_compile () {
+    bbwarn "phosphor-webui is deprecated and has been replaced with webui-vue"
     cd ${S}
     rm -rf node_modules
     npm --loglevel info --proxy=${http_proxy} --https-proxy=${https_proxy} install

@@ -9,18 +9,21 @@ LIC_FILES_CHKSUM = "file://LICENSE;md5=3b83ef96387f14655fc854ddc3c6bd57"
 inherit meson pkgconfig
 
 DEPENDS += " \
-    openssl \
-    glib-2.0 \
-    "
+  openssl \
+  glome-config \
+  "
 
 S = "${WORKDIR}/git"
-SRC_URI = "git://github.com/google/glome.git"
-SRCREV = "02f7d2722a2eb303f1f02d0c2ce97a65f8273662"
-
-FILES_${PN} += "${libdir}/security"
+SRC_URI = "git://github.com/google/glome.git;branch=master;protocol=https"
+SRCREV = "978ad9fb165f1e382c875f2ce08a1fc4f2ddcf1b"
 
 PACKAGECONFIG ??= ""
 PACKAGECONFIG[glome-cli] = "-Dglome-cli=true,-Dglome-cli=false"
 PACKAGECONFIG[pam-glome] = "-Dpam-glome=true,-Dpam-glome=false,libpam"
 
-EXTRA_OEMESON = "-Dtests=disabled"
+EXTRA_OEMESON = "-Dtests=false"
+
+# remove the default glome config so it can be overridden by `glome-config`
+do_install:append() {
+  rm -f ${D}${sysconfdir}/glome/config
+}

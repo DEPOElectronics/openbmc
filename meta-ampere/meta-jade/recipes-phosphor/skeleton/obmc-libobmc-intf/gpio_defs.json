@@ -4,6 +4,7 @@
         "power_config": {
             "power_good_in": "PGOOD",
             "power_up_outs": [
+               {"name": "OCP_MAIN_PWREN", "polarity": true},
                {"name": "BMC_SYS_PSON_L", "polarity": false}
             ],
             "reset_outs": [
@@ -25,6 +26,11 @@
             "direction": "out"
         },
         {
+            "name": "OCP_MAIN_PWREN",
+            "pin": "R4",
+            "direction": "out"
+        },
+        {
             "name": "BMC_S0_SYSRESET_L",
             "pin": "L3",
             "direction": "out"
@@ -42,6 +48,11 @@
         {
             "name": "RESET_BUTTON",
             "pin": "R5",
+            "direction": "both"
+        },
+        {
+            "name": "ID_BTN",
+            "pin": "Q5",
             "direction": "both"
         }
     ]

@@ -1,4 +1,5 @@
 require u-boot-common-aspeed-sdk_${PV}.inc
+require recipes-bsp/u-boot/u-boot-configure.inc
 
 SUMMARY = "U-Boot bootloader fw_printenv/setenv utilities"
 DEPENDS += "mtd-utils"
@@ -6,10 +7,11 @@ DEPENDS += "mtd-utils"
 PROVIDES += "u-boot-fw-utils"
 RPROVIDES:${PN} += "u-boot-fw-utils"
 
-SRC_URI += "file://fw_env_ast2600_nor.config"
+# The 32MB NOR and 64MB NOR layouts use the same configuration
+SRC_URI += "file://fw_env_flash_nor.config"
 SRC_URI += "file://fw_env_ast2600_mmc.config"
 
-ENV_CONFIG_FILE = "fw_env_ast2600_nor.config"
+ENV_CONFIG_FILE = "fw_env_flash_nor.config"
 ENV_CONFIG_FILE:df-phosphor-mmc = "fw_env_ast2600_mmc.config"
 
 INSANE_SKIP:${PN} = "already-stripped"
@@ -19,7 +21,6 @@ EXTRA_OEMAKE:class-cross = 'HOSTCC="${CC} ${CFLAGS} ${LDFLAGS}" V=1'
 inherit uboot-config
 
 do_compile () {
-	oe_runmake -C ${S} O=${B} ${UBOOT_MACHINE}
 	oe_runmake envtools
 }
 

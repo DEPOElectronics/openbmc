@@ -1,5 +1,8 @@
 SUMMARY = "U-Boot bootloader tools"
-DEPENDS += "openssl"
+DEPENDS += "gnutls openssl util-linux swig-native"
+
+inherit python3native
+export STAGING_INCDIR="${STAGING_INCDIR_NATIVE}"
 
 PROVIDES = "${MLPREFIX}u-boot-mkimage ${MLPREFIX}u-boot-mkenvimage"
 PROVIDES:class-native = "u-boot-mkimage-native u-boot-mkenvimage-native"
@@ -38,7 +41,7 @@ do_compile () {
 	# (i.e. creating a hardlink dirties the index)
 	cd ${S}; git diff; cd ${B}
 
-	oe_runmake -C ${S} sandbox_defconfig O=${B}
+	oe_runmake -C ${S} tools-only_defconfig O=${B}
 
 	# Disable CONFIG_CMD_LICENSE, license.h is not used by tools and
 	# generating it requires bin2header tool, which for target build

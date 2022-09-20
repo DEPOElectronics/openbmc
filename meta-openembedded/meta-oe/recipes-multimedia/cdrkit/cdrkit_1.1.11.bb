@@ -1,7 +1,7 @@
 SUMMARY = "CD/DVD command line tools"
 HOMEPAGE = "http://cdrkit.org/"
 
-LICENSE = "GPLv2"
+LICENSE = "GPL-2.0-only"
 LIC_FILES_CHKSUM = "file://COPYING;md5=b30d3b2750b668133fc17b401e1b98f8"
 
 # While writing download from cdrkit.org was broken so get sources from debian
@@ -11,6 +11,7 @@ SRC_URI = "${DEBIAN_MIRROR}/main/c/${BPN}/${BPN}_${PV}.orig.tar.gz \
            file://0001-define-__THROW-to-avoid-build-issue-with-musl.patch \
            file://0002-Do-not-use-rcmd-on-build-with-musl.patch \
            file://0001-genisoimage-Add-missing-extern-definition.patch \
+           file://0001-add-new-option-eltorito-platform.patch \
            "
 SRC_URI:append:class-nativesdk = " \
            file://0001-install-netscsid-to-bin-for-nativesdk.patch \
@@ -22,6 +23,8 @@ inherit cmake
 
 DEPENDS = "libcap file bzip2"
 RDEPENDS:dirsplit = "perl"
+
+RDEPENDS:${PN}-dev = ""
 
 PACKAGES =+ "dirsplit genisoimage icedax wodim"
 

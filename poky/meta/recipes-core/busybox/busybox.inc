@@ -7,7 +7,7 @@ DEPENDS += "kern-tools-native virtual/crypt"
 
 # bzip2 applet in busybox is based on lightly-modified bzip2-1.0.4 source
 # the GPL is version 2 only
-LICENSE = "GPLv2 & bzip2-1.0.4"
+LICENSE = "GPL-2.0-only & bzip2-1.0.4"
 LIC_FILES_CHKSUM = "file://LICENSE;md5=de10de48642ab74318e893a61105afbb \
                     file://archival/libarchive/bz/LICENSE;md5=28e3301eae987e8cfe19988e98383dae"
 
@@ -110,9 +110,8 @@ python () {
 }
 
 do_prepare_config () {
-	if [ "${BUILD_REPRODUCIBLE_BINARIES}" = "1" ]; then
-		export KCONFIG_NOTIMESTAMP=1
-	fi
+	export KCONFIG_NOTIMESTAMP=1
+
 	sed -e '/CONFIG_STATIC/d' \
 		< ${WORKDIR}/defconfig > ${S}/.config
 	echo "# CONFIG_STATIC is not set" >> .config
@@ -143,9 +142,8 @@ do_configure () {
 
 do_compile() {
 	unset CFLAGS CPPFLAGS CXXFLAGS LDFLAGS
-	if [ "${BUILD_REPRODUCIBLE_BINARIES}" = "1" ]; then
-		export KCONFIG_NOTIMESTAMP=1
-	fi
+	export KCONFIG_NOTIMESTAMP=1
+
 	if [ "${BUSYBOX_SPLIT_SUID}" = "1" -a x`grep "CONFIG_FEATURE_INDIVIDUAL=y" .config` = x ]; then
 		# split the .config into two parts, and make two busybox binaries
 		if [ -e .config.orig ]; then
@@ -349,7 +347,7 @@ do_install_ptest () {
         # These access the internet which is not guaranteed to work on machines running the tests
         rm -rf ${D}${PTEST_PATH}/testsuite/wget
 	sort ${B}/.config > ${D}${PTEST_PATH}/.config
-	ln -s /bin/busybox   ${D}${PTEST_PATH}/busybox
+	ln -s ${base_bindir}/busybox   ${D}${PTEST_PATH}/busybox
 }
 
 inherit update-alternatives

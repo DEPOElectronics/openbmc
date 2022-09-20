@@ -18,7 +18,7 @@ SERIAL_CONSOLES ?= "115200;ttyS0"
 # kernel-related variables
 #
 PREFERRED_PROVIDER_virtual/kernel ??= "linux-yocto"
-PREFERRED_VERSION_linux-yocto ??= "5.14%"
+PREFERRED_VERSION_linux-yocto ??= "5.19%"
 
 #
 # XSERVER subcomponents, used to build the XSERVER variable
@@ -36,7 +36,7 @@ XSERVER_X86_I915 = "xf86-video-intel \
            "
 
 XSERVER_X86_I965 = "xf86-video-intel \
-           ${@bb.utils.contains('DISTRO_FEATURES', 'opengl', 'mesa-driver-i965', '', d)} \
+           ${@bb.utils.contains('DISTRO_FEATURES', 'opengl', 'mesa-driver-crocus', '', d)} \
            "
 
 XSERVER_X86_VESA = "xf86-video-vesa"

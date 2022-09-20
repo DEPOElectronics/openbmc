@@ -2,12 +2,14 @@ DESCRIPTION = "GEOS - Geometry Engine, Open Source"
 HOMEPAGE = "http://trac.osgeo.org/geos/"
 SECTION = "libs"
 
-LICENSE = "LGPLv2.1+"
+LICENSE = "LGPL-2.1-or-later"
 LIC_FILES_CHKSUM = "file://COPYING;md5=4fbd65380cdd255951079008b364516c"
 
 SRC_URI = "http://download.osgeo.org/geos/geos-${PV}.tar.bz2"
 
 inherit autotools pkgconfig binconfig
+
+EXTRA_OECONF += "--enable-inline=no"
 
 PACKAGES =+ "geoslib ${PN}-c1"
 

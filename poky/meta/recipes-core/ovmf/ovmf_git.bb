@@ -15,18 +15,19 @@ PACKAGECONFIG += "${@bb.utils.contains('MACHINE_FEATURES', 'tpm2', 'tpm', '', d)
 PACKAGECONFIG[secureboot] = ",,,"
 PACKAGECONFIG[tpm] = "-D TPM_ENABLE=TRUE,-D TPM_ENABLE=FALSE,,"
 
+# GCC12 trips on it
+#see https://src.fedoraproject.org/rpms/edk2/blob/rawhide/f/0032-Basetools-turn-off-gcc12-warning.patch
+BUILD_CFLAGS += "-Wno-error=stringop-overflow"
+
 SRC_URI = "gitsm://github.com/tianocore/edk2.git;branch=master;protocol=https \
            file://0001-ovmf-update-path-to-native-BaseTools.patch \
            file://0002-BaseTools-makefile-adjust-to-build-in-under-bitbake.patch \
-           file://0003-ovmf-Update-to-latest.patch \
-           file://0004-Strip-build-paths.patch \
            file://0005-debug-prefix-map.patch \
            file://0006-reproducible.patch \
-           file://0001-Fix-VLA-parameter-warning.patch \
            "
 
-PV = "edk2-stable202105"
-SRCREV = "e1999b264f1f9d7230edf2448f757c73da567832"
+PV = "edk2-stable202205"
+SRCREV = "16779ede2d366bfc6b702e817356ccf43425bcc8"
 UPSTREAM_CHECK_GITTAGREGEX = "(?P<pver>edk2-stable.*)"
 
 inherit deploy

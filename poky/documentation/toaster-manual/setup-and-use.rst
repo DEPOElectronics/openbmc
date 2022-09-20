@@ -211,7 +211,7 @@ Be sure you meet the following requirements:
 
 -  If you are using Ubuntu, run the following::
 
-      $ sudo apt-get install apache2 libapache2-mod-wsgi-py3 mysql-server python3-pip libmysqlclient-dev
+      $ sudo apt install apache2 libapache2-mod-wsgi-py3 mysql-server python3-pip libmysqlclient-dev
 
 -  If you are using Fedora or a RedHat distribution, run the
    following::
@@ -239,7 +239,7 @@ Perform the following steps to install Toaster:
       $ git clone git://git.yoctoproject.org/poky
       $ git checkout &DISTRO_NAME_NO_CAP;
 
-#.  Install Toaster dependencies using the --user flag which keeps the
+#.  Install Toaster dependencies using the ``--user`` flag which keeps the
     Python packages isolated from your system-provided packages::
 
       $ cd /var/www/toaster/
@@ -311,7 +311,7 @@ Perform the following steps to install Toaster:
     migrations). The next line sets the Toaster root directory
     ``TOASTER_DIR`` and the location of the Toaster configuration file
     ``TOASTER_CONF``, which is relative to ``TOASTER_DIR``. The
-    ``TEMPLATECONF`` value reflects the contents of
+    :term:`TEMPLATECONF` value reflects the contents of
     ``poky/.templateconf``, and by default, should include the string
     "poky". For more information on the Toaster configuration file, see
     the ":ref:`toaster-manual/reference:Configuring Toaster`" section.

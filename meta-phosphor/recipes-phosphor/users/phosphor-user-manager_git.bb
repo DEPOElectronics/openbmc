@@ -6,10 +6,9 @@ PV = "1.0+git${SRCPV}"
 LICENSE = "Apache-2.0"
 LIC_FILES_CHKSUM = "file://LICENSE;md5=e3fc50a88d0a364313df4b21ef20c29e"
 
-inherit autotools pkgconfig
+inherit meson pkgconfig
 inherit obmc-phosphor-dbus-service
 
-DEPENDS += "autoconf-archive-native"
 DEPENDS += "sdbusplus"
 DEPENDS += "phosphor-logging"
 DEPENDS += "phosphor-dbus-interfaces"
@@ -17,6 +16,8 @@ DEPENDS += "boost"
 DEPENDS += "nss-pam-ldapd"
 DEPENDS += "systemd"
 PACKAGE_BEFORE_PN = "phosphor-ldap"
+
+EXTRA_OEMESON = "-Dtests=disabled"
 
 inherit useradd
 
@@ -29,17 +30,15 @@ GROUPADD_PARAM:phosphor-ldap = "priv-admin; priv-operator; priv-user "
 DBUS_SERVICE:${PN} += "xyz.openbmc_project.User.Manager.service"
 FILES:phosphor-ldap += " \
         ${bindir}/phosphor-ldap-conf \
-        ${bindir}/phosphor-ldap-mapper \
 "
 FILES:${PN} += " \
-        ${base_libdir}/systemd \
+        ${systemd_unitdir} \
         ${datadir}/dbus-1 \
         ${datadir}/phosphor-certificate-manager \
 "
 DBUS_SERVICE:phosphor-ldap = " \
         xyz.openbmc_project.Ldap.Config.service \
-        xyz.openbmc_project.LDAP.PrivilegeMapper.service \
 "
-SRC_URI += "git://github.com/openbmc/phosphor-user-manager"
-SRCREV = "b01e2fe760eb04ae9d0d13716a127056949e2601"
+SRC_URI += "git://github.com/openbmc/phosphor-user-manager;branch=master;protocol=https"
+SRCREV = "0076afe155adbf9f1774fafe5e190926224a650e"
 S = "${WORKDIR}/git"

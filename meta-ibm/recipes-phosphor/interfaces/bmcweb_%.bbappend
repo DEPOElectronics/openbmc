@@ -3,6 +3,19 @@ EXTRA_OEMESON:append = " \
     -Dibm-management-console=enabled \
     -Dredfish-new-powersubsystem-thermalsubsystem=enabled \
     -Dredfish-dump-log=enabled \
+    -Dredfish-oem-manager-fan-data=disabled \
+"
+
+EXTRA_OEMESON:append:p10bmc = " \
+    -Dmutual-tls-auth=disabled \
+    -Dkvm=disabled \
+    -Dvm-websocket=disabled \
+"
+
+EXTRA_OEMESON:append:witherspoon-tacoma = " \
+    -Dmutual-tls-auth=disabled \
+    -Dkvm=disabled \
+    -Dvm-websocket=disabled \
 "
 
 inherit obmc-phosphor-discovery-service

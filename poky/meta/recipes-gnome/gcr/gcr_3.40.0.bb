@@ -5,7 +5,7 @@ GNOME desktop."
 HOMEPAGE = "https://gitlab.gnome.org/GNOME/gcr"
 BUGTRACKER = "https://gitlab.gnome.org/GNOME/gcr/issues"
 
-LICENSE = "GPLv2"
+LICENSE = "GPL-2.0-only"
 LIC_FILES_CHKSUM = "file://COPYING;md5=55ca817ccb7d5b5b66355690e9abc605"
 
 DEPENDS = "p11-kit glib-2.0 libgcrypt gnupg-native \
@@ -13,15 +13,22 @@ DEPENDS = "p11-kit glib-2.0 libgcrypt gnupg-native \
 
 CACHED_CONFIGUREVARS += "ac_cv_path_GPG='gpg2'"
 
+CFLAGS += "-D_GNU_SOURCE"
+
 GNOMEBASEBUILDCLASS = "meson"
 GTKDOC_MESON_OPTION = "gtk_doc"
 inherit gnomebase gtk-icon-cache gtk-doc features_check upstream-version-is-even vala gobject-introspection gettext mime mime-xdg
+UPSTREAM_CHECK_REGEX = "[^\d\.](?P<pver>\d+\.(?!9\d+)(\d*[02468])+(\.\d+)+)\.tar"
 
-SRC_URI += "file://0001-gcr-meson.build-fix-one-parallel-build-failure.patch"
+SRC_URI += "file://0001-gcr-meson.build-fix-one-parallel-build-failure.patch \ 
+            file://b3ca1d02bb0148ca787ac4aead164d7c8ce2c4d8.patch"
 
 SRC_URI[archive.sha256sum] = "b9d3645a5fd953a54285cc64d4fc046736463dbd4dcc25caf5c7b59bed3027f5"
 
-PACKAGECONFIG ??= "${@bb.utils.contains('DISTRO_FEATURES', 'x11', 'gtk', '', d)}"
+PACKAGECONFIG ??= " \
+	${@bb.utils.contains('DISTRO_FEATURES', 'x11', 'gtk', '', d)} \
+	${@bb.utils.contains('DISTRO_FEATURES', 'wayland', 'gtk', '', d)} \
+"
 PACKAGECONFIG[gtk] = "-Dgtk=true,-Dgtk=false,gtk+3"
 
 FILES:${PN} += " \

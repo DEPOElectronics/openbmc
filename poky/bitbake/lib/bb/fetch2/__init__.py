@@ -113,7 +113,7 @@ class MissingParameterError(BBFetchException):
         self.args = (missing, url)
 
 class ParameterError(BBFetchException):
-    """Exception raised when a url cannot be proccessed due to invalid parameters."""
+    """Exception raised when a url cannot be processed due to invalid parameters."""
     def __init__(self, message, url):
         msg = "URL: '%s' has invalid parameters. %s" % (url, message)
         self.url = url
@@ -182,7 +182,7 @@ class URI(object):
     Some notes about relative URIs: while it's specified that
     a URI beginning with <scheme>:// should either be directly
     followed by a hostname or a /, the old URI handling of the
-    fetch2 library did not comform to this. Therefore, this URI
+    fetch2 library did not conform to this. Therefore, this URI
     class has some kludges to make sure that URIs are parsed in
     a way comforming to bitbake's current usage. This URI class
     supports the following:
@@ -199,7 +199,7 @@ class URI(object):
      file://hostname/absolute/path.diff (would be IETF compliant)
 
     Note that the last case only applies to a list of
-    "whitelisted" schemes (currently only file://), that requires
+    explicitly allowed schemes (currently only file://), that requires
     its URIs to not have a network location.
     """
 
@@ -402,24 +402,24 @@ def encodeurl(decoded):
 
     if not type:
         raise MissingParameterError('type', "encoded from the data %s" % str(decoded))
-    url = '%s://' % type
+    url = ['%s://' % type]
     if user and type != "file":
-        url += "%s" % user
+        url.append("%s" % user)
         if pswd:
-            url += ":%s" % pswd
-        url += "@"
+            url.append(":%s" % pswd)
+        url.append("@")
     if host and type != "file":
-        url += "%s" % host
+        url.append("%s" % host)
     if path:
         # Standardise path to ensure comparisons work
         while '//' in path:
             path = path.replace("//", "/")
-        url += "%s" % urllib.parse.quote(path)
+        url.append("%s" % urllib.parse.quote(path))
     if p:
         for parm in p:
-            url += ";%s=%s" % (parm, p[parm])
+            url.append(";%s=%s" % (parm, p[parm]))
 
-    return url
+    return "".join(url)
 
 def uri_replace(ud, uri_find, uri_replace, replacements, d, mirrortarball=None):
     if not ud.url or not uri_find or not uri_replace:
@@ -430,6 +430,7 @@ def uri_replace(ud, uri_find, uri_replace, replacements, d, mirrortarball=None):
     uri_replace_decoded = list(decodeurl(uri_replace))
     logger.debug2("For url %s comparing %s to %s" % (uri_decoded, uri_find_decoded, uri_replace_decoded))
     result_decoded = ['', '', '', '', '', {}]
+    # 0 - type, 1 - host, 2 - path, 3 - user,  4- pswd, 5 - params
     for loc, i in enumerate(uri_find_decoded):
         result_decoded[loc] = uri_decoded[loc]
         regexp = i
@@ -449,6 +450,9 @@ def uri_replace(ud, uri_find, uri_replace, replacements, d, mirrortarball=None):
                 for l in replacements:
                     uri_replace_decoded[loc][k] = uri_replace_decoded[loc][k].replace(l, replacements[l])
                 result_decoded[loc][k] = uri_replace_decoded[loc][k]
+        elif (loc == 3 or loc == 4) and uri_replace_decoded[loc]:
+            # User/password in the replacement is just a straight replacement
+            result_decoded[loc] = uri_replace_decoded[loc]
         elif (re.match(regexp, uri_decoded[loc])):
             if not uri_replace_decoded[loc]:
                 result_decoded[loc] = ""
@@ -466,9 +470,16 @@ def uri_replace(ud, uri_find, uri_replace, replacements, d, mirrortarball=None):
                     # Kill parameters, they make no sense for mirror tarballs
                     uri_decoded[5] = {}
                 elif ud.localpath and ud.method.supports_checksum(ud):
-                    basename = os.path.basename(uri_decoded[loc])
-                if basename and not result_decoded[loc].endswith(basename):
-                    result_decoded[loc] = os.path.join(result_decoded[loc], basename)
+                    basename = os.path.basename(ud.localpath)
+                if basename:
+                    uri_basename = os.path.basename(uri_decoded[loc])
+                    # Prefix with a slash as a sentinel in case
+                    # result_decoded[loc] does not contain one.
+                    path = "/" + result_decoded[loc]
+                    if uri_basename and basename != uri_basename and path.endswith("/" + uri_basename):
+                        result_decoded[loc] = path[1:-len(uri_basename)] + basename
+                    elif not path.endswith("/" + basename):
+                        result_decoded[loc] = os.path.join(path[1:], basename)
         else:
             return None
     result = encodeurl(result_decoded)
@@ -754,6 +765,7 @@ def get_srcrev(d, method_name='sortable_revision'):
     that fetcher provides a method with the given name and the same signature as sortable_revision.
     """
 
+    d.setVar("__BBSEENSRCREV", "1")
     recursion = d.getVar("__BBINSRCREV")
     if recursion:
         raise FetchError("There are recursive references in fetcher variables, likely through SRC_URI")
@@ -766,7 +778,7 @@ def get_srcrev(d, method_name='sortable_revision'):
         if urldata[u].method.supports_srcrev():
             scms.append(u)
 
-    if len(scms) == 0:
+    if not scms:
         raise FetchError("SRCREV was used yet no valid SCM was found in SRC_URI")
 
     if len(scms) == 1 and len(urldata[scms[0]].names) == 1:
@@ -827,6 +839,7 @@ FETCH_EXPORT_VARS = ['HOME', 'PATH',
                      'ALL_PROXY', 'all_proxy',
                      'GIT_PROXY_COMMAND',
                      'GIT_SSH',
+                     'GIT_SSH_COMMAND',
                      'GIT_SSL_CAINFO',
                      'GIT_SMART_HTTP',
                      'SSH_AUTH_SOCK', 'SSH_AGENT_PID',
@@ -838,6 +851,17 @@ FETCH_EXPORT_VARS = ['HOME', 'PATH',
                      'AWS_ACCESS_KEY_ID',
                      'AWS_SECRET_ACCESS_KEY',
                      'AWS_DEFAULT_REGION']
+
+def get_fetcher_environment(d):
+    newenv = {}
+    origenv = d.getVar("BB_ORIGENV")
+    for name in bb.fetch2.FETCH_EXPORT_VARS:
+        value = d.getVar(name)
+        if not value and origenv:
+            value = origenv.getVar(name)
+        if value:
+            newenv[name] = value
+    return newenv
 
 def runfetchcmd(cmd, d, quiet=False, cleanup=None, log=None, workdir=None):
     """
@@ -884,7 +908,7 @@ def runfetchcmd(cmd, d, quiet=False, cleanup=None, log=None, workdir=None):
         (output, errors) = bb.process.run(cmd, log=log, shell=True, stderr=subprocess.PIPE, cwd=workdir)
         success = True
     except bb.process.NotFoundError as e:
-        error_message = "Fetch command %s" % (e.command)
+        error_message = "Fetch command %s not found" % (e.command)
     except bb.process.ExecutionError as e:
         if e.stdout:
             output = "output:\n%s\n%s" % (e.stdout, e.stderr)
@@ -1073,6 +1097,8 @@ def try_mirror_url(fetch, origud, ud, ld, check = False):
 
 def ensure_symlink(target, link_name):
     if not os.path.exists(link_name):
+        dirname = os.path.dirname(link_name)
+        bb.utils.mkdirhier(dirname)
         if os.path.islink(link_name):
             # Broken symbolic link
             os.unlink(link_name)
@@ -1196,23 +1222,21 @@ def get_checksum_file_list(d):
     SRC_URI as a space-separated string
     """
     fetch = Fetch([], d, cache = False, localonly = True)
-
-    dl_dir = d.getVar('DL_DIR')
     filelist = []
     for u in fetch.urls:
         ud = fetch.ud[u]
-
         if ud and isinstance(ud.method, local.Local):
+            found = False
             paths = ud.method.localpaths(ud, d)
             for f in paths:
                 pth = ud.decodedurl
-                if f.startswith(dl_dir):
-                    # The local fetcher's behaviour is to return a path under DL_DIR if it couldn't find the file anywhere else
-                    if os.path.exists(f):
-                        bb.warn("Getting checksum for %s SRC_URI entry %s: file not found except in DL_DIR" % (d.getVar('PN'), os.path.basename(f)))
-                    else:
-                        bb.warn("Unable to get checksum for %s SRC_URI entry %s: file could not be found" % (d.getVar('PN'), os.path.basename(f)))
+                if os.path.exists(f):
+                    found = True
                 filelist.append(f + ":" + str(os.path.exists(f)))
+            if not found:
+                bb.fatal(("Unable to get checksum for %s SRC_URI entry %s: file could not be found"
+                            "\nThe following paths were searched:"
+                            "\n%s") % (d.getVar('PN'), os.path.basename(f), '\n'.join(paths)))
 
     return " ".join(filelist)
 
@@ -1450,30 +1474,33 @@ class FetchMethod(object):
         cmd = None
 
         if unpack:
+            tar_cmd = 'tar --extract --no-same-owner'
+            if 'striplevel' in urldata.parm:
+                tar_cmd += ' --strip-components=%s' %  urldata.parm['striplevel']
             if file.endswith('.tar'):
-                cmd = 'tar x --no-same-owner -f %s' % file
+                cmd = '%s -f %s' % (tar_cmd, file)
             elif file.endswith('.tgz') or file.endswith('.tar.gz') or file.endswith('.tar.Z'):
-                cmd = 'tar xz --no-same-owner -f %s' % file
+                cmd = '%s -z -f %s' % (tar_cmd, file)
             elif file.endswith('.tbz') or file.endswith('.tbz2') or file.endswith('.tar.bz2'):
-                cmd = 'bzip2 -dc %s | tar x --no-same-owner -f -' % file
+                cmd = 'bzip2 -dc %s | %s -f -' % (file, tar_cmd)
             elif file.endswith('.gz') or file.endswith('.Z') or file.endswith('.z'):
                 cmd = 'gzip -dc %s > %s' % (file, efile)
             elif file.endswith('.bz2'):
                 cmd = 'bzip2 -dc %s > %s' % (file, efile)
             elif file.endswith('.txz') or file.endswith('.tar.xz'):
-                cmd = 'xz -dc %s | tar x --no-same-owner -f -' % file
+                cmd = 'xz -dc %s | %s -f -' % (file, tar_cmd)
             elif file.endswith('.xz'):
                 cmd = 'xz -dc %s > %s' % (file, efile)
             elif file.endswith('.tar.lz'):
-                cmd = 'lzip -dc %s | tar x --no-same-owner -f -' % file
+                cmd = 'lzip -dc %s | %s -f -' % (file, tar_cmd)
             elif file.endswith('.lz'):
                 cmd = 'lzip -dc %s > %s' % (file, efile)
             elif file.endswith('.tar.7z'):
-                cmd = '7z x -so %s | tar x --no-same-owner -f -' % file
+                cmd = '7z x -so %s | %s -f -' % (file, tar_cmd)
             elif file.endswith('.7z'):
                 cmd = '7za x -y %s 1>/dev/null' % file
             elif file.endswith('.tzst') or file.endswith('.tar.zst'):
-                cmd = 'zstd --decompress --stdout %s | tar x --no-same-owner -f -' % file
+                cmd = 'zstd --decompress --stdout %s | %s -f -' % (file, tar_cmd)
             elif file.endswith('.zst'):
                 cmd = 'zstd --decompress --stdout %s > %s' % (file, efile)
             elif file.endswith('.zip') or file.endswith('.jar'):
@@ -1506,7 +1533,7 @@ class FetchMethod(object):
                         raise UnpackError("Unable to unpack deb/ipk package - does not contain data.tar.* file", urldata.url)
                 else:
                     raise UnpackError("Unable to unpack deb/ipk package - could not list contents", urldata.url)
-                cmd = 'ar x %s %s && tar --no-same-owner -xpf %s && rm %s' % (file, datafile, datafile, datafile)
+                cmd = 'ar x %s %s && %s -p -f %s && rm %s' % (file, datafile, tar_cmd, datafile, datafile)
 
         # If 'subdir' param exists, create a dir and use it as destination for unpack cmd
         if 'subdir' in urldata.parm:
@@ -1632,7 +1659,7 @@ class Fetch(object):
         if localonly and cache:
             raise Exception("bb.fetch2.Fetch.__init__: cannot set cache and localonly at same time")
 
-        if len(urls) == 0:
+        if not urls:
             urls = d.getVar("SRC_URI").split()
         self.urls = urls
         self.d = d
@@ -1721,7 +1748,9 @@ class Fetch(object):
                     self.d.setVar("BB_NO_NETWORK", "1")
 
                 firsterr = None
-                verified_stamp = m.verify_donestamp(ud, self.d)
+                verified_stamp = False
+                if done:
+                    verified_stamp = m.verify_donestamp(ud, self.d)
                 if not done and (not verified_stamp or m.need_update(ud, self.d)):
                     try:
                         if not trusted_network(self.d, ud.url):
@@ -1780,7 +1809,11 @@ class Fetch(object):
 
     def checkstatus(self, urls=None):
         """
-        Check all urls exist upstream
+        Check all URLs exist upstream.
+
+        Returns None if the URLs exist, raises FetchError if the check wasn't
+        successful but there wasn't an error (such as file not found), and
+        raises other exceptions in error cases.
         """
 
         if not urls:
@@ -1925,6 +1958,7 @@ from . import clearcase
 from . import npm
 from . import npmsw
 from . import az
+from . import crate
 
 methods.append(local.Local())
 methods.append(wget.Wget())
@@ -1945,3 +1979,4 @@ methods.append(clearcase.ClearCase())
 methods.append(npm.Npm())
 methods.append(npmsw.NpmShrinkWrap())
 methods.append(az.Az())
+methods.append(crate.Crate())

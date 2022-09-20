@@ -1,10 +1,12 @@
 require gmp.inc
 
-LICENSE = "GPLv2+ | LGPLv3+"
+LICENSE = "GPL-2.0-or-later | LGPL-3.0-or-later"
 
-LIC_FILES_CHKSUM = "file://COPYING;md5=d32239bcb673463ab874e80d47fae504 \
-                   file://COPYING.LESSERv3;md5=6a6a8e020838b23406c81b19c1d46df6 \
-                   file://COPYINGv2;md5=b234ee4d69f5fce4486a80fdaf4a4263 \
+LIC_FILES_CHKSUM = "\
+        file://COPYING;md5=d32239bcb673463ab874e80d47fae504 \
+        file://COPYING.LESSERv3;md5=6a6a8e020838b23406c81b19c1d46df6 \
+        file://COPYINGv2;md5=b234ee4d69f5fce4486a80fdaf4a4263 \
+        file://COPYINGv3;md5=11cc2d3ee574f9d6b7ee797bdce4d423 \
 "
 
 REVISION = ""
@@ -12,6 +14,7 @@ SRC_URI = "https://gmplib.org/download/${BPN}/${BP}${REVISION}.tar.bz2 \
            file://use-includedir.patch \
            file://0001-Append-the-user-provided-flags-to-the-auto-detected-.patch \
            file://0001-confiure.ac-Believe-the-cflags-from-environment.patch \
+           file://cve-2021-43618.patch \
            "
 SRC_URI[md5sum] = "28971fc21cf028042d4897f02fd355ea"
 SRC_URI[sha256sum] = "eae9326beb4158c386e39a356818031bd28f3124cf915f8c5b1dc4c7a36b4d7c"
@@ -19,7 +22,7 @@ SRC_URI[sha256sum] = "eae9326beb4158c386e39a356818031bd28f3124cf915f8c5b1dc4c7a3
 acpaths = ""
 
 EXTRA_OECONF += " --enable-cxx=detect"
-EXTRA_OECONF:mipsarchr6:append = " --disable-assembly"
+EXTRA_OECONF:append:mipsarchr6 = " --disable-assembly"
 
 PACKAGES =+ "libgmpxx"
 FILES:libgmpxx = "${libdir}/libgmpxx${SOLIBS}"

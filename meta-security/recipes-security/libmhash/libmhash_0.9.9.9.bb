@@ -7,7 +7,7 @@ DESCRIPTION = "\
   "
 HOMEPAGE = "http://mhash.sourceforge.net/"
 
-LICENSE = "LGPLv2.0"
+LICENSE = "LGPL-2.0-only"
 LIC_FILES_CHKSUM = "file://COPYING;md5=3bf50002aefd002f49e7bb854063f7e7"
 
 S = "${WORKDIR}/mhash-${PV}"
@@ -35,3 +35,5 @@ do_compile_ptest() {
 do_install_ptest() {
     install -m 0755 ${S}/demo/mhash ${D}${PTEST_PATH}
 }
+
+BBCLASSEXTEND = "native"

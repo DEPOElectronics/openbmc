@@ -5,10 +5,10 @@ LICENSE = "Apache-2.0"
 LIC_FILES_CHKSUM = "file://LICENSE;md5=7becf906c8f8d03c237bad13bc3dac53"
 inherit cmake systemd
 
-SRC_URI = "git://github.com/openbmc/pfr-manager"
+SRC_URI = "git://github.com/openbmc/pfr-manager;branch=master;protocol=https"
 
 PV = "0.1+git${SRCPV}"
-SRCREV = "8491692089f9295cf2efab456d4747f3cf1fb098"
+SRCREV = "70da5ce96f773ff4fefefc902b5304fcb1868772"
 
 S = "${WORKDIR}/git"
 

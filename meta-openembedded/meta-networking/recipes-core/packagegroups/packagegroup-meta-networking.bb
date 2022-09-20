@@ -31,7 +31,6 @@ RDEPENDS:packagegroup-meta-networking = "\
     "
 
 RDEPENDS:packagegroup-meta-networking-connectivity = "\
-    crda \
     daq \
     adcli \
     ${@bb.utils.contains("DISTRO_FEATURES", "bluetooth x11", "blueman", "", d)} \
@@ -49,14 +48,13 @@ RDEPENDS:packagegroup-meta-networking-connectivity = "\
     vlan \
     vpnc \
     ez-ipupdate \
-    firewalld \
+    ${@bb.utils.contains("BBFILE_COLLECTIONS", "meta-python", "firewalld", "", d)} \
     freeradius \
     mbedtls \
     miniupnpd \
     mosquitto \
     nanomsg \
     nng \
-    netplan \
     networkmanager-openvpn \
     networkmanager \
     openconnect \
@@ -100,7 +98,6 @@ RDEPENDS:packagegroup-meta-networking-daemons = "\
 RDEPENDS:packagegroup-meta-networking-daemons:remove:libc-musl = "opensaf"
 
 RDEPENDS:packagegroup-meta-networking-devtools = "\
-    python3-ldap \
     python3-scapy \
 "
 
@@ -172,8 +169,6 @@ RDEPENDS:packagegroup-meta-networking-protocols = "\
     xl2tpd \
 "
 
-RDEPENDS:packagegroup-meta-networking-protocols:remove:libc-musl = "mdns"
-
 RDEPENDS:packagegroup-meta-networking-support = "\
     aoetools \
     arptables \
@@ -207,19 +202,23 @@ RDEPENDS:packagegroup-meta-networking-support = "\
     libtevent \
     linux-atm \
     lksctp-tools \
+    mctp \
     memcached \
     ifenslave \
     netcat \
     netcat-openbsd \
     libtdb \
-    ${@bb.utils.contains("LICENSE_FLAGS_WHITELIST", "non-commercial", "netperf", "", d)} \
+    ${@bb.utils.contains("LICENSE_FLAGS_ACCEPTED", "non-commercial", "netperf", "", d)} \
     yp-tools \
     ypbind-mt \
     yp-tools \
     mtr \
+    netsniff-ng \
     ntp ntpdate sntp ntpdc ntpq ntp-tickadj ntp-utils \
+    ${@bb.utils.contains("DISTRO_FEATURES", "x11", "ntpsec", "", d)} \
     nbd-client \
     nbd-server \
+    nbd-trplay \
     nbd-trdump \
     openvpn \
     macchanger \
@@ -233,7 +232,6 @@ RDEPENDS:packagegroup-meta-networking-support = "\
     tcpdump \
     tcpslice \
     netcf \
-    nghttp2 \
     tnftp \
     traceroute \
     tunctl \
@@ -241,7 +239,6 @@ RDEPENDS:packagegroup-meta-networking-support = "\
     ndpi \
     ntopng \
     nuttcp \
-    nvmetcli \
     open-isns \
     openipmi \
     phytool \

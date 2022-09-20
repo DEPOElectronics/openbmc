@@ -3,8 +3,8 @@ DESCRIPTION = "Phosphor post Code Manager monitors post code posted on dbus \
 interface /xyz/openbmc_project/state/boot/raw by snoopd daemon and save them \
 in a file under /var/lib for history."
 
-SRC_URI = "git://github.com/openbmc/phosphor-post-code-manager.git"
-SRCREV = "de8d3a537fec2e0b36791cc53aeb963fc746d1da"
+SRC_URI = "git://github.com/openbmc/phosphor-post-code-manager.git;branch=master;protocol=https"
+SRCREV = "a27519e987a8341585e50913930862825c48cd26"
 
 S = "${WORKDIR}/git"
 

@@ -1,13 +1,13 @@
 DESCRIPTION = "Linux kernel for Aspeed"
 SECTION = "kernel"
-LICENSE = "GPLv2"
+LICENSE = "GPL-2.0-only"
 
 PROVIDES += "virtual/kernel"
 
 KCONFIG_MODE="--alldefconfig"
 
-KSRC ?= "git://github.com/openbmc/linux;protocol=git;branch=${KBRANCH}"
-SRC_URI = "${KSRC}"
+KSRC ?= "git://github.com/openbmc/linux;protocol=https;branch=${KBRANCH}"
+SRC_URI += "${KSRC}"
 SRC_URI += " \
              file://defconfig \
              file://rsa_oem_fitimage_key.key;sha256sum=eeb4ff2ebbfbd97b6254fe6dbaeea41067e54c65176c233ec7b2ab2decf1ddcd \

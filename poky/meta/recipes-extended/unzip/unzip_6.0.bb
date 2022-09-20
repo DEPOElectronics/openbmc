@@ -27,6 +27,11 @@ SRC_URI = "${SOURCEFORGE_MIRROR}/infozip/UnZip%206.x%20%28latest%29/UnZip%206.0/
 	file://CVE-2019-13232_p2.patch \
 	file://CVE-2019-13232_p3.patch \
 	file://unzip_optimization.patch \
+        file://0001-configure-Pass-LDFLAGS-to-tests-doing-link-step.patch \
+        file://CVE-2021-4217.patch \
+        file://CVE-2022-0529.patch \
+        file://CVE-2022-0530.patch \
+        file://0001-configure-Add-correct-system-headers-and-prototypes-.patch \
 "
 UPSTREAM_VERSION_UNKNOWN = "1"
 
@@ -34,12 +39,15 @@ SRC_URI[md5sum] = "62b490407489521db863b523a7f86375"
 SRC_URI[sha256sum] = "036d96991646d0449ed0aa952e4fbe21b476ce994abc276e49d30e686708bd37"
 
 # Patch from https://bugzilla.redhat.com/attachment.cgi?id=293893&action=diff applied to 6.0 source
-CVE_CHECK_WHITELIST += "CVE-2008-0888"
+CVE_CHECK_IGNORE += "CVE-2008-0888"
 
 # exclude version 5.5.2 which triggers a false positive
 UPSTREAM_CHECK_REGEX = "unzip(?P<pver>(?!552).+)\.tgz"
 
 S = "${WORKDIR}/unzip60"
+
+# Enable largefile support
+CFLAGS += "-DLARGE_FILE_SUPPORT"
 
 # Makefile uses CF_NOOPT instead of CFLAGS.  We lifted the values from
 # Makefile and add CFLAGS.  Optimization will be overriden by unzip

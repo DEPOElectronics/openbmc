@@ -21,7 +21,7 @@ image you want.
    image::
 
            1. Comment out the EXTRA_IMAGE_FEATURES line
-           2. Set INCOMPATIBLE_LICENSE = "GPL-3.0 LGPL-3.0 AGPL-3.0"
+           2. Set INCOMPATIBLE_LICENSE = "GPL-3.0* LGPL-3.0* AGPL-3.0*"
 
 
 From within the ``poky`` Git repository, you can use the following
@@ -112,7 +112,7 @@ Following is a list of supported recipes:
    development headers and libraries to form a complete standalone SDK
    and is suitable for development using the target.
 
--  ``core-image-testmaster``: A "master" image designed to be used for
+-  ``core-image-testmaster``: A "controller" image designed to be used for
    automated runtime testing. Provides a "known good" image that is
    deployed to a separate partition so that you can boot into it and use
    it to deploy a second image to be tested. You can find more

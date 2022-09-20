@@ -109,10 +109,10 @@ Classes
 Class files (``.bbclass``) contain information that is useful to share
 between recipes files. An example is the
 :ref:`autotools <ref-classes-autotools>` class,
-which contains common settings for any application that Autotools uses.
-The ":ref:`ref-manual/classes:Classes`" chapter in the
-Yocto Project Reference Manual provides details about classes and how to
-use them.
+which contains common settings for any application that is built with
+the `GNU Autotools <https://en.wikipedia.org/wiki/GNU_Autotools>`__.
+The ":ref:`ref-manual/classes:Classes`" chapter in the Yocto Project
+Reference Manual provides details about classes and how to use them.
 
 Configurations
 --------------
@@ -140,7 +140,7 @@ using a different layer where that metadata might be common across
 several pieces of hardware.
 
 There are many layers working in the Yocto Project development environment. The
-:yocto_home:`Yocto Project Curated Layer Index </software-overview/layers/>`
+:yocto_home:`Yocto Project Compatible Layer Index </software-overview/layers/>`
 and :oe_layerindex:`OpenEmbedded Layer Index <>` both contain layers from
 which you can use or leverage.
 
@@ -166,7 +166,7 @@ remainder of this section expands on the fundamental input, output,
 process, and metadata logical blocks that make up the workflow.
 
 .. image:: figures/YP-flow-diagram.png
-   :align: center
+   :width: 100%
 
 In general, the build's workflow consists of several functional areas:
 
@@ -209,7 +209,7 @@ Configuration" box of the :ref:`general workflow
 figure <overview-manual/concepts:openembedded build system concepts>`:
 
 .. image:: figures/user-configuration.png
-   :align: center
+   :width: 100%
 
 BitBake needs some basic configuration files in order to complete a
 build. These files are ``*.conf`` files. The minimally necessary ones
@@ -300,13 +300,8 @@ in the ``meta-poky`` layer:
 
 .. note::
 
-   Configurations set in the
-   conf/local.conf
-   file can also be set in the
-   conf/site.conf
-   and
-   conf/auto.conf
-   configuration files.
+   Configurations set in the ``conf/local.conf`` file can also be set
+   in the ``conf/site.conf`` and ``conf/auto.conf`` configuration files.
 
 The ``bblayers.conf`` file tells BitBake what layers you want considered
 during the build. By default, the layers listed in this file include
@@ -318,7 +313,7 @@ section in the Yocto Project Development Tasks Manual.
 
 The files ``site.conf`` and ``auto.conf`` are not created by the
 environment initialization script. If you want the ``site.conf`` file,
-you need to create that yourself. The ``auto.conf`` file is typically
+you need to create it yourself. The ``auto.conf`` file is typically
 created by an autobuilder:
 
 -  *site.conf:* You can use the ``conf/site.conf`` configuration
@@ -326,17 +321,7 @@ created by an autobuilder:
    you had several build environments and they shared some common
    features. You can set these default build properties here. A good
    example is perhaps the packaging format to use through the
-   :term:`PACKAGE_CLASSES`
-   variable.
-
-   One useful scenario for using the ``conf/site.conf`` file is to
-   extend your :term:`BBPATH` variable
-   to include the path to a ``conf/site.conf``. Then, when BitBake looks
-   for Metadata using :term:`BBPATH`, it finds the ``conf/site.conf`` file
-   and applies your common configurations found in the file. To override
-   configurations in a particular build directory, alter the similar
-   configurations within that build directory's ``conf/local.conf``
-   file.
+   :term:`PACKAGE_CLASSES` variable.
 
 -  *auto.conf:* The file is usually created and written to by an
    autobuilder. The settings put into the file are typically the same as
@@ -406,6 +391,7 @@ layers from the :ref:`general workflow figure
 
 .. image:: figures/layer-input.png
    :align: center
+   :width: 70%
 
 In general, all layers have a similar structure. They all contain a
 licensing file (e.g. ``COPYING.MIT``) if the layer is to be distributed,
@@ -556,6 +542,7 @@ area of the :ref:`general workflow figure <overview-manual/concepts:openembedded
 
 .. image:: figures/source-input.png
    :align: center
+   :width: 70%
 
 Upstream Project Releases
 ~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -570,7 +557,7 @@ Local Projects
 ~~~~~~~~~~~~~~
 
 Local projects are custom bits of software the user provides. These bits
-reside somewhere local to a project - perhaps a directory into which the
+reside somewhere local to a project --- perhaps a directory into which the
 user checks in items (e.g. a local directory containing a development
 source tree used by the group).
 
@@ -634,7 +621,7 @@ This section looks a little closer into the package feeds area used by
 the build system. Here is a more detailed look at the area:
 
 .. image:: figures/package-feeds.png
-   :align: center
+   :width: 100%
 
 Package feeds are an intermediary step in the build process. The
 OpenEmbedded build system provides classes to generate different package
@@ -707,7 +694,7 @@ The first stages of building a recipe are to fetch and unpack the source
 code:
 
 .. image:: figures/source-fetching.png
-   :align: center
+   :width: 100%
 
 The :ref:`ref-tasks-fetch` and
 :ref:`ref-tasks-unpack` tasks fetch
@@ -795,7 +782,7 @@ Once source code is fetched and unpacked, BitBake locates patch files
 and applies them to the source files:
 
 .. image:: figures/patching.png
-   :align: center
+   :width: 100%
 
 The :ref:`ref-tasks-patch` task uses a
 recipe's :term:`SRC_URI` statements
@@ -836,7 +823,7 @@ compile the source code. Once compilation occurs, the files are copied
 to a holding area (staged) in preparation for packaging:
 
 .. image:: figures/configuration-compile-autoreconf.png
-   :align: center
+   :width: 100%
 
 This step in the build process consists of the following tasks:
 
@@ -894,7 +881,7 @@ After source code is configured, compiled, and staged, the build system
 analyzes the results and splits the output into packages:
 
 .. image:: figures/analysis-for-package-splitting.png
-   :align: center
+   :width: 100%
 
 The :ref:`ref-tasks-package` and
 :ref:`ref-tasks-packagedata`
@@ -973,7 +960,7 @@ Once packages are split and stored in the Package Feeds area, the build
 system uses BitBake to generate the root filesystem image:
 
 .. image:: figures/image-generation.png
-   :align: center
+   :width: 100%
 
 The image generation process consists of several stages and depends on
 several tasks and variables. The
@@ -1036,12 +1023,10 @@ for example, to determine whether or not to run specific tests. See the
 :term:`IMAGE_MANIFEST`
 variable for additional information.
 
-Optimizing processes that are run across the image include ``mklibs``,
-``prelink``, and any other post-processing commands as defined by the
+Optimizing processes that are run across the image include ``mklibs``
+and any other post-processing commands as defined by the
 :term:`ROOTFS_POSTPROCESS_COMMAND`
-variable. The ``mklibs`` process optimizes the size of the libraries,
-while the ``prelink`` process optimizes the dynamic linking of shared
-libraries to reduce start up time of executables.
+variable. The ``mklibs`` process optimizes the size of the libraries.
 
 After the root filesystem is built, processing begins on the image
 through the :ref:`ref-tasks-image`
@@ -1093,7 +1078,7 @@ Development Kit (SDK) installer scripts for both the standard SDK and
 the extensible SDK (eSDK):
 
 .. image:: figures/sdk-generation.png
-   :align: center
+   :width: 100%
 
 .. note::
 
@@ -1200,7 +1185,7 @@ usually made available in the form of a shared state (sstate) cache.
    :term:`SSTATE_MIRRORS`
    variables.
 
-The idea of a setscene task (i.e ``do_``\ taskname\ ``_setscene``) is a
+The idea of a setscene task (i.e ``do_taskname_setscene``) is a
 version of the task where instead of building something, BitBake can
 skip to the end result and simply place a set of files into specific
 locations as needed. In some cases, it makes sense to have a setscene
@@ -1269,6 +1254,7 @@ this output:
 
 .. image:: figures/images.png
    :align: center
+   :width: 75%
 
 .. note::
 
@@ -1328,7 +1314,7 @@ SDK (e.g. ``bitbake -c populate_sdk_ext`` imagename) or a standard SDK
 closer look at this output:
 
 .. image:: figures/sdk.png
-   :align: center
+   :width: 100%
 
 The specific form of this output is a set of files that includes a
 self-extracting SDK installer (``*.sh``), host and target manifest
@@ -1379,15 +1365,15 @@ associated with an extensible SDK:
    Specifies whether or not the toolchain is included when building the
    extensible SDK.
 
--  :term:`SDK_LOCAL_CONF_WHITELIST`:
+-  :term:`ESDK_LOCALCONF_ALLOW`:
    A list of variables allowed through from the build system
    configuration into the extensible SDK configuration.
 
--  :term:`SDK_LOCAL_CONF_BLACKLIST`:
+-  :term:`ESDK_LOCALCONF_REMOVE`:
    A list of variables not allowed through from the build system
    configuration into the extensible SDK configuration.
 
--  :term:`SDK_INHERIT_BLACKLIST`:
+-  :term:`ESDK_CLASS_INHERIT_DISABLE`:
    A list of classes to remove from the
    :term:`INHERIT` value globally
    within the extensible SDK configuration.
@@ -1446,7 +1432,7 @@ The following figure shows a high-level build environment regarding
 toolchain construction and use.
 
 .. image:: figures/cross-development-toolchains.png
-   :align: center
+   :width: 100%
 
 Most of the work occurs on the Build Host. This is the machine used to
 build images and generally work within the the Yocto Project
@@ -1570,7 +1556,7 @@ that parts do not need to be rebuilt. Fundamentally, building from
 scratch is attractive as it means all parts are built fresh and there is
 no possibility of stale data that can cause problems. When
 developers hit problems, they typically default back to building from
-scratch so they have a know state from the start.
+scratch so they have a known state from the start.
 
 Building an image from scratch is both an advantage and a disadvantage
 to the process. As mentioned in the previous paragraph, building from
@@ -1614,7 +1600,7 @@ them if they are deemed to be valid.
       section in the Yocto Project Development Tasks Manual.
 
    -  The code in the build system that supports incremental builds is
-      not simple code. For techniques that help you work around issues
+      complex. For techniques that help you work around issues
       related to shared state code, see the
       ":ref:`dev-manual/common-tasks:viewing metadata used to create the input signature of a shared state task`"
       and
@@ -1655,7 +1641,7 @@ you a good idea of when the task's data changes.
 
 To complicate the problem, there are things that should not be included
 in the checksum. First, there is the actual specific build path of a
-given task - the :term:`WORKDIR`. It
+given task --- the :term:`WORKDIR`. It
 does not matter if the work directory changes because it should not
 affect the output for target packages. Also, the build process has the
 objective of making native or cross packages relocatable.
@@ -1714,11 +1700,11 @@ need to fix this situation.
 Thus far, this section has limited discussion to the direct inputs into
 a task. Information based on direct inputs is referred to as the
 "basehash" in the code. However, the question of a task's indirect
-inputs still exits - items already built and present in the
+inputs still exits --- items already built and present in the
 :term:`Build Directory`. The checksum (or
 signature) for a particular task needs to add the hashes of all the
 tasks on which the particular task depends. Choosing which dependencies
-to add is a policy decision. However, the effect is to generate a master
+to add is a policy decision. However, the effect is to generate a
 checksum that combines the basehash and the hashes of the task's
 dependencies.
 
@@ -1729,18 +1715,14 @@ it construct the basehash. The following statement effectively results
 in a list of global variable dependency excludes (i.e. variables never
 included in any checksum)::
 
-   BB_HASHBASE_WHITELIST ?= "TMPDIR FILE PATH PWD BB_TASKHASH BBPATH DL_DIR \\
+   BB_BASEHASH_IGNORE_VARS ?= "TMPDIR FILE PATH PWD BB_TASKHASH BBPATH DL_DIR \\
        SSTATE_DIR THISDIR FILESEXTRAPATHS FILE_DIRNAME HOME LOGNAME SHELL TERM \\
        USER FILESPATH STAGING_DIR_HOST STAGING_DIR_TARGET COREBASE PRSERV_HOST \\
        PRSERV_DUMPDIR PRSERV_DUMPFILE PRSERV_LOCKDOWN PARALLEL_MAKE \\
        CCACHE_DIR EXTERNAL_TOOLCHAIN CCACHE CCACHE_DISABLE LICENSE_PATH SDKPKGSUFFIX"
 
-The
-previous example excludes
-:term:`WORKDIR` since that variable
-is actually constructed as a path within
-:term:`TMPDIR`, which is on the
-whitelist.
+The previous example does not include :term:`WORKDIR` since that variable is
+actually constructed as a path within :term:`TMPDIR`, which is included above.
 
 The rules for deciding which hashes of dependent tasks to include
 through dependency chains are more complex and are generally
@@ -1800,7 +1782,7 @@ type of output occurs when a set of data is merged into a shared
 directory tree such as the sysroot.
 
 The Yocto Project team has tried to keep the details of the
-implementation hidden in ``sstate`` class. From a user's perspective,
+implementation hidden in the :ref:`sstate <ref-classes-sstate>` class. From a user's perspective,
 adding shared state wrapping to a task is as simple as this
 :ref:`ref-tasks-deploy` example taken
 from the :ref:`deploy <ref-classes-deploy>` class::
@@ -1908,7 +1890,7 @@ Behind the scenes, the shared state code works by looking in
 shared state files. Here is an example::
 
    SSTATE_MIRRORS ?= "\
-       file://.* http://someserver.tld/share/sstate/PATH;downloadfilename=PATH \n \
+       file://.* https://someserver.tld/share/sstate/PATH;downloadfilename=PATH \
        file://.* file:///some/local/dir/sstate/PATH"
 
 .. note::
@@ -1941,6 +1923,138 @@ Since the sysroot is not used, it would never get extracted. This is
 another reason why a task-based approach is preferred over a
 recipe-based approach, which would have to install the output from every
 task.
+
+Hash Equivalence
+----------------
+
+The above section explained how BitBake skips the execution of tasks
+whose output can already be found in the Shared State cache.
+
+During a build, it may often be the case that the output / result of a task might
+be unchanged despite changes in the task's input values. An example might be
+whitespace changes in some input C code. In project terms, this is what we define
+as "equivalence".
+
+To keep track of such equivalence, BitBake has to manage three hashes
+for each task:
+
+- The *task hash* explained earlier: computed from the recipe metadata,
+  the task code and the task hash values from its dependencies.
+  When changes are made, these task hashes are therefore modified,
+  causing the task to re-execute. The task hashes of tasks depending on this
+  task are therefore modified too, causing the whole dependency
+  chain to re-execute.
+
+- The *output hash*, a new hash computed from the output of Shared State tasks,
+  tasks that save their resulting output to a Shared State tarball.
+  The mapping between the task hash and its output hash is reported
+  to a new *Hash Equivalence* server. This mapping is stored in a database
+  by the server for future reference.
+
+- The *unihash*, a new hash, initially set to the task hash for the task.
+  This is used to track the *unicity* of task output, and we will explain
+  how its value is maintained.
+
+When Hash Equivalence is enabled, BitBake computes the task hash
+for each task by using the unihash of its dependencies, instead
+of their task hash.
+
+Now, imagine that a Shared State task is modified because of a change in
+its code or metadata, or because of a change in its dependencies.
+Since this modifies its task hash, this task will need re-executing.
+Its output hash will therefore be computed again.
+
+Then, the new mapping between the new task hash and its output hash
+will be reported to the Hash Equivalence server. The server will
+let BitBake know whether this output hash is the same as a previously
+reported output hash, for a different task hash.
+
+If the output hash is already known, BitBake will update the task's
+unihash to match the original task hash that generated that output.
+Thanks to this, the depending tasks will keep a previously recorded
+task hash, and BitBake will be able to retrieve their output from
+the Shared State cache, instead of re-executing them. Similarly, the
+output of further downstream tasks can also be retrieved from Shared
+Shate.
+
+If the output hash is unknown, a new entry will be created on the Hash
+Equivalence server, matching the task hash to that output.
+The depending tasks, still having a new task hash because of the
+change, will need to re-execute as expected. The change propagates
+to the depending tasks.
+
+To summarize, when Hash Equivalence is enabled, a change in one of the
+tasks in BitBake's run queue doesn't have to propagate to all the
+downstream tasks that depend on the output of this task, causing a
+full rebuild of such tasks, and so on with the next depending tasks.
+Instead, when the output of this task remains identical to previously
+recorded output, BitBake can safely retrieve all the downstream
+task output from the Shared State cache.
+
+.. note::
+
+   Having :doc:`/test-manual/reproducible-builds` is a key ingredient for
+   the stability of the task's output hash. Therefore, the effectiveness
+   of Hash Equivalence strongly depends on it.
+
+This applies to multiple scenarios:
+
+-  A "trivial" change to a recipe that doesn't impact its generated output,
+   such as whitespace changes, modifications to unused code paths or
+   in the ordering of variables.
+
+-  Shared library updates, for example to fix a security vulnerability.
+   For sure, the programs using such a library should be rebuilt, but
+   their new binaries should remain identical. The corresponding tasks should
+   have a different output hash because of the change in the hash of their
+   library dependency, but thanks to their output being identical, Hash
+   Equivalence will stop the propagation down the dependency chain.
+
+-  Native tool updates. Though the depending tasks should be rebuilt,
+   it's likely that they will generate the same output and be marked
+   as equivalent.
+
+This mechanism is enabled by default in Poky, and is controlled by three
+variables:
+
+-  :term:`bitbake:BB_HASHSERVE`, specifying a local or remote Hash
+   Equivalence server to use.
+
+-  :term:`BB_HASHSERVE_UPSTREAM`, when ``BB_HASHSERVE = "auto"``,
+   allowing to connect the local server to an upstream one.
+
+-  :term:`bitbake:BB_SIGNATURE_HANDLER`, which must be set  to ``OEEquivHash``.
+
+Therefore, the default configuration in Poky corresponds to the
+below settings::
+
+   BB_HASHSERVE = "auto"
+   BB_SIGNATURE_HANDLER = "OEEquivHash"
+
+Rather than starting a local server, another possibility is to rely
+on a Hash Equivalence server on a network, by setting::
+
+   BB_HASHSERVE = "<HOSTNAME>:<PORT>"
+
+.. note::
+
+   The shared Hash Equivalence server needs to be maintained together with the
+   Shared State cache. Otherwise, the server could report Shared State hashes
+   that only exist on specific clients.
+
+   We therefore recommend that one Hash Equivalence server be set up to
+   correspond with a given Shared State cache, and to start this server
+   in *read-only mode*, so that it doesn't store equivalences for
+   Shared State caches that are local to clients.
+
+   See the :term:`BB_HASHSERVE` reference for details about starting
+   a Hash Equivalence server.
+
+See the `video <https://www.youtube.com/watch?v=zXEdqGS62Wc>`__
+of Joshua Watt's `Hash Equivalence and Reproducible Builds
+<https://elinux.org/images/3/37/Hash_Equivalence_and_Reproducible_Builds.pdf>`__
+presentation at ELC 2020 for a very synthetic introduction to the
+Hash Equivalence implementation in the Yocto Project.
 
 Automatically Added Runtime Dependencies
 ========================================
@@ -2025,7 +2139,7 @@ dependencies, you must manually declare the dependencies.
 
       By default, ``foo-dev`` also has an :term:`RDEPENDS`-style dependency on
       ``foo``, because the default value of ``RDEPENDS:${PN}-dev`` (set in
-      bitbake.conf) includes "${PN}".
+      ``bitbake.conf``) includes "${PN}".
 
    To ensure that the dependency chain is never broken, ``-dev`` and
    ``-dbg`` packages are always generated by default, even if the

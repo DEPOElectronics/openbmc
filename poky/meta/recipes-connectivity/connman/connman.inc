@@ -9,7 +9,7 @@ configuration methods, like DHCP and domain name resolving, are \
 implemented using plug-ins."
 HOMEPAGE = "http://connman.net/"
 BUGTRACKER = "https://01.org/jira/browse/CM"
-LICENSE  = "GPLv2"
+LICENSE  = "GPL-2.0-only"
 LIC_FILES_CHKSUM = "file://COPYING;md5=12f884d2ae1ff87c09e5b7ccc2c4ca7e \
                     file://src/main.c;beginline=1;endline=20;md5=486a279a6ab0c8d152bcda3a5b5edc36"
 
@@ -28,10 +28,15 @@ EXTRA_OECONF += "\
     --enable-tools \
     --disable-polkit \
 "
+# For smooth operation it would be best to start only one wireless daemon at a time.
+# If wpa-supplicant is running, connman will use it preferentially.
+# Select either wpa-supplicant or iwd
+WIRELESS_DAEMON ??= "wpa-supplicant"
 
 PACKAGECONFIG ??= "wispr iptables client\
-                   ${@bb.utils.filter('DISTRO_FEATURES', '3g systemd wifi', d)} \
+                   ${@bb.utils.filter('DISTRO_FEATURES', '3g systemd', d)} \
                    ${@bb.utils.contains('DISTRO_FEATURES', 'bluetooth', 'bluez', '', d)} \
+                   ${@bb.utils.contains('DISTRO_FEATURES', 'wifi', 'wifi ${WIRELESS_DAEMON}', '', d)} \
 "
 
 # If you want ConnMan to support VPN, add following statement into
@@ -39,9 +44,11 @@ PACKAGECONFIG ??= "wispr iptables client\
 # PACKAGECONFIG:append:pn-connman = " openvpn vpnc l2tp pptp"
 
 PACKAGECONFIG[systemd] = "--with-systemdunitdir=${systemd_system_unitdir}/ --with-tmpfilesdir=${sysconfdir}/tmpfiles.d/,--with-systemdunitdir='' --with-tmpfilesdir=''"
-PACKAGECONFIG[wifi] = "--enable-wifi, --disable-wifi, wpa-supplicant, wpa-supplicant"
+PACKAGECONFIG[wifi] = "--enable-wifi, --disable-wifi"
 PACKAGECONFIG[bluez] = "--enable-bluetooth, --disable-bluetooth, bluez5, bluez5"
 PACKAGECONFIG[3g] = "--enable-ofono, --disable-ofono, ofono, ofono"
+PACKAGECONFIG[wpa-supplicant] = ",,wpa-supplicant,wpa-supplicant"
+PACKAGECONFIG[iwd] = "--enable-iwd,--disable-iwd,,iwd"
 PACKAGECONFIG[tist] = "--enable-tist,--disable-tist,"
 PACKAGECONFIG[openvpn] = "--enable-openvpn --with-openvpn=${sbindir}/openvpn,--disable-openvpn,,openvpn"
 PACKAGECONFIG[vpnc] = "--enable-vpnc --with-vpnc=${sbindir}/vpnc,--disable-vpnc,,vpnc"

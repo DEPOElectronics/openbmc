@@ -2,7 +2,7 @@ SUMMARY = "Multimedia processing server for Linux"
 AUTHOR = "Wim Taymans <wtaymans@redhat.com>"
 HOMEPAGE = "https://pipewire.org"
 SECTION = "multimedia"
-LICENSE = "LGPL-2.1"
+LICENSE = "LGPL-2.1-only"
 LIC_FILES_CHKSUM = " \
     file://LICENSE;md5=d8153c6e65986f862a0550ca74a3ed73 \
     file://LGPL;md5=2d5025d4aa3495befef8f17206a5b0a1 \
@@ -11,7 +11,7 @@ DEPENDS = "alsa-lib dbus udev"
 SRCREV = "14c11c0fe4d366bad4cfecdee97b6652ff9ed63d"
 PV = "0.2.7"
 
-SRC_URI = "git://github.com/PipeWire/pipewire"
+SRC_URI = "git://github.com/PipeWire/pipewire;branch=master;protocol=https"
 
 S = "${WORKDIR}/git"
 

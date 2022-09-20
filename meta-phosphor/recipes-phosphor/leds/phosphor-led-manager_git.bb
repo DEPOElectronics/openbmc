@@ -8,8 +8,15 @@ require ${PN}.inc
 inherit meson pkgconfig python3native
 inherit obmc-phosphor-dbus-service obmc-phosphor-systemd
 
-PACKAGECONFIG ??= ""
-PACKAGECONFIG[use-json] = "-Duse-json=enabled, -Duse-json=disabled"
+PACKAGECONFIG ??= "\
+    ${@oe.utils.conditional( \
+        'PREFERRED_PROVIDER_virtual/${PN}-config-native', \
+        'phosphor-led-manager-config-example-native', \
+        'use-json', 'use-yaml', d)} \
+"
+
+PACKAGECONFIG[use-json] = "-Duse-json=enabled,,,,,use-yaml"
+PACKAGECONFIG[use-yaml] = "-Duse-json=disabled,,virtual/${PN}-config-native,,,use-json"
 PACKAGECONFIG[use-lamp-test] = "-Duse-lamp-test=enabled, -Duse-lamp-test=disabled"
 PACKAGECONFIG[monitor-operational-status] = "-Dmonitor-operational-status=enabled, \
                                              -Dmonitor-operational-status=disabled"
@@ -20,13 +27,11 @@ PACKAGE_BEFORE_PN += "${PN}-faultmonitor"
 DEPENDS += "${PYTHON_PN}-native"
 DEPENDS += "${PYTHON_PN}-pyyaml-native"
 DEPENDS += "${PYTHON_PN}-inflection-native"
-DEPENDS += "autoconf-archive-native"
+DEPENDS += "cli11"
+DEPENDS += "nlohmann-json"
+DEPENDS += "phosphor-logging"
 DEPENDS += "sdbusplus ${PYTHON_PN}-sdbus++-native"
 DEPENDS += "systemd"
-DEPENDS += "phosphor-logging"
-DEPENDS += "nlohmann-json"
-
-DEPENDS += "virtual/${PN}-config-native"
 
 RDEPENDS:${PN} += "bash"
 
@@ -48,6 +53,12 @@ TGTFMT = "obmc-chassis-{0}@0.target"
 INSTFMT = "obmc-led-group-{1}@power_on.service"
 FMT = "../${TMPLFMT}:${TGTFMT}.wants/${INSTFMT}"
 SYSTEMD_LINK:${PN} += "${@compose_list_zip(d, 'FMT', 'CHASSIS_TARGETS', 'STATES')}"
+
+CHASSIS_BLACKOUT_TGT = "obmc-chassis-blackout@{0}.target"
+LED_STOP_SVC = "obmc-led-group-stop@.service"
+LED_POWER_STOP_SVC = "obmc-led-group-stop@power_on.service"
+CHASSIS_LED_BLACKOUT_FMT = "../${LED_STOP_SVC}:${CHASSIS_BLACKOUT_TGT}.wants/${LED_POWER_STOP_SVC}"
+SYSTEMD_LINK:${PN} += "${@compose_list(d, 'CHASSIS_LED_BLACKOUT_FMT', 'OBMC_CHASSIS_INSTANCES' )}"
 
 # Install the override to set up a Conflicts relation
 SYSTEMD_OVERRIDE:${PN} += "bmc_booted.conf:obmc-led-group-start@bmc_booted.service.d/bmc_booted.conf"

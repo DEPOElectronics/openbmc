@@ -5,8 +5,17 @@ naming organization for the message catalogs themselves, a runtime library suppo
 a few stand-alone programs to massage in various ways the sets of translatable and already translated strings."
 HOMEPAGE = "http://www.gnu.org/software/gettext/gettext.html"
 SECTION = "libs"
-LICENSE = "GPLv3+ & LGPL-2.1+"
+LICENSE = "GPL-3.0-or-later & LGPL-2.1-or-later"
 LIC_FILES_CHKSUM = "file://COPYING;md5=c678957b0c8e964aa6c70fd77641a71e"
+
+# without libxml in PACKAGECONFIG vendor copy of the lib will be used
+LICENSE:append = " ${@bb.utils.contains('PACKAGECONFIG', 'libxml', '', '& MIT', d)}"
+LIC_FILES_CHKSUM:append = " ${@bb.utils.contains('PACKAGECONFIG', 'libxml', '', 'file://libtextstyle/lib/libxml/COPYING;md5=2044417e2e5006b65a8b9067b683fcf1', d)}"
+# without croco in PACKAGECONFIG vendor copy of the lib will be used
+LIC_FILES_CHKSUM:append = " ${@bb.utils.contains('PACKAGECONFIG', 'croco', '', 'file://libtextstyle/lib/libcroco/libcroco.h;md5=915a46e7307c2f7f8d2b9c503fc434ed;beginline=10;endline=28', d)}"
+# without glib in PACKAGECONFIG vendor copy of the lib will be used
+LIC_FILES_CHKSUM:append = " ${@bb.utils.contains('PACKAGECONFIG', 'glib', '', 'file://libtextstyle/lib/glib/ghash.c;md5=af89a160226edf0b276b6183888037d0;beginline=10;endline=27', d)}"
+
 
 DEPENDS = "gettext-native virtual/libiconv"
 DEPENDS:class-native = "gettext-minimal-native"
@@ -22,6 +31,7 @@ SRC_URI = "${GNU_MIRROR}/gettext/gettext-${PV}.tar.gz \
            file://0001-init-env.in-do-not-add-C-CXX-parameters.patch \
            file://mingw.patch \
            file://0001-msgmerge-29-Add-executable-file-mode-bits.patch \
+           file://0001-libtextstyle-fix-builds-with-automake-1.16.4-and-new.patch \
            "
 SRC_URI[sha256sum] = "c77d0da3102aec9c07f43671e60611ebff89a996ef159497ce8e59d075786b12"
 

@@ -1,11 +1,11 @@
 SUMMARY = "Libyui is a widget abstraction library providing Qt, GTK and ncurses frontends."
-LICENSE = "LGPLv3"
+LICENSE = "LGPL-3.0-only"
 LIC_FILES_CHKSUM = "file://../COPYING.gpl-3;md5=d32239bcb673463ab874e80d47fae504 \
                     file://../COPYING.lgpl-2.1;md5=4fbd65380cdd255951079008b364516c \
                     file://../COPYING.lgpl-3;md5=e6a600fd5e1d9cbde2d983680233ad02 \
                    "
 
-SRC_URI = "git://github.com/libyui/libyui.git \
+SRC_URI = "git://github.com/libyui/libyui.git;branch=master;protocol=https \
            file://0001-Fix-build-with-clang.patch \
            file://0001-Use-relative-install-paths-for-CMake.patch \
            "

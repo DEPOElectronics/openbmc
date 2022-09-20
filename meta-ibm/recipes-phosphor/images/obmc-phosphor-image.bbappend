@@ -1,7 +1,8 @@
 OBMC_IMAGE_EXTRA_INSTALL:append:ibm-ac-server = " mboxd max31785-msl phosphor-msl-verify liberation-fonts uart-render-controller first-boot-set-hostname"
-OBMC_IMAGE_EXTRA_INSTALL:append:p10bmc = " mboxd ibmtpm2tss"
-OBMC_IMAGE_EXTRA_INSTALL:append:witherspoon-tacoma = " ibmtpm2tss"
+OBMC_IMAGE_EXTRA_INSTALL:append:p10bmc = " mboxd"
 OBMC_IMAGE_EXTRA_INSTALL:append:mihawk = " mboxd liberation-fonts uart-render-controller "
+
+IMAGE_FEATURES:append = " obmc-dbus-monitor"
 
 # remove so things fit in available flash space
 IMAGE_FEATURES:remove:witherspoon = "obmc-user-mgmt-ldap"
@@ -38,7 +39,6 @@ IMAGE_FEATURES:remove:p10bmc = "obmc-fru-ipmi"
 #     set to / (the root directory) to allow dropbear ssh connections.
 
 # Override defaults from meta-phosphor/conf/distro/include/phosphor-defaults.inc
-inherit extrausers
 
 #IBM_EXTRA_USERS_PARAMS += " \
 #  usermod -p ${DEFAULT_OPENBMC_PASSWORD} root; \

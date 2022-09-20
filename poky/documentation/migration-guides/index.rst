@@ -1,18 +1,19 @@
 .. SPDX-License-Identifier: CC-BY-SA-2.0-UK
 
-==========================
- Release Migration Guides
-==========================
+====================
+ Release Information
+====================
 
 |
 
-Each document in this chapter provides information about how
+Each document in this chapter provides release notes and information about how
 to move to one release of the Yocto Project from the previous one.
 
 .. toctree::
 
    migration-general
-   migration-3.4
+   release-4.0
+   release-3.4
    migration-3.3
    migration-3.2
    migration-3.1

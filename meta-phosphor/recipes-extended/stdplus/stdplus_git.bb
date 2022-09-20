@@ -11,15 +11,20 @@ inherit meson pkgconfig
 DEPENDS += " \
   fmt \
   liburing \
-  span-lite \
   "
+
+PACKAGES =+ "libstdplus libstdplus-dl libstdplus-io_uring"
+FILES:libstdplus = "${libdir}/libstdplus.so.*"
+FILES:libstdplus-dl = "${libdir}/libstdplus-dl.so.*"
+FILES:libstdplus-io_uring = "${libdir}/libstdplus-io_uring.so.*"
 
 EXTRA_OEMESON = " \
         -Dexamples=false \
         -Dtests=disabled \
+        -Dgtest=disabled \
         "
 
-SRC_URI += "git://github.com/openbmc/stdplus"
-SRCREV = "8b70ecc79add4fd22efe9b41dc3c991a2b13b810"
+SRC_URI += "git://github.com/openbmc/stdplus;branch=master;protocol=https"
+SRCREV = "aa4fcfc208c45511aa9788a08c969425e440fda0"
 
 S = "${WORKDIR}/git"

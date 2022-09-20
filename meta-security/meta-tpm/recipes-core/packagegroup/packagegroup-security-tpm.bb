@@ -14,8 +14,8 @@ RDEPENDS:packagegroup-security-tpm = " \
     pcr-extend \
     tpm-quote-tools \
     swtpm \
+    libhoth \
     openssl-tpm-engine \
-    libtpm \
     ${X86_TPM_MODULES} \
     "
 

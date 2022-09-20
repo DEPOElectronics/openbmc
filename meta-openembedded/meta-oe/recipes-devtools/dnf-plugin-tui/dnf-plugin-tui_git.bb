@@ -1,15 +1,15 @@
 SUMMARY = "A text-based user interface plugin of dnf for user to manage packages. "
-LICENSE = "GPLv2"
+LICENSE = "GPL-2.0-only"
 
 LIC_FILES_CHKSUM = "file://COPYING;md5=b234ee4d69f5fce4486a80fdaf4a4263"
 
-SRC_URI = "git://github.com/ubinux/dnf-plugin-tui.git;branch=master "
-SRCREV = "b0d80b7129f1d84cc563a4098d869e7420bcf4bc"
+SRC_URI = "git://github.com/ubinux/dnf-plugin-tui.git;branch=master;protocol=https"
+SRCREV = "bac88927b253cdcfe0d06ac7dc5afb876cd2d996"
 PV = "1.3"
 
 SRC_URI:append:class-target = " file://oe-remote.repo.sample"
 
-inherit distutils3-base
+inherit setuptools3-base
 
 S = "${WORKDIR}/git"
 
@@ -28,7 +28,14 @@ do_install:append:class-target() {
     install -m 0644 ${WORKDIR}/oe-remote.repo.sample ${D}${sysconfdir}/yum.repos.d
 }
 
+do_install:append:class-nativesdk() {
+    install -d -p ${D}/${SDKPATH}/postinst-intercepts
+    cp -r ${COREBASE}/scripts/postinst-intercepts/* ${D}/${SDKPATH}/postinst-intercepts/
+    sed -i -e 's/STAGING_DIR_NATIVE/NATIVE_ROOT/g' ${D}/${SDKPATH}/postinst-intercepts/*
+}
+
 FILES:${PN} += "${datadir}/dnf"
+FILES:${PN} += "${SDKPATH}/postinst-intercepts"
 
 RDEPENDS:${PN} += " \
     bash \
@@ -37,4 +44,4 @@ RDEPENDS:${PN} += " \
 "
 
 BBCLASSEXTEND = "nativesdk"
-PNBLACKLIST[dnf-plugin-tui] ?= "${@bb.utils.contains('PACKAGE_CLASSES', 'package_rpm', '', 'does not build correctly without package_rpm in PACKAGE_CLASSES', d)}"
+SKIP_RECIPE[dnf-plugin-tui] ?= "${@bb.utils.contains('PACKAGE_CLASSES', 'package_rpm', '', 'does not build correctly without package_rpm in PACKAGE_CLASSES', d)}"

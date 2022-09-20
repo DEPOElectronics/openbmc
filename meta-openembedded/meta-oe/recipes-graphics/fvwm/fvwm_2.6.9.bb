@@ -1,7 +1,7 @@
 SUMMARY = "F Virtual Window Manager "
 HOMEPAGE = "http://www.fvwm.org/"
 SECTION = "x11/wm"
-LICENSE = "GPLv2"
+LICENSE = "GPL-2.0-only"
 LIC_FILES_CHKSUM = "file://COPYING;md5=f8204787357db6ea518dcc9b6cf08388"
 
 DEPENDS = " \
@@ -32,7 +32,7 @@ DEPENDS = " \
 "
 
 SRC_URI = " \
-    git://github.com/fvwmorg/fvwm.git;protocol=https \
+    git://github.com/fvwmorg/fvwm.git;protocol=https;branch=master \
     file://0001-Fix-compilation-for-disabled-gnome.patch \
 "
 

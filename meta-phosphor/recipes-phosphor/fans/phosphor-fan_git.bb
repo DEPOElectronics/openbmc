@@ -5,15 +5,13 @@ PR = "r1"
 PV = "1.0+git${SRCPV}"
 
 require ${BPN}.inc
-
-inherit autotools pkgconfig python3native
+inherit meson pkgconfig python3native
 inherit obmc-phosphor-systemd
 inherit phosphor-fan
 
 S = "${WORKDIR}/git"
 
 # Common build dependencies
-DEPENDS += "autoconf-archive-native"
 DEPENDS += "${PYTHON_PN}-pyyaml-native"
 DEPENDS += "${PYTHON_PN}-mako-native"
 DEPENDS += "sdbusplus"
@@ -30,24 +28,26 @@ FAN_PACKAGES = " \
         ${PN}-presence-tach \
         ${PN}-control \
         ${PN}-monitor \
+        ${PN}-sensor-monitor \
 "
 
 ALLOW_EMPTY:${PN} = "1"
 PACKAGE_BEFORE_PN += "${FAN_PACKAGES}"
-PACKAGECONFIG ?= "presence control monitor"
+PACKAGECONFIG ?= "presence control monitor sensor-monitor"
 SYSTEMD_PACKAGES = "${FAN_PACKAGES}"
+EXTRA_OEMESON:append = " -Dtests=disabled"
 PKG_DEFAULT_MACHINE ??= "${MACHINE}"
 PACKAGE_ARCH = "${MACHINE_ARCH}"
 
 # The control, monitor, and presence apps can either be JSON or YAML driven.
-PACKAGECONFIG[json] = "--enable-json, --disable-json"
+PACKAGECONFIG[json] = "-Djson-config=enabled, -Djson-config=disabled"
 
 # --------------------------------------
 # ${PN}-presence-tach specific configuration
-PACKAGECONFIG[presence] = "--enable-presence \
-    MACHINE=${PKG_DEFAULT_MACHINE} \
-    PRESENCE_CONFIG=${STAGING_DIR_HOST}${presence_datadir}/config.yaml, \
-    --disable-presence, \
+PACKAGECONFIG[presence] = "-Dpresence-service=enabled \
+    -Dmachine-name=${PKG_DEFAULT_MACHINE} \
+    -Dpresence-config=${STAGING_DIR_HOST}${presence_datadir}/config.yaml, \
+    -Dpresence-service=disabled, \
     virtual/phosphor-fan-presence-config \
     , \
 "
@@ -56,7 +56,7 @@ MULTI_USR_TGT = "multi-user.target"
 TMPL_TACH = "phosphor-fan-presence-tach@.service"
 INSTFMT_TACH = "phosphor-fan-presence-tach@{0}.service"
 POWERON_TGT = "obmc-chassis-poweron@{0}.target"
-FMT_TACH = "../${TMPL_TACH}:${POWERON_TGT}.requires/${INSTFMT_TACH}"
+FMT_TACH = "../${TMPL_TACH}:${POWERON_TGT}.wants/${INSTFMT_TACH}"
 FMT_TACH_MUSR = "../${TMPL_TACH}:${MULTI_USR_TGT}.wants/${INSTFMT_TACH}"
 
 FILES:${PN}-presence-tach = "${bindir}/phosphor-fan-presence-tach"
@@ -73,13 +73,13 @@ FILES:${PN}-presence-tach += "${@bb.utils.contains('PACKAGECONFIG', 'json', \
 
 # --------------------------------------
 # ${PN}-control specific configuration
-PACKAGECONFIG[control] = "--enable-control \
-    MACHINE=${PKG_DEFAULT_MACHINE} \
-    FAN_DEF_YAML_FILE=${STAGING_DIR_HOST}${control_datadir}/fans.yaml \
-    FAN_ZONE_YAML_FILE=${STAGING_DIR_HOST}${control_datadir}/zones.yaml \
-    ZONE_EVENTS_YAML_FILE=${STAGING_DIR_HOST}${control_datadir}/events.yaml \
-    ZONE_CONDITIONS_YAML_FILE=${STAGING_DIR_HOST}${control_datadir}/zone_conditions.yaml, \
-    --disable-control, \
+PACKAGECONFIG[control] = "-Dcontrol-service=enabled \
+    -Dmachine-name=${PKG_DEFAULT_MACHINE} \
+    -Dfan-def-yaml-file=${STAGING_DIR_HOST}${control_datadir}/fans.yaml \
+    -Dfan-zone-yaml-file=${STAGING_DIR_HOST}${control_datadir}/zones.yaml \
+    -Dzone-events-yaml-file=${STAGING_DIR_HOST}${control_datadir}/events.yaml \
+    -Dzone-conditions-yaml-file=${STAGING_DIR_HOST}${control_datadir}/zone_conditions.yaml, \
+    -Dcontrol-service=disabled, \
     virtual/phosphor-fan-control-fan-config \
     phosphor-fan-control-zone-config \
     phosphor-fan-control-events-config \
@@ -93,7 +93,7 @@ TMPL_CONTROL = "phosphor-fan-control@.service"
 INSTFMT_CONTROL = "phosphor-fan-control@{0}.service"
 FMT_CONTROL = "../${TMPL_CONTROL}:${FAN_CONTROL_TGT}.requires/${INSTFMT_CONTROL}"
 FMT_CONTROL_MUSR = "../${TMPL_CONTROL}:${MULTI_USR_TGT}.wants/${INSTFMT_CONTROL}"
-FMT_CONTROL_PWRON = "../${TMPL_CONTROL}:${POWERON_TGT}.requires/${INSTFMT_CONTROL}"
+FMT_CONTROL_PWRON = "../${TMPL_CONTROL}:${POWERON_TGT}.wants/${INSTFMT_CONTROL}"
 
 TMPL_CONTROL_INIT = "phosphor-fan-control-init@.service"
 INSTFMT_CONTROL_INIT = "phosphor-fan-control-init@{0}.service"
@@ -119,10 +119,10 @@ FILES:${PN}-control += "${@bb.utils.contains('PACKAGECONFIG', 'json', \
 
 # --------------------------------------
 # ${PN}-monitor specific configuration
-PACKAGECONFIG[monitor] = "--enable-monitor \
-    MACHINE=${PKG_DEFAULT_MACHINE} \
-    FAN_MONITOR_YAML_FILE=${STAGING_DIR_HOST}${monitor_datadir}/monitor.yaml, \
-    --disable-monitor, \
+PACKAGECONFIG[monitor] = "-Dmonitor-service=enabled \
+    -Dmachine-name=${PKG_DEFAULT_MACHINE} \
+    -Dfan-monitor-yaml-file=${STAGING_DIR_HOST}${monitor_datadir}/monitor.yaml, \
+    -Dmonitor-service=disabled, \
     phosphor-fan-monitor-config \
     , \
 "
@@ -130,7 +130,7 @@ PACKAGECONFIG[monitor] = "--enable-monitor \
 TMPL_MONITOR = "phosphor-fan-monitor@.service"
 INSTFMT_MONITOR = "phosphor-fan-monitor@{0}.service"
 FMT_MONITOR_FANSREADY = "../${TMPL_MONITOR}:${FAN_CONTROL_TGT}.requires/${INSTFMT_MONITOR}"
-FMT_MONITOR_PWRON = "../${TMPL_MONITOR}:${POWERON_TGT}.requires/${INSTFMT_MONITOR}"
+FMT_MONITOR_PWRON = "../${TMPL_MONITOR}:${POWERON_TGT}.wants/${INSTFMT_MONITOR}"
 FMT_MONITOR_MUSR = "../${TMPL_MONITOR}:${MULTI_USR_TGT}.wants/${INSTFMT_MONITOR}"
 
 TMPL_MONITOR_INIT = "phosphor-fan-monitor-init@.service"
@@ -156,11 +156,12 @@ FILES:${PN}-monitor += "${@bb.utils.contains('PACKAGECONFIG', 'json', \
 
 # --------------------------------------
 # phosphor-cooling-type specific configuration
-PACKAGECONFIG[cooling-type] = "--enable-cooling-type,--disable-cooling-type,,"
-
+PACKAGECONFIG[cooling-type] = "-Dcooling-type-service=enabled,-Dcooling-type-service=disabled,,"
 # --------------------------------------
 # ${PN}-sensor-monitor specific configuration
-PACKAGECONFIG[sensor-monitor] = "--enable-sensor-monitor, --disable-sensor-monitor"
+PACKAGECONFIG[sensor-monitor] = "-Dsensor-monitor-service=enabled,-Dsensor-monitor-service=disabled"
+
+FAN_PACKAGES:append = "${@bb.utils.contains('PACKAGECONFIG', 'sensor-monitor', ' sensor-monitor', '', d)}"
 
 FILES:sensor-monitor += " ${bindir}/sensor-monitor"
 SYSTEMD_SERVICE:sensor-monitor += "sensor-monitor.service"

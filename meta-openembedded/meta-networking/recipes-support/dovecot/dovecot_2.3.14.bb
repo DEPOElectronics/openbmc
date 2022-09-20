@@ -2,7 +2,7 @@ SUMMARY = "Dovecot is an open source IMAP and POP3 email server"
 HOMEPAGE = "https://www.dovecot.org/"
 DESCRIPTION = "Dovecot is an open source IMAP and POP3 email server for Linux/UNIX-like systems, written with security primarily in mind. Dovecot is an excellent choice for both small and large installations. It's fast, simple to set up, requires no special administration and it uses very little memory."
 SECTION = "mail"
-LICENSE = "LGPLv2.1 & MIT"
+LICENSE = "LGPL-2.1-only & MIT"
 LIC_FILES_CHKSUM = "file://COPYING;md5=2956560272e5b31d9d64f03111732048"
 
 SRC_URI = "http://dovecot.org/releases/2.3/dovecot-${PV}.tar.gz \
@@ -74,4 +74,4 @@ FILES:${PN}-dev += "${libdir}/dovecot/libdovecot*.so"
 FILES:${PN}-dbg += "${libdir}/dovecot/*/.debug"
 
 # CVE-2016-4983 affects only postinstall script on specific distribution
-CVE_CHECK_WHITELIST += "CVE-2016-4983"
+CVE_CHECK_IGNORE += "CVE-2016-4983"

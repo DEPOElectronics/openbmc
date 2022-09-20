@@ -42,6 +42,7 @@ RDEPENDS:${PN} += "phosphor-state-manager-obmc-targets"
 EXTRA_OEMESON = " \
              -Dyamldir=${STAGING_DATADIR_NATIVE}/${PN} \
              -Dps-derating-factor=${POWER_SUPPLY_DERATING_FACTOR} \
+             -Dtests=disabled \
              "
 EXTRA_OEMESON:append = "${@bb.utils.contains('MACHINE_FEATURES', 'i2c-occ', ' -Di2c-occ=enabled', '', d)}"
 
@@ -77,7 +78,7 @@ DEPENDS:remove:class-native = " \
         sdbusplus \
         virtual/${PN}-config-native \
         "
-RDEPENDS:${PN}:remove:class-native += "phosphor-state-manager-obmc-targets"
+RDEPENDS:${PN}:remove:class-native = "phosphor-state-manager-obmc-targets"
 
 # Remove packages not required for native SDK build
 DEPENDS:remove:class-nativesdk = " \
@@ -86,7 +87,7 @@ DEPENDS:remove:class-nativesdk = " \
         sdbusplus \
         virtual/${PN}-config-native \
         "
-RDEPENDS:${PN}:remove:class-nativesdk += "phosphor-state-manager-obmc-targets"
+RDEPENDS:${PN}:remove:class-nativesdk = "phosphor-state-manager-obmc-targets"
 
 # Provide a means to enable/disable install_error_yaml feature
 PACKAGECONFIG ??= "install_error_yaml"

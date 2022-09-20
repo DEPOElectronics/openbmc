@@ -2,14 +2,15 @@ HOMEPAGE = "http://www.x.org"
 BUGTRACKER = "https://bugs.freedesktop.org/enter_bug.cgi?product=xorg"
 
 SECTION = "x11/fonts"
-LICENSE = "MIT-X"
+LICENSE = "MIT"
 
 DEPENDS = " encodings font-alias font-util-native"
 RDEPENDS:${PN} = "encodings font-util font-alias"
 
 XORG_PN = "${BPN}"
 
-SRC_URI = "${XORG_MIRROR}/individual/font/${XORG_PN}-${PV}.tar.bz2"
+SRC_URI_EXT = "bz2"
+SRC_URI = "${XORG_MIRROR}/individual/font/${XORG_PN}-${PV}.tar.${SRC_URI_EXT}"
 S = "${WORKDIR}/${XORG_PN}-${PV}"
 
 inherit autotools pkgconfig features_check

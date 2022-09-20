@@ -1,3 +1,9 @@
+#
+# Copyright OpenEmbedded Contributors
+#
+# SPDX-License-Identifier: MIT
+#
+
 python multilib_virtclass_handler () {
     cls = e.data.getVar("BBEXTENDCURR")
     variant = e.data.getVar("BBEXTENDVARIANT")
@@ -65,21 +71,22 @@ python multilib_virtclass_handler () {
  
     override = ":virtclass-multilib-" + variant
 
-    blacklist = e.data.getVarFlag('PNBLACKLIST', e.data.getVar('PN'))
-    if blacklist:
+    skip_msg = e.data.getVarFlag('SKIP_RECIPE', e.data.getVar('PN'))
+    if skip_msg:
         pn_new = variant + "-" + e.data.getVar('PN')
-        if not e.data.getVarFlag('PNBLACKLIST', pn_new):
-            e.data.setVarFlag('PNBLACKLIST', pn_new, blacklist)
+        if not e.data.getVarFlag('SKIP_RECIPE', pn_new):
+            e.data.setVarFlag('SKIP_RECIPE', pn_new, skip_msg)
 
     e.data.setVar("MLPREFIX", variant + "-")
     e.data.setVar("PN", variant + "-" + e.data.getVar("PN", False))
     e.data.setVar("OVERRIDES", e.data.getVar("OVERRIDES", False) + override)
 
-    # Expand WHITELIST_GPL-3.0 with multilib prefix
-    pkgs = e.data.getVar("WHITELIST_GPL-3.0")
-    for pkg in pkgs.split():
-        pkgs += " " + variant + "-" + pkg
-    e.data.setVar("WHITELIST_GPL-3.0", pkgs)
+    # Expand INCOMPATIBLE_LICENSE_EXCEPTIONS with multilib prefix
+    pkgs = e.data.getVar("INCOMPATIBLE_LICENSE_EXCEPTIONS")
+    if pkgs:
+        for pkg in pkgs.split():
+            pkgs += " " + variant + "-" + pkg
+        e.data.setVar("INCOMPATIBLE_LICENSE_EXCEPTIONS", pkgs)
 
     # DEFAULTTUNE can change TARGET_ARCH override so expand this now before update_data
     newtune = e.data.getVar("DEFAULTTUNE:" + "virtclass-multilib-" + variant, False)
@@ -92,6 +99,10 @@ multilib_virtclass_handler[eventmask] = "bb.event.RecipePreFinalise"
 
 python __anonymous () {
     if bb.data.inherits_class('image', d):
+        # set rpm preferred file color for 32-bit multilib image
+        if d.getVar("SITEINFO_BITS") == "32":
+            d.setVar("RPM_PREFER_ELF_ARCH", "1")
+
         variant = d.getVar("BBEXTENDVARIANT")
         import oe.classextend
 
@@ -210,7 +221,7 @@ python do_package_qa_multilib() {
         if len(candidates) > 0:
             msg = "%s package %s - suspicious values '%s' in %s" \
                    % (d.getVar('PN'), pkg, ' '.join(candidates), var)
-            package_qa_handle_error("multilib", msg, d)
+            oe.qa.handle_error("multilib", msg, d)
 
     ml = d.getVar('MLPREFIX')
     if not ml:
@@ -228,4 +239,5 @@ python do_package_qa_multilib() {
         check_mlprefix(pkg, 'RSUGGESTS', ml)
         check_mlprefix(pkg, 'RREPLACES', ml)
         check_mlprefix(pkg, 'RCONFLICTS', ml)
+    oe.qa.exit_if_errors(d)
 }

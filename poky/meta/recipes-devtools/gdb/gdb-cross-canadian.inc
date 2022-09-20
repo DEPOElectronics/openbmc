@@ -6,7 +6,7 @@ SUMMARY = "GNU debugger (cross-canadian gdb for ${TARGET_ARCH} target)"
 PN = "gdb-cross-canadian-${TRANSLATED_TARGET_ARCH}"
 BPN = "gdb"
 
-DEPENDS = "nativesdk-ncurses nativesdk-expat nativesdk-gettext \
+DEPENDS = "nativesdk-ncurses nativesdk-expat nativesdk-gettext nativesdk-gmp \
            virtual/${HOST_PREFIX}gcc-crosssdk virtual/${HOST_PREFIX}binutils-crosssdk virtual/nativesdk-libc"
 
 GDBPROPREFIX = "--program-prefix='${TARGET_PREFIX}'"
@@ -20,7 +20,7 @@ PACKAGECONFIG[python] = "--with-python=${WORKDIR}/python,--without-python,native
 PACKAGECONFIG[readline] = "--with-system-readline,--without-system-readline,nativesdk-readline"
 PACKAGECONFIG[debuginfod] = "--with-debuginfod, --without-debuginfod, nativesdk-elfutils"
 
-SSTATE_DUPWHITELIST += "${STAGING_DATADIR}/gdb"
+SSTATE_ALLOW_OVERLAP_FILES += "${STAGING_DATADIR}/gdb"
 
 do_configure:prepend() {
 cat > ${WORKDIR}/python << EOF

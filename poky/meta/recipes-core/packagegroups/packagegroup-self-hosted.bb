@@ -98,11 +98,14 @@ RDEPENDS:packagegroup-self-hosted-sdk:append:libc-glibc = "\
     glibc-utils \
     rpcsvc-proto \
     "
+
+STRACE = "strace"
+STRACE:riscv32 = ""
 RDEPENDS:packagegroup-self-hosted-debug = " \
     gdb \
     gdbserver \
     rsync \
-    strace \
+    ${STRACE} \
     tcf-agent"
 
 
@@ -129,7 +132,6 @@ RDEPENDS:packagegroup-self-hosted-extended = "\
     libusb1 \
     libxml2 \
     lsof \
-    lzo \
     man \
     man-pages \
     mdadm \

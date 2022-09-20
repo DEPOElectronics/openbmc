@@ -5,7 +5,7 @@ zipl (s390) boot loaders. It is primarily designed to be used from scripts which
 new kernels and need to find information about the current boot environment. \
 "
 HOMEPAGE = "https://github.com/rhboot/grubby"
-LICENSE = "GPLv2+"
+LICENSE = "GPL-2.0-or-later"
 
 LIC_FILES_CHKSUM = "file://COPYING;md5=892f569a555ba9c07a568a7c0c4fa63a"
 
@@ -14,7 +14,7 @@ DEPENDS:append:libc-musl = " libexecinfo"
 
 S = "${WORKDIR}/git"
 SRCREV = "a1d2ae93408c3408e672d7eba4550fdf27fb0201"
-SRC_URI = "git://github.com/rhboot/grubby.git;protocol=https; \
+SRC_URI = "git://github.com/rhboot/grubby.git;protocol=https;;branch=master \
            file://grubby-rename-grub2-editenv-to-grub-editenv.patch \
            file://run-ptest \
            file://0001-Add-another-variable-LIBS-to-provides-libraries-from.patch \
@@ -37,5 +37,9 @@ do_install_ptest() {
 
 RDEPENDS:${PN} += "bash"
 RDEPENDS:${PN}-ptest = "util-linux-getopt bash"
+
+inherit update-alternatives
+ALTERNATIVE:${PN} = "installkernel"
+ALTERNATIVE_LINK_NAME[installkernel] = "${sbindir}/installkernel"
 
 COMPATIBLE_HOST = '(x86_64.*|i.86.*)-(linux|freebsd.*)'

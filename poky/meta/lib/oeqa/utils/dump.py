@@ -1,4 +1,6 @@
 #
+# Copyright OpenEmbedded Contributors
+#
 # SPDX-License-Identifier: MIT
 #
 
@@ -66,6 +68,7 @@ class BaseDumper(object):
 
     def _write_dump(self, command, output):
         fullname = self._construct_filename(command)
+        os.makedirs(os.path.dirname(fullname), exist_ok=True)
         if isinstance(self, MonitorDumper):
             with open(fullname, 'w') as json_file:
                 json.dump(output, json_file, indent=4)
@@ -134,4 +137,4 @@ class MonitorDumper(BaseDumper):
                     output = self.runner.run_monitor(cmd_name)
                 self._write_dump(cmd_name, output)
             except Exception as e:
-                print("Failed to dump QMP CMD: %s with\nExecption: %s" % (cmd_name, e))
+                print("Failed to dump QMP CMD: %s with\nException: %s" % (cmd_name, e))

@@ -19,6 +19,7 @@ POWER_SERVICE_PACKAGES = " \
     ${PN}-psu-monitor \
     ${PN}-regulators \
     ${PN}-sequencer \
+    ${PN}-control \
 "
 POWER_UTIL_PACKAGES = "${PN}-utils"
 
@@ -42,9 +43,10 @@ DEPENDS += " \
          libgpiod \
          "
 
-# The monitor package uses an org.open_power D-Bus interface and so
+# The monitor packages use an org.open_power D-Bus interface and so
 # should only build when told to.
 PACKAGECONFIG[monitor] = "-Dsupply-monitor=true, -Dsupply-monitor=false"
+PACKAGECONFIG[monitor-ng] = "-Dsupply-monitor-ng=true, -Dsupply-monitor-ng=false"
 
 SEQ_MONITOR_SVC = "pseq-monitor.service"
 SEQ_PGOOD_SVC = "pseq-monitor-pgood.service"
@@ -54,11 +56,13 @@ REGS_SVC = "phosphor-regulators.service"
 REGS_CONF_SVC = "phosphor-regulators-config.service"
 REGS_MON_ENA_SVC = "phosphor-regulators-monitor-enable.service"
 REGS_MON_DIS_SVC = "phosphor-regulators-monitor-disable.service"
+POWER_CONTROL_SVC = "phosphor-power-control.service"
 
 SYSTEMD_SERVICE:${PN}-sequencer = "${SEQ_MONITOR_SVC} ${SEQ_PGOOD_SVC}"
 SYSTEMD_SERVICE:${PN}-monitor = "${@bb.utils.contains('PACKAGECONFIG', 'monitor', '${PSU_MONITOR_TMPL}', '', d)}"
-SYSTEMD_SERVICE:${PN}-psu-monitor = "${PSU_MONITOR_SVC}"
+SYSTEMD_SERVICE:${PN}-psu-monitor = "${@bb.utils.contains('PACKAGECONFIG', 'monitor-ng', '${PSU_MONITOR_SVC}', '', d)}"
 SYSTEMD_SERVICE:${PN}-regulators = "${REGS_SVC} ${REGS_CONF_SVC} ${REGS_MON_ENA_SVC} ${REGS_MON_DIS_SVC}"
+SYSTEMD_SERVICE:${PN}-control = "${POWER_CONTROL_SVC}"
 
 
 # TODO: cold-redundancy is not installed in the repo yet
@@ -69,4 +73,5 @@ FILES:${PN}-psu-monitor = "${bindir}/phosphor-psu-monitor ${datadir}/phosphor-ps
 FILES:${PN}-regulators = "${bindir}/phosphor-regulators ${datadir}/phosphor-regulators"
 FILES:${PN}-regulators += "${bindir}/regsctl"
 FILES:${PN}-sequencer = "${bindir}/pseq-monitor"
+FILES:${PN}-control = "${bindir}/phosphor-power-control ${datadir}/phosphor-power-sequencer"
 FILES:${PN}-utils = "${bindir}/psutils"

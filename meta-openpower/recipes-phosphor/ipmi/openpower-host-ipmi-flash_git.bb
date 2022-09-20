@@ -5,11 +5,10 @@ PV = "0.1+git${SRCPV}"
 LICENSE = "Apache-2.0"
 LIC_FILES_CHKSUM = "file://LICENSE;md5=ff331e820fda701d36a8f0efc98adc58"
 
-inherit autotools pkgconfig
+inherit meson pkgconfig
 inherit obmc-phosphor-ipmiprovider-symlink
 
 DEPENDS += "phosphor-ipmi-host"
-DEPENDS += "autoconf-archive-native"
 DEPENDS += "sdbusplus"
 DEPENDS += "phosphor-logging"
 DEPENDS += "phosphor-dbus-interfaces"
@@ -20,8 +19,10 @@ HOSTIPMI_PROVIDER_LIBRARY += "libhiomap.so"
 
 S = "${WORKDIR}/git"
 
-SRC_URI += "git://github.com/openbmc/openpower-host-ipmi-flash"
-SRCREV = "90eea43e3e6a019344158766ac092acf2a240c24"
+SRC_URI += "git://github.com/openbmc/openpower-host-ipmi-flash;branch=master;protocol=https"
+SRCREV = "868976f0478f86ff17164b4950da2173c7f97f3c"
+
+EXTRA_OEMESON:append = " -Dtests=disabled"
 
 FILES:${PN}:append = " ${libdir}/ipmid-providers/lib*${SOLIBS}"
 FILES:${PN}:append = " ${libdir}/host-ipmid/lib*${SOLIBS}"

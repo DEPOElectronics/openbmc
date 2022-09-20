@@ -106,12 +106,12 @@ as was previously assumed. Rather, the value changes based on whether
 large file support is enabled. For most software that uses ``autoconf``,
 this change should not be a problem. However, if you have a recipe that
 bypasses the standard :ref:`ref-tasks-configure` task
-from the ``autotools`` class and the software the recipe is building
+from the :ref:`autotools <ref-classes-autotools>` class and the software the recipe is building
 uses a very old version of ``autoconf``, the recipe might be incapable
 of determining the correct size of ``off_t`` during ``do_configure``.
 
 The best course of action is to patch the software as necessary to allow
-the default implementation from the ``autotools`` class to work such
+the default implementation from the :ref:`autotools <ref-classes-autotools>` class to work such
 that ``autoreconf`` succeeds and produces a working configure script,
 and to remove the overridden ``do_configure`` task such that the default
 implementation does get used.
@@ -262,7 +262,7 @@ The following changes have been made for the Poky distribution:
    With this class enabled, a tarball containing a pre-built C library
    is downloaded at the start of the build.
 
-   The ``uninative`` class is enabled through the
+   The :ref:`uninative <ref-classes-uninative>` class is enabled through the
    ``meta/conf/distro/include/yocto-uninative.inc`` file, which for
    those not using the Poky distribution, can include to easily enable
    the same functionality.
@@ -281,7 +281,7 @@ The following changes have been made for the Poky distribution:
    using the Poky distribution can easily include to enable the same
    functionality.
 
-   Any recipe that needs to opt-out of having the "--disable-static"
+   Any recipe that needs to opt-out of having the ``--disable-static``
    option specified on the configure command line either because it is
    not a supported option for the configure script or because static
    libraries are needed should set the following variable::
@@ -357,7 +357,7 @@ These additional changes exist:
 -  The minimum Git version has been increased to 1.8.3.1. If your host
    distribution does not provide a sufficiently recent version, you can
    install the buildtools, which will provide it. See the
-   :ref:`ref-manual/system-requirements:required git, tar, python and gcc versions`
+   :ref:`ref-manual/system-requirements:required git, tar, python, make and gcc versions`
    section for more information on the buildtools tarball.
 
 -  The buggy and incomplete support for the RPM version 4 package
@@ -384,9 +384,9 @@ These additional changes exist:
 -  The
    :ref:`devtool modify <sdk-manual/extensible:use \`\`devtool modify\`\` to modify the source of an existing component>`
    command now defaults to extracting the source since that is most
-   commonly expected. The "-x" or "--extract" options are now no-ops. If
+   commonly expected. The ``-x`` or ``--extract`` options are now no-ops. If
    you wish to provide your own existing source tree, you will now need
-   to specify either the "-n" or "--no-extract" options when running
+   to specify either the ``-n`` or ``--no-extract`` options when running
    ``devtool modify``.
 
 -  If the formfactor for a machine is either not supplied or does not

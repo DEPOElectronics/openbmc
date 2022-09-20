@@ -8,32 +8,37 @@ lease algorithms: delta leases and paxos leases."
 HOMEPAGE = "https://pagure.io/sanlock"
 SECTION = "utils"
 
-LICENSE = "LGPLv2+ & GPLv2 & GPLv2+"
-LIC_FILES_CHKSUM = "file://../README.license;md5=60487bf0bf429d6b5aa72b6d37a0eb22"
+LICENSE = "LGPL-2.0-or-later & GPL-2.0-only & GPL-2.0-or-later"
+LIC_FILES_CHKSUM = "file://README.license;md5=60487bf0bf429d6b5aa72b6d37a0eb22"
 
 PV .= "+git${SRCPV}"
 
-SRC_URI = "git://pagure.io/sanlock.git;protocol=http \
-           file://0001-sanlock-Replace-cp-a-with-cp-R-no-dereference-preser.patch;patchdir=../ \
+SRC_URI = "git://pagure.io/sanlock.git;protocol=http;branch=master \
+           file://0001-sanlock-Replace-cp-a-with-cp-R-no-dereference-preser.patch \
+           file://setuptools.patch \
           "
 SRCREV = "a181e951376d49a82eef17920c8ebedec80b4823"
 
-S = "${WORKDIR}/git/python"
+S = "${WORKDIR}/git"
+
+CVE_CHECK_IGNORE += "\
+    CVE-2012-5638 \
+"
 
 DEPENDS = "libaio util-linux"
 
-inherit distutils3 useradd
+inherit setuptools3 useradd
 
-do_configure[noexec] = "1"
+SETUPTOOLS_SETUP_PATH = "${S}/python"
 
 do_compile:prepend () {
-    oe_runmake -C ${S}/../wdmd CMD_LDFLAGS="${LDFLAGS}" LIB_LDFLAGS="${LDFLAGS}"
-    oe_runmake -C ${S}/../src CMD_LDFLAGS="${LDFLAGS}" LIB_ENTIRE_LDFLAGS="${LDFLAGS}" LIB_CLIENT_LDFLAGS="${LDFLAGS}"
+    oe_runmake -C ${S}/wdmd CMD_LDFLAGS="${LDFLAGS}" LIB_LDFLAGS="${LDFLAGS}"
+    oe_runmake -C ${S}/src CMD_LDFLAGS="${LDFLAGS}" LIB_ENTIRE_LDFLAGS="${LDFLAGS}" LIB_CLIENT_LDFLAGS="${LDFLAGS}"
 }
 
 do_install:prepend () {
-    oe_runmake -C ${S}/../wdmd DESTDIR=${D} LIBDIR=${libdir} install
-    oe_runmake -C ${S}/../src DESTDIR=${D} LIBDIR=${libdir} install
+    oe_runmake -C ${S}/wdmd DESTDIR=${D} LIBDIR=${libdir} install
+    oe_runmake -C ${S}/src DESTDIR=${D} LIBDIR=${libdir} install
 }
 
 SANLOCKGROUP ?= "sanlock"

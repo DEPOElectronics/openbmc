@@ -1,6 +1,6 @@
 SUMMARY = "minicoredumper provides an alternate core dump facility for Linux \
 to allow minimal and customized crash dumps"
-LICENSE = " LGPLv2.1 & BSD-2-Clause"
+LICENSE = " LGPL-2.1-only & BSD-2-Clause"
 LIC_FILES_CHKSUM = "file://COPYING;md5=71827c617ec7b45a0dd23658347cc1e9 \
                     file://COPYING.BSD;md5=b915ac80d5236d6aa659cb986daf00e5 \
                     file://COPYING.LGPLv2.1;md5=321bf41f280cf805086dd5a720b37785 \
@@ -13,10 +13,11 @@ SRCREV = "16a0d44f1725eaa93096eaa0e086f42ef4c2712c"
 
 PR .= "+git${SRCPV}"
 
-SRC_URI = "git://github.com/diamon/minicoredumper;protocol=https \
+SRC_URI = "git://github.com/diamon/minicoredumper;protocol=https;branch=master \
            file://0001-replace-pthread_mutexattr_setrobust_np-with-pthread_.patch \
            file://minicoredumper.service \
            file://minicoredumper.init \
+           file://0001-minicoredumper-retry-elf-parsing-as-long-as-needed.patch \
            "
 
 S = "${WORKDIR}/git"

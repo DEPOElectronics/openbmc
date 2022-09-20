@@ -72,7 +72,7 @@ simple JSON files.
 .. note::
 
    The project uses Buildbot for historical reasons but also because
-   many of the project developers have knowledge of python. It is
+   many of the project developers have knowledge of Python. It is
    possible to use the outer layers from another Continuous Integration
    (CI) system such as
    `Jenkins <https://en.wikipedia.org/wiki/Jenkins_(software)>`__
@@ -83,9 +83,10 @@ topology that includes a controller and a cluster of workers:
 
 .. image:: figures/ab-test-cluster.png
    :align: center
+   :width: 70%
 
-Yocto Project Tests - Types of Testing Overview
-===============================================
+Yocto Project Tests --- Types of Testing Overview
+=================================================
 
 The Autobuilder tests different elements of the project by using
 the following types of tests:
@@ -121,7 +122,7 @@ the following types of tests:
 
       $ bitbake image -c testsdkext
 
-   The tests utilize the ``testsdkext`` class and the ``do_testsdkext`` task.
+   The tests utilize the :ref:`testsdkext <ref-classes-testsdk>` class and the ``do_testsdkext`` task.
 
 -  *Feature Testing:* Various scenario-based tests are run through the
    :ref:`OpenEmbedded Self test (oe-selftest) <ref-manual/release-process:Testing and Quality Assurance>`. We test oe-selftest on each of the main distributions
@@ -174,19 +175,25 @@ Tests map into the codebase as follows:
    which include the fetchers. The tests are located in
    ``bitbake/lib/*/tests``.
 
+   Some of these tests run the ``bitbake`` command, so ``bitbake/bin``
+   must be added to the ``PATH`` before running ``bitbake-selftest``.
    From within the BitBake repository, run the following::
 
+      $ export PATH=$PWD/bin:$PATH
+
+   After that, you can run the selftest script::
+
       $ bitbake-selftest
-
-   To skip tests that access the Internet, use the ``BB_SKIP_NETTEST``
-   variable when running "bitbake-selftest" as follows::
-
-      $ BB_SKIP_NETTEST=yes bitbake-selftest
 
    The default output is quiet and just prints a summary of what was
    run. To see more information, there is a verbose option::
 
       $ bitbake-selftest -v
+
+   To skip tests that access the Internet, use the ``BB_SKIP_NETTESTS``
+   variable when running "bitbake-selftest" as follows::
+
+      $ BB_SKIP_NETTESTS=yes bitbake-selftest
 
    Use this option when you wish to skip tests that access the network,
    which are mostly necessary to test the fetcher modules. To specify
@@ -335,12 +342,12 @@ A simple test example from ``lib/bb/tests/data.py`` is::
             self.assertEqual(str(val), "value_of_foo")
 
 In this example, a ``DataExpansions`` class of tests is created,
-derived from standard python unittest. The class has a common ``setUp``
+derived from standard Python unittest. The class has a common ``setUp``
 function which is shared by all the tests in the class. A simple test is
 then added to test that when a variable is expanded, the correct value
 is found.
 
-Bitbake selftests are straightforward python unittest. Refer to the
+BitBake selftests are straightforward Python unittest. Refer to the
 Python unittest documentation for additional information on writing
 these tests at: https://docs.python.org/3/library/unittest.html.
 
@@ -468,7 +475,7 @@ following::
 
 In this example, if nativesdk-python3-core has been installed into the SDK, the code runs
 the python3 interpreter with a basic command to check it is working
-correctly. The test would only run if python3 is installed in the SDK.
+correctly. The test would only run if Python3 is installed in the SDK.
 
 ``oe-build-perf-test``
 ----------------------

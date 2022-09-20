@@ -38,15 +38,17 @@ chmod -st "$BUILDDIR/conf" 2>/dev/null || echo "WARNING: unable to chmod $BUILDD
 
 cd "$BUILDDIR"
 
-if [ -f "$BUILDDIR/conf/templateconf.cfg" ]; then
+if [ -f "$BUILDDIR/conf/templateconf.cfg" -a -z "$TEMPLATECONF" ]; then
     TEMPLATECONF=$(cat "$BUILDDIR/conf/templateconf.cfg")
+    # The following two are no longer valid; unsetting them will automatically get them replaced
+    # with correct ones.
+    if [ $TEMPLATECONF = "meta/conf" -o $TEMPLATECONF = "meta-poky/conf" ]; then
+        unset TEMPLATECONF
+        rm $BUILDDIR/conf/templateconf.cfg
+    fi
 fi
 
-. $OEROOT/.templateconf
-
-if [ ! -f "$BUILDDIR/conf/templateconf.cfg" ]; then
-    echo "$TEMPLATECONF" >"$BUILDDIR/conf/templateconf.cfg"
-fi
+. "$OEROOT"/.templateconf
 
 # 
 # $TEMPLATECONF can point to a directory for the template local.conf & bblayers.conf
@@ -59,6 +61,11 @@ if [ -n "$TEMPLATECONF" ]; then
         fi
         if [ ! -d "$TEMPLATECONF" ]; then
             echo >&2 "Error: TEMPLATECONF value points to nonexistent directory '$TEMPLATECONF'"
+            exit 1
+        fi
+        templatesdir=$(python3 -c "import sys; print(sys.argv[1].strip('/').split('/')[-2])" $TEMPLATECONF)
+        if [ ! -f "$TEMPLATECONF/../../layer.conf" -o $templatesdir != "templates" ]; then
+            echo >&2 "Error: TEMPLATECONF value (which is $TEMPLATECONF) must point to meta-some-layer/conf/templates/template-name"
             exit 1
         fi
     fi
@@ -74,12 +81,13 @@ fi
 if [ ! -r "$BUILDDIR/conf/local.conf" ]; then
     cat <<EOM
 You had no conf/local.conf file. This configuration file has therefore been
-created for you with some default values. You may wish to edit it to, for
-example, select a different MACHINE (target hardware). See conf/local.conf
-for more information as common configuration options are commented.
+created for you from $OECORELOCALCONF
+You may wish to edit it to, for example, select a different MACHINE (target
+hardware). See conf/local.conf for more information as common configuration
+options are commented.
 
 EOM
-    cp -f $OECORELOCALCONF "$BUILDDIR/conf/local.conf"
+    cp -f "$OECORELOCALCONF" "$BUILDDIR/conf/local.conf"
     SHOWYPDOC=yes
 fi
 
@@ -89,18 +97,19 @@ fi
 if [ ! -r "$BUILDDIR/conf/bblayers.conf" ]; then
     cat <<EOM
 You had no conf/bblayers.conf file. This configuration file has therefore been
-created for you with some default values. To add additional metadata layers
-into your configuration please add entries to conf/bblayers.conf.
+created for you from $OECORELAYERCONF
+To add additional metadata layers into your configuration please add entries
+to conf/bblayers.conf.
 
 EOM
 
-    # Put the abosolute path to the layers in bblayers.conf so we can run
-    # bitbake without the init script after the first run
-    # ##COREBASE## is deprecated as it's meaning was inconsistent, but continue
+    # Put the absolute path to the layers in bblayers.conf so we can run
+    # bitbake without the init script after the first run.
+    # ##COREBASE## is deprecated as its meaning was inconsistent, but continue
     # to replace it for compatibility.
     sed -e "s|##OEROOT##|$OEROOT|g" \
         -e "s|##COREBASE##|$OEROOT|g" \
-        $OECORELAYERCONF > "$BUILDDIR/conf/bblayers.conf"
+        "$OECORELAYERCONF" > "$BUILDDIR/conf/bblayers.conf"
     SHOWYPDOC=yes
 fi
 
@@ -115,7 +124,7 @@ The Yocto Project has extensive documentation about OE including a reference
 manual which can be found at:
     https://docs.yoctoproject.org
 
-For more information about OpenEmbedded see their website:
+For more information about OpenEmbedded see the website:
     https://www.openembedded.org/
 
 EOM
@@ -125,5 +134,9 @@ fi
 if [ -z "$OECORENOTESCONF" ]; then
     OECORENOTESCONF="$OEROOT/meta/conf/conf-notes.txt"
 fi
-[ ! -r "$OECORENOTESCONF" ] || cat $OECORENOTESCONF
+[ ! -r "$OECORENOTESCONF" ] || cat "$OECORENOTESCONF"
 unset OECORENOTESCONF
+
+if [ ! -f "$BUILDDIR/conf/templateconf.cfg" ]; then
+    echo "$TEMPLATECONF" >"$BUILDDIR/conf/templateconf.cfg"
+fi

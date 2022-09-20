@@ -21,11 +21,18 @@ SRC_URI += " \
   file://gbmc-br-gw-src.sh \
   file://gbmc-br-nft.sh \
   file://gbmc-br-dhcp.sh \
+  file://50-gbmc-psu-hardreset.sh \
   file://gbmc-br-dhcp.service \
+  file://gbmc-br-dhcp-term.sh \
+  file://gbmc-br-dhcp-term.service \
+  file://gbmc-br-lib.sh \
+  file://gbmc-br-load-ip.service \
   "
 
 FILES:${PN}:append = " \
   ${datadir}/gbmc-ip-monitor \
+  ${datadir}/gbmc-br-dhcp \
+  ${datadir}/gbmc-br-lib.sh \
   ${systemd_unitdir}/network \
   ${sysconfdir}/nftables \
   ${sysconfdir}/avahi/services \
@@ -33,6 +40,7 @@ FILES:${PN}:append = " \
 
 RDEPENDS:${PN}:append = " \
   bash \
+  dhcp-done \
   gbmc-ip-monitor \
   mstpd-mstpd \
   network-sh \
@@ -42,6 +50,8 @@ RDEPENDS:${PN}:append = " \
 SYSTEMD_SERVICE:${PN} += " \
   gbmc-br-ensure-ra.service \
   gbmc-br-dhcp.service \
+  gbmc-br-dhcp-term.service \
+  gbmc-br-load-ip.service \
   "
 
 GBMC_BR_MAC_ADDR ?= ""
@@ -100,9 +110,16 @@ do_install() {
   install -d -m0755 ${D}${libexecdir}
   install -m0755 ${WORKDIR}/gbmc-br-ensure-ra.sh ${D}${libexecdir}/
   install -m0755 ${WORKDIR}/gbmc-br-dhcp.sh ${D}${libexecdir}/
+  install -m0755 ${WORKDIR}/gbmc-br-dhcp-term.sh ${D}${libexecdir}/
   install -d -m0755 ${D}${systemd_system_unitdir}
   install -m0644 ${WORKDIR}/gbmc-br-ensure-ra.service ${D}${systemd_system_unitdir}/
   install -m0644 ${WORKDIR}/gbmc-br-dhcp.service ${D}${systemd_system_unitdir}/
+  install -m0644 ${WORKDIR}/gbmc-br-dhcp-term.service ${D}${systemd_system_unitdir}/
+  install -m0644 ${WORKDIR}/gbmc-br-load-ip.service ${D}${systemd_system_unitdir}/
+  install -d -m0755 ${D}${datadir}/gbmc-br-dhcp
+  install -m0644 ${WORKDIR}/50-gbmc-psu-hardreset.sh ${D}${datadir}/gbmc-br-dhcp/
+
+  install -m0644 ${WORKDIR}/gbmc-br-lib.sh ${D}${datadir}/
 }
 
 do_rm_work:prepend() {

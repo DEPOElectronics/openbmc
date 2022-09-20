@@ -96,8 +96,10 @@ RDEPENDS:packagegroup-meta-oe-bsp ="\
     acpitool \
     cpufrequtils \
     edac-utils \
-    firmwared \
+    ${@bb.utils.contains("DISTRO_FEATURES", "systemd", "firmwared", "", d)} \
     flashrom \
+    fwupd \
+    fwupd-efi \
     irda-utils \
     lmsensors-config-cgi \
     lmsensors-config-fancontrol \
@@ -112,14 +114,15 @@ RDEPENDS:packagegroup-meta-oe-bsp:append:x86 = " ledmon"
 RDEPENDS:packagegroup-meta-oe-bsp:append:x86-64 = " ledmon"
 
 RDEPENDS:packagegroup-meta-oe-bsp:remove:libc-musl = "ledmon"
-RDEPENDS:packagegroup-meta-oe-bsp:remove:mipsarch = "efivar efibootmgr"
-RDEPENDS:packagegroup-meta-oe-bsp:remove:powerpc = "efivar efibootmgr"
-RDEPENDS:packagegroup-meta-oe-bsp:remove:powerpc64 = "efivar efibootmgr"
-RDEPENDS:packagegroup-meta-oe-bsp:remove:powerpc64le = "efivar efibootmgr"
-RDEPENDS:packagegroup-meta-oe-bsp:remove:riscv64 = "efivar efibootmgr"
-RDEPENDS:packagegroup-meta-oe-bsp:remove:riscv32 = "efivar efibootmgr"
+RDEPENDS:packagegroup-meta-oe-bsp:remove:mipsarch = "efivar efibootmgr fwupd fwupd-efi"
+RDEPENDS:packagegroup-meta-oe-bsp:remove:powerpc = "efivar efibootmgr fwupd fwupd-efi"
+RDEPENDS:packagegroup-meta-oe-bsp:remove:powerpc64 = "efivar efibootmgr fwupd fwupd-efi"
+RDEPENDS:packagegroup-meta-oe-bsp:remove:powerpc64le = "efivar efibootmgr fwupd fwupd-efi"
+RDEPENDS:packagegroup-meta-oe-bsp:remove:riscv64 = "efivar efibootmgr fwupd fwupd-efi"
+RDEPENDS:packagegroup-meta-oe-bsp:remove:riscv32 = "efivar efibootmgr fwupd fwupd-efi"
 
 RDEPENDS:packagegroup-meta-oe-connectivity ="\
+    cyrus-sasl \
     gammu \
     gattlib \
     gensio \
@@ -147,6 +150,7 @@ RDEPENDS:packagegroup-meta-oe-connectivity ="\
     obexftp \
     packagegroup-tools-bluetooth \
     paho-mqtt-c \
+    paho-mqtt-cpp \
     rabbitmq-c \
     rfkill \
     rtorrent \
@@ -184,6 +188,7 @@ RDEPENDS:packagegroup-meta-oe-core = "\
     mm-common \
     ${@bb.utils.contains("DISTRO_FEATURES", "systemd", "ndctl", "", d)} \
     opencl-icd-loader \
+    pim435 \
     proxy-libintl \
     safec \
     sdbus-c++-tools \
@@ -219,6 +224,7 @@ RDEPENDS:packagegroup-meta-oe-dbs ="\
     soci \
     sqlite \
 "
+RDEPENDS:packagegroup-meta-oe-dbs:remove:libc-musl:powerpc = "rocksdb"
 
 RDEPENDS:packagegroup-meta-oe-dbs-python2 ="\
     ${@bb.utils.contains("BBFILE_COLLECTIONS", "meta-python2", bb.utils.contains('I_SWEAR_TO_MIGRATE_TO_PYTHON3', 'yes', 'mysql-python', '', d), "", d)} \
@@ -249,7 +255,6 @@ RDEPENDS:packagegroup-meta-oe-devtools ="\
     libparse-yapp-perl \
     libubox \
     ltrace \
-    lua \
     luajit \
     mcpp \
     memstat \
@@ -270,7 +275,6 @@ RDEPENDS:packagegroup-meta-oe-devtools ="\
     yajl \
     yajl \
     kconfig-frontends \
-    ldns \
     libgee \
     libsombok3 \
     lshw \
@@ -295,10 +299,13 @@ RDEPENDS:packagegroup-meta-oe-devtools ="\
     protobuf \
     pugixml \
     python3-distutils-extra \
+    python3-pycups \
     rapidjson \
     sip3 \
     squashfs-tools-ng \
     uftrace \
+    unifex \
+    valijson \
     libxerces-c \
     xerces-c-samples \
     xmlrpc-c \
@@ -308,6 +315,7 @@ RDEPENDS:packagegroup-meta-oe-devtools ="\
 "
 RDEPENDS:packagegroup-meta-oe-devtools:append:x86 = " cpuid msr-tools pahole pmtools"
 RDEPENDS:packagegroup-meta-oe-devtools:append:x86-64 = " cpuid msr-tools pahole pcimem pmtools"
+RDEPENDS:packagegroup-meta-oe-devtools:append:riscv64 = " pcimem"
 RDEPENDS:packagegroup-meta-oe-devtools:append:arm = " pcimem"
 RDEPENDS:packagegroup-meta-oe-devtools:append:aarch64 = " pahole pcimem"
 RDEPENDS:packagegroup-meta-oe-devtools:append:libc-musl = " musl-nscd"
@@ -322,6 +330,7 @@ RDEPENDS:packagegroup-meta-oe-devtools:remove:powerpc64 = "android-tools breakpa
 RDEPENDS:packagegroup-meta-oe-devtools:remove:powerpc64le = "android-tools breakpad lshw luajit ply uftrace"
 RDEPENDS:packagegroup-meta-oe-devtools:remove:riscv64 = "breakpad concurrencykit heaptrack lshw ltrace luajit nodejs ply uftrace"
 RDEPENDS:packagegroup-meta-oe-devtools:remove:riscv32 = "breakpad concurrencykit heaptrack lshw ltrace luajit nodejs ply uftrace"
+RDEPENDS:packagegroup-meta-oe-devtools:remove:libc-musl:riscv32 = "php"
 RDEPENDS:packagegroup-meta-oe-devtools:remove:aarch64 = "concurrencykit"
 RDEPENDS:packagegroup-meta-oe-devtools:remove:x86 = "ply"
 
@@ -330,12 +339,12 @@ RDEPENDS:packagegroup-meta-oe-extended ="\
     ${@bb.utils.contains("DISTRO_FEATURES", "x11 wayland opengl", "boinc-client", "", d)} \
     brotli \
     byacc \
+    cmatrix \
     cmpi-bindings \
     collectd \
-    cfengine-masterfiles \
-    cfengine \
     ddrescue \
     dialog \
+    duktape \
     enscript \
     ${@bb.utils.contains("DISTRO_FEATURES", "x11", "gnuplot", "", d)} \
     dlt-daemon \
@@ -403,7 +412,6 @@ RDEPENDS:packagegroup-meta-oe-extended ="\
     libstatgrab \
     lockfile-progs \
     logwatch \
-    mailx \
     mraa \
     ostree \
     ${@bb.utils.contains("DISTRO_FEATURES", "pam", "pam-plugin-ccreds pam-plugin-ldapdb pam-ssh-agent-auth", "", d)} \
@@ -415,6 +423,7 @@ RDEPENDS:packagegroup-meta-oe-extended ="\
     sedutil \
     libsigrok \
     libsigrokdecode \
+    s-nail \
     sigrok-cli \
     snappy \
     tipcutils \
@@ -440,7 +449,7 @@ RDEPENDS:packagegroup-meta-oe-extended:remove:mipsarch = "upm mraa minifi-cpp ti
 RDEPENDS:packagegroup-meta-oe-extended:remove:mips = "sysdig"
 RDEPENDS:packagegroup-meta-oe-extended:remove:powerpc = "upm mraa minifi-cpp"
 RDEPENDS:packagegroup-meta-oe-extended:remove:powerpc64 = "upm mraa minifi-cpp"
-RDEPENDS:packagegroup-meta-oe-extended:remove:powerpc64le = "upm mraa"
+RDEPENDS:packagegroup-meta-oe-extended:remove:powerpc64le = "upm mraa sysdig"
 RDEPENDS:packagegroup-meta-oe-extended:remove:riscv64 = "upm libleak libyang mraa sysdig tiptop"
 RDEPENDS:packagegroup-meta-oe-extended:remove:riscv32 = "upm libleak libyang mraa sysdig tiptop"
 
@@ -481,6 +490,7 @@ RDEPENDS:packagegroup-meta-oe-graphics ="\
     gphoto2 \
     imlib2 \
     libgphoto2 \
+    graphene \
     graphviz \
     gtkwave \
     jasper \
@@ -506,6 +516,7 @@ RDEPENDS:packagegroup-meta-oe-graphics ="\
     libsdl2-net \
     ${@bb.utils.contains("DISTRO_FEATURES", "opengl", "libsdl2-ttf", "", d)} \
     libsdl \
+    ${@bb.utils.contains("DISTRO_FEATURES", "wayland", "lv-drivers lvgl lv-lib-png", "", d)} \
     ttf-arphic-uming \
     ttf-droid-sans ttf-droid-sans-mono ttf-droid-sans-fallback ttf-droid-sans-japanese ttf-droid-serif \
     ttf-abyssinica \
@@ -601,12 +612,12 @@ RDEPENDS:packagegroup-meta-oe-graphics ="\
     surf \
     tesseract-lang \
     tesseract \
-    tigervnc \
+    ${@bb.utils.contains("DISTRO_FEATURES", "x11 pam", "tigervnc", "", d)} \
     tslib \
     unclutter-xfixes \
     libvdpau \
     xcursorgen \
-    xscreensaver \
+    ${@bb.utils.contains("DISTRO_FEATURES", "x11 pam", "xscreensaver", "", d)} \
     yad \
     parallel-deqp-runner \
     ${@bb.utils.contains("DISTRO_FEATURES", "opengl", "opengl-es-cts", "", d)} \
@@ -630,6 +641,7 @@ RDEPENDS:packagegroup-meta-oe-kernel ="\
     oprofile \
     spidev-test \
     trace-cmd \
+    usbip-tools \
 "
 RDEPENDS:packagegroup-meta-oe-kernel:append:x86 = " intel-speed-select ipmiutil pm-graph turbostat"
 RDEPENDS:packagegroup-meta-oe-kernel:append:x86-64 = " intel-speed-select ipmiutil kpatch pm-graph turbostat bpftool"
@@ -648,7 +660,7 @@ RDEPENDS:packagegroup-meta-oe-kernel:remove:riscv32 = "crash makedumpfile oprofi
 
 RDEPENDS:packagegroup-meta-oe-multimedia ="\
     alsa-oss \
-    ${@bb.utils.contains("LICENSE_FLAGS_WHITELIST", "commercial", "faad2", "", d)} \
+    ${@bb.utils.contains("LICENSE_FLAGS_ACCEPTED", "commercial", "faad2", "", d)} \
     dirsplit \
     genisoimage \
     icedax \
@@ -662,7 +674,7 @@ RDEPENDS:packagegroup-meta-oe-multimedia ="\
     libburn \
     libcdio-paranoia \
     libcdio \
-    ${@bb.utils.contains("LICENSE_FLAGS_WHITELIST", "commercial", "libmad", "", d)} \
+    ${@bb.utils.contains("LICENSE_FLAGS_ACCEPTED", "commercial", "libmad", "", d)} \
     libmms \
     libdvdread \
     libopus \
@@ -676,7 +688,7 @@ RDEPENDS:packagegroup-meta-oe-multimedia ="\
     wavpack \
     libvpx \
     ${@bb.utils.contains("DISTRO_FEATURES", "x11", "xsp", "", d)} \
-    ${@bb.utils.contains("LICENSE_FLAGS_WHITELIST", "commercial", "mpv", "", d)} \
+    ${@bb.utils.contains("LICENSE_FLAGS_ACCEPTED", "commercial", "mpv", "", d)} \
     ${@bb.utils.contains("DISTRO_FEATURES", "x11", "pavucontrol", "", d)} \
     libopusenc \
 "
@@ -694,6 +706,7 @@ RDEPENDS:packagegroup-meta-oe-navigation ="\
 
 RDEPENDS:packagegroup-meta-oe-printing ="\
     cups-filters \
+    gutenprint \
     qpdf \
 "
 
@@ -717,6 +730,7 @@ RDEPENDS:packagegroup-meta-oe-support ="\
     anthy \
     atop \
     ace-cloud-editor \
+    ${@bb.utils.contains("DISTRO_FEATURES", "systemd", "driverctl", "", d)} \
     frame \
     ${@bb.utils.contains("DISTRO_FEATURES", "x11", "geis", "", d)} \
     grail \
@@ -733,7 +747,7 @@ RDEPENDS:packagegroup-meta-oe-support ="\
     dfu-util \
     dhex \
     digitemp \
-    dstat \
+    dool \
     espeak \
     evemu-tools \
     exiv2 \
@@ -748,12 +762,14 @@ RDEPENDS:packagegroup-meta-oe-support ="\
     gpm \
     gsoap \
     hdf5 \
+    hstr \
     htop \
     hunspell-dictionaries \
     hunspell \
     hwdata \
     iksemel \
     gengetopt \
+    googlebenchmark \
     imagemagick \
     iniparser \
     inotify-tools \
@@ -766,6 +782,8 @@ RDEPENDS:packagegroup-meta-oe-support ="\
     libestr \
     libfann \
     libftdi \
+    libjs-jquery-globalize \
+    libjs-jquery-cookie \
     ccid \
     zchunk \
     libgpiod \
@@ -810,7 +828,6 @@ RDEPENDS:packagegroup-meta-oe-support ="\
     libusbgx \
     lockdev \
     logwarn \
-    libjs-jquery \
     libjs-sizzle \
     liblinebreak \
     mailcap \
@@ -881,6 +898,7 @@ RDEPENDS:packagegroup-meta-oe-support ="\
     system-config-keyboard \
     tbb \
     satyr \
+    pcp \
     pcsc-lite \
     pcsc-tools \
     sharutils \
@@ -910,7 +928,6 @@ RDEPENDS:packagegroup-meta-oe-support ="\
     nano \
     xdg-user-dirs \
     xmlsec1 \
-    ${@bb.utils.contains("DISTRO_FEATURES", "x11 pam", "xorgxrdp xrdp", "", d)} \
     usb-modeswitch-data \
     usb-modeswitch \
     liburing \
@@ -932,8 +949,10 @@ RDEPENDS:packagegroup-meta-oe-support:remove:arm ="numactl"
 RDEPENDS:packagegroup-meta-oe-support:remove:mipsarch = "gperftools"
 RDEPENDS:packagegroup-meta-oe-support:remove:riscv64 = "gperftools uim"
 RDEPENDS:packagegroup-meta-oe-support:remove:riscv32 = "gperftools uim"
-RDEPENDS:packagegroup-meta-oe-support:remove:powerpc = "ssiapi tbb"
-RDEPENDS:packagegroup-meta-oe-support:remove:powerpc64le = "ssiapi"
+RDEPENDS:packagegroup-meta-oe-support:remove:powerpc = "libcereal ssiapi tbb"
+RDEPENDS:packagegroup-meta-oe-support:remove:powerpc64le = "libcereal ssiapi"
+RDEPENDS:packagegroup-meta-oe-support:remove:libc-musl = "pcp"
+RDEPENDS:packagegroup-meta-oe-support:remove:libc-musl:powerpc = "gsl"
 
 RDEPENDS:packagegroup-meta-oe-test ="\
     bats \
@@ -961,7 +980,6 @@ RDEPENDS:packagegroup-meta-oe-ptest-packages = "\
     zeromq-ptest \
     leveldb-ptest \
     psqlodbc-ptest \
-    lua-ptest \
     protobuf-ptest \
     rsyslog-ptest \
     oprofile-ptest \

@@ -1,11 +1,11 @@
 SUMMARY = "Open implementation of the DVB Common Scrambling Algorithm, encrypt and decrypt "
 SECTION = "libs/multimedia"
-LICENSE = "LGPLv2.1+"
+LICENSE = "LGPL-2.1-or-later"
 LIC_FILES_CHKSUM = "file://COPYING;md5=94d55d512a9ba36caa9b7df079bae19f"
 
 SRCREV = "bc6c0b164a87ce05e9925785cc6fb3f54c02b026"
 
-SRC_URI = "git://code.videolan.org/videolan/libdvbcsa.git;protocol=https \
+SRC_URI = "git://code.videolan.org/videolan/libdvbcsa.git;protocol=https;branch=master \
            file://libdvbcsa.pc \
 "
 

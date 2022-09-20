@@ -1,15 +1,20 @@
+require conf/machine/distro/include/uboot-distrovars.inc
+
 HOMEPAGE = "https://github.com/AspeedTech-BMC/u-boot"
 SECTION = "bootloaders"
 DEPENDS += "flex-native bison-native xxd-native"
 
-LICENSE = "GPLv2+"
+LICENSE = "GPL-2.0-or-later"
 LIC_FILES_CHKSUM = "file://Licenses/README;md5=30503fd321432fc713238f582193b78e"
 PE = "1"
 
 # We use the revision in order to avoid having to fetch it from the
 # repo during parse
-SRCREV = "a570745a1a836e351bd4b1131f23a4fa5013d6dd"
+SRCREV = "1001985b9bbd4336e84f753c43a677058358e8f9"
 SRC_URI = "git://git@github.com/openbmc/u-boot.git;nobranch=1;protocol=https"
+
+SRC_URI:append:uboot-flash-32768 = " file://u-boot_flash_32M.cfg"
+SRC_URI:append:uboot-flash-65536 = " file://u-boot_flash_64M.cfg"
 
 S = "${WORKDIR}/git"
 B = "${WORKDIR}/build"

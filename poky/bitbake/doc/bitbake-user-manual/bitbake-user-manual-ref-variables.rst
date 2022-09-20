@@ -93,6 +93,13 @@ overview of their function and contents.
       fetcher does not attempt to use the host listed in :term:`SRC_URI` after
       a successful fetch from the :term:`PREMIRRORS` occurs.
 
+   :term:`BB_BASEHASH_IGNORE_VARS`
+      Lists variables that are excluded from checksum and dependency data.
+      Variables that are excluded can therefore change without affecting
+      the checksum mechanism. A common example would be the variable for
+      the path of the build. BitBake's output should not (and usually does
+      not) depend on the directory in which it was built.
+
    :term:`BB_CHECK_SSL_CERTS`
       Specifies if SSL certificates should be checked when fetching. The default
       value is ``1`` and certificates are not checked if the value is set to ``0``.
@@ -138,7 +145,7 @@ overview of their function and contents.
          where:
 
             <action> is:
-               ABORT:     Immediately abort the build when
+               HALT:      Immediately halt the build when
                           a threshold is broken.
                STOPTASKS: Stop the build after the currently
                           executing tasks have finished when
@@ -169,13 +176,13 @@ overview of their function and contents.
 
       Here are some examples::
 
-         BB_DISKMON_DIRS = "ABORT,${TMPDIR},1G,100K WARN,${SSTATE_DIR},1G,100K"
+         BB_DISKMON_DIRS = "HALT,${TMPDIR},1G,100K WARN,${SSTATE_DIR},1G,100K"
          BB_DISKMON_DIRS = "STOPTASKS,${TMPDIR},1G"
-         BB_DISKMON_DIRS = "ABORT,${TMPDIR},,100K"
+         BB_DISKMON_DIRS = "HALT,${TMPDIR},,100K"
 
       The first example works only if you also set the
       :term:`BB_DISKMON_WARNINTERVAL`
-      variable. This example causes the build system to immediately abort
+      variable. This example causes the build system to immediately halt
       when either the disk space in ``${TMPDIR}`` drops below 1 Gbyte or
       the available free inodes drops below 100 Kbytes. Because two
       directories are provided with the variable, the build system also
@@ -189,7 +196,7 @@ overview of their function and contents.
       directory drops below 1 Gbyte. No disk monitoring occurs for the free
       inodes in this case.
 
-      The final example immediately aborts the build when the number of
+      The final example immediately halts the build when the number of
       free inodes in the ``${TMPDIR}`` directory drops below 100 Kbytes. No
       disk space monitoring for the directory itself occurs in this case.
 
@@ -236,23 +243,23 @@ overview of their function and contents.
       based on the interval occur each time a respective interval is
       reached beyond the initial warning (i.e. 1 Gbytes and 100 Kbytes).
 
-   :term:`BB_ENV_EXTRAWHITE`
-      Specifies an additional set of variables to allow through (whitelist)
-      from the external environment into BitBake's datastore. This list of
-      variables are on top of the internal list set in
-      :term:`BB_ENV_WHITELIST`.
+   :term:`BB_ENV_PASSTHROUGH`
+      Specifies the internal list of variables to allow through from
+      the external environment into BitBake's datastore. If the value of
+      this variable is not specified (which is the default), the following
+      list is used: :term:`BBPATH`, :term:`BB_PRESERVE_ENV`,
+      :term:`BB_ENV_PASSTHROUGH`, and :term:`BB_ENV_PASSTHROUGH_ADDITIONS`.
 
       .. note::
 
          You must set this variable in the external environment in order
          for it to work.
 
-   :term:`BB_ENV_WHITELIST`
-      Specifies the internal whitelist of variables to allow through from
-      the external environment into BitBake's datastore. If the value of
-      this variable is not specified (which is the default), the following
-      list is used: :term:`BBPATH`, :term:`BB_PRESERVE_ENV`,
-      :term:`BB_ENV_WHITELIST`, and :term:`BB_ENV_EXTRAWHITE`.
+   :term:`BB_ENV_PASSTHROUGH_ADDITIONS`
+      Specifies an additional set of variables to allow through from the
+      external environment into BitBake's datastore. This list of variables
+      are on top of the internal list set in
+      :term:`BB_ENV_PASSTHROUGH`.
 
       .. note::
 
@@ -281,12 +288,61 @@ overview of their function and contents.
 
          BB_GENERATE_MIRROR_TARBALLS = "1"
 
-   :term:`BB_HASHBASE_WHITELIST`
-      Lists variables that are excluded from checksum and dependency data.
-      Variables that are excluded can therefore change without affecting
-      the checksum mechanism. A common example would be the variable for
-      the path of the build. BitBake's output should not (and usually does
-      not) depend on the directory in which it was built.
+   :term:`BB_GENERATE_SHALLOW_TARBALLS`
+      Setting this variable to "1" when :term:`BB_GIT_SHALLOW` is also set to
+      "1" causes bitbake to generate shallow mirror tarballs when fetching git
+      repositories. The number of commits included in the shallow mirror
+      tarballs is controlled by :term:`BB_GIT_SHALLOW_DEPTH`.
+
+      If both :term:`BB_GIT_SHALLOW` and :term:`BB_GENERATE_MIRROR_TARBALLS` are
+      enabled, bitbake will generate shallow mirror tarballs by default for git
+      repositories. This separate variable exists so that shallow tarball
+      generation can be enabled without needing to also enable normal mirror
+      generation if it is not desired.
+
+      For example usage, see :term:`BB_GIT_SHALLOW`.
+
+   :term:`BB_GIT_SHALLOW`
+      Setting this variable to "1" enables the support for fetching, using and
+      generating mirror tarballs of `shallow git repositories <https://riptutorial.com/git/example/4584/shallow-clone>`_.
+      The external `git-make-shallow <https://git.openembedded.org/bitbake/tree/bin/git-make-shallow>`_
+      script is used for shallow mirror tarball creation.
+
+      When :term:`BB_GIT_SHALLOW` is enabled, bitbake will attempt to fetch a shallow
+      mirror tarball. If the shallow mirror tarball cannot be fetched, it will
+      try to fetch the full mirror tarball and use that.
+
+      When a mirror tarball is not available, a full git clone will be performed
+      regardless of whether this variable is set or not. Support for shallow
+      clones is not currently implemented as git does not directly support
+      shallow cloning a particular git commit hash (it only supports cloning
+      from a tag or branch reference).
+
+      See also :term:`BB_GIT_SHALLOW_DEPTH` and
+      :term:`BB_GENERATE_SHALLOW_TARBALLS`.
+
+      Example usage::
+
+         BB_GIT_SHALLOW ?= "1"
+
+         # Keep only the top commit
+         BB_GIT_SHALLOW_DEPTH ?= "1"
+
+         # This defaults to enabled if both BB_GIT_SHALLOW and
+         # BB_GENERATE_MIRROR_TARBALLS are enabled
+         BB_GENERATE_SHALLOW_TARBALLS ?= "1"
+
+   :term:`BB_GIT_SHALLOW_DEPTH`
+      When used with :term:`BB_GENERATE_SHALLOW_TARBALLS`, this variable sets
+      the number of commits to include in generated shallow mirror tarballs.
+      With a depth of 1, only the commit referenced in :term:`SRCREV` is
+      included in the shallow mirror tarball. Increasing the depth includes
+      additional parent commits, working back through the commit history.
+
+      If this variable is unset, bitbake will default to a depth of 1 when
+      generating shallow mirror tarballs.
+
+      For example usage, see :term:`BB_GIT_SHALLOW`.
 
    :term:`BB_HASHCHECK_FUNCTION`
       Specifies the name of the function to call during the "setscene" part
@@ -302,7 +358,7 @@ overview of their function and contents.
       However, the more accurate the data returned, the more efficient the
       build will be.
 
-   :term:`BB_HASHCONFIG_WHITELIST`
+   :term:`BB_HASHCONFIG_IGNORE_VARS`
       Lists variables that are excluded from base configuration checksum,
       which is used to determine if the cache can be reused.
 
@@ -318,11 +374,34 @@ overview of their function and contents.
       Specifies the Hash Equivalence server to use.
 
       If set to ``auto``, BitBake automatically starts its own server
-      over a UNIX domain socket.
+      over a UNIX domain socket. An option is to connect this server
+      to an upstream one, by setting :term:`BB_HASHSERVE_UPSTREAM`.
 
-      If set to ``host:port``, BitBake will use a remote server on the
+      If set to ``unix://path``, BitBake will connect to an existing
+      hash server available over a UNIX domain socket.
+
+      If set to ``host:port``, BitBake will connect to a remote server on the
       specified host. This allows multiple clients to share the same
       hash equivalence data.
+
+      The remote server can be started manually through
+      the ``bin/bitbake-hashserv`` script provided by BitBake,
+      which supports UNIX domain sockets too. This script also allows
+      to start the server in read-only mode, to avoid accepting
+      equivalences that correspond to Share State caches that are
+      only available on specific clients.
+
+   :term:`BB_HASHSERVE_UPSTREAM`
+      Specifies an upstream Hash Equivalence server.
+
+      This optional setting is only useful when a local Hash Equivalence
+      server is started (setting :term:`BB_HASHSERVE` to ``auto``),
+      and you wish the local server to query an upstream server for
+      Hash Equivalence data.
+
+      Example usage::
+
+         BB_HASHSERVE_UPSTREAM = "hashserv.yocto.io:8687"
 
    :term:`BB_INVALIDCONF`
       Used in combination with the ``ConfigParsed`` event to trigger
@@ -346,6 +425,19 @@ overview of their function and contents.
 
       If you want to force log files to take a specific name, you can set this
       variable in a configuration file.
+
+   :term:`BB_MULTI_PROVIDER_ALLOWED`
+      Allows you to suppress BitBake warnings caused when building two
+      separate recipes that provide the same output.
+
+      BitBake normally issues a warning when building two different recipes
+      where each provides the same output. This scenario is usually
+      something the user does not want. However, cases do exist where it
+      makes sense, particularly in the ``virtual/*`` namespace. You can use
+      this variable to suppress BitBake's warnings.
+
+      To use the variable, list provider names (e.g. recipe names,
+      ``virtual/kernel``, and so forth).
 
    :term:`BB_NICE_LEVEL`
       Allows BitBake to run at a specific priority (i.e. nice level).
@@ -373,8 +465,9 @@ overview of their function and contents.
 
    :term:`BB_ORIGENV`
       Contains a copy of the original external environment in which BitBake
-      was run. The copy is taken before any whitelisted variable values are
-      filtered into BitBake's datastore.
+      was run. The copy is taken before any variable values configured to
+      pass through from the external environment are filtered into BitBake's
+      datastore.
 
       .. note::
 
@@ -382,8 +475,8 @@ overview of their function and contents.
          queried using the normal datastore operations.
 
    :term:`BB_PRESERVE_ENV`
-      Disables whitelisting and instead allows all variables through from
-      the external environment into BitBake's datastore.
+      Disables environment filtering and instead allows all variables through
+      from the external environment into BitBake's datastore.
 
       .. note::
 
@@ -410,14 +503,14 @@ overview of their function and contents.
       Selects the name of the scheduler to use for the scheduling of
       BitBake tasks. Three options exist:
 
-      -  *basic* - The basic framework from which everything derives. Using
+      -  *basic* --- the basic framework from which everything derives. Using
          this option causes tasks to be ordered numerically as they are
          parsed.
 
-      -  *speed* - Executes tasks first that have more tasks depending on
+      -  *speed* --- executes tasks first that have more tasks depending on
          them. The "speed" option is the default.
 
-      -  *completion* - Causes the scheduler to try to complete a given
+      -  *completion* --- causes the scheduler to try to complete a given
          recipe once its build has started.
 
    :term:`BB_SCHEDULERS`
@@ -464,34 +557,11 @@ overview of their function and contents.
 
       The variable can be set using one of two policies:
 
-      -  *cache* - Retains the value the system obtained previously rather
+      -  *cache* --- retains the value the system obtained previously rather
          than querying the source control system each time.
 
-      -  *clear* - Queries the source controls system every time. With this
+      -  *clear* --- queries the source controls system every time. With this
          policy, there is no cache. The "clear" policy is the default.
-
-   :term:`BB_STAMP_POLICY`
-      Defines the mode used for how timestamps of stamp files are compared.
-      You can set the variable to one of the following modes:
-
-      -  *perfile* - Timestamp comparisons are only made between timestamps
-         of a specific recipe. This is the default mode.
-
-      -  *full* - Timestamp comparisons are made for all dependencies.
-
-      -  *whitelist* - Identical to "full" mode except timestamp
-         comparisons are made for recipes listed in the
-         :term:`BB_STAMP_WHITELIST` variable.
-
-      .. note::
-
-         Stamp policies are largely obsolete with the introduction of
-         setscene tasks.
-
-   :term:`BB_STAMP_WHITELIST`
-      Lists files whose stamp file timestamps are compared when the stamp
-      policy mode is set to "whitelist". For information on stamp policies,
-      see the :term:`BB_STAMP_POLICY` variable.
 
    :term:`BB_STRICT_CHECKSUM`
       Sets a more strict checksum mechanism for non-local URLs. Setting
@@ -538,7 +608,7 @@ overview of their function and contents.
 
       You can use this variable in combination with task overrides to raise
       or lower priorities of specific tasks. For example, on the `Yocto
-      Project <http://www.yoctoproject.org>`__ autobuilder, QEMU emulation
+      Project <https://www.yoctoproject.org>`__ autobuilder, QEMU emulation
       in images is given a higher priority as compared to build tasks to
       ensure that images do not suffer timeouts on loaded systems.
 
@@ -616,7 +686,7 @@ overview of their function and contents.
       This variable is useful in situations where the same recipe appears
       in more than one layer. Setting this variable allows you to
       prioritize a layer against other layers that contain the same recipe
-      - effectively letting you control the precedence for the multiple
+      --- effectively letting you control the precedence for the multiple
       layers. The precedence established through this variable stands
       regardless of a recipe's version (:term:`PV` variable).
       For example, a layer that has a recipe with a higher :term:`PV` value but
@@ -678,7 +748,7 @@ overview of their function and contents.
          "
 
       This next example shows an error message that occurs because invalid
-      entries are found, which cause parsing to abort::
+      entries are found, which cause parsing to fail::
 
          ERROR: BBFILES_DYNAMIC entries must be of the form {!}<collection name>:<filename pattern>, not:
          /work/my-layer/bbappends/meta-security-isafw/*/*/*.bbappend
@@ -997,19 +1067,6 @@ overview of their function and contents.
       upstream source, and then locations specified by :term:`MIRRORS` in that
       order.
 
-   :term:`MULTI_PROVIDER_WHITELIST`
-      Allows you to suppress BitBake warnings caused when building two
-      separate recipes that provide the same output.
-
-      BitBake normally issues a warning when building two different recipes
-      where each provides the same output. This scenario is usually
-      something the user does not want. However, cases do exist where it
-      makes sense, particularly in the ``virtual/*`` namespace. You can use
-      this variable to suppress BitBake's warnings.
-
-      To use the variable, list provider names (e.g. recipe names,
-      ``virtual/kernel``, and so forth).
-
    :term:`OVERRIDES`
       BitBake uses :term:`OVERRIDES` to control what variables are overridden
       after BitBake parses recipes and configuration files.
@@ -1123,10 +1180,10 @@ overview of their function and contents.
       your configuration::
 
          PREMIRRORS:prepend = "\
-         git://.*/.* http://www.yoctoproject.org/sources/ \n \
-         ftp://.*/.* http://www.yoctoproject.org/sources/ \n \
-         http://.*/.* http://www.yoctoproject.org/sources/ \n \
-         https://.*/.* http://www.yoctoproject.org/sources/ \n"
+         git://.*/.* http://downloads.yoctoproject.org/mirror/sources/ \
+         ftp://.*/.* http://downloads.yoctoproject.org/mirror/sources/ \
+         http://.*/.* http://downloads.yoctoproject.org/mirror/sources/ \
+         https://.*/.* http://downloads.yoctoproject.org/mirror/sources/"
 
       These changes cause the build system to intercept Git, FTP, HTTP, and
       HTTPS requests and direct them to the ``http://`` sources mirror. You can
@@ -1274,70 +1331,106 @@ overview of their function and contents.
       The section in which packages should be categorized.
 
    :term:`SRC_URI`
-      The list of source files - local or remote. This variable tells
+      The list of source files --- local or remote. This variable tells
       BitBake which bits to pull for the build and how to pull them. For
       example, if the recipe or append file needs to fetch a single tarball
-      from the Internet, the recipe or append file uses a :term:`SRC_URI` entry
-      that specifies that tarball. On the other hand, if the recipe or
-      append file needs to fetch a tarball and include a custom file, the
-      recipe or append file needs an :term:`SRC_URI` variable that specifies
-      all those sources.
+      from the Internet, the recipe or append file uses a :term:`SRC_URI`
+      entry that specifies that tarball. On the other hand, if the recipe or
+      append file needs to fetch a tarball, apply two patches, and include
+      a custom file, the recipe or append file needs an :term:`SRC_URI`
+      variable that specifies all those sources.
 
-      The following list explains the available URI protocols:
+      The following list explains the available URI protocols. URI
+      protocols are highly dependent on particular BitBake Fetcher
+      submodules. Depending on the fetcher BitBake uses, various URL
+      parameters are employed. For specifics on the supported Fetchers, see
+      the :ref:`bitbake-user-manual/bitbake-user-manual-fetching:fetchers`
+      section.
 
-      -  ``file://`` : Fetches files, which are usually files shipped
-         with the metadata, from the local machine. The path is relative to
-         the :term:`FILESPATH` variable.
+      -  ``az://``: Fetches files from an Azure Storage account using HTTPS.
 
-      -  ``bzr://`` : Fetches files from a Bazaar revision control
+      -  ``bzr://``: Fetches files from a Bazaar revision control
          repository.
 
-      -  ``git://`` : Fetches files from a Git revision control
+      -  ``ccrc://``: Fetches files from a ClearCase repository.
+
+      -  ``cvs://``: Fetches files from a CVS revision control
          repository.
 
-      -  ``osc://`` : Fetches files from an OSC (OpenSUSE Build service)
+      -  ``file://``: Fetches files, which are usually files shipped
+         with the Metadata, from the local machine.
+         The path is relative to the :term:`FILESPATH`
+         variable. Thus, the build system searches, in order, from the
+         following directories, which are assumed to be a subdirectories of
+         the directory in which the recipe file (``.bb``) or append file
+         (``.bbappend``) resides:
+
+         -  ``${BPN}``: the base recipe name without any special suffix
+            or version numbers.
+
+         -  ``${BP}`` - ``${BPN}-${PV}``: the base recipe name and
+            version but without any special package name suffix.
+
+         -  ``files``: files within a directory, which is named ``files``
+            and is also alongside the recipe or append file.
+
+      -  ``ftp://``: Fetches files from the Internet using FTP.
+
+      -  ``git://``: Fetches files from a Git revision control
+         repository.
+
+      -  ``gitsm://``: Fetches submodules from a Git revision control
+         repository.
+
+      -  ``hg://``: Fetches files from a Mercurial (``hg``) revision
+         control repository.
+
+      -  ``http://``: Fetches files from the Internet using HTTP.
+
+      -  ``https://``: Fetches files from the Internet using HTTPS.
+
+      -  ``npm://``: Fetches JavaScript modules from a registry.
+
+      -  ``osc://``: Fetches files from an OSC (OpenSUSE Build service)
          revision control repository.
 
-      -  ``repo://`` : Fetches files from a repo (Git) repository.
-
-      -  ``http://`` : Fetches files from the Internet using HTTP.
-
-      -  ``https://`` : Fetches files from the Internet using HTTPS.
-
-      -  ``ftp://`` : Fetches files from the Internet using FTP.
-
-      -  ``cvs://`` : Fetches files from a CVS revision control
-         repository.
-
-      -  ``hg://`` : Fetches files from a Mercurial (``hg``) revision
+      -  ``p4://``: Fetches files from a Perforce (``p4``) revision
          control repository.
 
-      -  ``p4://`` : Fetches files from a Perforce (``p4``) revision
+      -  ``repo://``: Fetches files from a repo (Git) repository.
+
+      -  ``ssh://``: Fetches files from a secure shell.
+
+      -  ``svn://``: Fetches files from a Subversion (``svn``) revision
          control repository.
-
-      -  ``ssh://`` : Fetches files from a secure shell.
-
-      -  ``svn://`` : Fetches files from a Subversion (``svn``) revision
-         control repository.
-
-      -  ``az://`` : Fetches files from an Azure Storage account using HTTPS.
 
       Here are some additional options worth mentioning:
 
-      -  ``unpack`` : Controls whether or not to unpack the file if it is
-         an archive. The default action is to unpack the file.
+      -  ``downloadfilename``: Specifies the filename used when storing
+         the downloaded file.
 
-      -  ``subdir`` : Places the file (or extracts its contents) into the
+      -  ``name``: Specifies a name to be used for association with
+         :term:`SRC_URI` checksums or :term:`SRCREV` when you have more than one
+         file or git repository specified in :term:`SRC_URI`. For example::
+
+            SRC_URI = "git://example.com/foo.git;branch=main;name=first \
+                       git://example.com/bar.git;branch=main;name=second \
+                       http://example.com/file.tar.gz;name=third"
+
+            SRCREV_first = "f1d2d2f924e986ac86fdf7b36c94bcdf32beec15"
+            SRCREV_second = "e242ed3bffccdf271b7fbaf34ed72d089537b42f"
+            SRC_URI[third.sha256sum] = "13550350a8681c84c861aac2e5b440161c2b33a3e4f302ac680ca5b686de48de"
+
+      -  ``subdir``: Places the file (or extracts its contents) into the
          specified subdirectory. This option is useful for unusual tarballs
          or other archives that do not have their files already in a
          subdirectory within the archive.
 
-      -  ``name`` : Specifies a name to be used for association with
-         :term:`SRC_URI` checksums when you have more than one file specified
-         in :term:`SRC_URI`.
+      -  ``subpath``: Limits the checkout to a specific subpath of the
+         tree when using the Git fetcher is used.
 
-      -  ``downloadfilename`` : Specifies the filename used when storing
-         the downloaded file.
+      -  ``unpack``: Controls whether or not to unpack the file if it is
+         an archive. The default action is to unpack the file.
 
    :term:`SRCDATE`
       The date of the source code used to build the package. This variable

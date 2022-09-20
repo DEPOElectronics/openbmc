@@ -1,11 +1,13 @@
 #
+# Copyright OpenEmbedded Contributors
+#
 # SPDX-License-Identifier: MIT
 #
 
 import os
 
 from oeqa.selftest.case import OESelftestTestCase
-from oeqa.utils.commands import runCmd, bitbake, get_bb_var
+from oeqa.utils.commands import bitbake, get_bb_var
 import oeqa.utils.ftools as ftools
 
 class LayerAppendTests(OESelftestTestCase):

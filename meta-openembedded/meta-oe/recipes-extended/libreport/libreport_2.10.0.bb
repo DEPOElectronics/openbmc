@@ -2,7 +2,7 @@ DESCRIPTION = "Libraries providing API for reporting different problems in appli
 to different bug targets like Bugzilla, ftp, trac, etc..."
 SUMMARY = "Generic library for reporting various problems"
 HOMEPAGE = "https://abrt.readthedocs.org/"
-LICENSE = "GPLv2+"
+LICENSE = "GPL-2.0-or-later"
 DEPENDS = "xmlrpc-c xmlrpc-c-native intltool-native \
         json-c libtar libnewt libproxy rpm \
         augeas satyr systemd \
@@ -11,7 +11,7 @@ DEPENDS = "xmlrpc-c xmlrpc-c-native intltool-native \
 LIC_FILES_CHKSUM = "file://COPYING;md5=751419260aa954499f7abaabaa882bbe"
 
 
-SRC_URI = "git://github.com/abrt/libreport.git;protocol=https"
+SRC_URI = "git://github.com/abrt/libreport.git;protocol=https;branch=master"
 SRC_URI += "file://0001-Makefile.am-remove-doc-and-apidoc.patch \
             file://0002-configure.ac-remove-prog-test-of-xmlto-and-asciidoc.patch \
             file://0003-without-build-plugins.patch \

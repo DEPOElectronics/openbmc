@@ -1,11 +1,11 @@
-LICENSE = "LGPL-2.1"
+LICENSE = "LGPL-2.1-only"
 LIC_FILES_CHKSUM = "file://COPYING;md5=fbc093901857fcd118f065f900982c24"
 DESCRIPTION = "Runtime libraries for parsing and creating MIME mail"
 SECTION = "libs"
 
 DEPENDS = "glib-2.0 zlib"
 
-inherit gnomebase gobject-introspection
+inherit gnomebase gobject-introspection vala
 
 SRC_URI += "file://iconv-detect.h \
             file://nodolt.patch"

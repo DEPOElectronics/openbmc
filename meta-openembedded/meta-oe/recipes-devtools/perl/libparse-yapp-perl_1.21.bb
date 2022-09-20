@@ -5,7 +5,7 @@ with perl object oriented interface."
 
 HOMEPAGE = "http://search.cpan.org/dist/Parse-Yapp/"
 SECTION = "libs"
-LICENSE = "Artistic-1.0 | GPL-1.0+"
+LICENSE = "Artistic-1.0 | GPL-1.0-or-later"
 
 LIC_FILES_CHKSUM = "file://lib/Parse/Yapp.pm;beginline=508;endline=521;md5=41a4542fcde97a600c9de0d782a90256"
 
@@ -17,5 +17,9 @@ SRC_URI[sha256sum] = "3810e998308fba2e0f4f26043035032b027ce51ce5c8a52a8b8e340ca6
 S = "${WORKDIR}/Parse-Yapp-${PV}"
 
 inherit cpan
+
+do_install:append() {
+    sed -i "s:^#!.*:#!/usr/bin/env perl:" ${D}${bindir}/yapp
+}
 
 BBCLASSEXTEND = "native"

@@ -13,22 +13,25 @@ customization for your platform.
 ## Setting up your OpenBMC project
 
 ### 1) Prerequisite
-- Ubuntu 14.04
 
+See the [Yocto documentation](https://docs.yoctoproject.org/ref-manual/system-requirements.html#required-packages-for-the-build-host)
+for the latest requirements
+
+#### Ubuntu
 ```
-sudo apt-get install -y git build-essential libsdl1.2-dev texinfo gawk chrpath diffstat
+$ sudo apt install git python3-distutils gcc g++ make file wget \
+    gawk diffstat bzip2 cpio chrpath zstd lz4 bzip2
 ```
 
-- Fedora 28
+#### Fedora
+```
+$ sudo dnf install git python3 gcc g++ gawk which bzip2 chrpath cpio
+hostname file diffutils diffstat lz4 wget zstd rpcgen patch
+```
 
-```
-sudo dnf install -y git patch diffstat texinfo chrpath SDL-devel bitbake \
-    rpcgen perl-Thread-Queue perl-bignum perl-Crypt-OpenSSL-Bignum
-sudo dnf groupinstall "C Development Tools and Libraries"
-```
 ### 2) Download the source
 ```
-git clone git@github.com:openbmc/openbmc.git
+git clone https://github.com/openbmc/openbmc
 cd openbmc
 ```
 
@@ -46,17 +49,20 @@ of supported hardware targets, see the following example:
 $ . setup <machine> [build_dir]
 Target machine must be specified. Use one of:
 
-bletchley               gsj                     romulus
-dl360poc                kudo                    s2600wf
-e3c246d4i               mihawk                  swift
-ethanolx                mtjade                  tiogapass
-evb-ast2500             nicole                  transformers
-evb-ast2600             olympus-nuvoton         witherspoon
-evb-npcm750             on5263m5                witherspoon-tacoma
-f0b                     p10bmc                  x11spi
-fp5280g2                palmetto                yosemitev2
-g220a                   qemuarm                 zaius
-gbs                     quanta-q71l
+bletchley               mihawk                  swift
+dl360poc                mori                    tatlin-archive-x86
+e3c246d4i               mtjade                  tiogapass
+ethanolx                nicole                  transformers
+evb-ast2500             olympus-nuvoton         vegman-n110
+evb-ast2600             on5263m5                vegman-rx20
+evb-npcm750             p10bmc                  vegman-sx20
+f0b                     palmetto                witherspoon
+fp5280g2                quanta-q71l             witherspoon-tacoma
+g220a                   romulus                 x11spi
+gbs                     s2600wf                 yosemitev2
+gsj                     s6q                     zaius
+kudo                    s7106
+lannister               s8036
 ```
 
 Once you know the target (e.g. romulus), source the `setup` script as follows:
@@ -156,10 +162,10 @@ Dive deeper into OpenBMC by opening the
 
 The Technical Steering Committee (TSC) guides the project. Members are:
 
- * Brad Bishop (chair), IBM
+ * Roxanne Clarke, IBM
  * Nancy Yuen, Google
  * Sai Dasari, Facebook
- * James Mihm, Intel
+ * Terry Duncan, Intel
  * Sagar Dharia, Microsoft
  * Samer El-Haj-Mahmoud, Arm
 

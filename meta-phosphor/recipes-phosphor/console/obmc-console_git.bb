@@ -23,10 +23,10 @@ DEPENDS += "autoconf-archive-native \
             systemd \
            "
 
-SRC_URI += "git://github.com/openbmc/obmc-console"
+SRC_URI += "git://github.com/openbmc/obmc-console;branch=master;protocol=https"
 SRC_URI += "file://${BPN}.conf"
 
-SRCREV = "467d3010344d974f3051162d29f13f49c0eb8ea3"
+SRCREV = "bbc95526c6b612ec42f45e3d554d01324477c4e7"
 PV = "1.0+git${SRCPV}"
 
 REGISTERED_SERVICES:${PN} += "obmc_console:tcp:2200:"
@@ -51,7 +51,7 @@ do_install:append() {
         # If the OBMC_CONSOLE_TTYS variable is used without the default OBMC_CONSOLE_HOST_TTY
         # the port specific config file should be provided. If it is just OBMC_CONSOLE_HOST_TTY,
         # use the old style which supports both port specific or obmc-console.conf method.
-        if [[ "${OBMC_CONSOLE_TTYS}" !=  "${OBMC_CONSOLE_HOST_TTY}" ]]; then
+        if [ "${OBMC_CONSOLE_TTYS}" !=  "${OBMC_CONSOLE_HOST_TTY}" ]; then
                 rm -f ${D}${sysconfdir}/${BPN}/server.ttyVUART0.conf
 
                 for CONSOLE in ${OBMC_CONSOLE_TTYS}

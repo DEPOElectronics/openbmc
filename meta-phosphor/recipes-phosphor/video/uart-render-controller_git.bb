@@ -1,7 +1,7 @@
 HOMEPAGE = "https://github.com/jk-ozlabs/uart-render-controller"
-LICENSE = "GPLv2+"
+LICENSE = "GPL-2.0-or-later"
 
-SRC_URI += "git://github.com/jk-ozlabs/uart-render-controller;branch=master"
+SRC_URI += "git://github.com/jk-ozlabs/uart-render-controller;branch=master;protocol=https"
 SRC_URI += "file://uart-render-controller.service"
 
 PR = "r1"

@@ -31,7 +31,7 @@ universal, the list includes them just in case:
          busybox_1.21.%.bbappend
 
       That append file
-      would match any ``busybox_1.21.``\ x\ ``.bb`` version of the recipe. So,
+      would match any ``busybox_1.21.x.bb`` version of the recipe. So,
       the append file would match any of the following recipe names:
 
       .. code-block:: shell
@@ -88,11 +88,11 @@ universal, the list includes them just in case:
          -  Provide a directory path and specifically name the Build
             Directory. Any intermediate folders in the pathname must exist.
             This next example creates a Build Directory named
-            ``YP-&POKYVERSION;`` within the existing directory ``mybuilds``:
+            ``YP-&DISTRO;`` within the existing directory ``mybuilds``:
 
             .. code-block:: shell
 
-               $ source poky/oe-init-build-env mybuilds/YP-&POKYVERSION;
+               $ source poky/oe-init-build-env mybuilds/YP-&DISTRO;
 
       .. note::
 
@@ -134,10 +134,27 @@ universal, the list includes them just in case:
       the Texas Instruments ARM Cortex-A8 development board).
 
    :term:`Container Layer`
-      Layers that hold other layers. An example of a container layer is
-      OpenEmbedded's `meta-openembedded
-      <https://github.com/openembedded/meta-openembedded>`_ layer. The
-      ``meta-openembedded`` layer contains many ``meta-*`` layers.
+      A flexible definition that typically refers to a single Git checkout
+      which contains multiple (and typically related) sub-layers which can
+      be included independently in your project's ``bblayers.conf`` file.
+
+      In some cases, such as with OpenEmbedded's
+      `meta-openembedded <https://github.com/openembedded/meta-openembedded>`_
+      layer, the top level ``meta-openembedded/`` directory is not itself an actual layer,
+      so you would never explicitly include it in a ``bblayers.conf`` file;
+      rather, you would include any number of its layer subdirectories, such as
+      `meta-openembedded/meta-oe <https://github.com/openembedded/meta-openembedded/tree/master/meta-oe>`_,
+      `meta-openembedded/meta-python <https://github.com/openembedded/meta-openembedded/tree/master/meta-python>`_
+      and so on.
+
+      On the other hand, some container layers (such as
+      :yocto_git:`meta-security </meta-security>`)
+      have a top-level directory that is itself an actual layer, as well as
+      a variety of sub-layers, both of which could be included in your
+      ``bblayers.conf`` file.
+
+      In either case, the phrase "container layer" is simply used to describe
+      a directory structure which contains multiple valid OpenEmbedded layers.
 
    :term:`Cross-Development Toolchain`
       In general, a cross-development toolchain is a collection of software
@@ -253,7 +270,7 @@ universal, the list includes them just in case:
       your Linux distribution.
 
       Another point worth noting is that historically within the Yocto
-      Project, recipes were referred to as packages - thus, the existence
+      Project, recipes were referred to as packages --- thus, the existence
       of several BitBake variables that are seemingly mis-named, (e.g.
       :term:`PR`, :term:`PV`, and
       :term:`PE`).
@@ -340,19 +357,19 @@ universal, the list includes them just in case:
      repository results in a local Git repository whose top-level folder
      is also named "poky".
 
-     While it is not recommended that you use tarball expansion to set up
+     While it is not recommended that you use tarball extraction to set up
      the Source Directory, if you do, the top-level directory name of the
      Source Directory is derived from the Yocto Project release tarball.
-     For example, downloading and unpacking
-     :yocto_dl:`/releases/yocto/&DISTRO_REL_TAG;/&YOCTO_POKY;.tar.bz2`
-     results in a Source Directory whose root folder is named
-     ``&YOCTO_POKY;``.
+     For example, downloading and unpacking poky tarballs from
+     :yocto_dl:`/releases/yocto/&DISTRO_REL_TAG;/`
+     results in a Source Directory whose root folder is named poky.
+
 
      It is important to understand the differences between the Source
      Directory created by unpacking a released tarball as compared to
      cloning ``git://git.yoctoproject.org/poky``. When you unpack a
      tarball, you have an exact copy of the files based on the time of
-     release - a fixed release point. Any changes you make to your local
+     release --- a fixed release point. Any changes you make to your local
      files in the Source Directory are on top of the release and will
      remain local only. On the other hand, when you clone the ``poky`` Git
      repository, you have an active development repository with access to
@@ -365,6 +382,31 @@ universal, the list includes them just in case:
      branches, and tags, see the
      ":ref:`overview-manual/development-environment:repositories, tags, and branches`"
      section in the Yocto Project Overview and Concepts Manual.
+
+   :term:`Sysroot`
+      When cross-compiling, the target file system may be differently laid
+      out and contain different things compared to the host system. The concept
+      of a *sysroot* is directory which looks like the target filesystem and
+      can be used to cross-compile against.
+
+      In the context of cross-compiling toolchains, a *sysroot*
+      typically contains C library and kernel headers, plus the
+      compiled binaries for the C library. A *multilib toolchain*
+      can contain multiple variants of the C library binaries,
+      each compiled for a target instruction set (such as ``armv5``,
+      ``armv7`` and ``armv8``), and possibly optimized for a specific CPU core.
+
+      In the more specific context of the OpenEmbedded build System and
+      of the Yocto Project, each recipe has two sysroots:
+
+      -  A *target sysroot* contains all the **target** libraries and headers
+         needed to build the recipe.
+
+      -  A *native sysroot* contains all the **host** files and executables
+         needed to build the recipe.
+
+      See the :term:`SYSROOT_* <SYSROOT_DESTDIR>` variables controlling
+      how sysroots are created and stored.
 
    :term:`Task`
       A per-recipe unit of execution for BitBake (e.g.
@@ -387,7 +429,7 @@ universal, the list includes them just in case:
 
    :term:`Upstream`
       A reference to source code or repositories that are not
-      local to the development system but located in a master area that is
+      local to the development system but located in a remote area that is
       controlled by the maintainer of the source code. For example, in
       order for a developer to work on a particular piece of code, they
       need to first get a copy of it from an "upstream" source.

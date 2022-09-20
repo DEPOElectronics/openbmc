@@ -7,7 +7,7 @@ etc."
 
 HOMEPAGE = "https://metacpan.org/release/Unix-Statgrab"
 SECTION = "libs"
-LICENSE = "Artistic-1.0 | GPL-1.0+ | LGPL-2.1+"
+LICENSE = "Artistic-1.0 | GPL-1.0-or-later | LGPL-2.1-or-later"
 DEPENDS += "libcapture-tiny-perl-native"
 DEPENDS += "libconfig-autoconf-perl-native"
 DEPENDS += "libstatgrab"
@@ -32,6 +32,8 @@ SRC_URI[md5sum] = "a6bc06b3f7749f7d77a2b1bd13402821"
 SRC_URI[sha256sum] = "16a29f7acaeec081bf0e7303ba5ee24fda1d21a1104669b837745f3ea61d6afa"
 
 S = "${WORKDIR}/Unix-Statgrab-${PV}"
+
+export LD = "${CCLD}"
 
 inherit cpan pkgconfig ptest-perl
 

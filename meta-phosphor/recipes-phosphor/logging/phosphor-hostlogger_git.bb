@@ -21,8 +21,8 @@ RRECOMMENDS:${PN} += "phosphor-debug-collector"
 
 # Source code repository
 S = "${WORKDIR}/git"
-SRC_URI = "git://github.com/openbmc/phosphor-hostlogger"
-SRCREV = "1ecbb996d9c88871db20c455db02ee055bff10f2"
+SRC_URI = "git://github.com/openbmc/phosphor-hostlogger;branch=master;protocol=https"
+SRCREV = "d68863396c608912a820926d8d98d92499f49ac2"
 
 # Disable unit tests
 EXTRA_OEMESON:append = " -Dtests=disabled"

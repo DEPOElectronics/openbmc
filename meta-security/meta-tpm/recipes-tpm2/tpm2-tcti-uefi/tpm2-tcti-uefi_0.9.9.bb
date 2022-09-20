@@ -4,13 +4,15 @@ LICENSE = "BSD-2-Clause"
 LIC_FILES_CHKSUM = "file://LICENSE;md5=500b2e742befc3da00684d8a1d5fd9da"
 DEPENDS = "libtss2-dev libtss2-mu-dev gnu-efi-native gnu-efi pkgconfig autoconf-archive-native"
 
-SRC_URI = "git://github.com/tpm2-software/tpm2-tcti-uefi.git \
+SRC_URI = "git://github.com/tpm2-software/tpm2-tcti-uefi.git;branch=master;protocol=https \
            file://configure_oe_fixup.patch \
            file://0001-configure.ac-stop-inserting-host-directories-into-co.patch \
            file://fix_header_file.patch \
 "
 
 SRCREV = "0241b08f069f0fdb3612f5c1b938144dbe9be811"
+
+UPSTREAM_CHECK_URI = "https://github.com/tpm2-software/${BPN}/releases"
 
 S = "${WORKDIR}/git"
 

@@ -14,13 +14,14 @@ SRC_URI += " \
   file://gbmc-ncsi-dhcrelay.service.in \
   file://gbmc-ncsi-ip-from-ra.service.in \
   file://gbmc-ncsi-ip-from-ra.sh.in \
+  file://gbmc-ncsi-smartnic-wa.sh.in \
   file://gbmc-ncsi-sslh.socket.in \
   file://gbmc-ncsi-sslh.service \
   file://gbmc-ncsi-nft.sh.in \
   file://gbmc-ncsi-br-pub-addr.sh.in \
   file://gbmc-ncsi-br-deprecated-ips.sh.in \
   file://gbmc-ncsi-set-nicenabled.service.in \
-  file://25-gbmc-ncsi-clear-ip.sh.in \
+  file://50-gbmc-ncsi-clear-ip.sh.in \
   "
 
 S = "${WORKDIR}"
@@ -37,7 +38,7 @@ RDEPENDS:${PN} += " \
   "
 
 FILES:${PN} += " \
-  ${datadir}/gbmc-br-dhcp \
+  ${datadir}/gbmc-br-lib \
   ${datadir}/gbmc-ip-monitor \
   ${systemd_unitdir} \
   "
@@ -107,11 +108,11 @@ do_install:append() {
     >${WORKDIR}/gbmc-ncsi-br-deprecated-ips.sh
   install -m644 ${WORKDIR}/gbmc-ncsi-br-deprecated-ips.sh $mondir
 
-  dhcpdir=${D}${datadir}/gbmc-br-dhcp/
-  install -d -m0755 $dhcpdir
-  sed "s,@NCSI_IF@,$if_name,g" ${WORKDIR}/25-gbmc-ncsi-clear-ip.sh.in \
-    >${WORKDIR}/25-gbmc-ncsi-clear-ip.sh
-  install -m644 ${WORKDIR}/25-gbmc-ncsi-clear-ip.sh $dhcpdir
+  brlibdir=${D}${datadir}/gbmc-br-lib/
+  install -d -m0755 $brlibdir
+  sed "s,@NCSI_IF@,$if_name,g" ${WORKDIR}/50-gbmc-ncsi-clear-ip.sh.in \
+    >${WORKDIR}/50-gbmc-ncsi-clear-ip.sh
+  install -m644 ${WORKDIR}/50-gbmc-ncsi-clear-ip.sh $brlibdir
 
   sed "s,@NCSI_IF@,$if_name,g" ${WORKDIR}/gbmc-ncsi-set-nicenabled.service.in \
     >${D}${systemd_system_unitdir}/gbmc-ncsi-set-nicenabled.service
@@ -126,6 +127,11 @@ do_install:append() {
     >${WORKDIR}/gbmc-ncsi-ip-from-ra.sh
   install -d -m0755 ${D}${libexecdir}
   install -m0755 ${WORKDIR}/gbmc-ncsi-ip-from-ra.sh ${D}${libexecdir}/
+
+  sed "s,@NCSI_IF@,$if_name,g" ${WORKDIR}/gbmc-ncsi-smartnic-wa.sh.in \
+    >${WORKDIR}/gbmc-ncsi-smartnic-wa.sh
+  install -d -m0755 ${D}${bindir}
+  install -m0755 ${WORKDIR}/gbmc-ncsi-smartnic-wa.sh ${D}${bindir}/
 }
 
 do_rm_work:prepend() {

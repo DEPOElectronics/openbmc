@@ -3,7 +3,7 @@ DESCRIPTION = "Procps contains a set of system utilities that provide system inf
 the /proc filesystem. The package includes the programs ps, top, vmstat, w, kill, and skill."
 HOMEPAGE = "https://gitlab.com/procps-ng/procps"
 SECTION = "base"
-LICENSE = "GPLv2+ & LGPLv2+"
+LICENSE = "GPL-2.0-or-later & LGPL-2.0-or-later"
 LIC_FILES_CHKSUM = "file://COPYING;md5=b234ee4d69f5fce4486a80fdaf4a4263 \
                     file://COPYING.LIB;md5=4cf66a4984120007c9881cc871cf49db \
                     "
@@ -12,12 +12,16 @@ DEPENDS = "ncurses"
 
 inherit autotools gettext pkgconfig update-alternatives
 
-SRC_URI = "git://gitlab.com/procps-ng/procps.git;protocol=https \
+SRC_URI = "git://gitlab.com/procps-ng/procps.git;protocol=https;branch=master \
            file://sysctl.conf \
            file://0001-w.c-correct-musl-builds.patch \
            file://0002-proc-escape.c-add-missing-include.patch \
            "
 SRCREV = "19a508ea121c0c4ac6d0224575a036de745eaaf8"
+# 4.x version is an API incompatible rewrite
+# until procps consumers are transitioned to it we need to stick with 3.x
+# https://gitlab.com/procps-ng/procps/-/issues/239
+UPSTREAM_CHECK_GITTAGREGEX = "(?P<pver>3(\.\d+)+)"
 
 S = "${WORKDIR}/git"
 
@@ -75,7 +79,7 @@ python __anonymous() {
 
 # 'ps' isn't suitable for use as a security tool so whitelist this CVE.
 # https://bugzilla.redhat.com/show_bug.cgi?id=1575473#c3
-CVE_CHECK_WHITELIST += "CVE-2018-1121"
+CVE_CHECK_IGNORE += "CVE-2018-1121"
 
 PROCPS_PACKAGES = "${PN}-lib \
                    ${PN}-ps \

@@ -52,7 +52,7 @@ A development host or :term:`Build Host` is key to
 using the Yocto Project. Because the goal of the Yocto Project is to
 develop images or applications that run on embedded hardware,
 development of those images and applications generally takes place on a
-system not intended to run the software - the development host.
+system not intended to run the software --- the development host.
 
 You need to set up a development host in order to use it with the Yocto
 Project. Most find that it is best to have a native Linux machine
@@ -163,9 +163,9 @@ these tarballs gives you a snapshot of the released files.
 
    -  Be sure to always work in matching branches for both the selected
       BSP repository and the Source Directory (i.e. ``poky``)
-      repository. For example, if you have checked out the "master"
+      repository. For example, if you have checked out the "&DISTRO_NAME_NO_CAP;"
       branch of ``poky`` and you are going to use ``meta-intel``, be
-      sure to checkout the "master" branch of ``meta-intel``.
+      sure to checkout the "&DISTRO_NAME_NO_CAP;" branch of ``meta-intel``.
 
 In summary, here is where you can get the project files needed for
 development:
@@ -176,7 +176,7 @@ development:
    repositories for each of these areas.
 
    .. image:: figures/source-repos.png
-      :align: center
+      :width: 100%
 
    For steps on how to view and access these upstream Git repositories,
    see the ":ref:`dev-manual/start:accessing source repositories`"
@@ -191,6 +191,7 @@ development:
 
    .. image:: figures/index-downloads.png
       :align: center
+      :width: 50%
 
    For steps on how to view and access these files, see the
    ":ref:`dev-manual/start:accessing index of releases`"
@@ -205,7 +206,7 @@ development:
    :yocto_dl:`Index of /releases: </releases>` area.
 
    .. image:: figures/yp-download.png
-      :align: center
+      :width: 100%
 
    For steps on how to use the "DOWNLOADS" page, see the
    ":ref:`dev-manual/start:using the downloads page`"
@@ -233,8 +234,8 @@ all diverging functionality. Although there is no need to use Git, many
 open source projects do so.
 
 For the Yocto Project, a key individual called the "maintainer" is
-responsible for the integrity of the "master" branch of a given Git
-repository. The "master" branch is the "upstream" repository from which
+responsible for the integrity of the development branch of a given Git
+repository. The development branch is the "upstream" repository from which
 final or most recent builds of a project occur. The maintainer is
 responsible for accepting changes from other developers and for
 organizing the underlying branch structure to reflect release strategies
@@ -279,15 +280,15 @@ submitting patches and changes, see the
 ":ref:`dev-manual/common-tasks:submitting a change to the yocto project`"
 section in the Yocto Project Development Tasks Manual.
 
-In summary, there is a single point of entry for changes into a "master"
-or development branch of the Git repository, which is controlled by the
+In summary, there is a single point of entry for changes into the
+development branch of the Git repository, which is controlled by the
 project's maintainer. A set of developers independently
 develop, test, and submit changes to "contrib" areas for the maintainer
 to examine. The maintainer then chooses which changes are going to
 become a permanent part of the project.
 
-.. image:: figures/git-workflow.png
-   :align: center
+.. image:: svg/git-workflow.*
+   :width: 100%
 
 While each development environment is unique, there are some best
 practices or methods that help development run smoothly. The following
@@ -311,7 +312,7 @@ Book <https://book.git-scm.com>`__.
    host. You can name these branches anything you like. It is helpful to
    give them names associated with the particular feature or change on
    which you are working. Once you are done with a feature or change and
-   have merged it into your local master branch, simply discard the
+   have merged it into your local development branch, simply discard the
    temporary branch.
 
 -  *Merge Changes:* The ``git merge`` command allows you to take the
@@ -348,7 +349,7 @@ Book <https://book.git-scm.com>`__.
 
 -  *Patch Workflow:* This workflow allows you to notify the maintainer
    through an email that you have a change (or patch) you would like
-   considered for the "master" branch of the Git repository. To send
+   considered for the development branch of the Git repository. To send
    this type of change, you format the patch and then send the email
    using the Git commands ``git format-patch`` and ``git send-email``.
    For information on how to use these scripts, see the
@@ -427,23 +428,18 @@ other branches represent offshoots of the "master" branch.
 When you create a local copy of a Git repository, the copy has the same
 set of branches as the original. This means you can use Git to create a
 local working area (also called a branch) that tracks a specific
-development branch from the upstream source Git repository. in other
+development branch from the upstream source Git repository. In other
 words, you can define your local Git environment to work on any
 development branch in the repository. To help illustrate, consider the
 following example Git commands::
 
    $ cd ~
-   $ git clone git://git.yoctoproject.org/poky
-   $ cd poky
-   $ git checkout -b &DISTRO_NAME_NO_CAP; origin/&DISTRO_NAME_NO_CAP;
+   $ git clone git://git.yoctoproject.org/poky -b &DISTRO_NAME_NO_CAP;
 
 In the previous example
 after moving to the home directory, the ``git clone`` command creates a
-local copy of the upstream ``poky`` Git repository. By default, Git
-checks out the "master" branch for your work. After changing the working
-directory to the new local repository (i.e. ``poky``), the
-``git checkout`` command creates and checks out a local branch named
-"&DISTRO_NAME_NO_CAP;", which tracks the upstream
+local copy of the upstream ``poky`` Git repository and checks out a
+local branch named "&DISTRO_NAME_NO_CAP;", which tracks the upstream
 "origin/&DISTRO_NAME_NO_CAP;" branch. Changes you make while in this
 branch would ultimately affect the upstream "&DISTRO_NAME_NO_CAP;" branch
 of the ``poky`` repository.
@@ -466,7 +462,7 @@ and clicking on the ``[...]`` link beneath the "Tag" heading.
 
 Some key tags for the ``poky`` repository are ``jethro-14.0.3``,
 ``morty-16.0.1``, ``pyro-17.0.0``, and
-``&DISTRO_NAME_NO_CAP;-&POKYVERSION;``. These tags represent Yocto Project
+``&DISTRO_NAME_NO_CAP;-&DISTRO;``. These tags represent Yocto Project
 releases.
 
 When you create a local copy of the Git repository, you also have access
@@ -555,12 +551,12 @@ descriptions and strategies on how to use these commands:
    You need to be in a local branch other than the one you are deleting
    in order to delete branch-name.
 
--  *git pull --rebase:* Retrieves information from an upstream Git
+-  *git pull \-\-rebase*: Retrieves information from an upstream Git
    repository and places it in your local Git repository. You use this
    command to make sure you are synchronized with the repository from
-   which you are basing changes (.e.g. the "master" branch). The
-   "--rebase" option ensures that any local commits you have in your
-   branch are preserved at the top of your local branch.
+   which you are basing changes (e.g. the "&DISTRO_NAME_NO_CAP;"
+   branch). The ``--rebase`` option ensures that any local commits you
+   have in your branch are preserved at the top of your local branch.
 
 -  *git push repo-name local-branch:upstream-branch:* Sends
    all your committed local changes to the upstream Git repository that
@@ -571,13 +567,13 @@ descriptions and strategies on how to use these commands:
 
 -  *git merge:* Combines or adds changes from one local branch of
    your repository with another branch. When you create a local Git
-   repository, the default branch is named "master". A typical workflow
-   is to create a temporary branch that is based off "master" that you
-   would use for isolated work. You would make your changes in that
-   isolated branch, stage and commit them locally, switch to the
-   "master" branch, and then use the ``git merge`` command to apply the
+   repository, the default branch may be named "main". A typical
+   workflow is to create a temporary branch that is based off "main"
+   that you would use for isolated work. You would make your changes in
+   that isolated branch, stage and commit them locally, switch to the
+   "main" branch, and then use the ``git merge`` command to apply the
    changes from your isolated branch into the currently checked out
-   branch (e.g. "master"). After the merge is complete and if you are
+   branch (e.g. "main"). After the merge is complete and if you are
    done with working in that isolated branch, you can safely delete the
    isolated branch.
 
@@ -621,13 +617,9 @@ this history, you can find basic information here:
 In general, the Yocto Project is broadly licensed under the
 Massachusetts Institute of Technology (MIT) License. MIT licensing
 permits the reuse of software within proprietary software as long as the
-license is distributed with that software. MIT is also compatible with
-the GNU General Public License (GPL). Patches to the Yocto Project
+license is distributed with that software. Patches to the Yocto Project
 follow the upstream licensing scheme. You can find information on the
-MIT license
-`here <https://www.opensource.org/licenses/mit-license.php>`__. You can
-find information on the GNU GPL
-`here <https://www.opensource.org/licenses/LGPL-3.0>`__.
+MIT license `here <https://en.wikipedia.org/wiki/MIT_License>`__.
 
 When you build an image using the Yocto Project, the build process uses
 a known list of licenses to ensure compliance. You can find this list in

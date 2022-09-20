@@ -1,6 +1,6 @@
 SUMMARY = "A library which provides easy access to huge pages of memory"
 HOMEPAGE = "https://github.com/libhugetlbfs/libhugetlbfs"
-LICENSE = "LGPLv2.1"
+LICENSE = "LGPL-2.1-only"
 LIC_FILES_CHKSUM = "file://LGPL-2.1;md5=2d5025d4aa3495befef8f17206a5b0a1"
 
 DEPENDS = "sysfsutils"
@@ -12,7 +12,7 @@ PE = "1"
 
 SRCREV = "6b126a4d7da9490fa40fe7e1b962edcb939feddc"
 SRC_URI = " \
-    git://github.com/libhugetlbfs/libhugetlbfs.git;protocol=https \
+    git://github.com/libhugetlbfs/libhugetlbfs.git;protocol=https;branch=master \
     file://skip-checking-LIB32-and-LIB64-if-they-point-to-the-s.patch \
     file://libhugetlbfs-avoid-search-host-library-path-for-cros.patch \
     file://tests-Makefile-install-static-4G-edge-testcases.patch \
@@ -76,4 +76,4 @@ INHIBIT_PACKAGE_STRIP = "1"
 INHIBIT_PACKAGE_DEBUG_SPLIT = "1"
 
 # see https://github.com/libhugetlbfs/libhugetlbfs/issues/52
-PNBLACKLIST[libhugetlbfs] ?= "Needs porting to glibc 2.34+"
+SKIP_RECIPE[libhugetlbfs] ?= "Needs porting to glibc 2.34+"

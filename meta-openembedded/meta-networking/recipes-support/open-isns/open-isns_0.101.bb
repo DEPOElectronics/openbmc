@@ -7,13 +7,13 @@ Storage Name Service (iSNS).  The distribution includes the iSNS server, \
 supporting persisten storage of registrations, isnsadm, a command line \
 utility for managing nodes, and isnsdd, a corresponding discovery daemon."
 HOMEPAGE = "http://github.com/gonzoleeman/open-isns/"
-LICENSE = "GPLv2+ & LGPLv2+"
+LICENSE = "GPL-2.0-or-later & LGPL-2.0-or-later"
 LIC_FILES_CHKSUM = "file://COPYING;md5=321bf41f280cf805086dd5a720b37785"
 SECTION = "net"
 
 DEPENDS = "openssl"
 
-SRC_URI = "git://github.com/open-iscsi/open-isns \
+SRC_URI = "git://github.com/open-iscsi/open-isns;branch=master;protocol=https \
            file://0001-isnsd.socket-use-run-instead-of-var-run.patch \
            "
 

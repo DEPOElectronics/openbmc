@@ -18,12 +18,12 @@ DESCRIPTION = "\
     this package if you're installing the postgresql-server package. \
 "
 HOMEPAGE = "http://www.postgresql.com"
-LICENSE = "BSD-0-Clause"
-DEPENDS = "libnsl2 zlib readline tzcode-native"
+LICENSE = "0BSD"
+DEPENDS = "libnsl2 readline tzcode-native"
 
 ARM_INSTRUCTION_SET = "arm"
 
-SRC_URI = "http://ftp.postgresql.org/pub/source/v${PV}/${BP}.tar.bz2 \
+SRC_URI = "https://ftp.postgresql.org/pub/source/v${PV}/${BP}.tar.bz2 \
     file://postgresql.init \
     file://postgresql-profile \
     file://postgresql.pam \
@@ -43,7 +43,6 @@ CFLAGS += "-I${STAGING_INCDIR}/${PYTHON_DIR} -I${STAGING_INCDIR}/tcl8.6"
 SYSTEMD_SERVICE:${PN} = "postgresql.service"
 SYSTEMD_AUTO_ENABLE:${PN} = "disable"
 
-DEPENDS:append = " ${@bb.utils.contains('DISTRO_FEATURES', 'systemd', 'systemd-systemctl-native', '', d)}"
 pkg_postinst:${PN} () {
     if ${@bb.utils.contains('DISTRO_FEATURES', 'systemd sysvinit', 'true', 'false', d)}; then
         if [ -n "$D" ]; then
@@ -53,23 +52,29 @@ pkg_postinst:${PN} () {
     fi
 }
 
-enable_pam = "${@bb.utils.filter('DISTRO_FEATURES', 'pam', d)}"
-PACKAGECONFIG ??= "${enable_pam} openssl python uuid libxml tcl nls libxml perl"
-PACKAGECONFIG[pam] = "--with-pam,--without-pam,libpam,"
-PACKAGECONFIG[openssl] = "--with-openssl,--without-openssl ac_cv_file__dev_urandom=yes,openssl,"
-PACKAGECONFIG[python] = "--with-python,--without-python,python3,python3"
-PACKAGECONFIG[uuid] = "--with-uuid=e2fs,--without-uuid,util-linux,"
+PACKAGECONFIG ??= " \
+    ${@bb.utils.filter('DISTRO_FEATURES', 'pam systemd', d)} \
+    openssl python uuid libxml tcl perl zlib \
+"
 PACKAGECONFIG[tcl] = "--with-tcl --with-tclconfig=${STAGING_BINDIR_CROSS},--without-tcl,tcl tcl-native,"
-PACKAGECONFIG[nls] = "--enable-nls,--disable-nls,,"
-PACKAGECONFIG[libxml] = "--with-libxml,--without-libxml,libxml2,libxml2"
 PACKAGECONFIG[perl] = "--with-perl,--without-perl,perl,perl"
+PACKAGECONFIG[python] = "--with-python,--without-python,python3,python3"
+PACKAGECONFIG[gssapi] = "--with-gssapi,--without-gssapi,krb5"
+PACKAGECONFIG[pam] = "--with-pam,--without-pam,libpam"
+PACKAGECONFIG[ldap] = "--with-ldap,--without-ldap,openldap"
+PACKAGECONFIG[systemd] = "--with-systemd,--without-systemd,systemd systemd-systemctl-native"
+PACKAGECONFIG[uuid] = "--with-uuid=e2fs,--without-uuid,util-linux"
+PACKAGECONFIG[libxml] = "--with-libxml,--without-libxml,libxml2,libxml2"
+PACKAGECONFIG[libxslt] = "--with-libxslt,--without-libxslt,libxslt"
+PACKAGECONFIG[zlib] = "--with-zlib,--without-zlib,zlib"
+PACKAGECONFIG[lz4] = "--with-lz4,--without-lz4,lz4"
+PACKAGECONFIG[openssl] = "--with-ssl=openssl,ac_cv_file__dev_urandom=yes,openssl"
 
 EXTRA_OECONF += "--enable-thread-safety --disable-rpath \
     --datadir=${datadir}/${BPN} \
     --sysconfdir=${sysconfdir}/${BPN} \
 "
 EXTRA_OECONF:sh4 += "--disable-spinlocks"
-EXTRA_OECONF:aarch64 += "--disable-spinlocks"
 
 DEBUG_OPTIMIZATION:remove:mips = " -Og"
 DEBUG_OPTIMIZATION:append:mips = " -O"
@@ -200,7 +205,7 @@ do_install:append() {
     # multiple server config directory
     install -d -m 700 ${D}${sysconfdir}/default/${BPN}
 
-    if [ "${@d.getVar('enable_pam')}" = "pam" ]; then
+    if ${@bb.utils.contains('DISTRO_FEATURES', 'pam', 'true', 'false', d)}; then
         install -d ${D}${sysconfdir}/pam.d
         install -m 644 ${WORKDIR}/postgresql.pam ${D}${sysconfdir}/pam.d/postgresql
     fi
@@ -210,6 +215,14 @@ do_install:append() {
     install -m 0644 ${WORKDIR}/postgresql.service ${D}${systemd_unitdir}/system
     sed -i -e 's,@BINDIR@,${bindir},g' \
         ${D}${systemd_unitdir}/system/postgresql.service
+    # Remove the build path
+    if [ -f ${D}${libdir}/${BPN}/pgxs/src/Makefile.global ]; then
+        sed -i -e 's#${RECIPE_SYSROOT}##g' \
+               -e 's#${RECIPE_SYSROOT_NATIVE}##g' \
+               -e 's#${WORKDIR}##g' \
+               -e 's#${TMPDIR}##g' \
+             ${D}${libdir}/${BPN}/pgxs/src/Makefile.global
+    fi
 }
 
 SSTATE_SCAN_FILES += "Makefile.global"

@@ -1,4 +1,6 @@
 #
+# Copyright OpenEmbedded Contributors
+#
 # SPDX-License-Identifier: MIT
 #
 
@@ -99,7 +101,7 @@ class Dependencies(OESelftestTestCase):
 
             r = """
             LICENSE="CLOSED"
-            SRC_URI="git://example.com/repo"
+            SRC_URI="git://example.com/repo;branch=master"
             """
             f = self.write_recipe(textwrap.dedent(r), tempdir)
             d = tinfoil.parse_recipe_file(f)
