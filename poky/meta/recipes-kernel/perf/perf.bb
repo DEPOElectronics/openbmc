@@ -48,7 +48,7 @@ PROVIDES = "virtual/perf"
 inherit linux-kernel-base kernel-arch manpages
 
 # needed for building the tools/perf Python bindings
-inherit ${@bb.utils.contains('PACKAGECONFIG', 'scripting', 'python3targetconfig', '', d)}
+inherit ${@bb.utils.contains('PACKAGECONFIG', 'scripting', 'python3targetconfig setuptools3', '', d)}
 inherit python3-dir
 export PYTHON_SITEPACKAGES_DIR
 
@@ -145,6 +145,9 @@ do_install() {
 	# we are checking for this make target to be compatible with older perf versions
 	if ${@bb.utils.contains('PACKAGECONFIG', 'scripting', 'true', 'false', d)} && grep -q install-python_ext ${S}/tools/perf/Makefile*; then
 	    oe_runmake DESTDIR=${D} install-python_ext
+	    if [ -e ${D}${libdir}/python*/site-packages/perf-*/SOURCES.txt ]; then
+		sed -i -e 's#${WORKDIR}##g' ${D}${libdir}/python*/site-packages/perf-*/SOURCES.txt
+	    fi
 	fi
 }
 
@@ -244,6 +247,9 @@ do_configure:prepend () {
         # reproducible. We really only need the relative location 'tools/perf', so we
         # change the Makefile line to remove everything before 'tools/perf'
         sed -i -e "s%srcdir_SQ = \$(subst ','\\\'',\$(srcdir))%srcdir_SQ = \$(patsubst \%tools/perf,tools/perf,\$(subst ','\\\'',\$(srcdir)))%g" \
+            ${S}/tools/perf/Makefile.config
+        # Avoid hardcoded path to python-native
+        sed -i -e 's#\(PYTHON_WORD := \)$(call shell-wordify,$(PYTHON))#\1 python3#g' \
             ${S}/tools/perf/Makefile.config
     fi
     if [ -e "${S}/tools/perf/tests/Build" ]; then
