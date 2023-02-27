@@ -1,3 +1,5 @@
+.. SPDX-License-Identifier: CC-BY-SA-2.0-UK
+
 Release notes for 3.4.2 (honister)
 ----------------------------------
 
@@ -15,7 +17,7 @@ Security Fixes in 3.4.2
 -  libsndfile1: fix :cve:`2021-4156`
 -  xserver-xorg: whitelist two CVEs
 -  grub2: fix :cve:`2021-3981`
--  xserver-xorg: update CVE_PRODUCT
+-  xserver-xorg: update :term:`CVE_PRODUCT`
 -  binutils: :cve:`2021-42574`
 -  gcc: Fix :cve:`2021-42574`
 -  gcc: Fix :cve:`2021-35465`
@@ -38,7 +40,7 @@ Fixes in 3.4.2
 -  vim: upgrade to patch 4269
 -  vim: update to include latest CVE fixes
 -  expat: upgrade to 2.4.4
--  libusb1: correct SRC_URI
+-  libusb1: correct :term:`SRC_URI`
 -  yocto-check-layer: add debug output for the layers that were found
 -  linux-firmware: Add CLM blob to linux-firmware-bcm4373 package
 -  linux-yocto/5.10: update to v5.10.93
@@ -49,7 +51,7 @@ Fixes in 3.4.2
 -  kernel: introduce python3-dtschema-wrapper
 -  vim: upgrade to 8.2 patch 3752
 -  bootchart2: Add missing python3-math dependency
--  socat: update SRC_URI
+-  socat: update :term:`SRC_URI`
 -  pigz: fix one failure of command "unpigz -l"
 -  linux-yocto/5.14: update genericx86* machines to v5.14.21
 -  linux-yocto/5.10: update genericx86* machines to v5.10.87
@@ -69,7 +71,7 @@ Fixes in 3.4.2
 -  rpm: remove tmp folder created during install
 -  package_manager: ipk: Fix host manifest generation
 -  bitbake: utils: Update to use exec_module() instead of load_module()
--  linux-yocto: add libmpc-native to DEPENDS
+-  linux-yocto: add libmpc-native to :term:`DEPENDS`
 -  ref-manual: fix patch documentation
 -  bitbake: tests/fetch: Drop gnu urls from wget connectivity test
 -  bitbake: fetch: npm: Use temporary file for empty user config
@@ -112,7 +114,7 @@ Fixes in 3.4.2
 -  classes/crate-fetch: Ensure crate fetcher is available
 -  rootfs-postcommands: update systemd_create_users
 -  classes/meson: Add optional rust definitions
--  rust-cross: Replace TARGET_ARCH with TUNE_PKGARCH
+-  rust-cross: Replace :term:`TARGET_ARCH` with :term:`TUNE_PKGARCH`
 -  maintainers.inc: fix up rust-cross entry
 -  rust-cross: Fix directory not deleted for race glibc vs. musl
 -  wic: use shutil.which
@@ -174,9 +176,9 @@ Repositories / Downloads for 3.4.2
 
 poky
 
--  Repository Location: https://git.yoctoproject.org/poky/
+-  Repository Location: :yocto_git:`/poky`
 -  Branch: :yocto_git:`honister </poky/log/?h=honister>`
--  Tag: `yocto-3.4.2 <https://git.yoctoproject.org/poky/tag/?h=yocto-3.4.2>`__
+-  Tag: :yocto_git:`yocto-3.4.2 </poky/tag/?h=yocto-3.4.2>`
 -  Git Revision: :yocto_git:`e0ab08bb6a32916b457d221021e7f402ffa36b1a </poky/commit/?id=e0ab08bb6a32916b457d221021e7f402ffa36b1a>`
 -  Release Artefact: poky-e0ab08bb6a32916b457d221021e7f402ffa36b1a
 -  sha: 8580dc5067ee426fe347a0d0f7a74c29ba539120bbe8438332339a9c8bce00fd
@@ -198,7 +200,7 @@ openembedded-core
 
 meta-mingw
 
--  Repository Location: https://git.yoctoproject.org/meta-mingw
+-  Repository Location: :yocto_git:`meta-mingw`
 -  Branch: :yocto_git:`honister </meta-mingw/log/?h=honister>`
 -  Tag: :yocto_git:`yocto-3.4.2 </meta-mingw/tag/?h=yocto-3.4.2>`
 -  Git Revision: :yocto_git:`f5d761cbd5c957e4405c5d40b0c236d263c916a8 </meta-mingw/commit/?id=f5d761cbd5c957e4405c5d40b0c236d263c916a8>`
@@ -210,7 +212,7 @@ meta-mingw
 
 meta-gplv2
 
--  Repository Location: https://git.yoctoproject.org/meta-gplv2
+-  Repository Location: :yocto_git:`/meta-gplv2`
 -  Branch: :yocto_git:`honister </meta-gplv2/log/?h=honister>`
 -  Tag: :yocto_git:`yocto-3.4.2 </meta-gplv2/tag/?h=yocto-3.4.2>`
 -  Git Revision: :yocto_git:`f04e4369bf9dd3385165281b9fa2ed1043b0e400 </meta-gplv2/commit/?id=f04e4369bf9dd3385165281b9fa2ed1043b0e400>`
@@ -234,7 +236,7 @@ bitbake
 
 yocto-docs
 
--  Repository Location: https://git.yoctoproject.org/yocto-docs
+-  Repository Location: :yocto_git:`/yocto-docs`
 -  Branch: :yocto_git:`honister </yocto-docs/log/?h=honister>`
 -  Tag: :yocto_git:`yocto-3.4.2 </yocto-docs/tag/?h=yocto-3.4.2>`
 -  Git Revision: :yocto_git:`3061d3d62054a5c3b9e16bfce4bcd186fa7a23d2` </yocto-docs/commit/?3061d3d62054a5c3b9e16bfce4bcd186fa7a23d2>`

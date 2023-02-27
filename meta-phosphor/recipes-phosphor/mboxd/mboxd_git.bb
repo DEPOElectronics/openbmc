@@ -6,7 +6,7 @@ DEPENDS += "autoconf-archive-native"
 DEPENDS += "systemd"
 DEPENDS += "phosphor-logging"
 PROVIDES += "mboxctl"
-SRCREV = "a75dcde3638fde9173619e4d8f6cc8114247fbfb"
+SRCREV = "6a51e5f429c4d26545c8facaf95641a59459bf38"
 # Enable virtual-pnor by DISTRO_FEATURE openpower-virtual-pnor.
 PACKAGECONFIG:append:df-openpower-virtual-pnor = " virtual-pnor"
 PACKAGECONFIG[virtual-pnor] = "--enable-virtual-pnor,--disable-virtual-pnor"

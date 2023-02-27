@@ -10,6 +10,7 @@ LIC_FILES_CHKSUM = "\
 
 SRC_URI = " \
         git://git.libcamera.org/libcamera/libcamera.git;protocol=https;branch=master \
+        file://0001-file_sink.cpp-Avoid-dangling-reference.patch \
 "
 
 SRCREV = "a83aed77df1258e469c0eb42d9cb4f1938db53f2"
@@ -64,3 +65,8 @@ do_recalculate_ipa_signatures_package() {
 
 FILES:${PN} += " ${libdir}/v4l2-compat.so"
 FILES:${PN}-gst = "${libdir}/gstreamer-1.0"
+
+# libcamera-v4l2 explicitly sets _FILE_OFFSET_BITS=32 to get access to
+# both 32 and 64 bit file APIs.
+GLIBC_64BIT_TIME_FLAGS = ""
+

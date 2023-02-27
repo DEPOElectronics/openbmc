@@ -10,7 +10,7 @@ from oeqa.core.decorator import OETestTag
 import os
 import tempfile
 import oe.lsb
-from oeqa.core.decorator.data import skipIfNotQemu
+from oeqa.core.decorator.data import skipIfNotQemu, skipIfNotMachine
 
 class TestExport(OESelftestTestCase):
 
@@ -202,6 +202,8 @@ class TestImage(OESelftestTestCase):
         bitbake('core-image-full-cmdline socat')
         bitbake('-c testimage core-image-full-cmdline')
 
+    # https://bugzilla.yoctoproject.org/show_bug.cgi?id=14966
+    @skipIfNotMachine("qemux86-64", "test needs qemux86-64")
     def test_testimage_virgl_gtk_sdl(self):
         """
         Summary: Check host-assisted accelerate OpenGL functionality in qemu with gtk and SDL frontends
@@ -243,6 +245,7 @@ class TestImage(OESelftestTestCase):
         bitbake('core-image-minimal')
         bitbake('-c testimage core-image-minimal')
 
+    @skipIfNotMachine("qemux86-64", "test needs qemux86-64")
     def test_testimage_virgl_headless(self):
         """
         Summary: Check host-assisted accelerate OpenGL functionality in qemu with egl-headless frontend
@@ -265,7 +268,7 @@ class TestImage(OESelftestTestCase):
         except FileNotFoundError:
             self.fail("/dev/dri directory does not exist; no render nodes available on this machine. %s" %(render_hint))
         try:
-            dripath = subprocess.check_output("pkg-config --variable=dridriverdir dri", shell=True)
+            dripath = subprocess.check_output("PATH=/bin:/usr/bin:$PATH pkg-config --variable=dridriverdir dri", shell=True)
         except subprocess.CalledProcessError as e:
             self.fail("Could not determine the path to dri drivers on the host via pkg-config.\nPlease install Mesa development files (particularly, dri.pc) on the host machine.")
         qemu_distrofeatures = get_bb_var('DISTRO_FEATURES', 'qemu-system-native')

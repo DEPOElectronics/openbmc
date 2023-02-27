@@ -13,6 +13,7 @@ LIC_FILES_CHKSUM = "file://COPYING;md5=6423dcd74d7be9715b0db247fd889da3 \
 SRC_URI = "https://dbus.freedesktop.org/releases/dbus/dbus-${PV}.tar.xz \
            file://run-ptest \
            file://tmpdir.patch \
+           file://0001-Define-_DBUS_ALIGNOF-using-_Alignof-when-using-C11-o.patch \
            file://dbus-1.init \
 "
 
@@ -183,3 +184,5 @@ do_install:class-nativesdk() {
 	rm -rf ${D}${localstatedir}/run
 }
 BBCLASSEXTEND = "native nativesdk"
+
+CVE_PRODUCT += "d-bus_project:d-bus"

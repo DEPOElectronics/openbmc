@@ -11,7 +11,7 @@ DEPENDS = " \
         sdbusplus \
         sdeventplus \
         "
-SRCREV = "6f45ce04b88117364e7452fae92565993a70df02"
+SRCREV = "16b6c358a3bcdc98c9f9412a9f72785929a26cc0"
 PACKAGECONFIG ??= "bmcweb-cert nslcd-authority-cert"
 PACKAGECONFIG[ibm-hypervisor-cert] = "-Dca-cert-extension=enabled,-Dca-cert-extension=disabled"
 PACKAGECONFIG[bmcweb-cert] = "-Dconfig-bmcweb=enabled,-Dconfig-bmcweb=disabled"

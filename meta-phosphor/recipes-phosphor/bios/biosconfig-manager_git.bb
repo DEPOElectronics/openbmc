@@ -13,14 +13,13 @@ DEPENDS = " boost \
             sdbusplus \
             systemd \
             nlohmann-json "
-SRCREV = "36cd3238d75c5f3479a944a2f1a9a3abc316120a"
+SRCREV = "f0452a0a57f03e24fbf47bcbd58074af668cd0be"
 PV = "1.0+git${SRCPV}"
 PR = "r1"
 
 SRC_URI = "git://github.com/openbmc/bios-settings-mgr;branch=master;protocol=https"
 
 S = "${WORKDIR}/git"
-SYSTEMD_SERVICE:${PN} = "xyz.openbmc_project.biosconfig_manager.service \
-                         xyz.openbmc_project.biosconfig_password.service"
+SYSTEMD_SERVICE:${PN} = "xyz.openbmc_project.biosconfig_manager.service"
 
 inherit meson pkgconfig systemd

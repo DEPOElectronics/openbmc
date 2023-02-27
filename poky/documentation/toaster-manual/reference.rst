@@ -28,8 +28,7 @@ at :oe_layerindex:`/`. You can find the code for this
 layer index's web application at :yocto_git:`/layerindex-web/`.
 
 When you tie a layer source into Toaster, it can query the layer source
-through a
-`REST <https://en.wikipedia.org/wiki/Representational_state_transfer>`__
+through a :wikipedia:`REST <Representational_state_transfer>`
 API, store the information about the layers in the Toaster database, and
 then show the information to users. Users are then able to view that
 information and build layers from Toaster itself without having to
@@ -66,7 +65,7 @@ layers.
 For general information on layers, see the
 ":ref:`overview-manual/yp-intro:the yocto project layer model`"
 section in the Yocto Project Overview and Concepts Manual. For information on how
-to create layers, see the ":ref:`dev-manual/common-tasks:understanding and creating layers`"
+to create layers, see the ":ref:`dev-manual/layers:understanding and creating layers`"
 section in the Yocto Project Development Tasks Manual.
 
 Configuring Toaster to Hook Into Your Layer Index
@@ -189,17 +188,17 @@ The ``bldcontrol/management/commands/checksettings.py`` file controls
 workflow configuration. Here is the process to
 initially populate this database.
 
-1. The default project settings are set from
+#. The default project settings are set from
    ``orm/fixtures/settings.xml``.
 
-2. The default project distro and layers are added from
+#. The default project distro and layers are added from
    ``orm/fixtures/poky.xml`` if poky is installed. If poky is not
    installed, they are added from ``orm/fixtures/oe-core.xml``.
 
-3. If the ``orm/fixtures/custom.xml`` file exists, then its values are
+#. If the ``orm/fixtures/custom.xml`` file exists, then its values are
    added.
 
-4. The layer index is then scanned and added to the database.
+#. The layer index is then scanned and added to the database.
 
 Once these steps complete, Toaster is set up and ready to use.
 
@@ -369,8 +368,8 @@ Remote Toaster Monitoring
 Toaster has an API that allows remote management applications to
 directly query the state of the Toaster server and its builds in a
 machine-to-machine manner. This API uses the
-`REST <https://en.wikipedia.org/wiki/Representational_state_transfer>`__
-interface and the transfer of JSON files. For example, you might monitor
+:wikipedia:`REST <Representational_state_transfer>` interface and the
+transfer of JSON files. For example, you might monitor
 a build inside a container through well supported known HTTP ports in
 order to easily access a Toaster server inside the container. In this
 example, when you use this direct JSON API, you avoid having web page

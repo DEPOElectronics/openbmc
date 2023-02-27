@@ -29,7 +29,7 @@
 WARN_QA ?= " libdir xorg-driver-abi buildpaths \
             textrel incompatible-license files-invalid \
             infodir build-deps src-uri-bad symlink-to-sysroot multilib \
-            invalid-packageconfig host-user-contaminated uppercase-pn patch-fuzz \
+            invalid-packageconfig host-user-contaminated uppercase-pn \
             mime mime-xdg unlisted-pkg-lics unhandled-features-check \
             missing-update-alternatives native-last missing-ptest \
             license-exists license-no-generic license-syntax license-format \
@@ -44,6 +44,7 @@ ERROR_QA ?= "dev-so debug-deps dev-deps debug-files arch pkgconfig la \
             already-stripped installed-vs-shipped ldflags compile-host-path \
             install-host-path pn-overrides unknown-configure-option \
             useless-rpaths rpaths staticdev empty-dirs \
+            patch-fuzz patch-status-core\
             "
 # Add usrmerge QA check based on distro feature
 ERROR_QA:append = "${@bb.utils.contains('DISTRO_FEATURES', 'usrmerge', ' usrmerge', '', d)}"
@@ -505,6 +506,134 @@ def package_qa_check_symlink_to_sysroot(path, name, d, elf, messages):
             if target.startswith(tmpdir):
                 trimmed = path.replace(os.path.join (d.getVar("PKGDEST"), name), "")
                 oe.qa.add_message(messages, "symlink-to-sysroot", "Symlink %s in %s points to TMPDIR" % (trimmed, name))
+
+QAPATHTEST[32bit-time] = "check_32bit_symbols"
+def check_32bit_symbols(path, packagename, d, elf, messages):
+    """
+    Check that ELF files do not use any 32 bit time APIs from glibc.
+    """
+    import re
+    # This list is manually constructed by searching the image folder of the
+    # glibc recipe for __USE_TIME_BITS64.  There is no good way to do this
+    # automatically.
+    api32 = {
+        # /usr/include/time.h
+        "clock_getres", "clock_gettime", "clock_nanosleep", "clock_settime",
+        "ctime", "ctime_r", "difftime", "gmtime", "gmtime_r", "localtime",
+        "localtime_r", "mktime", "nanosleep", "time", "timegm", "timelocal",
+        "timer_gettime", "timer_settime", "timespec_get", "timespec_getres",
+        # /usr/include/bits/time.h
+        "clock_adjtime",
+        # /usr/include/signal.h
+        "sigtimedwait",
+        # /usr/include/sys/time.h
+        "futimes", "futimesat", "getitimer", "gettimeofday", "lutimes",
+        "setitimer", "settimeofday", "utimes",
+        # /usr/include/sys/timex.h
+        "adjtimex", "ntp_adjtime", "ntp_gettime", "ntp_gettimex",
+        # /usr/include/sys/wait.h
+        "wait3", "wait4",
+        # /usr/include/sys/stat.h
+        "fstat", "fstat64", "fstatat", "fstatat64", "futimens", "lstat",
+        "lstat64", "stat", "stat64", "utimensat",
+        # /usr/include/sys/poll.h
+        "ppoll",
+        # /usr/include/sys/resource.h
+        "getrusage",
+        # /usr/include/sys/ioctl.h
+        "ioctl",
+        # /usr/include/sys/select.h
+        "select", "pselect",
+        # /usr/include/sys/prctl.h
+        "prctl",
+        # /usr/include/sys/epoll.h
+        "epoll_pwait2",
+        # /usr/include/sys/timerfd.h
+        "timerfd_gettime", "timerfd_settime",
+        # /usr/include/sys/socket.h
+        "getsockopt", "recvmmsg", "recvmsg", "sendmmsg", "sendmsg",
+        "setsockopt",
+        # /usr/include/sys/msg.h
+        "msgctl",
+        # /usr/include/sys/sem.h
+        "semctl", "semtimedop",
+        # /usr/include/sys/shm.h
+        "shmctl",
+        # /usr/include/pthread.h
+        "pthread_clockjoin_np", "pthread_cond_clockwait",
+        "pthread_cond_timedwait", "pthread_mutex_clocklock",
+        "pthread_mutex_timedlock", "pthread_rwlock_clockrdlock",
+        "pthread_rwlock_clockwrlock", "pthread_rwlock_timedrdlock",
+        "pthread_rwlock_timedwrlock", "pthread_timedjoin_np",
+        # /usr/include/semaphore.h
+        "sem_clockwait", "sem_timedwait",
+        # /usr/include/threads.h
+        "cnd_timedwait", "mtx_timedlock", "thrd_sleep",
+        # /usr/include/aio.h
+        "aio_cancel", "aio_error", "aio_read", "aio_return", "aio_suspend",
+        "aio_write", "lio_listio",
+        # /usr/include/mqueue.h
+        "mq_timedreceive", "mq_timedsend",
+        # /usr/include/glob.h
+        "glob", "glob64", "globfree", "globfree64",
+        # /usr/include/sched.h
+        "sched_rr_get_interval",
+        # /usr/include/fcntl.h
+        "fcntl", "fcntl64",
+        # /usr/include/utime.h
+        "utime",
+        # /usr/include/ftw.h
+        "ftw", "ftw64", "nftw", "nftw64",
+        # /usr/include/fts.h
+        "fts64_children", "fts64_close", "fts64_open", "fts64_read",
+        "fts64_set", "fts_children", "fts_close", "fts_open", "fts_read",
+        "fts_set",
+        # /usr/include/netdb.h
+        "gai_suspend",
+    }
+
+    ptrn = re.compile(
+        r'''
+        (?P<value>[\da-fA-F]+) \s+
+        (?P<flags>[lgu! ][w ][C ][W ][Ii ][dD ]F) \s+
+        (?P<section>\*UND\*) \s+
+        (?P<alignment>(?P<size>[\da-fA-F]+)) \s+
+        (?P<symbol>
+        ''' +
+        r'(?P<notag>' + r'|'.join(sorted(api32)) + r')' +
+        r'''
+        (@+(?P<tag>GLIBC_\d+\.\d+\S*)))
+        ''', re.VERBOSE
+    )
+
+    # elf is a oe.qa.ELFFile object
+    if elf is not None:
+        phdrs = elf.run_objdump("-tw", d)
+        syms = re.finditer(ptrn, phdrs)
+        usedapis = {sym.group('notag') for sym in syms}
+        if usedapis:
+            elfpath = package_qa_clean_path(path, d, packagename)
+            # Remove any .debug dir, heuristic that probably works
+            # At this point, any symbol information is stripped into the debug
+            # package, so that is the only place we will find them.
+            elfpath = elfpath.replace('.debug/', '')
+            allowed = (
+                d.getVarFlag(
+                    'INSANE_SKIP:' + d.getVar('PN'), elfpath.replace('/', '_')
+                ) or ''
+            ).split()
+            usedapis -= set(allowed)
+            if usedapis:
+                msgformat = elfpath + " uses 32-bit api '%s'"
+                for sym in usedapis:
+                    oe.qa.add_message(messages, '32bit-time', msgformat % sym)
+                oe.qa.add_message(
+                    messages, '32bit-time',
+                    'Suppress with INSANE_SKIP:%s[%s] = "%s"' % (
+                        d.getVar('PN'), elfpath.replace('/', '_'),
+                        ' '.join(usedapis)
+                    )
+                )
 
 # Check license variables
 do_populate_lic[postfuncs] += "populate_lic_qa_checksum"
@@ -1206,24 +1335,27 @@ python do_qa_patch() {
             msg += "    devtool modify %s\n" % d.getVar('PN')
             msg += "    devtool finish --force-patch-refresh %s <layer_path>\n\n" % d.getVar('PN')
             msg += "Don't forget to review changes done by devtool!\n"
-            if bb.utils.filter('ERROR_QA', 'patch-fuzz', d):
-                bb.error(msg)
-            elif bb.utils.filter('WARN_QA', 'patch-fuzz', d):
-                bb.warn(msg)
-            msg = "Patch log indicates that patches do not apply cleanly."
+            msg += "\nPatch log indicates that patches do not apply cleanly."
             oe.qa.handle_error("patch-fuzz", msg, d)
 
     # Check if the patch contains a correctly formatted and spelled Upstream-Status
     import re
     from oe import patch
 
+    allpatches = False
+    if bb.utils.filter('ERROR_QA', 'patch-status-noncore', d) or bb.utils.filter('WARN_QA', 'patch-status-noncore', d):
+        allpatches = True
+
     coremeta_path = os.path.join(d.getVar('COREBASE'), 'meta', '')
     for url in patch.src_patches(d):
        (_, _, fullpath, _, _, _) = bb.fetch.decodeurl(url)
 
        # skip patches not in oe-core
+       patchtype = "patch-status-core"
        if not os.path.abspath(fullpath).startswith(coremeta_path):
-           continue
+           patchtype = "patch-status-noncore"
+           if not allpatches:
+               continue
 
        kinda_status_re = re.compile(r"^.*upstream.*status.*$", re.IGNORECASE | re.MULTILINE)
        strict_status_re = re.compile(r"^Upstream-Status: (Pending|Submitted|Denied|Accepted|Inappropriate|Backport|Inactive-Upstream)( .+)?$", re.MULTILINE)
@@ -1236,9 +1368,13 @@ python do_qa_patch() {
 
            if not match_strict:
                if match_kinda:
-                   bb.error("Malformed Upstream-Status in patch\n%s\nPlease correct according to %s :\n%s" % (fullpath, guidelines, match_kinda.group(0)))
+                   msg = "Malformed Upstream-Status in patch\n%s\nPlease correct according to %s :\n%s" % (fullpath, guidelines, match_kinda.group(0))
+                   oe.qa.handle_error(patchtype, msg, d)
                else:
-                   bb.error("Missing Upstream-Status in patch\n%s\nPlease add according to %s ." % (fullpath, guidelines))
+                   msg = "Missing Upstream-Status in patch\n%s\nPlease add according to %s ." % (fullpath, guidelines)
+                   oe.qa.handle_error(patchtype, msg, d)
+
+    oe.qa.exit_if_errors(d)
 }
 
 python do_qa_configure() {
@@ -1346,7 +1482,7 @@ def unpack_check_src_uri(pn, d):
 
     for url in d.getVar("SRC_URI").split():
         # Search for github and gitlab URLs that pull unstable archives (comment for future greppers)
-        if re.search(r"git(hu|la)b\.com/.+/.+/archive/.+", url):
+        if re.search(r"git(hu|la)b\.com/.+/.+/archive/.+", url) or "//codeload.github.com/" in url:
             oe.qa.handle_error("src-uri-bad", "%s: SRC_URI uses unstable GitHub/GitLab archives, convert recipe to use git protocol" % pn, d)
 
 python do_qa_unpack() {

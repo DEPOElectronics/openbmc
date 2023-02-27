@@ -39,6 +39,7 @@ SRC_URI = "https://sourceware.org/pub/valgrind/valgrind-${PV}.tar.bz2 \
            file://0001-none-tests-fdleak_cmsg.stderr.exp-adjust-tmp-paths.patch \
            file://0001-memcheck-tests-Fix-timerfd-syscall-test.patch \
            file://0001-docs-Disable-manual-validation.patch \
+           file://0001-drd-tests-Include-missing-cstdint.patch \
            "
 SRC_URI[sha256sum] = "8536c031dbe078d342f121fa881a9ecd205cb5a78e639005ad570011bdb9f3c6"
 UPSTREAM_CHECK_REGEX = "valgrind-(?P<pver>\d+(\.\d+)+)\.tar"
@@ -240,6 +241,15 @@ do_install_ptest() {
     # via dwarfsrcfiles either, so it needs to be installed manually.
     mkdir -p ${D}/usr/src/debug/${PN}/${EXTENDPE}${PV}-${PR}/none/tests/
     install ${S}/none/tests/tls.c ${D}/usr/src/debug/${PN}/${EXTENDPE}${PV}-${PR}/none/tests/
+}
+
+do_install_ptest:append:x86-64 () {
+    # https://bugs.kde.org/show_bug.cgi?id=463456
+    rm ${D}${PTEST_PATH}/memcheck/tests/origin6-fp.vgtest
+    # https://bugs.kde.org/show_bug.cgi?id=463458
+    rm ${D}${PTEST_PATH}/memcheck/tests/vcpu_fnfns.vgtest
+    # https://bugs.kde.org/show_bug.cgi?id=463463
+    rm ${D}${PTEST_PATH}/none/tests/amd64/fma.vgtest
 }
 
 # avoid stripping some generated binaries otherwise some of the tests will fail

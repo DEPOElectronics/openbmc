@@ -10,7 +10,7 @@ DEPENDS += " \
         systemd \
         "
 PROVIDES += "virtual/obmc-host-ipmi-hw"
-SRCREV = "bc7bf463229b69bb2346cc66f1e4b9f65f5374bd"
+SRCREV = "314604455606f9baee1e4f5d7fe645d1ebf3c295"
 PV = "1.0+git${SRCPV}"
 PR = "r1"
 

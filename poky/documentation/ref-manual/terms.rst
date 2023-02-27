@@ -21,7 +21,7 @@ universal, the list includes them just in case:
 
       Information in append files extends or overrides the information in the
       similarly-named recipe file. For an example of an append file in use, see
-      the    ":ref:`dev-manual/common-tasks:appending other layers metadata with your layer`"
+      the    ":ref:`dev-manual/layers:appending other layers metadata with your layer`"
       section in the Yocto Project Development Tasks Manual.
 
       When you name an append file, you can use the "``%``" wildcard character
@@ -108,6 +108,24 @@ universal, the list includes them just in case:
       The system used to build images in a Yocto Project Development
       environment. The build system is sometimes referred to as the development
       host.
+
+   :term:`buildtools`
+      Build tools in binary form, providing required versions of development
+      tools (such as Git, GCC, Python and make), to run the OpenEmbedded build
+      system on a development host without such minimum versions.
+
+      See the ":ref:`system-requirements-buildtools`" paragraph in the
+      Reference Manual for details about downloading or building an archive
+      of such tools.
+
+   :term:`buildtools-extended`
+      A set of :term:`buildtools` binaries extended with additional development
+      tools, such as a required version of the GCC compiler to run the
+      OpenEmbedded build system.
+
+   :term:`buildtools-make`
+      A variant of :term:`buildtools`, just providing the required
+      version of ``make`` to run the OpenEmbedded build system.
 
    :term:`Classes`
       Files that provide for logic encapsulation and inheritance so that
@@ -203,7 +221,7 @@ universal, the list includes them just in case:
       ":ref:`overview-manual/yp-intro:The Yocto Project Layer
       Model`" section in the Yocto Project Overview and Concepts Manual. For
       more detailed information on layers, see the
-      ":ref:`dev-manual/common-tasks:Understanding and Creating
+      ":ref:`dev-manual/layers:Understanding and Creating
       Layers`" section in the Yocto Project Development Tasks Manual. For a
       discussion specifically on BSP Layers, see the ":ref:`bsp-guide/bsp:BSP
       Layers`" section in the Yocto Project Board Support Packages (BSP)
@@ -321,6 +339,23 @@ universal, the list includes them just in case:
       :term:`build host<Build Host>` and other components, that can
       work on specific hardware.
 
+   :term:`SBOM`
+      This term means *Software Bill of Materials*. When you distribute
+      software, it offers a description of all the components you used,
+      their corresponding licenses, their dependencies, the changes that were
+      applied and the known vulnerabilities that were fixed.
+
+      This can be used by the recipients of the software to assess
+      their exposure to license compliance and security vulnerability issues.
+
+      See the :wikipedia:`Software Supply Chain <Software_supply_chain>`
+      article on Wikipedia for more details.
+
+      The OpenEmbedded Build System can generate such documentation for your
+      project, in :term:`SPDX` format, based on all the metadata it used to
+      build the software images. See the ":ref:`dev-manual/sbom:creating
+      a software bill of materials`" section of the Development Tasks manual.
+
    :term:`Source Directory`
      This term refers to the directory structure
      created as a result of creating a local copy of the ``poky`` Git
@@ -380,6 +415,17 @@ universal, the list includes them just in case:
      branches, and tags, see the
      ":ref:`overview-manual/development-environment:repositories, tags, and branches`"
      section in the Yocto Project Overview and Concepts Manual.
+
+   :term:`SPDX`
+      This term means *Software Package Data Exchange*, and is used as a open
+      standard for providing a *Software Bill of Materials* (:term:`SBOM`).
+      This standard is developed through a `Linux Foundation project
+      <https://spdx.dev/>`__ and is used by the OpenEmbedded Build System to
+      provide an :term:`SBOM` associated to each a software image.
+
+      For details, see Wikipedia's :wikipedia:`SPDX page <Software_Package_Data_Exchange>`
+      and the ":ref:`dev-manual/sbom:creating a software bill of materials`"
+      section of the Development Tasks manual.
 
    :term:`Sysroot`
       When cross-compiling, the target file system may be differently laid

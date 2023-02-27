@@ -4,7 +4,6 @@ DEPENDS = " \
     openssl \
     zlib \
     boost \
-    boost-url \
     libpam \
     sdbusplus \
     gtest \
@@ -13,10 +12,10 @@ DEPENDS = " \
     ${@bb.utils.contains('PTEST_ENABLED', '1', 'gtest', '', d)} \
     ${@bb.utils.contains('PTEST_ENABLED', '1', 'gmock', '', d)} \
 "
-SRCREV = "32d9a653b253e963eab9c9d49a377d4d48e9ea8a"
+SRCREV = "03457a9c803cfd000093ba842a38876e384c7452"
 PV = "1.0+git${SRCPV}"
 
-SRC_URI = "git://github.com/openbmc/bmcweb.git;branch=master;protocol=https;nobranch=1"
+SRC_URI = "git://github.com/openbmc/bmcweb.git;branch=master;protocol=https"
 SRC_URI += " \
     file://run-ptest \
 "
@@ -31,7 +30,6 @@ inherit pkgconfig meson ptest
 EXTRA_OEMESON = " \
     --buildtype=minsize \
     -Dtests=${@bb.utils.contains('PTEST_ENABLED', '1', 'enabled', 'disabled', d)} \
-    -Dyocto-deps=enabled \
 "
 
 do_install_ptest() {

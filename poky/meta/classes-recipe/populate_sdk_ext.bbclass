@@ -120,7 +120,7 @@ python write_host_sdk_ext_manifest () {
                 f.write("%s %s %s\n" % (info[1], info[2], info[3]))
 }
 
-SDK_POSTPROCESS_COMMAND:append:task-populate-sdk-ext = "write_target_sdk_ext_manifest; write_host_sdk_ext_manifest; "    
+SDK_POSTPROCESS_COMMAND:append:task-populate-sdk-ext = " write_target_sdk_ext_manifest; write_host_sdk_ext_manifest; "    
 
 SDK_TITLE:task-populate-sdk-ext = "${@d.getVar('DISTRO_NAME') or d.getVar('DISTRO')} Extensible SDK"
 
@@ -233,7 +233,7 @@ python copy_buildsystem () {
 
     # Write out config file for devtool
     import configparser
-    config = configparser.SafeConfigParser()
+    config = configparser.ConfigParser()
     config.add_section('General')
     config.set('General', 'bitbake_subdir', conf_bbpath)
     config.set('General', 'init_path', conf_initpath)
@@ -255,7 +255,7 @@ python copy_buildsystem () {
     bbpath = d.getVar('BBPATH')
     env = os.environ.copy()
     env['PYTHONDONTWRITEBYTECODE'] = '1'
-    bb.process.run(['devtool', '--bbpath', bbpath, '--basepath', baseoutpath, 'create-workspace', '--create-only', os.path.join(baseoutpath, 'workspace')], env=env)
+    bb.process.run(['devtool', '--bbpath', bbpath, '--basepath', baseoutpath, 'create-workspace', '--layerseries', d.getVar("LAYERSERIES_CORENAMES"), '--create-only', os.path.join(baseoutpath, 'workspace')], env=env)
 
     # Create bblayers.conf
     bb.utils.mkdirhier(baseoutpath + '/conf')
@@ -497,7 +497,6 @@ python copy_buildsystem () {
         create_filtered_tasklist(d, baseoutpath, tasklistfn, conf_initpath)
     else:
         tasklistfn = None
-
 
     cachedir = os.path.join(baseoutpath, 'cache')
     bb.utils.mkdirhier(cachedir)

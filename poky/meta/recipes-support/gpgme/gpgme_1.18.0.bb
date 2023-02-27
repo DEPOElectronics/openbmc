@@ -21,22 +21,19 @@ SRC_URI = "${GNUPG_MIRROR}/gpgme/${BP}.tar.bz2 \
            file://0007-python-Add-variables-to-tests.patch \
            file://0008-do-not-auto-check-var-PYTHON.patch \
            file://0001-use-closefrom-on-linux-and-glibc-2.34.patch \
+           file://0001-posix-io.c-Use-off_t-instead-of-off64_t.patch \
            "
 
 SRC_URI[sha256sum] = "361d4eae47ce925dba0ea569af40e7b52c645c4ae2e65e5621bf1b6cdd8b0e9e"
 
-DEPENDS = "libgpg-error libassuan"
+PYTHON_DEPS = "${@bb.utils.contains('LANGUAGES', 'python', 'swig-native', '', d)}"
+
+DEPENDS = "libgpg-error libassuan ${PYTHON_DEPS}"
 RDEPENDS:${PN}-cpp += "libstdc++"
 
-RDEPENDS:python2-gpg += "python-unixadmin"
 RDEPENDS:python3-gpg += "python3-unixadmin"
 
 BINCONFIG = "${bindir}/gpgme-config"
-
-# Note select python2 or python3, but you can't select both at the same time
-PACKAGECONFIG ??= "python3"
-PACKAGECONFIG[python2] = ",,python swig-native,"
-PACKAGECONFIG[python3] = ",,python3 swig-native,"
 
 # Default in configure.ac: "cl cpp python qt"
 # Supported: "cl cpp python python2 python3 qt"
@@ -48,8 +45,7 @@ DEFAULT_LANGUAGES = ""
 DEFAULT_LANGUAGES:class-target = "cpp"
 LANGUAGES ?= "${DEFAULT_LANGUAGES} python"
 
-PYTHON_INHERIT = "${@bb.utils.contains('PACKAGECONFIG', 'python2', 'pythonnative', '', d)}"
-PYTHON_INHERIT .= "${@bb.utils.contains('PACKAGECONFIG', 'python3', 'python3native python3targetconfig', '', d)}"
+PYTHON_INHERIT = "${@bb.utils.contains('LANGUAGES', 'python', 'setuptools3-base', '', d)}"
 
 EXTRA_OECONF += '--enable-languages="${LANGUAGES}" \
                  --disable-gpgconf-test \
@@ -59,18 +55,15 @@ EXTRA_OECONF += '--enable-languages="${LANGUAGES}" \
                  --disable-lang-python-test \
 '
 
-inherit autotools texinfo binconfig-disabled pkgconfig setuptools3-base ${PYTHON_INHERIT} multilib_header
+inherit autotools texinfo binconfig-disabled pkgconfig ${PYTHON_INHERIT} python3native multilib_header
 
 export PKG_CONFIG='pkg-config'
 
 BBCLASSEXTEND = "native nativesdk"
 
-PACKAGES =+ "${PN}-cpp"
-PACKAGES =. "${@bb.utils.contains('PACKAGECONFIG', 'python2', 'python2-gpg ', '', d)}"
-PACKAGES =. "${@bb.utils.contains('PACKAGECONFIG', 'python3', 'python3-gpg ', '', d)}"
+PACKAGES =+ "${PN}-cpp python3-gpg"
 
 FILES:${PN}-cpp = "${libdir}/libgpgmepp.so.*"
-FILES:python2-gpg = "${PYTHON_SITEPACKAGES_DIR}/*"
 FILES:python3-gpg = "${PYTHON_SITEPACKAGES_DIR}/*"
 FILES:${PN}-dev += "${datadir}/common-lisp/source/gpgme/*"
 

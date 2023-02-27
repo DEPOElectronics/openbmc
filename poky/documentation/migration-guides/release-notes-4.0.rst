@@ -1,3 +1,5 @@
+.. SPDX-License-Identifier: CC-BY-SA-2.0-UK
+
 Release notes for 4.0 (kirkstone)
 ---------------------------------
 
@@ -8,9 +10,10 @@ New Features / Enhancements in 4.0
 
 - Linux kernel 5.15, glibc 2.35 and ~300 other recipe upgrades
 
-- Reproducibility: this release fixes the reproducibility issues with ``rust-llvm`` and
-  ``golang``. Recipes in OpenEmbedded-Core are now fully reproducible. Functionality
-  previously in the optional "reproducible" class has been merged into the base class.
+- Reproducibility: this release fixes the reproducibility issues with
+  ``rust-llvm`` and ``golang``. Recipes in OpenEmbedded-Core are now fully
+  reproducible. Functionality previously in the optional "reproducible"
+  class has been merged into the :ref:`ref-classes-base` class.
 
 - Network access is now disabled by default for tasks other than where it is expected to ensure build integrity (where host kernel supports it)
 
@@ -28,11 +31,10 @@ New Features / Enhancements in 4.0
 - The Python package build process is now based on `wheels <https://pythonwheels.com/>`__
   in line with the upstream direction.
 
-- New :ref:`overlayfs <ref-classes-overlayfs>` and
-  :ref:`overlayfs-etc <ref-classes-overlayfs-etc>` classes and
+- New :ref:`ref-classes-overlayfs` and :ref:`ref-classes-overlayfs-etc` classes and
   ``overlayroot`` support in the :term:`Initramfs` framework to make it easier to
   overlay read-only filesystems (for example) with
-  `OverlayFS <https://en.wikipedia.org/wiki/OverlayFS>`__.
+  :wikipedia:`OverlayFS <OverlayFS>`.
 
 - Inclusive language adjustments to some variable names - see the
   :ref:`4.0 migration guide <migration-4.0-inclusive-language>` for details.
@@ -104,7 +106,7 @@ New Features / Enhancements in 4.0
 
 - Shared state (sstate) improvements:
 
-   - Switched to `ZStandard (zstd) <https://en.wikipedia.org/wiki/Zstd>`__ instead
+   - Switched to :wikipedia:`ZStandard (zstd) <Zstd>` instead
      of Gzip, for better performance.
    - Allow validation of sstate signatures against a list of keys
    - Improved error messages and exception handling
@@ -143,7 +145,7 @@ New Features / Enhancements in 4.0
       - qemuarm64: Add tiny ktype to qemuarm64 bsp
       - armv9a/tune: Add the support for the Neoverse N2 core
       - arch-armv8-5a.inc: Add tune include for armv8.5a
-      - grub-efi: Add xen_boot support when 'xen' is in DISTRO_FEATURES for aarch64
+      - grub-efi: Add xen_boot support when 'xen' is in :term:`DISTRO_FEATURES` for aarch64
       - tune-cortexa73: Introduce cortexa73-crypto tune
       - libacpi: Build libacpi also for 'aarch64' machines
       - core-image-tiny-initramfs: Mark recipe as 32 bit ARM compatible
@@ -175,7 +177,7 @@ New Features / Enhancements in 4.0
    - linux-yocto: cfg: add kcov feature fragment
    - linux-yocto: export pkgconfig variables to devshell
    - linux-yocto-dev: use versioned branch as default
-   - New ``KERNEL_DEBUG_TIMESTAMPS`` variable (to replace removed ``BUILD_REPRODUCIBLE_BINARIES`` for the kernel)
+   - New :term:`KERNEL_DEBUG_TIMESTAMPS` variable (to replace removed ``BUILD_REPRODUCIBLE_BINARIES`` for the kernel)
    - Introduce python3-dtschema-wrapper in preparation for mandatory schema checking on dtb files in 5.16
    - Allow disabling kernel artifact symlink creation
    - Allow changing default .bin kernel artifact extension
@@ -215,7 +217,7 @@ New Features / Enhancements in 4.0
    - Ensure addition of patch-fuzz retriggers do_qa_patch
    - Added a sanity check for allarch packagegroups
 
-- create-spdx class improvements:
+- :ref:`ref-classes-create-spdx` class improvements:
 
    - Get SPDX-License-Identifier from source files
    - Generate manifest also for SDKs
@@ -235,8 +237,10 @@ New Features / Enhancements in 4.0
    
 - SDK-related enhancements:
 
-   - Extended recipes to ``nativesdk``: ``cargo``, ``librsvg``, ``libstd-rs``, ``libva``, ``python3-docutil``, ``python3-packaging``
-   - Enabled nativesdk recipes to find a correct version of the rust cross compiler
+   - Extended recipes to :ref:`ref-classes-nativesdk`: ``cargo``,
+     ``librsvg``, ``libstd-rs``, ``libva``, ``python3-docutil``, ``python3-packaging``
+   - Enabled :ref:`ref-classes-nativesdk` recipes to find a correct version
+     of the rust cross compiler
    - Support creating per-toolchain cmake file in SDK
 
 - Rust enhancements:
@@ -289,7 +293,7 @@ New Features / Enhancements in 4.0
 - libxkbcommon: allow building of API documentation
 - libxkbcommon: split libraries and xkbcli into separate packages
 - systemd: move systemd shared library into its own package
-- systemd: Minimize udev package size if DISTRO_FEATURES doen't contain sysvinit
+- systemd: Minimize udev package size if :term:`DISTRO_FEATURES` doen't contain sysvinit
 
 Known Issues in 4.0
 ~~~~~~~~~~~~~~~~~~~
@@ -301,22 +305,22 @@ Known Issues in 4.0
 Recipe License changes in 4.0
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The following corrections have been made to the LICENSE values set by recipes:
+The following corrections have been made to the :term:`LICENSE` values set by recipes:
 
-* cmake: add BSD-1-Clause & MIT & BSD-2-Clause to LICENSE due to additional vendored libraries in native/target context
-* gettext: extend LICENSE conditional upon PACKAGECONFIG (due to vendored libraries)
+* cmake: add BSD-1-Clause & MIT & BSD-2-Clause to :term:`LICENSE` due to additional vendored libraries in native/target context
+* gettext: extend :term:`LICENSE` conditional upon :term:`PACKAGECONFIG` (due to vendored libraries)
 * gstreamer1.0: update licenses of all modules to LGPL-2.1-or-later (with some exceptions that are GPL-2.0-or-later)
 * gstreamer1.0-plugins-bad/ugly: use the GPL-2.0-or-later only when it is in use
 * kern-tools-native: add missing MIT license due to Kconfiglib
-* libcap: add pam_cap license to LIC_FILES_CHKSUM if pam is enabled
+* libcap: add pam_cap license to :term:`LIC_FILES_CHKSUM` if pam is enabled
 * libidn2: add Unicode-DFS-2016 license
-* libsdl2: add BSD-2-Clause to LICENSE due to default yuv2rgb and hidapi inclusion
-* libx11-compose-data: update LICENSE to "MIT & MIT-style & BSD-1-Clause & HPND & HPND-sell-variant" to better reflect reality
-* libx11: update LICENSE to "MIT & MIT-style & BSD-1-Clause & HPND & HPND-sell-variant" to better reflect reality
-* libxshmfence: correct LICENSE - MIT -> HPND
-* newlib: add BSD-3-Clause to LICENSE
-* python3-idna: correct LICENSE - Unicode -> Unicode-TOU
-* python3-pip: add "Apache-2.0 & MPL-2.0 & LGPL-2.1-only & BSD-3-Clause & PSF-2.0 & BSD-2-Clause" to LICENSE due to vendored libraries
+* libsdl2: add BSD-2-Clause to :term:`LICENSE` due to default yuv2rgb and hidapi inclusion
+* libx11-compose-data: update :term:`LICENSE` to "MIT & MIT-style & BSD-1-Clause & HPND & HPND-sell-variant" to better reflect reality
+* libx11: update :term:`LICENSE` to "MIT & MIT-style & BSD-1-Clause & HPND & HPND-sell-variant" to better reflect reality
+* libxshmfence: correct :term:`LICENSE` - MIT -> HPND
+* newlib: add BSD-3-Clause to :term:`LICENSE`
+* python3-idna: correct :term:`LICENSE` - Unicode -> Unicode-TOU
+* python3-pip: add "Apache-2.0 & MPL-2.0 & LGPL-2.1-only & BSD-3-Clause & PSF-2.0 & BSD-2-Clause" to :term:`LICENSE` due to vendored libraries
 
 Other license-related notes:
 
@@ -866,7 +870,7 @@ Repositories / Downloads for 4.0
 
 poky
 
--  Repository Location: https://git.yoctoproject.org/git/poky
+-  Repository Location: :yocto_git:`/poky`
 -  Branch: :yocto_git:`kirkstone </poky/log/?h=kirkstone>`
 -  Tag: :yocto_git:`yocto-4.0 </poky/tag/?h=yocto-4.0>`
 -  Git Revision: :yocto_git:`00cfdde791a0176c134f31e5a09eff725e75b905 </poky/commit/?id=00cfdde791a0176c134f31e5a09eff725e75b905>`
@@ -890,7 +894,7 @@ openembedded-core
 
 meta-mingw
 
--  Repository Location: https://git.yoctoproject.org/git/meta-mingw
+-  Repository Location: :yocto_git:`/meta-mingw`
 -  Branch: :yocto_git:`kirkstone </meta-mingw/log/?h=kirkstone>`
 -  Tag: :yocto_git:`yocto-4.0 </meta-mingw/tag/?h=yocto-4.0>`
 -  Git Revision: :yocto_git:`a90614a6498c3345704e9611f2842eb933dc51c1 </meta-mingw/commit/?id=a90614a6498c3345704e9611f2842eb933dc51c1>`
@@ -902,7 +906,7 @@ meta-mingw
 
 meta-gplv2
 
--  Repository Location: https://git.yoctoproject.org/git/meta-gplv2
+-  Repository Location: :yocto_git:`/meta-gplv2`
 -  Branch: :yocto_git:`kirkstone </meta-gplv2/log/?h=kirkstone>`
 -  Tag: :yocto_git:`yocto-4.0 </meta-gplv2/tag/?h=yocto-4.0>`
 -  Git Revision: :yocto_git:`d2f8b5cdb285b72a4ed93450f6703ca27aa42e8a </meta-mingw/commit/?id=d2f8b5cdb285b72a4ed93450f6703ca27aa42e8a>`
@@ -926,7 +930,7 @@ bitbake
 
 yocto-docs
 
--  Repository Location: https://git.yoctoproject.org/git/yocto-docs
+-  Repository Location: :yocto_git:`/yocto-docs`
 -  Branch: :yocto_git:`kirkstone </yocto-docs/log/?h=kirkstone>`
 -  Tag: :yocto_git:`yocto-4.0 </yocto-docs/tag/?h=yocto-4.0>`
 -  Git Revision: :yocto_git:`a6f571ad5b087385cad8765ed455c4b4eaeebca6 </yocto-docs/commit/?id=a6f571ad5b087385cad8765ed455c4b4eaeebca6>`

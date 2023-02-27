@@ -25,7 +25,7 @@ SUMMARY:${PN}-chassis = "HPE Chassis"
 RDEPENDS:${PN}-chassis = " \
         obmc-phosphor-buttons-signals \
         obmc-phosphor-buttons-handler \
-        obmc-op-control-power \
+        phosphor-skeleton-control-power \
         obmc-host-failure-reboots \
         "
 
@@ -44,4 +44,5 @@ RDEPENDS:${PN}-system = " \
         webui-vue \
         phosphor-ipmi-ipmb \
         dbus-sensors \
+        host-ehci-owner-reset \
         "

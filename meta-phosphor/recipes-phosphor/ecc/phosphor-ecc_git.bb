@@ -6,7 +6,7 @@ DEPENDS += "sdbusplus"
 DEPENDS += "phosphor-dbus-interfaces"
 DEPENDS += "sdeventplus"
 DEPENDS += "phosphor-logging"
-SRCREV = "5c76c6d6a8254301d185e3ffffb08fdb848f29c2"
+SRCREV = "2c4ae241030a1b05c74127877a4cb4525e1475b9"
 PR = "r1"
 
 SRC_URI = "git://github.com/openbmc/phosphor-ecc.git;branch=master;protocol=https"

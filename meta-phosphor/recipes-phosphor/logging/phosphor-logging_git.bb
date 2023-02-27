@@ -15,7 +15,8 @@ DEPENDS += "virtual/phosphor-logging-callouts"
 DEPENDS += "libcereal"
 DEPENDS += "sdeventplus"
 DEPENDS += "packagegroup-obmc-yaml-providers"
-SRCREV = "b0820142ebfbbcd0cf305b19913d90b5cf3d7709"
+DEPENDS += "dbus"
+SRCREV = "bad056be2506caf460fbdc77b30df41e7356f007"
 PACKAGECONFIG ??= ""
 PACKAGECONFIG[openpower-pels] = " \
         -Dopenpower-pel-extension=enabled, \
@@ -48,6 +49,7 @@ FILES:${PN}-base += " \
         ${datadir}/dbus-1 \
         ${bindir}/phosphor-log-manager \
         ${libdir}/libphosphor_logging.so.* \
+        ${datadir}/dbus-1/system-services/xyz.openbmc_project.Logging.service \
 "
 FILES:phosphor-rsyslog-config += " \
         ${bindir}/phosphor-rsyslog-conf \

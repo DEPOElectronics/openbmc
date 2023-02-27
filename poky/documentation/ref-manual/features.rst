@@ -126,10 +126,9 @@ metadata, as extra layers can define their own:
 
 -  *3g:* Include support for cellular data.
 
--  *acl:* Include
-   `Access Control List <https://en.wikipedia.org/wiki/Access-control_list>`__ support.
+-  *acl:* Include :wikipedia:`Access Control List <Access-control_list>` support.
 
--  *alsa:* Include `Advanced Linux Sound Architecture <https://en.wikipedia.org/wiki/Advanced_Linux_Sound_Architecture>`__
+-  *alsa:* Include :wikipedia:`Advanced Linux Sound Architecture <Advanced_Linux_Sound_Architecture>`
    support (OSS compatibility kernel modules installed if available).
 
 -  *api-documentation:* Enables generation of API documentation during
@@ -144,7 +143,7 @@ metadata, as extra layers can define their own:
 -  *cramfs:* Include CramFS support.
 
 -  *debuginfod:* Include support for getting ELF debugging information through
-   a :ref:`debuginfod <dev-manual/common-tasks:using the debuginfod server method>`
+   a :ref:`debuginfod <dev-manual/debugging:using the debuginfod server method>`
    server.
 
 -  *directfb:* Include DirectFB support.
@@ -167,7 +166,7 @@ metadata, as extra layers can define their own:
 -  *multiarch:* Enable building applications with multiple architecture
    support.
 
--  *ld-is-gold:* Use the `gold <https://en.wikipedia.org/wiki/Gold_(linker)>`__
+-  *ld-is-gold:* Use the :wikipedia:`gold <Gold_(linker)>`
    linker instead of the standard GCC linker (bfd).
 
 -  *ldconfig:* Include support for ldconfig and ``ld.so.conf`` on the
@@ -190,31 +189,31 @@ metadata, as extra layers can define their own:
 -  *overlayfs:* Include `OverlayFS <https://docs.kernel.org/filesystems/overlayfs.html>`__
    support.
 
--  *pam:* Include `Pluggable Authentication Module (PAM) <https://en.wikipedia.org/wiki/Pluggable_authentication_module>`__
+-  *pam:* Include :wikipedia:`Pluggable Authentication Module (PAM) <Pluggable_authentication_module>`
    support.
 
 -  *pci:* Include PCI bus support.
 
 -  *pcmcia:* Include PCMCIA/CompactFlash support.
 
--  *polkit:* Include `Polkit <https://en.wikipedia.org/wiki/Polkit>`__ support.
+-  *polkit:* Include :wikipedia:`Polkit <Polkit>` support.
 
 -  *ppp:* Include PPP dialup support.
 
 -  *ptest:* Enables building the package tests where supported by
    individual recipes. For more information on package tests, see the
-   ":ref:`dev-manual/common-tasks:testing packages with ptest`" section
+   ":ref:`dev-manual/packages:testing packages with ptest`" section
    in the Yocto Project Development Tasks Manual.
 
 -  *pulseaudio:* Include support for
    `PulseAudio <https://www.freedesktop.org/wiki/Software/PulseAudio/>`__.
 
 -  *selinux:* Include support for
-   `Security-Enhanced Linux (SELinux) <https://en.wikipedia.org/wiki/Security-Enhanced_Linux>`__
+   :wikipedia:`Security-Enhanced Linux (SELinux) <Security-Enhanced_Linux>`
    (requires `meta-selinux <https://layers.openembedded.org/layerindex/layer/meta-selinux/>`__).
 
 -  *seccomp:* Enables building applications with
-   `seccomp <https://en.wikipedia.org/wiki/Seccomp>`__ support, to
+   :wikipedia:`seccomp <Seccomp>` support, to
    allow them to strictly restrict the system calls that they are allowed
    to invoke.
 
@@ -236,11 +235,10 @@ metadata, as extra layers can define their own:
    directories into their respective counterparts in the ``/usr``
    directory to provide better package and application compatibility.
 
--  *vfat:* Include `FAT filesystem <https://en.wikipedia.org/wiki/File_Allocation_Table>`__
+-  *vfat:* Include :wikipedia:`FAT filesystem <File_Allocation_Table>`
    support.
 
--  *vulkan:* Include support for the
-   `Vulkan API <https://en.wikipedia.org/wiki/Vulkan>`__.
+-  *vulkan:* Include support for the :wikipedia:`Vulkan API <Vulkan>`.
 
 -  *wayland:* Include the Wayland display server protocol and the
    library that supports it.
@@ -250,7 +248,7 @@ metadata, as extra layers can define their own:
 -  *x11:* Include the X server and libraries.
 
 -  *xattr:* Include support for
-   `extended file attributes <https://en.wikipedia.org/wiki/Extended_file_attributes>`__.
+   :wikipedia:`extended file attributes <Extended_file_attributes>`.
 
 -  *zeroconf:* Include support for
    `zero configuration networking <https://en.wikipedia.org/wiki/Zero-configuration_networking>`__.
@@ -327,7 +325,7 @@ Here are the image features available for all images:
 
 -  *read-only-rootfs:* Creates an image whose root filesystem is
    read-only. See the
-   ":ref:`dev-manual/common-tasks:creating a read-only root filesystem`"
+   ":ref:`dev-manual/read-only-rootfs:creating a read-only root filesystem`"
    section in the Yocto Project Development Tasks Manual for more
    information.
 
@@ -360,7 +358,7 @@ Here are the image features available for all images:
    a given image.
 
 Some image features are available only when you inherit the
-:ref:`core-image <ref-classes-core-image>` class. The current list of
+:ref:`ref-classes-core-image` class. The current list of
 these valid features is as follows:
 
 -  *hwcodecs:* Installs hardware acceleration codecs.
@@ -396,7 +394,7 @@ these valid features is as follows:
 
 -  *tools-debug:* Installs debugging tools such as ``strace`` and
    ``gdb``. For information on GDB, see the
-   ":ref:`dev-manual/common-tasks:debugging with the gnu project debugger (gdb) remotely`" section
+   ":ref:`dev-manual/debugging:debugging with the gnu project debugger (gdb) remotely`" section
    in the Yocto Project Development Tasks Manual. For information on
    tracing and profiling, see the :doc:`/profile-manual/index`.
 

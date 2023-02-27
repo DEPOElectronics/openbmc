@@ -82,7 +82,7 @@ the ``part`` and ``partition`` commands:
    source of the data that populates the partition. The most common
    value for this option is "rootfs", but you can use any value that
    maps to a valid source plugin. For information on the source plugins,
-   see the ":ref:`dev-manual/common-tasks:using the wic plugin interface`"
+   see the ":ref:`dev-manual/wic:using the wic plugin interface`"
    section in the Yocto Project Development Tasks Manual.
 
    If you use ``--source rootfs``, Wic creates a partition as large as
@@ -177,7 +177,7 @@ the ``part`` and ``partition`` commands:
 -  ``--part-type``: This option is a Wic-specific option that
    specifies the partition type globally unique identifier (GUID) for
    GPT partitions. You can find the list of partition type GUIDs at
-   https://en.wikipedia.org/wiki/GUID_Partition_Table#Partition_type_GUIDs.
+   :wikipedia:`GUID_Partition_Table#Partition_type_GUIDs`.
 
 -  ``--use-uuid``: This option is a Wic-specific option that causes
    Wic to generate a random GUID for the partition. The generated
