@@ -12,7 +12,7 @@ DEPENDS = " \
     ${@bb.utils.contains('PTEST_ENABLED', '1', 'gtest', '', d)} \
     ${@bb.utils.contains('PTEST_ENABLED', '1', 'gmock', '', d)} \
 "
-SRCREV = "03457a9c803cfd000093ba842a38876e384c7452"
+SRCREV = "0e88cb374b42224753e78ea1a98b349511fbb9e6"
 PV = "1.0+git${SRCPV}"
 
 SRC_URI = "git://github.com/openbmc/bmcweb.git;branch=master;protocol=https"
@@ -49,4 +49,4 @@ USERADD_PACKAGES = "${PN}"
 USERADD_PARAM:${PN} = "-r -s /sbin/nologin bmcweb"
 
 GROUPADD_PARAM:${PN} = "web; redfish"
-FULL_OPTIMIZATION = "-Os "
+FULL_OPTIMIZATION:append = " -Os"
